@@ -403,7 +403,7 @@
                     }
 
                     // Draw note circle and note text, and attach data to them
-                    var circ = self.paper.circle(circX, circY, self.noteCircRad);
+                    var circ = self.paper.circle(circX, circY, self.noteCircRad).attr("fill", "white");
 
                     var stringLetter = self.guitarStringNotes[i];
                     var noteLetter = getNoteLetterByFretNumber(stringLetter, j);
