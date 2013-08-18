@@ -51,7 +51,7 @@
         self.noteSquareWidth = config.noteSquareWidth;
         
         self.paper = paper;
-        self.numStrings = Math.min(guitarStringNotes.length, guitarStringOctaves.length); // TODO: this will change later since the notes and octaves will be together.
+        self.numStrings = Math.min(config.guitarStringNotes.length, config.guitarStringOctaves.length); // TODO: this will change later since the notes and octaves will be together.
         self.notesClickedTracker = [];                      // will hold the fret number, null for not clicked, for each string
         self.notesPlacedTracker = [];                       // same as above, but for notes placed on the fretboard explicitly (instead of clicked)
         self.tuningSquares = [];                            // will hold the squares that show the each string's note letter
