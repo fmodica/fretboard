@@ -1,0 +1,45 @@
+<!doctype html>
+
+<html>
+
+    <head>
+        <title>Test Fretboard Page</title>
+        <meta charset="utf-8" />
+        <script src="jquery-1.9.1.min.js"></script>
+        <script src="raphael-min.js"></script>
+        <script src="fretboard.js"></script>
+    </head>
+
+    <body>
+        <div id="canvas_container" style="width:1200px;height:200px;"></div>
+        <div id="resetButton"><!-- reset button will be created here by Fretboard class --></div>
+        <script type="text/javascript">
+             // Set up the fretboard
+            var fretboardOrigin = [240, 25];  // x and y location of the upper left of the fretboard
+            var numFrets = 15;               // number of guitar frets
+            var fretWidth = 67;              // in pixels
+            var fretHeight = 31;             // in pixels
+            var letterFontSize = fretHeight / 3.5;              // size of notes that appear on the fretboard
+            var noteCircRad = fretHeight / 2.5;               // radius of the circle that shows the notes on the frets
+            var noteSquareWidth = fretHeight / 1.5;           // width/length of the square surrounding the letters that show the tuning
+            
+            // Default strings (note letters), from high to low. Adding more will automatically set up the fretboard correctly,
+            // just make sure to set the guitarStringOctaves array as well.
+            var guitarStringNotes = ["E", "B", "G", "D", "A", "E"];
+            //var guitarStringNotes = ["E", "B", "G", "D", "A", "E", "B"];
+            //var guitarStringNotes = ["E", "B", "G", "D", "A", "E", "B", "F#"];
+
+            // Octaves from high to low. This assumes C4 is middle C, which would be the first fret on the B string.
+            var guitarStringOctaves = [5, 5, 4, 4, 4, 3];
+            //var guitarStringOctaves = [5, 5, 4, 4, 4, 3, 3];
+            //var guitarStringOctaves = [5, 5, 4, 4, 4, 3, 3, 2]; 
+            
+            $('#canvas_container').fretboard({'opacityAnimateSpeed' : 150});
+            var myFretboard= $('#canvas_container').data('fretboard');
+            myFretboard.createResetButton("remove-frets-button", "btn btn-warning", "Unclick Frets", "resetButton");
+            //myFretboard.publicMethod(); // prints "publicMethod() called!" to console
+        
+        </script>
+    </body>
+
+</html>
