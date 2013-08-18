@@ -77,7 +77,7 @@
                         var group = self.stringTracker[i][self.notesClickedTracker[i]];
                         var circ = group[0];
 
-                        group.hover(self.noteMouseOver, self.noteMouseOut); // bind functions 
+                        group.hover(noteMouseOver, noteMouseOut); // bind functions 
                         makeNoteInvisible(group);                
 
                         self.notesClickedTracker[i] = null;
