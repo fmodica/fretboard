@@ -1,27 +1,40 @@
 (function ($) {
     var Fretboard = function (paper, settings) {
-        // private
+        // public
         var self = this;
 
+        // private
+        var ALL_NOTE_LETTERS = ["Ab", "A", "Bb", "B", "C", "C#", "D", "Eb", "E", "F", "F#", "G"];
+        var NOTE_LETTER_VALUE_MAP = { "Ab": 0, "A": 1, "Bb": 2, "B": 3, "C": 4, "C#": 5, "D": 6, "Eb": 7, "E": 8, "F": 9, "F#": 10, "G": 11 };
+        var notesClickedTracker = [];
+        var notesPlacedTracker = [];                       // same as above, but for notes placed on the fretboard explicitly (instead of clicked)
+
         // Default config settings
-        config = {
-            'fretboardOrigin': [80, 15],                            // x and y location of the upper left of the fretboard
-            'numFrets': 15,                                         // in pixels                                    
-            'fretWidth': 67,                                        // in pixels  
-            'fretHeight': 31,                                       // in pixels  
-            'guitarStringNotes': ["E", "B", "G", "D", "A", "E"],    // default strings (note letters), from high to low. Adding more will
-            'guitarStringOctaves': [5, 5, 4, 4, 4, 3],
-            'clickedNoteColor': 'green',
-            'placedNoteColor': 'red',
-            'placedNoteColorOverlap': 'darkred',
-            'tuningTriangleColor': 'green',
-            'fretsToDrawOneCircleOn': [3, 5, 7, 9, 12],
-            'opacityAnimateSpeed': 125
+        var config = {
+            fretboardOrigin : [80, 15],                            // x and y location of the upper left of the fretboard
+            numFrets : 15,                                         // in pixels                                    
+            fretWidth : 67,                                        // in pixels  
+            fretHeight : 31,                                       // in pixels  
+            guitarStringNotes: [                                   // default strings (note letters), from high to low.
+                { "noteLetter" : "E", "noteOctave" : 5 },
+                { "noteLetter": "B", "noteOctave": 5 },
+                { "noteLetter": "G", "noteOctave": 4 },
+                { "noteLetter": "D", "noteOctave": 4 },
+                { "noteLetter": "A", "noteOctave": 4 },
+                { "noteLetter": "E", "noteOctave": 3 },
+            ],
+            clickedNoteColor : 'green',
+            placedNoteColor : 'red',
+            placedNoteColorOverlap : 'darkred',
+            tuningTriangleColor : 'green',
+            fretsToDrawOneCircleOn : [3, 5, 7, 9, 12],
+            opacityAnimateSpeed : 125
         };
 
-        // Extend default config settings
+        // Extend default config settings.
+        // Preserve the original objects (extend/copy properties into a new object)
         if (settings) {
-            $.extend(config, settings);
+            $.extend({}, config, settings); 
         }
 
         // Config options that are calculated
@@ -29,36 +42,29 @@
         config.noteCircRad = config.fretHeight / 2.5;                // radius of the circle that shows the notes on the frets
         config.noteSquareWidth = config.fretHeight / 1.5;            // width/length of the square surrounding the letters that show the tuning
 
-        // copy config options to fretboard properties
-        self.fretboardOrigin = config.fretboardOrigin;
-        self.numFrets = config.numFrets;
-        self.fretWidth = config.fretWidth;
-        self.fretHeight = config.fretHeight;
-        self.guitarStringNotes = config.guitarStringNotes;
-        self.guitarStringOctaves = config.guitarStringOctaves;
-        self.clickedNoteColor = config.clickedNoteColor;
-        self.placedNoteColor = config.placedNoteColor;
-        self.placedNoteColorOverlap = config.placedNoteColorOverlap;
-        self.tuningTriangleColor = config.tuningTriangleColor;
-        self.fretsToDrawOneCircleOn = config.fretsToDrawOneCircleOn;
-        self.opacityAnimateSpeed = config.opacityAnimateSpeed;
-        self.letterFontSize = config.letterFontSize;
-        self.noteCircRad = config.noteCircRad;
-        self.noteSquareWidth = config.noteSquareWidth;
+        // copy config options to fretboard private variables
+        var fretboardOrigin = config.fretboardOrigin;
+        var numFrets = config.numFrets;
+        var fretWidth = config.fretWidth;
+        var fretHeight = config.fretHeight;
+        var guitarStringNotes = config.guitarStringNotes;
+        var clickedNoteColor = config.clickedNoteColor;
+        var placedNoteColor = config.placedNoteColor;
+        var placedNoteColorOverlap = config.placedNoteColorOverlap;
+        var tuningTriangleColor = config.tuningTriangleColor;
+        var fretsToDrawOneCircleOn = config.fretsToDrawOneCircleOn;
+        var opacityAnimateSpeed = config.opacityAnimateSpeed;
+        var letterFontSize = config.letterFontSize;
+        var noteCircRad = config.noteCircRad;
+        var noteSquareWidth = config.noteSquareWidth;
+        var numStrings = guitarStringNotes.length;
+        var tuningSquares = [];                             // will hold the squares that show the each string's note letter
+        var stringTracker = new Array(numStrings);          // a 2-d array that holds each group (circle and text) for each string
 
-        self.paper = paper;
-        self.numStrings = Math.min(config.guitarStringNotes.length, config.guitarStringOctaves.length); // TODO: this will change later since the notes and octaves will be together.
-        self.notesClickedTracker = [];                      // will hold the fret number, null for not clicked, for each string
-        self.notesPlacedTracker = [];                       // same as above, but for notes placed on the fretboard explicitly (instead of clicked)
-        self.tuningSquares = [];                            // will hold the squares that show the each string's note letter
-        self.stringTracker = new Array(self.numStrings);    // a 2-d array that holds each group (circle and text) for each string
-        for (var i = 0; i < self.numStrings; i++) {
-            self.stringTracker[i] = new Array(self.numFrets);
-        }
-
-        self.ALLNOTELETTERS = ["Ab", "A", "Bb", "B", "C", "C#", "D", "Eb", "E", "F", "F#", "G"];
-
-        self.NOTE_LETTER_VALUE_MAP = { "Ab": 0, "A": 1, "Bb": 2, "B": 3, "C": 4, "C#": 5, "D": 6, "Eb": 7, "E": 8, "F": 9, "F#": 10, "G": 11 };
+        for (var i = 0; i < numStrings; i++) {
+            // This will hold the fret number, null for not clicked, for each string
+            stringTracker[i] = new Array(numFrets); 
+        }          
 
         // public methods
         self.createResetButton = function (buttonId, buttonClass, buttonValue, elementOnWhichToAppend) {
@@ -68,15 +74,15 @@
 
             // If clicked, remove the clicked colored circles and bind hover events to those frets
             $('#' + buttonId).click(function () {
-                for (var i = 0; i < self.numStrings; i++) {
-                    if (self.notesClickedTracker[i] != null) {
-                        var group = self.stringTracker[i][self.notesClickedTracker[i]];
+                for (var i = 0; i < numStrings; i++) {
+                    if (notesClickedTracker[i] != null) {
+                        var group = stringTracker[i][notesClickedTracker[i]];
                         var circ = group[0];
 
                         group.hover(noteMouseOver, noteMouseOut); // bind functions 
                         makeNoteInvisible(group);
 
-                        self.notesClickedTracker[i] = null;
+                        notesClickedTracker[i] = null;
                     }
                 }
 
@@ -85,26 +91,52 @@
             });
         }
 
+        self.getGuitarStringNotes = function () {
+            return guitarStringNotes;
+        }
+
+        self.setGuitarStringNotes = function (notes) {
+            guitarStringNotes = notes;
+        }
+
+        self.getClickedNotes = function () {
+            var notes = [];
+            for (var i = 0; i < guitarStringNotes.length; i++) {
+                if (notesClickedTracker[i] !== null) {
+                    var group = stringTracker[i][notesClickedTracker[i]];
+
+                    musicalNote = {
+                        noteLetter: group.noteLetter, //NOTE_LETTER_VALUE_MAP[group.noteLetter],
+                        octave: group.noteOctave
+                    }
+                    
+                    notes.push(musicalNote);
+                }
+            }
+
+            return notes;
+        }
+
         self.placeNoteOnFretboard = function (stringLetter, stringOctave, fretNumber) {
             // Loop over the instrument's strings, comparing note and octave to the string this note is on
             // to find a match. If a match is found, show the note.
-            for (var i = 0; i < self.guitarStringNotes.length; i++) {
-                if (self.guitarStringNotes[i] === stringLetter && self.guitarStringOctaves[i] === stringOctave) {
-                    //if (fretNumber >= 0 && fretNumber <= self.numFrets) {
-                    var group = self.stringTracker[i][fretNumber];
+            for (var i = 0; i < guitarStringNotes.length; i++) {
+                if (guitarStringNotes[i].noteLetter === stringLetter && guitarStringNotes[i].noteOctave === stringOctave) {
+                    //if (fretNumber >= 0 && fretNumber <= numFrets) {
+                    var group = stringTracker[i][fretNumber];
                     var circ = group[0];
                     var text = group[1];
 
                     var color;
                     var opacity;
 
-                    if (self.notesClickedTracker[i] === fretNumber) {
-                        color = self.placedNoteColorOverlap;
+                    if (notesClickedTracker[i] === fretNumber) {
+                        color = placedNoteColorOverlap;
 
-                        //color = self.placedNoteColor;
+                        //color = placedNoteColor;
                         opacity = 1;
                     } else {
-                        color = self.placedNoteColor;
+                        color = placedNoteColor;
                         opacity = 1;
                     }
 
@@ -113,25 +145,25 @@
                     group.unhover(noteMouseOver, noteMouseOut);
                     //group.unclick(circ.data("click"));
 
-                    self.notesPlacedTracker[i] = fretNumber;
+                    notesPlacedTracker[i] = fretNumber;
                     //}
                 }
             }
         }
 
         self.clearPlacedNotes = function () {
-            for (var i = 0; i < self.notesPlacedTracker.length; i++) {
-                var fret = self.notesPlacedTracker[i];
+            for (var i = 0; i < notesPlacedTracker.length; i++) {
+                var fret = notesPlacedTracker[i];
                 if (fret != null) {
-                    var group = self.stringTracker[i][fret];
+                    var group = stringTracker[i][fret];
                     var circ = group[0];
                     var text = group[1];
 
                     // This placed note could also be a clicked note. In that case, 
                     // it should not be made invisible. Just give it the correct color.
 
-                    if (fret === self.notesClickedTracker[i]) {
-                        var color = self.clickedNoteColor;
+                    if (fret === notesClickedTracker[i]) {
+                        var color = clickedNoteColor;
                         makeNoteVisible(group, color);
                     } else {
                         makeNoteInvisible(group);
@@ -139,7 +171,7 @@
                     }
                 }
 
-                self.notesPlacedTracker[i] = null;
+                notesPlacedTracker[i] = null;
             }
         }
 
@@ -152,8 +184,8 @@
         var makeNoteVisible = function (group, circColor) {
             var circ = group[0];
             var text = group[1];
-            circ.animate({ 'fill-opacity': 1, 'stroke-opacity': 1, 'opacity': 1, 'fill': circColor }, self.opacityAnimateSpeed);
-            text.animateWith(circ, null, { 'fill-opacity': 1, 'stroke-opacity': 1, 'opacity': 1 }, self.opacityAnimateSpeed);
+            circ.animate({ 'fill-opacity': 1, 'stroke-opacity': 1, 'opacity': 1, 'fill': circColor }, opacityAnimateSpeed);
+            text.animateWith(circ, null, { 'fill-opacity': 1, 'stroke-opacity': 1, 'opacity': 1 }, opacityAnimateSpeed);
             group.attr('cursor', 'pointer');
         }
 
@@ -166,7 +198,7 @@
         }
 
         var makeNoteInvisible = function (group) {
-            group.animate({ 'fill-opacity': 0, 'stroke-opacity': 0, 'opacity': 0 }, self.opacityAnimateSpeed);
+            group.animate({ 'fill-opacity': 0, 'stroke-opacity': 0, 'opacity': 0 }, opacityAnimateSpeed);
         }
 
         var makeNoteInvisibleImmediate = function (group) {
@@ -178,13 +210,13 @@
         }
 
         var drawFretCircle = function (fret, circX, circY, topFretExtended, bottomFretExtended) {
-            for (var k = 0; k < self.fretsToDrawOneCircleOn.length; k++) {
-                var num = self.fretsToDrawOneCircleOn[k];
+            for (var k = 0; k < fretsToDrawOneCircleOn.length; k++) {
+                var num = fretsToDrawOneCircleOn[k];
 
                 var matchOrMultiple = ((fret - num) % 12);
 
                 if (matchOrMultiple === 0) {
-                    self.paper.circle(circX, topFretExtended + ((bottomFretExtended - topFretExtended) / 2), self.noteCircRad / 3).attr("fill", "black");
+                    paper.circle(circX, topFretExtended + ((bottomFretExtended - topFretExtended) / 2), noteCircRad / 3).attr("fill", "black");
                     break;
                 }
             }
@@ -198,8 +230,8 @@
             var matchOrMultiple = ((j - num) % 12);
 
             if (matchOrMultiple === 0) {
-                self.paper.circle(circX, topFretExtended + ((1 * (bottomFretExtended - topFretExtended)) / 3), self.noteCircRad / 3).attr("fill", "black");
-                self.paper.circle(circX, topFretExtended + ((2 * (bottomFretExtended - topFretExtended)) / 3), self.noteCircRad / 3).attr("fill", "black");
+                paper.circle(circX, topFretExtended + ((1 * (bottomFretExtended - topFretExtended)) / 3), noteCircRad / 3).attr("fill", "black");
+                paper.circle(circX, topFretExtended + ((2 * (bottomFretExtended - topFretExtended)) / 3), noteCircRad / 3).attr("fill", "black");
                 break;
             }
         }*/
@@ -231,27 +263,27 @@
             var thisString = group.stringNumber;
             var thisFret = group.fretNumber;
 
-            if (self.notesClickedTracker[thisString] === null) {
-                self.notesClickedTracker[thisString] = thisFret;
-                makeNoteVisible(group, self.clickedNoteColor);
+            if (notesClickedTracker[thisString] === null) {
+                notesClickedTracker[thisString] = thisFret;
+                makeNoteVisible(group, clickedNoteColor);
                 // bind functions which are attached to the circle but work for the group
                 group.unhover(noteMouseOver, noteMouseOut);
             } // if the fret clicked was already clicked...
-            else if ((self.stringTracker[thisString][self.notesClickedTracker[thisString]]).id === group.id) {
-                self.notesClickedTracker[thisString] = null;
+            else if ((stringTracker[thisString][notesClickedTracker[thisString]]).id === group.id) {
+                notesClickedTracker[thisString] = null;
                 makeNoteVisible(group, '#FFF');
                 group.hover(noteMouseOver, noteMouseOut); // unbind functions 
             }
             else {
                 // Take care of note that was already clicked
-                var alreadyClickedGroup = self.stringTracker[thisString][self.notesClickedTracker[thisString]];
+                var alreadyClickedGroup = stringTracker[thisString][notesClickedTracker[thisString]];
                 makeNoteInvisible(alreadyClickedGroup);
                 alreadyClickedGroup.hover(noteMouseOver, noteMouseOut);
 
                 // Take care of new note
-                makeNoteVisible(group, self.clickedNoteColor);
+                makeNoteVisible(group, clickedNoteColor);
                 group.unhover(noteMouseOver, noteMouseOut); // unbind functions 
-                self.notesClickedTracker[thisString] = thisFret;
+                notesClickedTracker[thisString] = thisFret;
             }
 
             $('#next-previous-voicings-buttons').hide();
@@ -264,12 +296,12 @@
 
             var thisStringNumber = triangle.data("stringNumber");
             var direction = triangle.data("direction");
-            var previousStringLetter = self.guitarStringNotes[thisStringNumber];
+            var previousStringLetter = guitarStringNotes[thisStringNumber].noteLetter;
 
             //console.log("new notes");
 
-            for (var i = 0; i <= self.numFrets; i++) {
-                var group = self.stringTracker[thisStringNumber][i];
+            for (var i = 0; i <= numFrets; i++) {
+                var group = stringTracker[thisStringNumber][i];
                 var circ = group[0];
                 var text = group[1];
 
@@ -294,9 +326,9 @@
 
                 // Set the new string letter on the tuning square and array 
                 if (i === 0) {
-                    self.guitarStringNotes[thisStringNumber] = newNoteLetter;
-                    self.tuningSquares[thisStringNumber].attr("text", newNoteLetter);
-                    self.guitarStringOctaves[thisStringNumber] = newNoteOctave;
+                    guitarStringNotes[thisStringNumber].noteLetter = newNoteLetter;
+                    tuningSquares[thisStringNumber].attr("text", newNoteLetter);
+                    guitarStringNotes[thisStringNumber].noteOctave = newNoteOctave;
                 }
 
                 text.attr("text", newNoteLetter); // change the text
@@ -309,30 +341,30 @@
         }
 
         var drawTuningTriangleAndBindEventHandlers = function (midX, midY, topX, topY, bottomX, bottomY, id, direction, stringNumber) {
-            var tri = self.paper.path("M" + midX + "," + midY + "L" + topX + "," + topY + "L" + bottomX + "," + bottomY + "z");
+            var tri = paper.path("M" + midX + "," + midY + "L" + topX + "," + topY + "L" + bottomX + "," + bottomY + "z");
 
             tri.id = id;
             tri.fretboard = self;
-            tri.attr("fill", self.tuningTriangleColor).attr("cursor", "pointer").data({ "direction": direction, "stringNumber": stringNumber });
+            tri.attr("fill", tuningTriangleColor).attr("cursor", "pointer").data({ "direction": direction, "stringNumber": stringNumber });
 
             bindEventHandlersToTuningTriangle(tri)
         }
 
         var getNoteLetterByFretNumber = function (stringLetter, fretNumber) {
-            var fretOffset = self.NOTE_LETTER_VALUE_MAP[stringLetter] + fretNumber;
+            var fretOffset = NOTE_LETTER_VALUE_MAP[stringLetter] + fretNumber;
             //var dividedByTwelve = fretOffset / 12;
             var numOctavesAboveString = Math.floor(fretOffset / 12);
             // reduce the index by the correct amount to get it below 12
             fretOffset = fretOffset - (12 * numOctavesAboveString);
 
-            return self.ALLNOTELETTERS[fretOffset];
+            return ALL_NOTE_LETTERS[fretOffset];
         }
 
         var getNoteOctaveByFretNumber = function (stringOctave, stringLetter, fretNumber) {
             // The string letter has a value, which can be thought of as an amount
             // of notes above the note that begins an octave (Ab, whose value is 0).
             // Add the fret number to that.
-            var fretOffset = self.NOTE_LETTER_VALUE_MAP[stringLetter] + fretNumber;
+            var fretOffset = NOTE_LETTER_VALUE_MAP[stringLetter] + fretNumber;
             // Now divide by 12 and floor it. That is the number of octaves this
             // fret is above the string.
             var numOctavesAboveString = Math.floor(fretOffset / 12);
@@ -340,51 +372,51 @@
             return stringOctave + numOctavesAboveString;
         }
 
-        var setUpFretboard = function () {
+        self.setUpFretboard = function () {
             // For drawing things that extend above or below the top/bottom string, 
             // like the left vertical part of the fret or the guitar body
-            var topFretExtended = self.fretboardOrigin[1] - (1 / 4 * self.fretHeight);
-            var bottomFretExtended = self.fretboardOrigin[1] + ((self.numStrings - 1) * self.fretHeight) + (1 / 4 * self.fretHeight);
+            var topFretExtended = fretboardOrigin[1] - (1 / 4 * fretHeight);
+            var bottomFretExtended = fretboardOrigin[1] + ((numStrings - 1) * fretHeight) + (1 / 4 * fretHeight);
 
             // For the instrument's strings
-            var stringXBegin = self.fretboardOrigin[0] + (self.fretWidth * (1 / 5));
-            var stringXEnd = self.fretboardOrigin[0] + (self.fretWidth * (self.numFrets)) + (1 * self.fretWidth); // (1/2 * self.fretWidth)
+            var stringXBegin = fretboardOrigin[0] + (fretWidth * (1 / 5));
+            var stringXEnd = fretboardOrigin[0] + (fretWidth * (numFrets)) + (1 * fretWidth); // (1/2 * fretWidth)
 
             // Draw the rectangle that represents the guitar body 
-            self.paper.rect(stringXBegin, topFretExtended, stringXEnd - stringXBegin, bottomFretExtended - topFretExtended).attr({ "fill": 'tan', 'stroke-opacity': 0 });
+            paper.rect(stringXBegin, topFretExtended, stringXEnd - stringXBegin, bottomFretExtended - topFretExtended).attr({ "fill": 'tan', 'stroke-opacity': 0 });
 
             // Add frets and circles for note letters, attach data to the frets, and other things
-            for (var i = 0; i < self.numStrings; i++) {
-                self.notesClickedTracker[i] = null; // initialize the array that tracks clicked frets on each string to null
-                self.notesPlacedTracker[i] = null; // initialize the array that tracks placed frets on each string to null
+            for (var i = 0; i < numStrings; i++) {
+                notesClickedTracker[i] = null; // initialize the array that tracks clicked frets on each string to null
+                notesPlacedTracker[i] = null; // initialize the array that tracks placed frets on each string to null
 
-                var stringY = self.fretboardOrigin[1] + (i * self.fretHeight);
+                var stringY = fretboardOrigin[1] + (i * fretHeight);
 
-                self.paper.path("M" + stringXBegin + "," + stringY + "L" + stringXEnd + "," + stringY + "z").attr("stroke", 'black');
+                paper.path("M" + stringXBegin + "," + stringY + "L" + stringXEnd + "," + stringY + "z").attr("stroke", 'black');
 
-                for (var j = 0; j < self.numFrets + 1; j++) {
+                for (var j = 0; j < numFrets + 1; j++) {
 
                     // Coordinates for the left of the fret and string
-                    var x = self.fretboardOrigin[0] + j * (self.fretWidth);
-                    var y = self.fretboardOrigin[1] + i * (self.fretHeight);
+                    var x = fretboardOrigin[0] + j * (fretWidth);
+                    var y = fretboardOrigin[1] + i * (fretHeight);
 
                     // Coordinates for the center of the fret and string
-                    var circX = x + self.fretWidth * (1 / 2);
+                    var circX = x + fretWidth * (1 / 2);
                     var circY = y;
 
                     if (j > 0) {
                         // Draw the left vertical line (left edge of the fret)
-                        self.paper.path("M" + x + "," + topFretExtended + "L" + x + "," + bottomFretExtended + "z").attr("stroke", 'black');
+                        paper.path("M" + x + "," + topFretExtended + "L" + x + "," + bottomFretExtended + "z").attr("stroke", 'black');
 
                         // If it's the last fret, close it on the right
-                        //if (j === self.numFrets) {
-                        //    var lineRight = self.paper.path("M" + (x + self.fretWidth) + "," + topFretExtended + 
-                        // "L" + (x + self.fretWidth) + "," + bottomFretExtended + "z").attr("stroke", 'black');
+                        //if (j === numFrets) {
+                        //    var lineRight = paper.path("M" + (x + fretWidth) + "," + topFretExtended + 
+                        // "L" + (x + fretWidth) + "," + bottomFretExtended + "z").attr("stroke", 'black');
                         //}
 
                         if (j === 1) {
                             // Draw a rectangle at the left of the first fret, which represents the nut
-                            self.paper.rect(x - (self.fretWidth / 5), topFretExtended, (self.fretWidth / 5), bottomFretExtended - topFretExtended).attr("fill", 'black');
+                            paper.rect(x - (fretWidth / 5), topFretExtended, (fretWidth / 5), bottomFretExtended - topFretExtended).attr("fill", 'black');
                         }
 
                         // Draw the circles you usually see on the 3rd, 5th, etc. fret (only do it once, so just
@@ -395,20 +427,20 @@
                     }
 
                     // Draw note circle and note text, and attach data to them
-                    var circ = self.paper.circle(circX, circY, self.noteCircRad).attr("fill", "white");
+                    var circ = paper.circle(circX, circY, noteCircRad).attr("fill", "white");
 
-                    var stringLetter = self.guitarStringNotes[i];
+                    var stringLetter = guitarStringNotes[i].noteLetter;
                     var noteLetter = getNoteLetterByFretNumber(stringLetter, j);
-                    var stringOctave = self.guitarStringOctaves[i];
+                    var stringOctave = guitarStringNotes[i].noteOctave;
                     var noteOctave = getNoteOctaveByFretNumber(stringOctave, stringLetter, j);
 
-                    var text = self.paper.text(circX, circY, noteLetter).attr("font-size", self.letterFontSize);
+                    var text = paper.text(circX, circY, noteLetter).attr("font-size", letterFontSize);
 
                     // Don't let the note text be selectable because that's annoying and ugly
                     makeTextUnselectable(text);
 
                     // Create a group to hold the circle and its text
-                    var group = self.paper.set();
+                    var group = paper.set();
 
                     group.id = "group" + "_string_" + i + "_fret_" + j; // assign it a unique id
                     group.stringNumber = i;
@@ -436,29 +468,29 @@
                     group.toFront();
 
                     // Store it for tracking
-                    self.stringTracker[i][j] = group;
+                    stringTracker[i][j] = group;
                 }
             }
 
             // Add the squares and triangles which will show/control the string tunings
-            for (var i = 0; i < self.numStrings; i++) {
-                var x = self.fretboardOrigin[0] - (self.fretWidth * (1 / 2));
-                var y = self.fretboardOrigin[1] + i * (self.fretHeight);
+            for (var i = 0; i < numStrings; i++) {
+                var x = fretboardOrigin[0] - (fretWidth * (1 / 2));
+                var y = fretboardOrigin[1] + i * (fretHeight);
 
-                var squareWidth = self.noteSquareWidth;
+                var squareWidth = noteSquareWidth;
                 var squareX = x - (squareWidth);
                 var squareY = y - (squareWidth / 2)
-                var square = self.paper.rect(squareX, squareY, squareWidth, squareWidth).attr("fill", "white");
+                var square = paper.rect(squareX, squareY, squareWidth, squareWidth).attr("fill", "white");
                 var squareId = "noteSquare" + "_" + x + "x_" + y + "y"; // assign it a unique id
                 square.id = squareId;
 
-                var text = self.paper.text(squareX + squareWidth / 2, squareY + squareWidth / 2, self.guitarStringNotes[i]).attr("font-size", self.letterFontSize);
+                var text = paper.text(squareX + squareWidth / 2, squareY + squareWidth / 2, guitarStringNotes[i].noteLetter).attr("font-size", letterFontSize);
                 var textId = "tuningLetter" + "_" + x + "x_" + y + "y"; // assign it a unique id
                 text.id = textId;
 
                 makeTextUnselectable(text);
 
-                self.tuningSquares[i] = text;
+                tuningSquares[i] = text;
 
                 // Triangles for changing the string tunings
                 var midX = squareX + squareWidth + 25;
@@ -481,7 +513,7 @@
             }
         } // end of SetUpFretboard method
 
-        setUpFretboard();
+        self.setUpFretboard();
     };
 
     $.fn.fretboard = function (options) {
@@ -489,7 +521,7 @@
             var element = $(this);
 
             // Return early if this element already has a plugin instance
-            if (element.data('fretboard')) return;
+            //if (element.data('fretboard')) return;
 
             // create paper object (requires Raphael.js)
             var paper = new Raphael(element.attr('id'), '100%', '100%');
