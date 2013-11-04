@@ -91,13 +91,13 @@
             });
         }
 
-        self.getGuitarStringNotes = function () {
-            return guitarStringNotes;
-        }
+        //self.getGuitarStringNotes = function () {
+        //    return guitarStringNotes;s
+        //}
 
-        self.setGuitarStringNotes = function (notes) {
-            guitarStringNotes = notes;
-        }
+        //self.setGuitarStringNotes = function (notes) {
+        //    guitarStringNotes = notes;
+        //}
 
         self.getClickedNotes = function () {
             var notes = [];
@@ -372,7 +372,7 @@
             return stringOctave + numOctavesAboveString;
         }
 
-        self.setUpFretboard = function () {
+        setUpFretboard = function () {
             // For drawing things that extend above or below the top/bottom string, 
             // like the left vertical part of the fret or the guitar body
             var topFretExtended = fretboardOrigin[1] - (1 / 4 * fretHeight);
@@ -513,7 +513,7 @@
             }
         } // end of SetUpFretboard method
 
-        self.setUpFretboard();
+        setUpFretboard();
     };
 
     $.fn.fretboard = function (options) {
