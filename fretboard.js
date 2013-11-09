@@ -31,32 +31,34 @@
             opacityAnimateSpeed : 125
         };
 
+        var extendedConfig = {};
+
         // Extend default config settings.
         // Preserve the original objects (extend/copy properties into a new object)
         if (settings) {
-            $.extend({}, config, settings); 
+            $.extend(extendedConfig, config, settings); 
         }
 
         // Config options that are calculated
-        config.letterFontSize = config.fretHeight / 3.5;             // size of notes that appear on the fretboard
-        config.noteCircRad = config.fretHeight / 2.5;                // radius of the circle that shows the notes on the frets
-        config.noteSquareWidth = config.fretHeight / 1.5;            // width/length of the square surrounding the letters that show the tuning
+        extendedConfig.letterFontSize = config.fretHeight / 3.5;             // size of notes that appear on the fretboard
+        extendedConfig.noteCircRad = config.fretHeight / 2.5;                // radius of the circle that shows the notes on the frets
+        extendedConfig.noteSquareWidth = config.fretHeight / 1.5;            // width/length of the square surrounding the letters that show the tuning
 
         // copy config options to fretboard private variables
-        var fretboardOrigin = config.fretboardOrigin;
-        var numFrets = config.numFrets;
-        var fretWidth = config.fretWidth;
-        var fretHeight = config.fretHeight;
-        var guitarStringNotes = config.guitarStringNotes;
-        var clickedNoteColor = config.clickedNoteColor;
-        var placedNoteColor = config.placedNoteColor;
-        var placedNoteColorOverlap = config.placedNoteColorOverlap;
-        var tuningTriangleColor = config.tuningTriangleColor;
-        var fretsToDrawOneCircleOn = config.fretsToDrawOneCircleOn;
-        var opacityAnimateSpeed = config.opacityAnimateSpeed;
-        var letterFontSize = config.letterFontSize;
-        var noteCircRad = config.noteCircRad;
-        var noteSquareWidth = config.noteSquareWidth;
+        var fretboardOrigin = extendedConfig.fretboardOrigin;
+        var numFrets = extendedConfig.numFrets;
+        var fretWidth = extendedConfig.fretWidth;
+        var fretHeight = extendedConfig.fretHeight;
+        var guitarStringNotes = extendedConfig.guitarStringNotes;
+        var clickedNoteColor = extendedConfig.clickedNoteColor;
+        var placedNoteColor = extendedConfig.placedNoteColor;
+        var placedNoteColorOverlap = extendedConfig.placedNoteColorOverlap;
+        var tuningTriangleColor = extendedConfig.tuningTriangleColor;
+        var fretsToDrawOneCircleOn = extendedConfig.fretsToDrawOneCircleOn;
+        var opacityAnimateSpeed = extendedConfig.opacityAnimateSpeed;
+        var letterFontSize = extendedConfig.letterFontSize;
+        var noteCircRad = extendedConfig.noteCircRad;
+        var noteSquareWidth = extendedConfig.noteSquareWidth;
         var numStrings = guitarStringNotes.length;
         var tuningSquares = [];                             // will hold the squares that show the each string's note letter
         var stringTracker = new Array(numStrings);          // a 2-d array that holds each group (circle and text) for each string
