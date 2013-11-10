@@ -76,21 +76,24 @@
 
             // If clicked, remove the clicked colored circles and bind hover events to those frets
             $('#' + buttonId).click(function () {
-                for (var i = 0; i < numStrings; i++) {
-                    if (notesClickedTracker[i] != null) {
-                        var group = stringTracker[i][notesClickedTracker[i]];
-                        var circ = group[0];
-
-                        group.hover(noteMouseOver, noteMouseOut); // bind functions 
-                        makeNoteInvisible(group);
-
-                        notesClickedTracker[i] = null;
-                    }
-                }
-
-                $('#next-previous-voicings-buttons').hide();
-                self.clearPlacedNotes();
+                self.reset();
             });
+        }
+
+        self.reset = function () {
+            for (var i = 0; i < numStrings; i++) {
+                if (notesClickedTracker[i] != null) {
+                    var group = stringTracker[i][notesClickedTracker[i]];
+                    var circ = group[0];
+
+                    group.hover(noteMouseOver, noteMouseOut); // bind functions 
+                    makeNoteInvisible(group);
+
+                    notesClickedTracker[i] = null;
+                }
+            }
+
+            self.clearPlacedNotes();
         }
 
         //self.getGuitarStringNotes = function () {
@@ -288,7 +291,6 @@
                 notesClickedTracker[thisString] = thisFret;
             }
 
-            $('#next-previous-voicings-buttons').hide();
             self.clearPlacedNotes();
         }
 
