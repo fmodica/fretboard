@@ -1,9 +1,13 @@
 (function ($) {
-    var Fretboard = function (paper, settings) {
+    var Fretboard = function ($domElement, paper, settings) {
         // public
-        var self = this;
-
+        var self = this; // the fretboard object
         // private
+        // To play sounds
+        //var music = new BandJS();
+        //music.setTimeSignature(4, 4);
+        //music.setTempo(120);
+
         var ALL_NOTE_LETTERS = ["Ab", "A", "Bb", "B", "C", "C#", "D", "Eb", "E", "F", "F#", "G"];
         var NOTE_LETTER_VALUE_MAP = { "Ab": 0, "A": 1, "Bb": 2, "B": 3, "C": 4, "C#": 5, "D": 6, "Eb": 7, "E": 8, "F": 9, "F#": 10, "G": 11 };
         var notesClickedTracker = [];
@@ -40,28 +44,28 @@
         }
 
         // Config options that are calculated
-        extendedConfig.letterFontSize = config.fretHeight / 3.5;             // size of notes that appear on the fretboard
-        extendedConfig.noteCircRad = config.fretHeight / 2.5;                // radius of the circle that shows the notes on the frets
-        extendedConfig.noteSquareWidth = config.fretHeight / 1.5;            // width/length of the square surrounding the letters that show the tuning
+        extendedConfig.letterFontSize = config.fretHeight / 3.5;             
+        extendedConfig.noteCircRad = config.fretHeight / 2.5;                
+        extendedConfig.noteTuningSquareWidth = config.fretHeight / 1.5;            
 
         // copy config options to fretboard private variables
-        var fretboardOrigin = extendedConfig.fretboardOrigin;
-        var numFrets = extendedConfig.numFrets;
-        var fretWidth = extendedConfig.fretWidth;
-        var fretHeight = extendedConfig.fretHeight;
-        var guitarStringNotes = extendedConfig.guitarStringNotes;
-        var clickedNoteColor = extendedConfig.clickedNoteColor;
-        var placedNoteColor = extendedConfig.placedNoteColor;
-        var placedNoteColorOverlap = extendedConfig.placedNoteColorOverlap;
-        var tuningTriangleColor = extendedConfig.tuningTriangleColor;
-        var fretsToDrawOneCircleOn = extendedConfig.fretsToDrawOneCircleOn;
-        var opacityAnimateSpeed = extendedConfig.opacityAnimateSpeed;
-        var letterFontSize = extendedConfig.letterFontSize;
-        var noteCircRad = extendedConfig.noteCircRad;
-        var noteSquareWidth = extendedConfig.noteSquareWidth;
-        var numStrings = guitarStringNotes.length;
-        var tuningSquares = [];                             // will hold the squares that show the each string's note letter
-        var stringTracker = new Array(numStrings);          // a 2-d array that holds each group (circle and text) for each string
+        var fretboardOrigin = extendedConfig.fretboardOrigin,
+            numFrets = extendedConfig.numFrets,
+            fretWidth = extendedConfig.fretWidth
+            fretHeight = extendedConfig.fretHeight,
+            guitarStringNotes = extendedConfig.guitarStringNotes,
+            clickedNoteColor = extendedConfig.clickedNoteColor,
+            placedNoteColor = extendedConfig.placedNoteColor,
+            placedNoteColorOverlap = extendedConfig.placedNoteColorOverlap,
+            tuningTriangleColor = extendedConfig.tuningTriangleColor,
+            fretsToDrawOneCircleOn = extendedConfig.fretsToDrawOneCircleOn,
+            opacityAnimateSpeed = extendedConfig.opacityAnimateSpeed,
+            letterFontSize = extendedConfig.letterFontSize,
+            noteCircRad = extendedConfig.noteCircRad,
+            noteTuningSquareWidth = extendedConfig.noteTuningSquareWidth,
+            numStrings = guitarStringNotes.length,
+            tuningSquares = [],                             // will hold the squares that show the each string's note letter
+            stringTracker = new Array(numStrings);          // a 2-d array that holds each group (circle and text) for each string
 
         for (var i = 0; i < numStrings; i++) {
             // This will hold the fret number, null for not clicked, for each string
@@ -96,9 +100,32 @@
             self.clearPlacedNotes();
         }
 
-        //self.getGuitarStringNotes = function () {
-        //    return guitarStringNotes;s
+        //self.createPlayButton = function (buttonId, buttonClass, buttonValue, elementOnWhichToAppend) {
+        //    var buttonHtml = "<input type='button' id='" + buttonId + "' class='" + buttonClass + "' value='" + buttonValue + "'/>";
+
+        //    $('#' + elementOnWhichToAppend).append(buttonHtml);
+
+        //    $('#' + buttonId).click(function () {
+
+        //        var instruments = [];
+        //        var clickedNotes = self.getClickedNotes();
+        //        for (var i = 0; i < clickedNotes.length; i++) {
+        //            instruments.push(music.createInstrument());
+        //        }
+
+        //        for (var i = 0; i < instruments.length; i++) {
+        //            instruments[i].note('quarter', 'C4');
+        //            instruments[i].finish();
+        //        }
+
+        //        music.end();
+        //        music.play();
+        //    });
         //}
+
+        self.getGuitarStringNotes = function () {
+            return guitarStringNotes;
+        }
 
         //self.setGuitarStringNotes = function (notes) {
         //    guitarStringNotes = notes;
@@ -192,6 +219,7 @@
             circ.animate({ 'fill-opacity': 1, 'stroke-opacity': 1, 'opacity': 1, 'fill': circColor }, opacityAnimateSpeed);
             text.animateWith(circ, null, { 'fill-opacity': 1, 'stroke-opacity': 1, 'opacity': 1 }, opacityAnimateSpeed);
             group.attr('cursor', 'pointer');
+
         }
 
         var makeNoteVisibleImmediate = function (group, circColor) {
@@ -216,6 +244,7 @@
 
         var drawFretCircle = function (fret, circX, circY, topFretExtended, bottomFretExtended) {
             for (var k = 0; k < fretsToDrawOneCircleOn.length; k++) {
+
                 var num = fretsToDrawOneCircleOn[k];
 
                 var matchOrMultiple = ((fret - num) % 12);
@@ -292,6 +321,8 @@
             }
 
             self.clearPlacedNotes();
+
+            $domElement.trigger("noteClicked");
         }
 
         var tuningTriangleClick = function () {
@@ -342,6 +373,8 @@
 
                 //console.log(newNoteLetter + " " + newNoteOctave);
             }
+
+            $domElement.trigger("tuningChanged");
         }
 
         var drawTuningTriangleAndBindEventHandlers = function (midX, midY, topX, topY, bottomX, bottomY, id, direction, stringNumber) {
@@ -376,7 +409,7 @@
             return stringOctave + numOctavesAboveString;
         }
 
-        setUpFretboard = function () {
+        var setUpFretboard = function () {
             // For drawing things that extend above or below the top/bottom string, 
             // like the left vertical part of the fret or the guitar body
             var topFretExtended = fretboardOrigin[1] - (1 / 4 * fretHeight);
@@ -391,6 +424,7 @@
 
             // Add frets and circles for note letters, attach data to the frets, and other things
             for (var i = 0; i < numStrings; i++) {
+
                 notesClickedTracker[i] = null; // initialize the array that tracks clicked frets on each string to null
                 notesPlacedTracker[i] = null; // initialize the array that tracks placed frets on each string to null
 
@@ -481,7 +515,7 @@
                 var x = fretboardOrigin[0] - (fretWidth * (1 / 2));
                 var y = fretboardOrigin[1] + i * (fretHeight);
 
-                var squareWidth = noteSquareWidth;
+                var squareWidth = noteTuningSquareWidth;
                 var squareX = x - (squareWidth);
                 var squareY = y - (squareWidth / 2)
                 var square = paper.rect(squareX, squareY, squareWidth, squareWidth).attr("fill", "white");
@@ -531,7 +565,7 @@
             var paper = new Raphael(element.attr('id'), '100%', '100%');
 
             // Pass options to plugin constructor
-            var fretboard = new Fretboard(paper, options);
+            var fretboard = new Fretboard(element, paper, options);
 
             // Store plugin object in this element's data
             element.data('fretboard', fretboard);
