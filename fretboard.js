@@ -463,8 +463,7 @@
                             drawFretCircle(j, circX, circY, topFretExtended, bottomFretExtended);
                         }
                     }
-                    console.log(noteCircRad);
-                    console.log(letterFontSize);
+
                     // Draw note circle and note text, and attach data to them
                     var circ = paper.circle(circX, circY, noteCircRad).attr("fill", "white");
 
