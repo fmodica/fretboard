@@ -44,9 +44,9 @@
         }
 
         // Config options that are calculated
-        extendedConfig.letterFontSize = config.fretHeight / 3.5;             
-        extendedConfig.noteCircRad = config.fretHeight / 2.5;                
-        extendedConfig.noteTuningSquareWidth = config.fretHeight / 1.5;            
+        extendedConfig.letterFontSize = extendedConfig.fretHeight / 3.5;             
+        extendedConfig.noteCircRad = extendedConfig.fretHeight / 2.5;                
+        extendedConfig.noteTuningSquareWidth = extendedConfig.fretHeight / 1.5;            
 
         // copy config options to fretboard private variables
         var fretboardOrigin = extendedConfig.fretboardOrigin,
@@ -74,7 +74,7 @@
 
         // public methods
         self.createResetButton = function (buttonId, buttonClass, buttonValue, elementOnWhichToAppend) {
-            var buttonHtml = "<input type='button' id='" + buttonId + "' class='" + buttonClass + "' value='" + buttonValue + "'/>";
+            var buttonHtml = "<div class='reset-button-container'><input type='button' id='" + buttonId + "' class='" + buttonClass + "' value='" + buttonValue + "'/></div>";
 
             $('#' + elementOnWhichToAppend).append(buttonHtml);
 
@@ -463,7 +463,8 @@
                             drawFretCircle(j, circX, circY, topFretExtended, bottomFretExtended);
                         }
                     }
-
+                    console.log(noteCircRad);
+                    console.log(letterFontSize);
                     // Draw note circle and note text, and attach data to them
                     var circ = paper.circle(circX, circY, noteCircRad).attr("fill", "white");
 
@@ -563,6 +564,7 @@
 
             // create paper object (requires Raphael.js)
             var paper = new Raphael(element.attr('id'), '100%', '100%');
+            paper.canvas.setAttribute('preserveAspectRatio', 'none');
 
             // Pass options to plugin constructor
             var fretboard = new Fretboard(element, paper, options);
