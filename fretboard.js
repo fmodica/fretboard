@@ -69,7 +69,8 @@
             stringTracker = new Array(numStrings),          // a 2-d array that holds each group (circle and text) for each string
             svgWidth = 0,
             svgHeight = 0,
-            svgBuffer = 0,
+            svgHeightBuffer = 5,
+            svgWidthBuffer = 0,
             $svg = null,
             $window = $(window);
 
@@ -467,7 +468,7 @@
                         }
 
                         if (j === numFrets) {
-                            svgWidth = x + fretWidth + svgBuffer;
+                            svgWidth = x + fretWidth + svgWidthBuffer;
                         }
                     }
 
@@ -556,7 +557,7 @@
                 drawTuningTriangleAndBindEventHandlers(midX, midY, topX, topY, bottomX, bottomY, ("leftTri" + i), "left", i);
 
                 if (i === numStrings - 1) {
-                    svgHeight = squareY + squareWidth + svgBuffer;
+                    svgHeight = squareY + squareWidth + svgHeightBuffer;
                 }
             }
 
