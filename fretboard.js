@@ -1,5 +1,6 @@
 (function ($) {
-    var Fretboard = function ($domElement, paper, settings) {
+    "use strict";
+    var Fretboard = function ($fretboardContainer, paper, settings) {
         // public
         var self = this; // the fretboard object
         // private
@@ -15,24 +16,24 @@
 
         // Default config settings
         var config = {
-            fretboardOrigin : [80, 15],                            // x and y location of the upper left of the fretboard
-            numFrets : 15,                                         // in pixels                                    
-            fretWidth : 67,                                        // in pixels  
-            fretHeight : 31,                                       // in pixels  
+            fretboardOrigin: [80, 15],                            // x and y location of the upper left of the fretboard
+            numFrets: 15,                                         // in pixels                                    
+            fretWidth: 67,                                        // in pixels  
+            fretHeight: 31,                                       // in pixels  
             guitarStringNotes: [                                   // default strings (note letters), from high to low.
-                { "noteLetter" : "E", "noteOctave" : 5 },
+                { "noteLetter": "E", "noteOctave": 5 },
                 { "noteLetter": "B", "noteOctave": 5 },
                 { "noteLetter": "G", "noteOctave": 4 },
                 { "noteLetter": "D", "noteOctave": 4 },
                 { "noteLetter": "A", "noteOctave": 4 },
                 { "noteLetter": "E", "noteOctave": 3 },
             ],
-            clickedNoteColor : 'green',
-            placedNoteColor : 'red',
-            placedNoteColorOverlap : 'darkred',
-            tuningTriangleColor : 'green',
-            fretsToDrawOneCircleOn : [3, 5, 7, 9, 12],
-            opacityAnimateSpeed : 125
+            clickedNoteColor: 'green',
+            placedNoteColor: 'red',
+            placedNoteColorOverlap: 'darkred',
+            tuningTriangleColor: 'green',
+            fretsToDrawOneCircleOn: [3, 5, 7, 9, 12],
+            opacityAnimateSpeed: 125
         };
 
         var extendedConfig = {};
@@ -40,18 +41,18 @@
         // Extend default config settings.
         // Preserve the original objects (extend/copy properties into a new object)
         if (settings) {
-            $.extend(extendedConfig, config, settings); 
+            $.extend(extendedConfig, config, settings);
         }
 
         // Config options that are calculated
-        extendedConfig.letterFontSize = extendedConfig.fretHeight / 3.5;             
-        extendedConfig.noteCircRad = extendedConfig.fretHeight / 2.5;                
-        extendedConfig.noteTuningSquareWidth = extendedConfig.fretHeight / 1.5;            
+        extendedConfig.letterFontSize = extendedConfig.fretHeight / 3.5;
+        extendedConfig.noteCircRad = extendedConfig.fretHeight / 2.5;
+        extendedConfig.noteTuningSquareWidth = extendedConfig.fretHeight / 1.5;
 
         // copy config options to fretboard private variables
         var fretboardOrigin = extendedConfig.fretboardOrigin,
             numFrets = extendedConfig.numFrets,
-            fretWidth = extendedConfig.fretWidth
+            fretWidth = extendedConfig.fretWidth,
             fretHeight = extendedConfig.fretHeight,
             guitarStringNotes = extendedConfig.guitarStringNotes,
             clickedNoteColor = extendedConfig.clickedNoteColor,
@@ -65,12 +66,17 @@
             noteTuningSquareWidth = extendedConfig.noteTuningSquareWidth,
             numStrings = guitarStringNotes.length,
             tuningSquares = [],                             // will hold the squares that show the each string's note letter
-            stringTracker = new Array(numStrings);          // a 2-d array that holds each group (circle and text) for each string
+            stringTracker = new Array(numStrings),          // a 2-d array that holds each group (circle and text) for each string
+            svgWidth = 0,
+            svgHeight = 0,
+            svgBuffer = 0,
+            $svg = null,
+            $window = $(window);
 
         for (var i = 0; i < numStrings; i++) {
             // This will hold the fret number, null for not clicked, for each string
-            stringTracker[i] = new Array(numFrets); 
-        }          
+            stringTracker[i] = new Array(numFrets);
+        }
 
         // public methods
         self.createResetButton = function (buttonId, buttonClass, buttonValue, elementOnWhichToAppend) {
@@ -137,11 +143,11 @@
                 if (notesClickedTracker[i] !== null) {
                     var group = stringTracker[i][notesClickedTracker[i]];
 
-                    musicalNote = {
+                    var musicalNote = {
                         noteLetter: group.noteLetter, //NOTE_LETTER_VALUE_MAP[group.noteLetter],
                         octave: group.noteOctave
                     }
-                    
+
                     notes.push(musicalNote);
                 }
             }
@@ -219,7 +225,6 @@
             circ.animate({ 'fill-opacity': 1, 'stroke-opacity': 1, 'opacity': 1, 'fill': circColor }, opacityAnimateSpeed);
             text.animateWith(circ, null, { 'fill-opacity': 1, 'stroke-opacity': 1, 'opacity': 1 }, opacityAnimateSpeed);
             group.attr('cursor', 'pointer');
-
         }
 
         var makeNoteVisibleImmediate = function (group, circColor) {
@@ -244,7 +249,6 @@
 
         var drawFretCircle = function (fret, circX, circY, topFretExtended, bottomFretExtended) {
             for (var k = 0; k < fretsToDrawOneCircleOn.length; k++) {
-
                 var num = fretsToDrawOneCircleOn[k];
 
                 var matchOrMultiple = ((fret - num) % 12);
@@ -258,11 +262,11 @@
 
         /*
         for (var k = 0; k < self.fretsToDrawTwoCirclesOn.length; k++) {
-
+    
             var num = self.fretsToDrawTwoCirclesOn[k];
-
+    
             var matchOrMultiple = ((j - num) % 12);
-
+    
             if (matchOrMultiple === 0) {
                 paper.circle(circX, topFretExtended + ((1 * (bottomFretExtended - topFretExtended)) / 3), noteCircRad / 3).attr("fill", "black");
                 paper.circle(circX, topFretExtended + ((2 * (bottomFretExtended - topFretExtended)) / 3), noteCircRad / 3).attr("fill", "black");
@@ -322,7 +326,7 @@
 
             self.clearPlacedNotes();
 
-            $domElement.trigger("noteClicked");
+            $fretboardContainer.trigger("noteClicked");
         }
 
         var tuningTriangleClick = function () {
@@ -374,7 +378,7 @@
                 //console.log(newNoteLetter + " " + newNoteOctave);
             }
 
-            $domElement.trigger("tuningChanged");
+            $fretboardContainer.trigger("tuningChanged");
         }
 
         var drawTuningTriangleAndBindEventHandlers = function (midX, midY, topX, topY, bottomX, bottomY, id, direction, stringNumber) {
@@ -424,7 +428,6 @@
 
             // Add frets and circles for note letters, attach data to the frets, and other things
             for (var i = 0; i < numStrings; i++) {
-
                 notesClickedTracker[i] = null; // initialize the array that tracks clicked frets on each string to null
                 notesPlacedTracker[i] = null; // initialize the array that tracks placed frets on each string to null
 
@@ -458,9 +461,13 @@
                         }
 
                         // Draw the circles you usually see on the 3rd, 5th, etc. fret (only do it once, so just
-                        // choose i === 0
+                        // choose i === 0)
                         if (i === 0) {
                             drawFretCircle(j, circX, circY, topFretExtended, bottomFretExtended);
+                        }
+
+                        if (j === numFrets) {
+                            svgWidth = x + fretWidth + svgBuffer;
                         }
                     }
 
@@ -490,7 +497,6 @@
                     group.fretboard = self;
                     group.xCoord = circX;
                     group.yCoord = circY;
-                    group.fretboard = self;
 
                     // When you click on a note, it could be either the circle or the text. 
                     // So for both cases, store a pointer to the group, which event handlers
@@ -548,22 +554,54 @@
                 bottomY = midY + squareWidth / 2;
 
                 drawTuningTriangleAndBindEventHandlers(midX, midY, topX, topY, bottomX, bottomY, ("leftTri" + i), "left", i);
+
+                if (i === numStrings - 1) {
+                    svgHeight = squareY + squareWidth + svgBuffer;
+                }
             }
+
+            $svg = $fretboardContainer.find("svg");
+
+            $svg.css({
+                height: svgHeight,
+                width: svgWidth
+            });
+
+            $window.on("load resize", function () {
+                setScrollBar($svg, $fretboardContainer);
+            });
+
+            setScrollBar($svg, $fretboardContainer);
         } // end of SetUpFretboard method
 
         setUpFretboard();
     };
+
+    function setScrollBar($svg, $fretboardContainer) {
+        var svgRightPosition = $svg.width() + $svg.position().left;
+        var containerRightPosition = $fretboardContainer.width() + $fretboardContainer.position().left;
+
+        if (svgRightPosition > containerRightPosition) {
+            $fretboardContainer.css({
+                "overflow-x": "scroll"
+            });
+        } else {
+            $fretboardContainer.css({
+                "overflow-x": "hidden"
+            });
+        }
+    }
 
     $.fn.fretboard = function (options) {
         return this.each(function () {
             var element = $(this);
 
             // Return early if this element already has a plugin instance
-            //if (element.data('fretboard')) return;
+            if (element.data('fretboard')) return;
 
             // create paper object (requires Raphael.js)
             var paper = new Raphael(element.attr('id'), '100%', '100%');
-            paper.canvas.setAttribute('preserveAspectRatio', 'none');
+            //paper.canvas.setAttribute('preserveAspectRatio', 'none');
 
             // Pass options to plugin constructor
             var fretboard = new Fretboard(element, paper, options);
