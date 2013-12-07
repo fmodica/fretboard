@@ -226,6 +226,7 @@
             circ.animate({ 'fill-opacity': 1, 'stroke-opacity': 1, 'opacity': 1, 'fill': circColor }, opacityAnimateSpeed);
             text.animateWith(circ, null, { 'fill-opacity': 1, 'stroke-opacity': 1, 'opacity': 1 }, opacityAnimateSpeed);
             group.attr('cursor', 'pointer');
+
         }
 
         var makeNoteVisibleImmediate = function (group, circColor) {
@@ -250,6 +251,7 @@
 
         var drawFretCircle = function (fret, circX, circY, topFretExtended, bottomFretExtended) {
             for (var k = 0; k < fretsToDrawOneCircleOn.length; k++) {
+
                 var num = fretsToDrawOneCircleOn[k];
 
                 var matchOrMultiple = ((fret - num) % 12);
@@ -429,6 +431,7 @@
 
             // Add frets and circles for note letters, attach data to the frets, and other things
             for (var i = 0; i < numStrings; i++) {
+
                 notesClickedTracker[i] = null; // initialize the array that tracks clicked frets on each string to null
                 notesPlacedTracker[i] = null; // initialize the array that tracks placed frets on each string to null
 
