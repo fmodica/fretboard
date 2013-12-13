@@ -1,3 +1,12 @@
+Raphael.el.trigger = function (str, scope, params) { //takes the name of the event to fire and the scope to fire it with
+    scope = scope || this;
+    for (var i = 0; i < this.events.length; i++) {
+        if (this.events[i].name === str) {
+            this.events[i].f.call(scope, params);
+        }
+    }
+};
+
 (function ($) {
     "use strict";
     var Fretboard = function ($fretboardContainer, paper, settings) {
@@ -9,8 +18,8 @@
         //music.setTimeSignature(4, 4);
         //music.setTempo(120);
 
-        var ALL_NOTE_LETTERS = ["Ab", "A", "Bb", "B", "C", "C#", "D", "Eb", "E", "F", "F#", "G"];
-        var NOTE_LETTER_VALUE_MAP = { "Ab": 0, "A": 1, "Bb": 2, "B": 3, "C": 4, "C#": 5, "D": 6, "Eb": 7, "E": 8, "F": 9, "F#": 10, "G": 11 };
+        var ALL_NOTE_LETTERS = ["Ab", "A", "Bb", "B", "C", "Csharp", "D", "Eb", "E", "F", "Fsharp", "G"];
+        var NOTE_LETTER_VALUE_MAP = { "Ab": 0, "A": 1, "Bb": 2, "B": 3, "C": 4, "Csharp": 5, "D": 6, "Eb": 7, "E": 8, "F": 9, "Fsharp": 10, "G": 11 };
         var notesClickedTracker = [];
         var notesPlacedTracker = [];                       // same as above, but for notes placed on the fretboard explicitly (instead of clicked)
 
@@ -134,10 +143,6 @@
             return guitarStringNotes;
         }
 
-        //self.setGuitarStringNotes = function (notes) {
-        //    guitarStringNotes = notes;
-        //}
-
         self.getClickedNotes = function () {
             var notes = [];
             for (var i = 0; i < guitarStringNotes.length; i++) {
@@ -146,7 +151,11 @@
 
                     var musicalNote = {
                         noteLetter: group.noteLetter, //NOTE_LETTER_VALUE_MAP[group.noteLetter],
-                        octave: group.noteOctave
+                        octave: group.noteOctave,
+                        fretNumber: group.fretNumber,
+                        stringNumber: group.stringNumber,
+                        stringLetter: group.stringLetter,
+                        stringOctave: group.stringOctave
                     }
 
                     notes.push(musicalNote);
@@ -154,6 +163,16 @@
             }
 
             return notes;
+        }
+
+        self.setClickedNotes = function (stringLetter, stringOctave, fretNumber) {
+            for (var i = 0; i < guitarStringNotes.length; i++) {
+                if (guitarStringNotes[i].noteLetter === stringLetter && guitarStringNotes[i].noteOctave === stringOctave) {
+                    var group = stringTracker[i][fretNumber];
+                    var circ = group[0];
+                    circ.trigger("click", circ, null);
+                }
+            }
         }
 
         self.placeNoteOnFretboard = function (stringLetter, stringOctave, fretNumber) {
@@ -226,7 +245,6 @@
             circ.animate({ 'fill-opacity': 1, 'stroke-opacity': 1, 'opacity': 1, 'fill': circColor }, opacityAnimateSpeed);
             text.animateWith(circ, null, { 'fill-opacity': 1, 'stroke-opacity': 1, 'opacity': 1 }, opacityAnimateSpeed);
             group.attr('cursor', 'pointer');
-
         }
 
         var makeNoteVisibleImmediate = function (group, circColor) {
@@ -251,7 +269,6 @@
 
         var drawFretCircle = function (fret, circX, circY, topFretExtended, bottomFretExtended) {
             for (var k = 0; k < fretsToDrawOneCircleOn.length; k++) {
-
                 var num = fretsToDrawOneCircleOn[k];
 
                 var matchOrMultiple = ((fret - num) % 12);
@@ -431,7 +448,6 @@
 
             // Add frets and circles for note letters, attach data to the frets, and other things
             for (var i = 0; i < numStrings; i++) {
-
                 notesClickedTracker[i] = null; // initialize the array that tracks clicked frets on each string to null
                 notesPlacedTracker[i] = null; // initialize the array that tracks placed frets on each string to null
 
