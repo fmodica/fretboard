@@ -18,6 +18,7 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
         //music.setTimeSignature(4, 4);
         //music.setTempo(120);
 
+        var MAP_FROM_PROGRAM_FRIENDLY_SHARP_TO_VIEW_FRIENDLY_SHARP = { "Csharp" : "C#", "Fsharp" : "F#" };
         var ALL_NOTE_LETTERS = ["Ab", "A", "Bb", "B", "C", "Csharp", "D", "Eb", "E", "F", "Fsharp", "G"];
         var NOTE_LETTER_VALUE_MAP = { "Ab": 0, "A": 1, "Bb": 2, "B": 3, "C": 4, "Csharp": 5, "D": 6, "Eb": 7, "E": 8, "F": 9, "Fsharp": 10, "G": 11 };
         var notesClickedTracker = [];
@@ -386,11 +387,11 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
                 // Set the new string letter on the tuning square and array 
                 if (i === 0) {
                     guitarStringNotes[thisStringNumber].noteLetter = newNoteLetter;
-                    tuningSquares[thisStringNumber].attr("text", newNoteLetter);
+                    tuningSquares[thisStringNumber].attr("text", MAP_FROM_PROGRAM_FRIENDLY_SHARP_TO_VIEW_FRIENDLY_SHARP[newNoteLetter] || newNoteLetter);
                     guitarStringNotes[thisStringNumber].noteOctave = newNoteOctave;
                 }
 
-                text.attr("text", newNoteLetter); // change the text
+                text.attr("text", MAP_FROM_PROGRAM_FRIENDLY_SHARP_TO_VIEW_FRIENDLY_SHARP[newNoteLetter] || newNoteLetter); // change the text
 
                 group.noteLetter = newNoteLetter;
                 group.noteOctave = newNoteOctave;
@@ -499,7 +500,7 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
                     var stringOctave = guitarStringNotes[i].noteOctave;
                     var noteOctave = getNoteOctaveByFretNumber(stringOctave, stringLetter, j);
 
-                    var text = paper.text(circX, circY, noteLetter).attr("font-size", letterFontSize);
+                    var text = paper.text(circX, circY, MAP_FROM_PROGRAM_FRIENDLY_SHARP_TO_VIEW_FRIENDLY_SHARP[noteLetter] || noteLetter).attr("font-size", letterFontSize);
 
                     // Don't let the note text be selectable because that's annoying and ugly
                     makeTextUnselectable(text);
