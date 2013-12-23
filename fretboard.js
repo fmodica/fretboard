@@ -152,7 +152,7 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
 
                     var musicalNote = {
                         noteLetter: group.noteLetter, //NOTE_LETTER_VALUE_MAP[group.noteLetter],
-                        octave: group.noteOctave,
+                        noteOctave: group.noteOctave,
                         fretNumber: group.fretNumber,
                         stringNumber: group.stringNumber,
                         stringLetter: group.stringLetter,
@@ -549,7 +549,9 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
                 var squareId = "noteSquare" + "_" + x + "x_" + y + "y"; // assign it a unique id
                 square.id = squareId;
 
-                var text = paper.text(squareX + squareWidth / 2, squareY + squareWidth / 2, guitarStringNotes[i].noteLetter).attr("font-size", letterFontSize);
+                var text = paper.text(squareX + squareWidth / 2, squareY + squareWidth / 2,
+                    MAP_FROM_PROGRAM_FRIENDLY_SHARP_TO_VIEW_FRIENDLY_SHARP[guitarStringNotes[i].noteLetter] || guitarStringNotes[i].noteLetter)
+                    .attr("font-size", letterFontSize);
                 var textId = "tuningLetter" + "_" + x + "x_" + y + "y"; // assign it a unique id
                 text.id = textId;
 
