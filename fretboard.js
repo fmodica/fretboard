@@ -199,6 +199,24 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
                     notesPlacedTracker[i] = null;
                 }
             }
+            
+            self.addString = function(stringNote) {
+                if (stringNote) {
+                    settings.guitarStringNotes.push(stringNote);
+                    paper.remove();
+                
+                    init();
+                }
+            }
+            
+            self.removeString = function() {
+                if (guitarStringNotes.length > 1) {
+                    settings.guitarStringNotes.pop();
+                    paper.remove();
+                    
+                    init();
+                }
+            }
 
             // private methods
             var bindEventHandlersToNote = function (group) {
@@ -245,12 +263,6 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
                         break;
                     }
                 }
-            }
-            
-            self.addString = function(stringNote) {
-                paper.remove();
-                settings.guitarStringNotes.push(stringNote);
-                init();
             }
 
             var makeTextUnselectable = function (text) {
