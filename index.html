@@ -13,6 +13,7 @@
     <body>
         <div id="canvas_container"></div>
         <button class="reset-button">Unclick Frets</button>
+        <button class="add-string-button">Add String</button>
         <script type="text/javascript">
             $('#canvas_container').fretboard({
             'opacityAnimateSpeed' : 150, 
@@ -31,6 +32,10 @@
             
             $('.reset-button').on("click", function() {
                 myFretboard.clearClickedNotes();
+            });
+            
+            $('.add-string-button').on("click", function() {
+                myFretboard.addString({ noteLetter : "Fsharp", noteOctave : 2 });
             });
         </script>
     </body>
