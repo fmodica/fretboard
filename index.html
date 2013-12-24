@@ -12,7 +12,7 @@
 
     <body>
         <div id="canvas_container"></div>
-        <div id="resetButton"><!-- reset button will be created here by Fretboard class --></div>
+        <button class="reset-button">Unclick Frets</button>
         <script type="text/javascript">
             $('#canvas_container').fretboard({
             'opacityAnimateSpeed' : 150, 
@@ -28,7 +28,10 @@
             'numFrets' : 15,
             'fretboardOrigin' : [150,25]});
             var myFretboard= $('#canvas_container').data('fretboard');
-            myFretboard.createResetButton("remove-frets-button", "btn btn-warning", "Unclick Frets", "resetButton");
+            
+            $('.reset-button').on("click", function() {
+                myFretboard.clearClickedNotes();
+            });
         </script>
     </body>
 

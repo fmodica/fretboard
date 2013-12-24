@@ -18,9 +18,9 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
         //music.setTimeSignature(4, 4);
         //music.setTempo(120);
 
-        var MAP_FROM_PROGRAM_FRIENDLY_SHARP_TO_VIEW_FRIENDLY_SHARP = { "Csharp" : "C#", "Fsharp" : "F#" };
-        var ALL_NOTE_LETTERS = ["Ab", "A", "Bb", "B", "C", "Csharp", "D", "Eb", "E", "F", "Fsharp", "G"];
-        var NOTE_LETTER_VALUE_MAP = { "Ab": 0, "A": 1, "Bb": 2, "B": 3, "C": 4, "Csharp": 5, "D": 6, "Eb": 7, "E": 8, "F": 9, "Fsharp": 10, "G": 11 };
+        var MAP_FROM_PROGRAM_FRIENDLY_SHARP_TO_VIEW_FRIENDLY_SHARP = { "Aflat" : "Ab", "Bflat" : "Bb", "Csharp" : "C#", "Eflat" : "Eb", "Fsharp" : "F#" };
+        var ALL_NOTE_LETTERS = ["Aflat", "A", "Bflat", "B", "C", "Csharp", "D", "Eflat", "E", "F", "Fsharp", "G"];
+        var NOTE_LETTER_VALUE_MAP = { "Aflat": 0, "A": 1, "Bflat": 2, "B": 3, "C": 4, "Csharp": 5, "D": 6, "Eflat": 7, "E": 8, "F": 9, "Fsharp": 10, "G": 11 };
         var notesClickedTracker = [];
         var notesPlacedTracker = [];                       // same as above, but for notes placed on the fretboard explicitly (instead of clicked)
 
@@ -89,19 +89,7 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
             stringTracker[i] = new Array(numFrets);
         }
 
-        // public methods
-        self.createResetButton = function (buttonId, buttonClass, buttonValue, elementOnWhichToAppend) {
-            var buttonHtml = "<div class='reset-button-container'><input type='button' id='" + buttonId + "' class='" + buttonClass + "' value='" + buttonValue + "'/></div>";
-
-            $('#' + elementOnWhichToAppend).append(buttonHtml);
-
-            // If clicked, remove the clicked colored circles and bind hover events to those frets
-            $('#' + buttonId).click(function () {
-                self.reset();
-            });
-        }
-
-        self.reset = function () {
+        self.clearClickedNotes = function () {
             for (var i = 0; i < numStrings; i++) {
                 if (notesClickedTracker[i] != null) {
                     var group = stringTracker[i][notesClickedTracker[i]];
@@ -114,7 +102,7 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
                 }
             }
 
-            self.clearPlacedNotes();
+            //self.clearPlacedNotes();
         }
 
         //self.createPlayButton = function (buttonId, buttonClass, buttonValue, elementOnWhichToAppend) {
@@ -345,7 +333,7 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
                 notesClickedTracker[thisString] = thisFret;
             }
 
-            self.clearPlacedNotes();
+            //self.clearPlacedNotes();
 
             $fretboardContainer.trigger("noteClicked");
         }
@@ -371,7 +359,7 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
 
                 if (direction === "right") {
                     newNoteLetter = getNoteLetterByFretNumber(previousStringLetter, i + 1);
-                    if (newNoteLetter === "Ab")
+                    if (newNoteLetter === "Aflat")
                         newNoteOctave = ++previousNoteOctave;
                     else
                         newNoteOctave = previousNoteOctave;
