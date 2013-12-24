@@ -2,6 +2,7 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
     scope = scope || this;
     for (var i = 0; i < this.events.length; i++) {
         if (this.events[i].name === str) {
+            console.log(params);
             this.events[i].f.call(scope, params);
         }
     }
@@ -132,50 +133,72 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
                 return notes;
             }
 
-            self.setClickedNotes = function (stringLetter, stringOctave, fretNumber) {
+            self.setClickedNote = function (stringLetter, stringOctave, fretNumber, immediate) {
                 for (var i = 0; i < guitarStringNotes.length; i++) {
                     if (guitarStringNotes[i].noteLetter === stringLetter && guitarStringNotes[i].noteOctave === stringOctave) {
                         var group = stringTracker[i][fretNumber];
                         var circ = group[0];
-                        circ.trigger("click", circ, null);
+                        circ.trigger("click", circ, immediate);
                     }
                 }
             }
-
-            self.placeNoteOnFretboard = function (stringLetter, stringOctave, fretNumber) {
+            
+            self.setClickedNoteByStringNumAndFretNum = function (stringNum, fretNum, immediate) {
+                var group = stringTracker[stringNum][fretNum];
+                var circ = group[0];
+                circ.trigger("click", circ, { immediate : immediate });
+            }
+            
+            self.placeNoteOnFretboard = function (stringLetter, stringOctave, fretNumber, immediate) {
                 // Loop over the instrument's strings, comparing note and octave to the string this note is on
                 // to find a match. If a match is found, show the note.
                 for (var i = 0; i < guitarStringNotes.length; i++) {
                     if (guitarStringNotes[i].noteLetter === stringLetter && guitarStringNotes[i].noteOctave === stringOctave) {
                         //if (fretNumber >= 0 && fretNumber <= numFrets) {
                         var group = stringTracker[i][fretNumber];
-                        var circ = group[0];
-                        var text = group[1];
-
-                        var color;
-                        var opacity;
-
-                        if (notesClickedTracker[i] === fretNumber) {
-                            color = placedNoteColorOverlap;
-
-                            //color = placedNoteColor;
-                            opacity = 1;
-                        } else {
-                            color = placedNoteColor;
-                            opacity = 1;
-                        }
-
-                        makeNoteVisible(group, color);
-
-                        group.unhover(noteMouseOver, noteMouseOut);
-                        //group.unclick(circ.data("click"));
-
-                        notesPlacedTracker[i] = fretNumber;
-                        //}
+                        placeNote(group, immediate);
                     }
                 }
             }
+            
+            self.placeNoteOnFretboardByStringNumAndFretNum = function(stringNum, fretNum, immediate) {
+                var group = stringTracker[stringNum][fretNum];
+                
+                if (group) {
+                    placeNote(group, immediate);
+                }
+            }
+    
+            var placeNote = function(group, immediate) {
+                var circ = group[0];
+                var text = group[1];
 
+                var color;
+                var opacity;
+
+                if (notesClickedTracker[i] === fretNumber) {
+                    color = placedNoteColorOverlap;
+
+                    //color = placedNoteColor;
+                    opacity = 1;
+                } else {
+                    color = placedNoteColor;
+                    opacity = 1;
+                }
+
+                if (immediate) {
+                    makeNoteVisibleImmediate(group, color);
+                } else {
+                    makeNoteVisible(group, color);
+                }
+
+                group.unhover(noteMouseOver, noteMouseOut);
+                //group.unclick(circ.data("click"));
+
+                notesPlacedTracker[i] = fretNumber;
+                //}           
+            }
+            
             self.clearPlacedNotes = function () {
                 for (var i = 0; i < notesPlacedTracker.length; i++) {
                     var fret = notesPlacedTracker[i];
@@ -203,18 +226,56 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
             self.addString = function(stringNote) {
                 if (stringNote) {
                     settings.guitarStringNotes.push(stringNote);
+                    var oldPlacedNotes = notesPlacedTracker.slice(); // make a copy, minus the last
+                    var oldClickedNotes = notesClickedTracker.slice();
+                    
                     paper.remove();
                 
                     init();
+                    
+                    resetOldPlacedAndClickedNotes(oldPlacedNotes, oldClickedNotes);
                 }
             }
             
             self.removeString = function() {
                 if (guitarStringNotes.length > 1) {
+                    var oldPlacedNotes = notesPlacedTracker.slice(); // make a copy, minus the last
+                    var oldClickedNotes = notesClickedTracker.slice(); 
+                    
+                    oldPlacedNotes.pop(); // get rid of the last element
+                    oldClickedNotes.pop();
+                    
                     settings.guitarStringNotes.pop();
                     paper.remove();
                     
                     init();
+                    
+                    resetOldPlacedAndClickedNotes(oldPlacedNotes, oldClickedNotes);
+
+                }
+            }
+            
+            // could make this a public function that loops over a list of clicked/placed notes
+            // and sets them
+            var resetOldPlacedAndClickedNotes = function(oldPlacedNotes, oldClickedNotes) {
+                if (oldPlacedNotes) {
+                    for (var i = 0; i < oldPlacedNotes.length; i++) {
+                        var stringNum = i;
+                        var fretNum = oldPlacedNotes[i];
+                        if (stringNum != undefined && stringNum != null && fretNum != undefined && fretNum != null) {
+                            self.placeNoteOnFretboardByStringNumAndFretNum(stringNum, fretNum, true);
+                        }
+                    }
+                }
+                
+                if (oldClickedNotes) {
+                     for (var i = 0; i < oldClickedNotes.length; i++) {
+                        var stringNum = i;
+                        var fretNum = oldClickedNotes[i];
+                        if (stringNum != undefined && stringNum != null && fretNum != undefined && fretNum != null) {
+                            self.setClickedNoteByStringNumAndFretNum(stringNum, fretNum, true);
+                        }
+                    }                   
                 }
             }
 
@@ -284,7 +345,11 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
                 //console.log("mouseout called \n\n");
             }
 
-            var noteClick = function () {
+            // This parameter can be passed in by Raphael.js or by the 
+            // "trigger" function defined above.
+            var noteClick = function (params) {
+                var immediatelyVisible = params && params.immediate === true;
+                
                 var group = this.data("group");
 
                 var circ = group[0];
@@ -294,13 +359,23 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
 
                 if (notesClickedTracker[thisString] === null) {
                     notesClickedTracker[thisString] = thisFret;
-                    makeNoteVisible(group, clickedNoteColor);
+                    if (immediatelyVisible) {
+                        makeNoteVisibleImmediate(group, clickedNoteColor);
+                    } else {
+                        makeNoteVisible(group, clickedNoteColor);
+                    }
                     // bind functions which are attached to the circle but work for the group
                     group.unhover(noteMouseOver, noteMouseOut);
                 } // if the fret clicked was already clicked...
                 else if ((stringTracker[thisString][notesClickedTracker[thisString]]).id === group.id) {
                     notesClickedTracker[thisString] = null;
-                    makeNoteVisible(group, '#FFF');
+                    
+                    if (immediatelyVisible) {
+                        makeNoteVisibleImmediate(group, '#FFF');
+                    } else {
+                        makeNoteVisible(group, '#FFF');
+                    }
+                    
                     group.hover(noteMouseOver, noteMouseOut); // unbind functions 
                 }
                 else {
