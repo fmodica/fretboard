@@ -195,7 +195,9 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
                 //group.unclick(circ.data("click"));
 
                 notesPlacedTracker[stringNumber] = fretNumber;
-                //}           
+                //}      
+
+                $fretboardContainer.trigger("notePlaced");
             }
 
             self.clearPlacedNotes = function () {
@@ -233,6 +235,8 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
                     init();
 
                     resetOldPlacedAndClickedNotes(oldPlacedNotes, oldClickedNotes);
+
+                    $fretboardContainer.trigger("tuningChanged");
                 }
             }
 
@@ -241,8 +245,8 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
                     var oldPlacedNotes = notesPlacedTracker.slice(); // make a copy, minus the last
                     var oldClickedNotes = notesClickedTracker.slice();
 
-                    oldPlacedNotes.pop(); // get rid of the last element
-                    oldClickedNotes.pop();
+                    //oldPlacedNotes.pop(); // get rid of the last element
+                    //oldClickedNotes.pop();
 
                     settings.guitarStringNotes.pop();
                     paper.remove();
@@ -251,6 +255,23 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
 
                     resetOldPlacedAndClickedNotes(oldPlacedNotes, oldClickedNotes);
 
+                    $fretboardContainer.trigger("tuningChanged");
+                }
+            }
+
+            self.setGuitarStringNotes = function (newGuitarStringNotes) {
+                if (newGuitarStringNotes && newGuitarStringNotes.length > 0) {
+                    var oldPlacedNotes = notesPlacedTracker.slice(); // make a copy
+                    var oldClickedNotes = notesClickedTracker.slice();
+
+                    settings.guitarStringNotes = newGuitarStringNotes;
+                    paper.remove();
+
+                    init();
+
+                    resetOldPlacedAndClickedNotes(oldPlacedNotes, oldClickedNotes);
+
+                    $fretboardContainer.trigger("tuningChanged");
                 }
             }
 
@@ -261,7 +282,8 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
                     for (var i = 0; i < oldPlacedNotes.length; i++) {
                         var stringNum = i;
                         var fretNum = oldPlacedNotes[i];
-                        if (stringNum != undefined && stringNum != null && fretNum != undefined && fretNum != null) {
+                        if (stringNum != undefined && stringNum != null && stringNum <= guitarStringNotes.length - 1 &&
+                            fretNum != undefined && fretNum != null && fretNum <= numFrets) {
                             self.placeNoteOnFretboardByStringNumAndFretNum(stringNum, fretNum, true);
                         }
                     }
@@ -271,7 +293,8 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
                     for (var i = 0; i < oldClickedNotes.length; i++) {
                         var stringNum = i;
                         var fretNum = oldClickedNotes[i];
-                        if (stringNum != undefined && stringNum != null && fretNum != undefined && fretNum != null) {
+                        if (stringNum != undefined && stringNum != null && stringNum <= guitarStringNotes.length - 1 &&
+                            fretNum != undefined && fretNum != null && fretNum <= numFrets) {
                             self.setClickedNoteByStringNumAndFretNum(stringNum, fretNum, true);
                         }
                     }
