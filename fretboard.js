@@ -2,7 +2,6 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
     scope = scope || this;
     for (var i = 0; i < this.events.length; i++) {
         if (this.events[i].name === str) {
-            console.log(params);
             this.events[i].f.call(scope, params);
         }
     }
@@ -13,14 +12,14 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
     var Fretboard = function ($fretboardContainer, settings) {
         // public
         var self = this; // the fretboard object
-        
+
         init();
-        
+
         function init() {
             // create paper object (requires Raphael.js)
             var paper = new Raphael($fretboardContainer.attr('id'), '100%', '100%');
-        
-            var MAP_FROM_PROGRAM_FRIENDLY_SHARP_TO_VIEW_FRIENDLY_SHARP = { "Aflat" : "Ab", "Bflat" : "Bb", "Csharp" : "C#", "Eflat" : "Eb", "Fsharp" : "F#" };
+
+            var MAP_FROM_PROGRAM_FRIENDLY_SHARP_TO_VIEW_FRIENDLY_SHARP = { "Aflat": "Ab", "Bflat": "Bb", "Csharp": "C#", "Eflat": "Eb", "Fsharp": "F#" };
             var ALL_NOTE_LETTERS = ["Aflat", "A", "Bflat", "B", "C", "Csharp", "D", "Eflat", "E", "F", "Fsharp", "G"];
             var NOTE_LETTER_VALUE_MAP = { "Aflat": 0, "A": 1, "Bflat": 2, "B": 3, "C": 4, "Csharp": 5, "D": 6, "Eflat": 7, "E": 8, "F": 9, "Fsharp": 10, "G": 11 };
             var notesClickedTracker = [];
@@ -106,7 +105,7 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
 
                 //self.clearPlacedNotes();
             }
-            
+
             self.getGuitarStringNotes = function () {
                 return guitarStringNotes;
             }
@@ -142,13 +141,13 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
                     }
                 }
             }
-            
+
             self.setClickedNoteByStringNumAndFretNum = function (stringNum, fretNum, immediate) {
                 var group = stringTracker[stringNum][fretNum];
                 var circ = group[0];
-                circ.trigger("click", circ, { immediate : immediate });
+                circ.trigger("click", circ, { immediate: immediate });
             }
-            
+
             self.placeNoteOnFretboard = function (stringLetter, stringOctave, fretNumber, immediate) {
                 // Loop over the instrument's strings, comparing note and octave to the string this note is on
                 // to find a match. If a match is found, show the note.
@@ -156,27 +155,27 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
                     if (guitarStringNotes[i].noteLetter === stringLetter && guitarStringNotes[i].noteOctave === stringOctave) {
                         //if (fretNumber >= 0 && fretNumber <= numFrets) {
                         var group = stringTracker[i][fretNumber];
-                        placeNote(group, immediate);
+                        placeNote(group, i, fretNumber, immediate);
                     }
                 }
             }
-            
-            self.placeNoteOnFretboardByStringNumAndFretNum = function(stringNum, fretNum, immediate) {
-                var group = stringTracker[stringNum][fretNum];
-                
+
+            self.placeNoteOnFretboardByStringNumAndFretNum = function (stringNumber, fretNumber, immediate) {
+                var group = stringTracker[stringNumber][fretNumber];
+
                 if (group) {
-                    placeNote(group, immediate);
+                    placeNote(group, stringNumber, fretNumber, immediate);
                 }
             }
-    
-            var placeNote = function(group, immediate) {
+
+            var placeNote = function (group, stringNumber, fretNumber, immediate) {
                 var circ = group[0];
                 var text = group[1];
 
                 var color;
                 var opacity;
 
-                if (notesClickedTracker[i] === fretNumber) {
+                if (notesClickedTracker[stringNumber] === fretNumber) {
                     color = placedNoteColorOverlap;
 
                     //color = placedNoteColor;
@@ -195,10 +194,10 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
                 group.unhover(noteMouseOver, noteMouseOut);
                 //group.unclick(circ.data("click"));
 
-                notesPlacedTracker[i] = fretNumber;
+                notesPlacedTracker[stringNumber] = fretNumber;
                 //}           
             }
-            
+
             self.clearPlacedNotes = function () {
                 for (var i = 0; i < notesPlacedTracker.length; i++) {
                     var fret = notesPlacedTracker[i];
@@ -222,42 +221,42 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
                     notesPlacedTracker[i] = null;
                 }
             }
-            
-            self.addString = function(stringNote) {
+
+            self.addString = function (stringNote) {
                 if (stringNote) {
                     settings.guitarStringNotes.push(stringNote);
                     var oldPlacedNotes = notesPlacedTracker.slice(); // make a copy, minus the last
                     var oldClickedNotes = notesClickedTracker.slice();
-                    
+
                     paper.remove();
-                
+
                     init();
-                    
+
                     resetOldPlacedAndClickedNotes(oldPlacedNotes, oldClickedNotes);
                 }
             }
-            
-            self.removeString = function() {
+
+            self.removeString = function () {
                 if (guitarStringNotes.length > 1) {
                     var oldPlacedNotes = notesPlacedTracker.slice(); // make a copy, minus the last
-                    var oldClickedNotes = notesClickedTracker.slice(); 
-                    
+                    var oldClickedNotes = notesClickedTracker.slice();
+
                     oldPlacedNotes.pop(); // get rid of the last element
                     oldClickedNotes.pop();
-                    
+
                     settings.guitarStringNotes.pop();
                     paper.remove();
-                    
+
                     init();
-                    
+
                     resetOldPlacedAndClickedNotes(oldPlacedNotes, oldClickedNotes);
 
                 }
             }
-            
+
             // could make this a public function that loops over a list of clicked/placed notes
             // and sets them
-            var resetOldPlacedAndClickedNotes = function(oldPlacedNotes, oldClickedNotes) {
+            var resetOldPlacedAndClickedNotes = function (oldPlacedNotes, oldClickedNotes) {
                 if (oldPlacedNotes) {
                     for (var i = 0; i < oldPlacedNotes.length; i++) {
                         var stringNum = i;
@@ -267,15 +266,15 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
                         }
                     }
                 }
-                
+
                 if (oldClickedNotes) {
-                     for (var i = 0; i < oldClickedNotes.length; i++) {
+                    for (var i = 0; i < oldClickedNotes.length; i++) {
                         var stringNum = i;
                         var fretNum = oldClickedNotes[i];
                         if (stringNum != undefined && stringNum != null && fretNum != undefined && fretNum != null) {
                             self.setClickedNoteByStringNumAndFretNum(stringNum, fretNum, true);
                         }
-                    }                   
+                    }
                 }
             }
 
@@ -349,7 +348,7 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
             // "trigger" function defined above.
             var noteClick = function (params) {
                 var immediatelyVisible = params && params.immediate === true;
-                
+
                 var group = this.data("group");
 
                 var circ = group[0];
@@ -369,13 +368,13 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
                 } // if the fret clicked was already clicked...
                 else if ((stringTracker[thisString][notesClickedTracker[thisString]]).id === group.id) {
                     notesClickedTracker[thisString] = null;
-                    
+
                     if (immediatelyVisible) {
                         makeNoteVisibleImmediate(group, '#FFF');
                     } else {
                         makeNoteVisible(group, '#FFF');
                     }
-                    
+
                     group.hover(noteMouseOver, noteMouseOut); // unbind functions 
                 }
                 else {
@@ -478,8 +477,8 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
 
                 return stringOctave + numOctavesAboveString;
             }
-            
-            var setScrollBar = function($svg, $fretboardContainer) {
+
+            var setScrollBar = function ($svg, $fretboardContainer) {
                 var svgRightPosition = $svg.width() + $svg.position().left;
                 var containerRightPosition = $fretboardContainer.width() + $fretboardContainer.position().left;
 
