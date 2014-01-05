@@ -69,6 +69,14 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
             $window,
             paper;
 
+        self.disable = function () {
+            $svg.css('z-index', -1000);
+        };
+
+        self.enable = function () {
+            $svg.css('z-index', 1);
+        }
+
         self.clearClickedNotes = function () {
             for (var i = 0; i < numStrings; i++) {
                 if (notesClickedTracker[i] != null) {
@@ -700,7 +708,8 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
 
             $svg.css({
                 height: svgHeight,
-                width: svgWidth
+                width: svgWidth,
+                "z-index": 1
             });
 
             $window.on("load resize", function () {
