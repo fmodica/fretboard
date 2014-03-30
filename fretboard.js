@@ -112,6 +112,9 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
 
             console.log("jQuery init called");
 
+            if (paper) {
+                paper.remove();
+            }
             // create paper object (requires Raphael.js)
             paper = new Raphael($fretboardContainer.attr('id'), '100%', '100%');
 
@@ -476,7 +479,6 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
 
                 settings.guitarStringNotes.push(stringNote);
 
-                paper.remove();
                 init();
 
                 //notesPlacedTracker = oldPlacedNotes;
@@ -494,7 +496,6 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
 
                 settings.guitarStringNotes.pop();
 
-                paper.remove();
                 init();
 
                 //notesPlacedTracker = oldPlacedNotes.pop(); // remove last note
@@ -514,7 +515,6 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
 
                 settings.guitarStringNotes = newGuitarStringNotes;
 
-                paper.remove();
                 init();
 
                 //notesPlacedTracker = oldPlacedNotes;
