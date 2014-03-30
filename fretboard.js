@@ -22,7 +22,7 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
         // Default config settings
         var config = {
             fretboardOrigin: [80, 15], // x and y location of the upper left of the fretboard
-            numFrets: 15,                                                                     
+            numFrets: 15,
             fretWidth: 67,             // in pixels  
             fretHeight: 31,            // in pixels  
             guitarStringNotes: [       // default strings (note letters), from high to low.
@@ -292,15 +292,16 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
 
         self.clearClickedNotes = function () {
             for (var i = 0; i < numStrings; i++) {
-                if (notesClickedTracker[i] != null) {
+                // Only clear if a placed note is not there
+                if (notesClickedTracker[i] && notesPlacedTracker[i] !== notesClickedTracker[i]) {
                     var group = stringTracker[i][notesClickedTracker[i]];
                     var circ = group[0];
 
                     group.hover(noteMouseOver, noteMouseOut); // bind functions 
                     makeNoteInvisible(group);
-
-                    notesClickedTracker[i] = null;
                 }
+
+                notesClickedTracker[i] = null;
             }
 
             $fretboardContainer.trigger("notesCleared");
@@ -744,7 +745,7 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
             return stringOctave + numOctavesAboveString;
         }
 
-       function setScrollBar($svg, $fretboardContainer) {
+        function setScrollBar($svg, $fretboardContainer) {
             var svgRightPosition = $svg.width() + $svg.position().left;
             var containerRightPosition = $fretboardContainer.width() + $fretboardContainer.position().left;
 
