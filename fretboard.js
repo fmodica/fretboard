@@ -292,13 +292,21 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
 
         self.clearClickedNotes = function () {
             for (var i = 0; i < numStrings; i++) {
-                // Only clear if a placed note is not there
-                if (notesClickedTracker[i] && notesPlacedTracker[i] !== notesClickedTracker[i]) {
+                var fret = notesClickedTracker[i];
+
+                if (fret !== null) {
                     var group = stringTracker[i][notesClickedTracker[i]];
                     var circ = group[0];
 
-                    group.hover(noteMouseOver, noteMouseOut); // bind functions 
-                    makeNoteInvisible(group);
+                    // This clicked note could also be a placed note. In that case, 
+                    // it should not be made invisible. Just give it the correct color.
+                    if (fret === notesPlacedTracker[i]) {
+                        var color = placedNoteColor;
+                        makeNoteVisibleImmediate(group, color);
+                    } else {
+                        group.hover(noteMouseOver, noteMouseOut); // bind functions 
+                        makeNoteInvisible(group);
+                    }
                 }
 
                 notesClickedTracker[i] = null;
@@ -452,7 +460,7 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
         self.clearPlacedNotes = function () {
             for (var i = 0; i < notesPlacedTracker.length; i++) {
                 var fret = notesPlacedTracker[i];
-                if (fret != null) {
+                if (fret !== null) {
                     var group = stringTracker[i][fret];
                     var circ = group[0];
                     var text = group[1];
@@ -462,7 +470,7 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
 
                     if (fret === notesClickedTracker[i]) {
                         var color = clickedNoteColor;
-                        makeNoteVisibleAnimated(group, color);
+                        makeNoteVisibleImmediate(group, color);
                     } else {
                         makeNoteInvisible(group);
                         group.hover(noteMouseOver, noteMouseOut); // bind hover events
