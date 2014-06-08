@@ -633,12 +633,12 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
         }
 
         function noteClick(params) {
-            if (disabled) {
+            if (disabled && (!params || params.wasSetInternally === undefined || params.wasSetInternally === true)) {
                 return false; 
             }
             
             var immediatelyVisible = params && params.immediate === true;
-            var triggerClick = (params.wasSetInternally === undefined || params.wasSetInternally === true);
+            var triggerClick = (!params || params.wasSetInternally === undefined || params.wasSetInternally === true);
 
             var group = this.data("group");
 
