@@ -67,7 +67,8 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
             svgWidthBuffer,
             $svg,
             $window,
-            paper;
+            paper,
+            disabled;
 
         function init() {
             notesClickedTracker = [];
@@ -282,12 +283,20 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
             setScrollBar($svg, $fretboardContainer);
         } // end of SetUpFretboard method
 
-        self.disable = function () {
-            $svg.css('z-index', -1000);
-        };
+        //self.disable = function () {
+        //    $svg.css('z-index', -1000);
+        //};
 
-        self.enable = function () {
-            $svg.css('z-index', 1);
+        //self.enable = function () {
+        //    $svg.css('z-index', 1);
+        //}
+        
+        self.disable = function() {
+            disabled = true;    
+        }
+        
+        self.enable = function() {
+            disabled = false;
         }
 
         self.clearClickedNotes = function () {
@@ -624,6 +633,10 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
         }
 
         function noteClick(params) {
+            if (disabled) {
+                return false; 
+            }
+            
             var immediatelyVisible = params && params.immediate === true;
             var triggerClick = (params.wasSetInternally === undefined || params.wasSetInternally === true);
 
@@ -673,6 +686,10 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
         }
 
         function tuningTriangleClick() {
+            if (disabled) {
+                return false;
+            }
+        
             var triangle = this;
 
             var thisStringNumber = triangle.data("stringNumber");
