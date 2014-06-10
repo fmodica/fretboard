@@ -538,7 +538,7 @@
 		self.setClickedNoteByStringNoteAndFretNum = function(stringLetter, stringOctave, fretNumber, immediate) {
 			setClickedNoteByStringNoteAndFretNum(validateNoteLetter(stringLetter), stringOctave, validateFretNum(fretNumber), {
 				immediate: immediate,
-				wasSetInternally: false
+				wasCalledInternally: false
 			});
 		}
 
@@ -554,7 +554,7 @@
 		self.setClickedNoteByStringNumAndFretNum = function(stringNum, fretNum, immediate) {
 			setClickedNoteByStringNumAndFretNum(stringNum, fretNum, {
 				immediate: immediate,
-				wasSetInternally: false
+				wasCalledInternally: false
 			});
 		}
 
@@ -573,7 +573,7 @@
 		self.placeNoteOnFretboardByStringNoteAndFretNum = function(stringLetter, stringOctave, fretNumber, immediate) {
 			placeNoteOnFretboardByStringNoteAndFretNum(validateNoteLetter(stringLetter), stringOctave, validateFretNum(fretNumber), {
 				immediate: immediate,
-				wasSetInternally: false
+				wasCalledInternally: false
 			});
 		}
 
@@ -588,11 +588,15 @@
 		self.placeNoteOnFretboardByStringNumAndFretNum = function(stringNumber, fretNumber, immediate) {
 			placeNoteOnFretboardByStringNumAndFretNum(stringNumber, fretNumber, {
 				immediate: immediate,
-				wasSetInternally: false
+				wasCalledInternally: false
 			});
 		}
 
 		function placeNote(group, stringNumber, fretNumber, params) {
+			var wasCalledInternally = params && params.wasCalledInternally;
+
+			var immediatelyVisible = params && params.immediate;
+			
 			var circ = group[0];
 			var text = group[1];
 
@@ -609,7 +613,7 @@
 				opacity = 1;
 			}
 
-			if (params.immediate) {
+			if (immediatelyVisible) {
 				makeNoteVisibleImmediate(group, color);
 			} else {
 				makeNoteVisibleAnimated(group, color);
@@ -619,7 +623,7 @@
 
 			notesPlacedTracker[stringNumber] = fretNumber;
 
-			//if (!params.wasSetInternally) {
+			//if (!params.wasCalledInternally) {
 			$fretboardContainer.trigger("notePlaced");
 			//}
 		}
@@ -717,7 +721,7 @@
 					if (fretNum !== null) {
 						placeNoteOnFretboardByStringNumAndFretNum(stringNum, fretNum, {
 							immediate: true,
-							wasSetInternally: true
+							wasCalledInternally: true
 						});
 					}
 
@@ -735,7 +739,7 @@
 					if (fretNum !== null) {
 						setClickedNoteByStringNumAndFretNum(stringNum, fretNum, {
 							immediate: true,
-							wasSetInternally: true
+							wasCalledInternally: true
 						});
 					}
 				}
@@ -832,12 +836,12 @@
 		}
 
 		function noteClick(params) {
-			if (disabled && (!params || params.wasSetInternally === undefined || params.wasSetInternally === true)) {
+			var wasCalledInternally = params && params.wasCalledInternally;
+			
+			if (disabled && !wasCalledInternally) {
 				return false;
 			}
-
-			var immediatelyVisible = params && params.immediate === true;
-			var triggerClick = (!params || params.wasSetInternally === undefined || params.wasSetInternally === true);
+			var immediatelyVisible = params && params.immediate;
 
 			var group = this.data("group");
 
@@ -878,9 +882,9 @@
 				notesClickedTracker[thisString] = thisFret;
 			}
 
-			if (triggerClick) {
-				$fretboardContainer.trigger("noteClicked")
-			}
+			//if (triggerClick) {
+			$fretboardContainer.trigger("noteClicked")
+			//}
 		}
 
 		function tuningTriangleClick() {
@@ -992,3 +996,14 @@
 		init();
 	};
 })(jQuery);
+
+// This function allows us to call a "trigger" event on a Raphael element.
+// It takes the name of the event to fire and the scope to fire it with
+Raphael.el.trigger = function (str, scope, params) { 
+    scope = scope || this;
+    for (var i = 0; i < this.events.length; i++) {
+        if (this.events[i].name === str) {
+            this.events[i].f.call(scope, params);
+        }
+    }
+};
