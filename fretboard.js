@@ -175,7 +175,7 @@
 			$svg = null;
 			$window = $(window);
 
-			console.log("jQuery init called");
+			console.log("Fretboard init called");
 
 			// If this function is being called to add/remove strings, 
 			// remove the Raphael paper object as a new one is about to
@@ -521,12 +521,13 @@
 			throw fretNum + " is not a valid fret number. There are " + numFrets + " frets.";
 		}
 
-		// to be used internally
-
+		// To be used internally
 		function setClickedNoteByStringNoteAndFretNum(stringLetter, stringOctave, fretNumber, params) {
+			var stringNoteInput = { noteLetter : stringLetter, noteOctave : stringOctave };
+			
 			for (var i = 0; i < guitarStringNotes.length; i++) {
-				// Find the note, make sure it's not clicked, and click it
-				if (guitarStringNotes[i].noteLetter === stringLetter && guitarStringNotes[i].noteOctave === stringOctave && !notesClickedTracker[i]) {
+				// Find the note, and click it if it's not clicked (otherwise it will disappear)
+				if (getNoteUniqueValue(guitarStringNotes[i]) === getNoteUniqueValue(stringNoteInput) && !notesClickedTracker[i]) {
 					var group = stringTracker[i][fretNumber];
 					var circ = group[0];
 					circ.trigger("click", circ, params);
@@ -537,22 +538,6 @@
 		// to be used externally as API function
 		self.setClickedNoteByStringNoteAndFretNum = function(stringLetter, stringOctave, fretNumber, immediate) {
 			setClickedNoteByStringNoteAndFretNum(validateNoteLetter(stringLetter), stringOctave, validateFretNum(fretNumber), {
-				immediate: immediate,
-				wasCalledInternally: false
-			});
-		}
-
-		// to be used internally
-
-		function setClickedNoteByStringNumAndFretNum(stringNum, fretNum, params) {
-			var group = stringTracker[stringNum][fretNum];
-			var circ = group[0];
-			circ.trigger("click", circ, params);
-		}
-
-		// to be used externally as API function
-		self.setClickedNoteByStringNumAndFretNum = function(stringNum, fretNum, immediate) {
-			setClickedNoteByStringNumAndFretNum(stringNum, fretNum, {
 				immediate: immediate,
 				wasCalledInternally: false
 			});
@@ -573,21 +558,6 @@
 		// Let this take a note as input instead of stringLetter and stringOctave
 		self.placeNoteOnFretboardByStringNoteAndFretNum = function(stringLetter, stringOctave, fretNumber, immediate) {
 			placeNoteOnFretboardByStringNoteAndFretNum(validateNoteLetter(stringLetter), stringOctave, validateFretNum(fretNumber), {
-				immediate: immediate,
-				wasCalledInternally: false
-			});
-		}
-
-		function placeNoteOnFretboardByStringNumAndFretNum(stringNumber, fretNumber, params) {
-			var group = stringTracker[stringNumber][fretNumber];
-
-			if (group) {
-				placeNote(group, stringNumber, fretNumber, params);
-			}
-		}
-
-		self.placeNoteOnFretboardByStringNumAndFretNum = function(stringNumber, fretNumber, immediate) {
-			placeNoteOnFretboardByStringNumAndFretNum(stringNumber, fretNumber, {
 				immediate: immediate,
 				wasCalledInternally: false
 			});
@@ -719,7 +689,7 @@
 
 					// nulls are "valid" in oldPlacedNotes since it tracks every string
 					if (fretNum !== null) {
-						placeNoteOnFretboardByStringNumAndFretNum(stringNum, fretNum, {
+						placeNoteOnFretboardByStringNoteAndFretNum(guitarStringNotes[stringNum].noteLetter, guitarStringNotes[stringNum].noteOctave, fretNum, {
 							immediate: true,
 							wasCalledInternally: true
 						});
@@ -737,7 +707,7 @@
 
 					// nulls are "valid" in oldPlacedNotes since it tracks every string
 					if (fretNum !== null) {
-						setClickedNoteByStringNumAndFretNum(stringNum, fretNum, {
+						setClickedNoteByStringNoteAndFretNum(guitarStringNotes[stringNum].noteLetter, guitarStringNotes[stringNum].noteOctave, fretNum, {
 							immediate: true,
 							wasCalledInternally: true
 						});
