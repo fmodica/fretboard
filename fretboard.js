@@ -21,7 +21,6 @@
 	};
 })(jQuery);
 
-
 (function($) {
 	// Make this object available on the global scope
 	Fretboard = function($fretboardContainer, settings) {
@@ -200,7 +199,8 @@
 		function drawAndWireUpFretboard() {
 			var topFretExtended, bottomFretExtended, stringXBegin, stringXEnd, stringY, i, j, x, y,
 				circX, circY, circ, stringLetter, noteLetter, stringOctave, noteOctave, text, group,
-				squareWidth, squareX, squareY, square, midX, midY, topX, topY, bottomX, bottomY;
+				squareWidth, squareX, squareY, square, midX, midY, topX, topY, bottomX, bottomY, 
+				squareNoteText, squareOctaveText, squareOctaveTextX, squareOctaveTextY;
 
 			// For drawing things that extend above or below the top/bottom string, 
 			// like the left vertical part of the fret or the guitar body
@@ -291,10 +291,10 @@
 					// So for both cases, store a pointer to the group, which event handlers
 					// will use to then retrieve the circle and text together.
 					circ.data({
-						"group": group
+						group: group
 					});
 					text.data({
-						"group": group
+						group: group
 					});
 
 					group.push(circ, text);
@@ -318,12 +318,23 @@
 				squareX = x - (squareWidth);
 				squareY = y - (squareWidth / 2)
 				square = paper.rect(squareX, squareY, squareWidth, squareWidth).attr("fill", "white");
+				squareNoteText = paper.text(squareX + squareWidth / 2, squareY + squareWidth / 2, guitarStringNotes[i].noteLetter).attr("font-size", letterFontSize); 
+				
+				// Show the octave near the note on the tuning square
+				squareOctaveTextX = squareX + (.80 * squareWidth);
+				squareOctaveTextY = squareY + (.20 * squareWidth);
+				squareOctaveText = paper.text(squareOctaveTextX, squareOctaveTextY, allRaphaelNotes[i][0].stringOctave).attr("font-size", letterFontSize);
+				
+				squareNoteText.data({
+					x: squareOctaveTextX,
+					y: squareOctaveTextY,
+					octaveText: squareOctaveText
+				});
+				
+				makeTextUnselectable(squareNoteText);
+				makeTextUnselectable(squareOctaveText);
 
-				text = paper.text(squareX + squareWidth / 2, squareY + squareWidth / 2, guitarStringNotes[i].noteLetter).attr("font-size", letterFontSize); // MAP
-
-				makeTextUnselectable(text);
-
-				tuningSquares[i] = text;
+				tuningSquares[i] = squareNoteText;
 
 				// Triangles for changing the string tunings
 				midX = squareX + squareWidth + 25;
@@ -896,11 +907,13 @@
 				// Set the new string letter on the tuning square and array 
 				if (i === 0) {
 					guitarStringNotes[thisStringNumber].noteLetter = newNoteLetter;
-					tuningSquares[thisStringNumber].attr("text", newNoteLetter); // MAP
+					tuningSquares[thisStringNumber].attr("text", newNoteLetter).data("octaveText").attr("text", newNoteOctave);
 					guitarStringNotes[thisStringNumber].noteOctave = newNoteOctave;
 				}
 
-				text.attr("text", newNoteLetter); // change the text    // MAP
+
+
+				text.attr("text", newNoteLetter); // change the text    
 
 				group.noteLetter = newNoteLetter;
 				group.noteOctave = newNoteOctave;
