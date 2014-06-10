@@ -116,7 +116,7 @@
 			// Will hold the squares (Raphael objects) that show the each string's note letter
 			tuningSquares,
 			// A 2-d array that holds each Raphael group that contains both the circle and text for each note                           
-			stringTracker,
+			allRaphaelNotes,
 			svgWidth,
 			svgHeight,
 			svgHeightBuffer,
@@ -156,7 +156,7 @@
 			guitarStringNotes = extendedConfig.guitarStringNotes;
 			numStrings = guitarStringNotes.length;
 			tuningSquares = []; // will hold the squares that show the each string's note letter
-			stringTracker = new Array(numStrings); // a 2-d array that holds each group (circle and text) for each string
+			allRaphaelNotes = new Array(numStrings); // a 2-d array that holds each group (circle and text) for each string
 			clickedNoteColor = extendedConfig.clickedNoteColor;
 			placedNoteColor = extendedConfig.placedNoteColor;
 			fretboardColor = extendedConfig.fretboardColor;
@@ -189,7 +189,7 @@
 
 			for (var i = 0; i < numStrings; i++) {
 				// Probably don't need to call Array, but it works for now
-				stringTracker[i] = new Array(numFrets);
+				allRaphaelNotes[i] = new Array(numFrets);
 			}
 			
 			validateGuitarStringNotes();
@@ -305,7 +305,7 @@
 					group.toFront();
 
 					// Store it for tracking
-					stringTracker[i][j] = group;
+					allRaphaelNotes[i][j] = group;
 				}
 			}
 
@@ -385,7 +385,7 @@
 				var fret = notesClickedTracker[i];
 
 				if (fret !== null) {
-					var group = stringTracker[i][notesClickedTracker[i]];
+					var group = allRaphaelNotes[i][notesClickedTracker[i]];
 					var circ = group[0];
 
 					// This clicked note could also be a placed note. In that case, 
@@ -415,7 +415,7 @@
 
 			for (var i = 0; i < guitarStringNotes.length; i++) {
 				if (notesClickedTracker[i] !== null) {
-					var group = stringTracker[i][notesClickedTracker[i]];
+					var group = allRaphaelNotes[i][notesClickedTracker[i]];
 
 					var musicalNote = {
 						noteLetter: group.noteLetter, 
@@ -440,7 +440,7 @@
 
 			for (var i = 0; i < notesPlacedTracker.length; i++) {
 				if (notesPlacedTracker[i] !== null) {
-					var group = stringTracker[i][notesPlacedTracker[i]];
+					var group = allRaphaelNotes[i][notesPlacedTracker[i]];
 
 					var musicalNote = {
 						noteLetter: group.noteLetter, 
@@ -528,7 +528,7 @@
 			for (var i = 0; i < guitarStringNotes.length; i++) {
 				// Find the note, and click it if it's not clicked (otherwise it will disappear)
 				if (getNoteUniqueValue(guitarStringNotes[i]) === getNoteUniqueValue(stringNoteInput) && !notesClickedTracker[i]) {
-					var group = stringTracker[i][fretNumber];
+					var group = allRaphaelNotes[i][fretNumber];
 					var circ = group[0];
 					circ.trigger("click", circ, params);
 				}
@@ -549,7 +549,7 @@
 			
 			for (var i = 0; i < guitarStringNotes.length; i++) {
 				if (getNoteUniqueValue(guitarStringNotes[i]) === getNoteUniqueValue(stringNoteInput)) {
-					var group = stringTracker[i][fretNumber];
+					var group = allRaphaelNotes[i][fretNumber];
 					placeNote(group, i, fretNumber, params);
 				}
 			}
@@ -602,7 +602,7 @@
 			for (var i = 0; i < notesPlacedTracker.length; i++) {
 				var fret = notesPlacedTracker[i];
 				if (fret !== null) {
-					var group = stringTracker[i][fret];
+					var group = allRaphaelNotes[i][fret];
 					var circ = group[0];
 					var text = group[1];
 
@@ -830,7 +830,7 @@
 				// bind functions which are attached to the circle but work for the group
 				group.unhover(noteMouseOver, noteMouseOut);
 			} // if the fret clicked was already clicked...
-			else if ((stringTracker[thisString][notesClickedTracker[thisString]]).id === group.id) {
+			else if ((allRaphaelNotes[thisString][notesClickedTracker[thisString]]).id === group.id) {
 				notesClickedTracker[thisString] = null;
 
 				if (immediatelyVisible) {
@@ -842,7 +842,7 @@
 				group.hover(noteMouseOver, noteMouseOut); // unbind functions 
 			} else {
 				// Take care of note that was already clicked
-				var alreadyClickedGroup = stringTracker[thisString][notesClickedTracker[thisString]];
+				var alreadyClickedGroup = allRaphaelNotes[thisString][notesClickedTracker[thisString]];
 				makeNoteInvisible(alreadyClickedGroup);
 				alreadyClickedGroup.hover(noteMouseOver, noteMouseOut);
 
@@ -871,7 +871,7 @@
 			//console.log("new notes");
 
 			for (var i = 0; i <= numFrets; i++) {
-				var group = stringTracker[thisStringNumber][i];
+				var group = allRaphaelNotes[thisStringNumber][i];
 				var circ = group[0];
 				var text = group[1];
 
