@@ -13,9 +13,8 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
         // public
         var self = this; // the fretboard object
 
-        var MAP_FROM_PROGRAM_FRIENDLY_SHARP_TO_VIEW_FRIENDLY_SHARP = { "Aflat": "Ab", "Bflat": "Bb", "Csharp": "C#", "Eflat": "Eb", "Fsharp": "F#" };
-        var ALL_NOTE_LETTERS = ["Aflat", "A", "Bflat", "B", "C", "Csharp", "D", "Eflat", "E", "F", "Fsharp", "G"];
-        var NOTE_LETTER_VALUE_MAP = { "Aflat": 0, "A": 1, "Bflat": 2, "B": 3, "C": 4, "Csharp": 5, "D": 6, "Eflat": 7, "E": 8, "F": 9, "Fsharp": 10, "G": 11 };
+        var ALL_NOTE_LETTERS = ["Ab/G#", "A", "A#/Bb", "B", "C", "Db/C#", "D", "Eb/D#", "E", "F", "Gb/F#", "G"];
+        var NOTE_LETTER_VALUE_MAP = { "Ab/G#": 0, "A": 1, "A#/Bb": 2, "B": 3, "C": 4, "Db/C#": 5, "D": 6, "Eb/D#": 7, "E": 8, "F": 9, "Gb/F#": 10, "G": 11 };
         var notesClickedTracker;                     // Holds the notes clicked. Access like: stringTracker[i][notesClickedTracker[i]] to get the Raphael group
         var notesPlacedTracker;                      // same as above, but for notes placed on the fretboard explicitly (instead of clicked)
 
@@ -76,15 +75,15 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
             extendedConfig = {};
 
             // Extend default config settings.
-            // Preserve the original objects (extend/copy properties into a new object)
+            // Preserve the original objects (extend/copy properties into a new object).
             if (settings) {
                 $.extend(extendedConfig, config, settings);
             }
 
             // Config options that are calculated
-            extendedConfig.letterFontSize = extendedConfig.fretHeight / 3.5;
+            extendedConfig.letterFontSize = extendedConfig.fretHeight / 4;
             extendedConfig.noteCircRad = extendedConfig.fretHeight / 2.5;
-            extendedConfig.noteTuningSquareWidth = extendedConfig.fretHeight / 1.5;
+            extendedConfig.noteTuningSquareWidth = extendedConfig.fretHeight / 1.35;
 
             // copy config options to fretboard private variables
             fretboardOrigin = extendedConfig.fretboardOrigin;
@@ -192,7 +191,7 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
                     var stringOctave = guitarStringNotes[i].noteOctave;
                     var noteOctave = getNoteOctaveByFretNumber(stringOctave, stringLetter, j);
 
-                    var text = paper.text(circX, circY, MAP_FROM_PROGRAM_FRIENDLY_SHARP_TO_VIEW_FRIENDLY_SHARP[noteLetter] || noteLetter).attr("font-size", letterFontSize);
+                    var text = paper.text(circX, circY, noteLetter).attr("font-size", letterFontSize); // MAP
 
                     // Don't let the note text be selectable because that's annoying and ugly
                     makeTextUnselectable(text);
@@ -236,9 +235,8 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
                 var squareY = y - (squareWidth / 2)
                 var square = paper.rect(squareX, squareY, squareWidth, squareWidth).attr("fill", "white");
 
-                var text = paper.text(squareX + squareWidth / 2, squareY + squareWidth / 2,
-                    MAP_FROM_PROGRAM_FRIENDLY_SHARP_TO_VIEW_FRIENDLY_SHARP[guitarStringNotes[i].noteLetter] || guitarStringNotes[i].noteLetter)
-                    .attr("font-size", letterFontSize);
+                var text = paper.text(squareX + squareWidth / 2, squareY + squareWidth / 2, guitarStringNotes[i].noteLetter)
+                    .attr("font-size", letterFontSize); // MAP
 
                 makeTextUnselectable(text);
 
@@ -725,11 +723,11 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
                 // Set the new string letter on the tuning square and array 
                 if (i === 0) {
                     guitarStringNotes[thisStringNumber].noteLetter = newNoteLetter;
-                    tuningSquares[thisStringNumber].attr("text", MAP_FROM_PROGRAM_FRIENDLY_SHARP_TO_VIEW_FRIENDLY_SHARP[newNoteLetter] || newNoteLetter);
+                    tuningSquares[thisStringNumber].attr("text", newNoteLetter); // MAP
                     guitarStringNotes[thisStringNumber].noteOctave = newNoteOctave;
                 }
 
-                text.attr("text", MAP_FROM_PROGRAM_FRIENDLY_SHARP_TO_VIEW_FRIENDLY_SHARP[newNoteLetter] || newNoteLetter); // change the text
+                text.attr("text", newNoteLetter); // change the text    // MAP
 
                 group.noteLetter = newNoteLetter;
                 group.noteOctave = newNoteOctave;
