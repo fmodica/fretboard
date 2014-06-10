@@ -26,7 +26,7 @@
 	                { "noteLetter": "D", "noteOctave": 4 },
 	                { "noteLetter": "A", "noteOctave": 4 },
 	                { "noteLetter": "E", "noteOctave": 3 },
-	                { "noteLetter": "B", "noteOctave": 2 },
+	                { "noteLetter": "B", "noteOctave": 3 },
 					{ "noteLetter": "F#", "noteOctave": 2 }
 	            ],
 	            numFrets : 15,
@@ -34,6 +34,9 @@
 			});
 			
             var myFretboard= $('#canvas_container').data('fretboard');
+			
+			//myFretboard.disable();
+			//myFretboard.enable();
             
             $('.reset-button').on("click", function() {
                 myFretboard.clearClickedNotes();

@@ -559,11 +559,10 @@
 		}
 
 		function placeNoteOnFretboardByStringNoteAndFretNum(stringLetter, stringOctave, fretNumber, params) {
-			// Loop over the instrument's strings, comparing note and octave to the string this note is on
-			// to find a match. If a match is found, show the note.
+			var stringNoteInput = { noteLetter : stringLetter, noteOctave : stringOctave };
+			
 			for (var i = 0; i < guitarStringNotes.length; i++) {
-				if (guitarStringNotes[i].noteLetter === stringLetter && guitarStringNotes[i].noteOctave === stringOctave) {
-					//if (fretNumber >= 0 && fretNumber <= numFrets) {
+				if (getNoteUniqueValue(guitarStringNotes[i]) === getNoteUniqueValue(stringNoteInput)) {
 					var group = stringTracker[i][fretNumber];
 					placeNote(group, i, fretNumber, params);
 				}
@@ -571,6 +570,7 @@
 		}
 
 		self.placeNoteOnFretboardByStringNoteAndFretNum = function(stringLetter, stringOctave, fretNumber, immediate) {
+			debugger;
 			placeNoteOnFretboardByStringNoteAndFretNum(validateNoteLetter(stringLetter), stringOctave, validateFretNum(fretNumber), {
 				immediate: immediate,
 				wasCalledInternally: false
