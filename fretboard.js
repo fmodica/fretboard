@@ -558,6 +558,7 @@
 			});
 		}
 
+		// Let this take a note as input instead of stringLetter and stringOctave
 		function placeNoteOnFretboardByStringNoteAndFretNum(stringLetter, stringOctave, fretNumber, params) {
 			var stringNoteInput = { noteLetter : stringLetter, noteOctave : stringOctave };
 			
@@ -568,9 +569,9 @@
 				}
 			}
 		}
-
+		
+		// Let this take a note as input instead of stringLetter and stringOctave
 		self.placeNoteOnFretboardByStringNoteAndFretNum = function(stringLetter, stringOctave, fretNumber, immediate) {
-			debugger;
 			placeNoteOnFretboardByStringNoteAndFretNum(validateNoteLetter(stringLetter), stringOctave, validateFretNum(fretNumber), {
 				immediate: immediate,
 				wasCalledInternally: false
@@ -594,7 +595,6 @@
 
 		function placeNote(group, stringNumber, fretNumber, params) {
 			var wasCalledInternally = params && params.wasCalledInternally;
-
 			var immediatelyVisible = params && params.immediate;
 			
 			var circ = group[0];
@@ -911,13 +911,13 @@
 
 				if (direction === "right") {
 					newNoteLetter = getNoteLetterByFretNumber(previousStringLetter, i + 1);
-					if (newNoteLetter === "G#/Ab")
+					if (newNoteLetter === ALL_NOTE_LETTERS[0])
 						newNoteOctave = ++previousNoteOctave;
 					else
 						newNoteOctave = previousNoteOctave;
 				} else {
 					newNoteLetter = getNoteLetterByFretNumber(previousStringLetter, i - 1);
-					if (newNoteLetter === "G")
+					if (newNoteLetter === ALL_NOTE_LETTERS[11])
 						newNoteOctave = --previousNoteOctave;
 					else
 						newNoteOctave = previousNoteOctave;
