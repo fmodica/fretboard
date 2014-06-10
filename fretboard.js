@@ -13,8 +13,9 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
         // public
         var self = this; // the fretboard object
 
-        var ALL_NOTE_LETTERS = ["Ab/G#", "A", "A#/Bb", "B", "C", "Db/C#", "D", "Eb/D#", "E", "F", "Gb/F#", "G"];
-        var NOTE_LETTER_VALUE_MAP = { "Ab/G#": 0, "A": 1, "A#/Bb": 2, "B": 3, "C": 4, "Db/C#": 5, "D": 6, "Eb/D#": 7, "E": 8, "F": 9, "Gb/F#": 10, "G": 11 };
+        var ALL_NOTE_LETTERS = ["G#/Ab", "A", "A#/Bb", "B", "C", "Db/C#", "D", "Eb/D#", "E", "F", "Gb/F#", "G"];
+        var NOTE_LETTER_VALUE_MAP = { "Ab": 0, "G#" : 0, "G#/Ab" : 0, "A": 1, "A#": 2, "Bb" : 2, "A#/Bb" : 2, "B": 3, "C": 4, "Db": 5, "C#" : 5, "Db/C#" : 5,  
+        "D": 6, "Eb": 7, "D#" : 7, "Eb/D#" : 7, "E": 8, "F": 9, "Gb": 10, "F#" : 10, "Gb/F#" : 10,  "G": 11 };
         var notesClickedTracker;                     // Holds the notes clicked. Access like: stringTracker[i][notesClickedTracker[i]] to get the Raphael group
         var notesPlacedTracker;                      // same as above, but for notes placed on the fretboard explicitly (instead of clicked)
 
@@ -186,7 +187,7 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
                     // Draw note circle and note text, and attach data to them
                     var circ = paper.circle(circX, circY, noteCircRad).attr("fill", "white");
 
-                    var stringLetter = guitarStringNotes[i].noteLetter;
+                    var stringLetter = validateNoteLetter(guitarStringNotes[i].noteLetter);
                     var noteLetter = getNoteLetterByFretNumber(stringLetter, j);
                     var stringOctave = guitarStringNotes[i].noteOctave;
                     var noteOctave = getNoteOctaveByFretNumber(stringOctave, stringLetter, j);
@@ -235,7 +236,7 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
                 var squareY = y - (squareWidth / 2)
                 var square = paper.rect(squareX, squareY, squareWidth, squareWidth).attr("fill", "white");
 
-                var text = paper.text(squareX + squareWidth / 2, squareY + squareWidth / 2, guitarStringNotes[i].noteLetter)
+                var text = paper.text(squareX + squareWidth / 2, squareY + squareWidth / 2, guitarStringNotes[i].noteLetter) // already validated
                     .attr("font-size", letterFontSize); // MAP
 
                 makeTextUnselectable(text);
@@ -374,6 +375,45 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
 
             return notes;
         }
+        
+        function validateNoteLetter(noteLetter) {
+            var notes = noteLetter.split("/");
+            
+            // Make sure it's a valid note by checking to see if it has a numeric value
+            for (var i = 0; i < notes.length; i++) {
+                if ( !isNaN(NOTE_LETTER_VALUE_MAP[notes[i]])  ) {
+                    return notes[i];
+                }
+            }
+            
+            throwNoteLetterError(noteLetter);
+        }
+        
+        function throwNoteLetterError(noteLetter) {
+            throw noteLetter + " is not a valid note. All valid notes are defined in the following array: " + ALL_NOTE_LETTERS;
+        }
+        
+        function validateStringNum(stringNum) {
+            if (!isNaN(stringNum) && stringNum <= guitarStringNotes.length - 1) {
+                return stringNum;
+            }
+            
+            throwStringNumError(stringNum);
+        }
+        
+        function throwStringNumError(stringNum) {
+            throw stringNum + " is not a valid string number. There are " + guitarStringNotes.length + " strings. ";
+        }
+        
+        function validateFretNum(fretNum) {
+            if (!isNaN(fretNum) && fretNum <= numFrets) {
+                return fretNum;
+            }
+        }
+        
+        function throwFretNumError(fretNum) {
+            throw fretNum + " is not a valid fret number. There are " + numFrets +  " frets.";
+        }
 
         // to be used internally
         function setClickedNoteByStringNoteAndFretNum(stringLetter, stringOctave, fretNumber, params) {
@@ -389,7 +429,8 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
 
         // to be used externally as API function
         self.setClickedNoteByStringNoteAndFretNum = function (stringLetter, stringOctave, fretNumber, immediate) {
-            setClickedNoteByStringNoteAndFretNum(stringLetter, stringOctave, fretNumber, { immediate: immediate, wasSetInternally: false });
+            setClickedNoteByStringNoteAndFretNum(validateNoteLetter(stringLetter), stringOctave, validateFretNum(fretNumber), 
+                { immediate: immediate, wasSetInternally: false });
         }
 
         // to be used internally
@@ -417,7 +458,7 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
         }
 
         self.placeNoteOnFretboardByStringNoteAndFretNum = function (stringLetter, stringOctave, fretNumber, immediate) {
-            placeNoteOnFretboardByStringNoteAndFretNum(stringLetter, stringOctave, fretNumber, { immediate: immediate, wasSetInternally: false });
+            placeNoteOnFretboardByStringNoteAndFretNum(validateNoteLetter(stringLetter), stringOctave, validateFretNum(fretNumber), { immediate: immediate, wasSetInternally: false });
         }
 
         function placeNoteOnFretboardByStringNumAndFretNum(stringNumber, fretNumber, params) {
@@ -544,23 +585,31 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
         // could make this a public function that loops over a list of clicked/placed notes
         // and sets them
         function resetOldPlacedAndClickedNotes(oldPlacedNotes, oldClickedNotes) {
+            var minStrings; 
             if (oldPlacedNotes) {
-                for (var i = 0; i < oldPlacedNotes.length; i++) {
+                minStrings = Math.min(guitarStringNotes.length, oldPlacedNotes.length);
+                
+                for (var i = 0; i < minStrings; i++) {
                     var stringNum = i;
                     var fretNum = oldPlacedNotes[i];
-                    if (stringNum != undefined && stringNum != null && stringNum <= guitarStringNotes.length - 1 &&
-                        fretNum != undefined && fretNum != null && fretNum <= numFrets) {
+                    
+                    // nulls are "valid" in oldPlacedNotes since it tracks every string
+                    if (fretNum !== null) {
                         placeNoteOnFretboardByStringNumAndFretNum(stringNum, fretNum, { immediate: true, wasSetInternally: true });
                     }
+                    
                 }
             }
 
             if (oldClickedNotes) {
-                for (var i = 0; i < oldClickedNotes.length; i++) {
+                minStrings = Math.min(guitarStringNotes.length, oldClickedNotes.length);
+                
+                for (var i = 0; i < minStrings; i++) {
                     var stringNum = i;
                     var fretNum = oldClickedNotes[i];
-                    if (stringNum != undefined && stringNum != null && stringNum <= guitarStringNotes.length - 1 &&
-                        fretNum != undefined && fretNum != null && fretNum <= numFrets) {
+                    
+                    // nulls are "valid" in oldPlacedNotes since it tracks every string
+                    if (fretNum !== null) {
                         setClickedNoteByStringNumAndFretNum(stringNum, fretNum, { immediate: true, wasSetInternally: true });
                     }
                 }
@@ -707,7 +756,7 @@ Raphael.el.trigger = function (str, scope, params) { //takes the name of the eve
 
                 if (direction === "right") {
                     newNoteLetter = getNoteLetterByFretNumber(previousStringLetter, i + 1);
-                    if (newNoteLetter === "Aflat")
+                    if (newNoteLetter === "G#/Ab")
                         newNoteOctave = ++previousNoteOctave;
                     else
                         newNoteOctave = previousNoteOctave;
