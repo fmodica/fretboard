@@ -57,32 +57,30 @@
 		// Default config settings
 		var config = {
 			// x and y location of the upper left of the fretboard (the tuning squares will be further to the left)
-			fretboardOrigin: [80, 15], 
+			fretboardOrigin: [80, 15],
 			numFrets: 15,
 			fretWidth: 67, // (px) 
 			fretHeight: 31, // (px)  
 			// Default strings (note letters), from high to low.
-			guitarStringNotes: [ 
-				{
-					"noteLetter": "E",
-					"noteOctave": 5
-				}, {
-					"noteLetter": "B",
-					"noteOctave": 5
-				}, {
-					"noteLetter": "G",
-					"noteOctave": 4
-				}, {
-					"noteLetter": "D",
-					"noteOctave": 4
-				}, {
-					"noteLetter": "A",
-					"noteOctave": 4
-				}, {
-					"noteLetter": "E",
-					"noteOctave": 3
-				},
-			],
+			guitarStringNotes: [{
+				"noteLetter": "E",
+				"noteOctave": 5
+			}, {
+				"noteLetter": "B",
+				"noteOctave": 5
+			}, {
+				"noteLetter": "G",
+				"noteOctave": 4
+			}, {
+				"noteLetter": "D",
+				"noteOctave": 4
+			}, {
+				"noteLetter": "A",
+				"noteOctave": 4
+			}, {
+				"noteLetter": "E",
+				"noteOctave": 3
+			}, ],
 			clickedNoteColor: 'green',
 			placedNoteColor: 'red',
 			placedNoteColorOverlap: 'darkred',
@@ -136,6 +134,7 @@
 		// internally if a fretboard redraw is necessary, such as when adding/removing 
 		// strings. It would be faster to just draw or remove the strings in question,
 		// but for now that is not implemented.
+
 		function init() {
 			notesClickedTracker = [];
 			notesPlacedTracker = [];
@@ -190,7 +189,7 @@
 				// Probably don't need to call Array, but it works for now
 				allRaphaelNotes[i] = new Array(numFrets);
 			}
-			
+
 			validateGuitarStringNotes();
 
 			drawAndWireUpFretboard();
@@ -199,7 +198,7 @@
 		function drawAndWireUpFretboard() {
 			var topFretExtended, bottomFretExtended, stringXBegin, stringXEnd, stringY, i, j, x, y,
 				circX, circY, circ, stringLetter, noteLetter, stringOctave, noteOctave, text, group,
-				squareWidth, squareX, squareY, square, midX, midY, topX, topY, bottomX, bottomY, 
+				squareWidth, squareX, squareY, square, midX, midY, topX, topY, bottomX, bottomY,
 				squareNoteText, squareOctaveText, squareOctaveTextX, squareOctaveTextY;
 
 			// For drawing things that extend above or below the top/bottom string, 
@@ -248,7 +247,10 @@
 
 						if (j === 1) {
 							// Draw a rectangle at the left of the first fret, which represents the nut
-							paper.rect(x - (fretWidth / 5), topFretExtended, (fretWidth / 5), bottomFretExtended - topFretExtended).attr({ fill: stringColor, stroke: stringColor} );
+							paper.rect(x - (fretWidth / 5), topFretExtended, (fretWidth / 5), bottomFretExtended - topFretExtended).attr({
+								fill: stringColor,
+								stroke: stringColor
+							});
 						}
 
 						// Draw the circles you usually see on the 3rd, 5th, etc. fret (only do it once, so just
@@ -277,9 +279,9 @@
 
 					// Create a group to hold the circle and its text
 					group = paper.set();
-					
+
 					// Assign it a unique id
-					group.id = "group" + "_string_" + i + "_fret_" + j; 
+					group.id = "group" + "_string_" + i + "_fret_" + j;
 					group.stringNumber = i;
 					group.stringLetter = stringLetter;
 					group.stringOctave = stringOctave;
@@ -318,19 +320,19 @@
 				squareX = x - (squareWidth);
 				squareY = y - (squareWidth / 2)
 				square = paper.rect(squareX, squareY, squareWidth, squareWidth).attr("fill", "white");
-				squareNoteText = paper.text(squareX + squareWidth / 2, squareY + squareWidth / 2, guitarStringNotes[i].noteLetter).attr("font-size", letterFontSize); 
-				
+				squareNoteText = paper.text(squareX + squareWidth / 2, squareY + squareWidth / 2, guitarStringNotes[i].noteLetter).attr("font-size", letterFontSize);
+
 				// Show the octave near the note on the tuning square
 				squareOctaveTextX = squareX + (.80 * squareWidth);
 				squareOctaveTextY = squareY + (.20 * squareWidth);
 				squareOctaveText = paper.text(squareOctaveTextX, squareOctaveTextY, allRaphaelNotes[i][0].stringOctave).attr("font-size", letterFontSize);
-				
+
 				squareNoteText.data({
 					x: squareOctaveTextX,
 					y: squareOctaveTextY,
 					octaveText: squareOctaveText
 				});
-				
+
 				makeTextUnselectable(squareNoteText);
 				makeTextUnselectable(squareOctaveText);
 
@@ -391,6 +393,7 @@
 			disabled = false;
 		}
 
+
 		self.clearClickedNotes = function() {
 			for (var i = 0; i < numStrings; i++) {
 				var fret = notesClickedTracker[i];
@@ -429,7 +432,7 @@
 					var group = allRaphaelNotes[i][notesClickedTracker[i]];
 
 					var musicalNote = {
-						noteLetter: group.noteLetter, 
+						noteLetter: group.noteLetter,
 						noteOctave: group.noteOctave,
 						fretNumber: group.fretNumber,
 						stringNumber: group.stringNumber,
@@ -454,7 +457,7 @@
 					var group = allRaphaelNotes[i][notesPlacedTracker[i]];
 
 					var musicalNote = {
-						noteLetter: group.noteLetter, 
+						noteLetter: group.noteLetter,
 						noteOctave: group.noteOctave,
 						fretNumber: group.fretNumber,
 						stringNumber: group.stringNumber,
@@ -468,16 +471,16 @@
 
 			return notes;
 		}
-		
+
 		function validateGuitarStringNotes() {
 			var hash = {}, uniqueValue, i,
-			validatedGuitarStringNotes = new Array(guitarStringNotes.length);
-			
+				validatedGuitarStringNotes = new Array(guitarStringNotes.length);
+
 			for (i = 0; i < guitarStringNotes.length; i++) {
 				guitarStringNotes[i].noteLetter = validateNoteLetter(guitarStringNotes[i].noteLetter);
-				
+
 				var uniqueValue = getNoteUniqueValue(guitarStringNotes[i]);
-				
+
 				if (!hash[uniqueValue]) {
 					hash[uniqueValue] = true;
 				} else {
@@ -485,13 +488,14 @@
 				}
 			}
 		}
-		
+
 		function throwDuplicateGuitarStringError(duplicateNote) {
 			throw "Each string must have a unique note (letter + octave). You have at least one duplicate in your guitarStringNotes array (check for synonyms, like Ab and G#).";
 		}
 
 		// This inspects a note letter and returns the representation that
 		// will be used in this code
+
 		function validateNoteLetter(noteLetter) {
 			var notes = noteLetter.split("/");
 
@@ -533,9 +537,13 @@
 		}
 
 		// To be used internally
+
 		function setClickedNoteByStringNoteAndFretNum(stringLetter, stringOctave, fretNumber, params) {
-			var stringNoteInput = { noteLetter : stringLetter, noteOctave : stringOctave };
-			
+			var stringNoteInput = {
+				noteLetter: stringLetter,
+				noteOctave: stringOctave
+			};
+
 			for (var i = 0; i < guitarStringNotes.length; i++) {
 				// Find the note, and click it if it's not clicked (otherwise it will disappear)
 				if (getNoteUniqueValue(guitarStringNotes[i]) === getNoteUniqueValue(stringNoteInput) && !notesClickedTracker[i]) {
@@ -550,14 +558,18 @@
 		self.setClickedNoteByStringNoteAndFretNum = function(stringLetter, stringOctave, fretNumber, immediate) {
 			setClickedNoteByStringNoteAndFretNum(validateNoteLetter(stringLetter), stringOctave, validateFretNum(fretNumber), {
 				immediate: immediate,
-				wasCalledInternally: false
+				wasCalledProgramatically: true
 			});
 		}
 
 		// Let this take a note as input instead of stringLetter and stringOctave
+
 		function placeNoteOnFretboardByStringNoteAndFretNum(stringLetter, stringOctave, fretNumber, params) {
-			var stringNoteInput = { noteLetter : stringLetter, noteOctave : stringOctave };
-			
+			var stringNoteInput = {
+				noteLetter: stringLetter,
+				noteOctave: stringOctave
+			};
+
 			for (var i = 0; i < guitarStringNotes.length; i++) {
 				if (getNoteUniqueValue(guitarStringNotes[i]) === getNoteUniqueValue(stringNoteInput)) {
 					var group = allRaphaelNotes[i][fretNumber];
@@ -565,19 +577,19 @@
 				}
 			}
 		}
-		
+
 		// Let this take a note as input instead of stringLetter and stringOctave
 		self.placeNoteOnFretboardByStringNoteAndFretNum = function(stringLetter, stringOctave, fretNumber, immediate) {
 			placeNoteOnFretboardByStringNoteAndFretNum(validateNoteLetter(stringLetter), stringOctave, validateFretNum(fretNumber), {
 				immediate: immediate,
-				wasCalledInternally: false
+				wasCalledProgramatically: true
 			});
 		}
 
 		function placeNote(group, stringNumber, fretNumber, params) {
-			var wasCalledInternally = params && params.wasCalledInternally;
+			var wasCalledProgramatically = params && params.wasCalledProgramatically;
 			var immediatelyVisible = params && params.immediate;
-			
+
 			var circ = group[0];
 			var text = group[1];
 
@@ -604,7 +616,7 @@
 
 			notesPlacedTracker[stringNumber] = fretNumber;
 
-			//if (!params.wasCalledInternally) {
+			//if (!params.wasCalledProgramatically) {
 			$fretboardContainer.trigger("notePlaced");
 			//}
 		}
@@ -702,7 +714,7 @@
 					if (fretNum !== null) {
 						placeNoteOnFretboardByStringNoteAndFretNum(guitarStringNotes[stringNum].noteLetter, guitarStringNotes[stringNum].noteOctave, fretNum, {
 							immediate: true,
-							wasCalledInternally: true
+							wasCalledProgramatically: true
 						});
 					}
 
@@ -720,7 +732,7 @@
 					if (fretNum !== null) {
 						setClickedNoteByStringNoteAndFretNum(guitarStringNotes[stringNum].noteLetter, guitarStringNotes[stringNum].noteOctave, fretNum, {
 							immediate: true,
-							wasCalledInternally: true
+							wasCalledProgramatically: true
 						});
 					}
 				}
@@ -817,9 +829,9 @@
 		}
 
 		function noteClick(params) {
-			var wasCalledInternally = params && params.wasCalledInternally;
-			
-			if (disabled && !wasCalledInternally) {
+			var wasCalledProgramatically = params && params.wasCalledProgramatically;
+
+			if (disabled && !wasCalledProgramatically) {
 				return false;
 			}
 			var immediatelyVisible = params && params.immediate;
@@ -863,7 +875,7 @@
 				notesClickedTracker[thisString] = thisFret;
 			}
 
-			//if (triggerClick) {
+			//if (!wasCalledProgramatically) {
 			$fretboardContainer.trigger("noteClicked")
 			//}
 		}
@@ -956,7 +968,7 @@
 
 			return stringOctave + numOctavesAboveString;
 		}
-		
+
 		function getNoteUniqueValue(note) {
 			return NOTE_LETTER_VALUE_MAP[note.noteLetter] + (12 * note.noteOctave);
 		}
@@ -982,11 +994,11 @@
 
 // This function allows us to call a "trigger" event on a Raphael element.
 // It takes the name of the event to fire and the scope to fire it with
-Raphael.el.trigger = function (str, scope, params) { 
-    scope = scope || this;
-    for (var i = 0; i < this.events.length; i++) {
-        if (this.events[i].name === str) {
-            this.events[i].f.call(scope, params);
-        }
-    }
+Raphael.el.trigger = function(str, scope, params) {
+	scope = scope || this;
+	for (var i = 0; i < this.events.length; i++) {
+		if (this.events[i].name === str) {
+			this.events[i].f.call(scope, params);
+		}
+	}
 };
