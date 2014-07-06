@@ -391,19 +391,20 @@
             disabled = false;
         }
 
-
         self.clearClickedNotes = function () {
-            for (var i = 0; i < numStrings; i++) {
-                var fret = notesClickedTracker[i];
+			var i, fret, group, circ, color;
+			
+            for (i = 0; i < numStrings; i++) {
+                fret = notesClickedTracker[i];
 
                 if (fret !== null) {
-                    var group = allRaphaelNotes[i][notesClickedTracker[i]];
-                    var circ = group[0];
+                    group = allRaphaelNotes[i][notesClickedTracker[i]];
+                    circ = group[0];
 
                     // This clicked note could also be a placed note. In that case, 
                     // it should not be made invisible. Just give it the correct color.
                     if (fret === notesPlacedTracker[i]) {
-                        var color = placedNoteColor;
+                        color = placedNoteColor;
                         makeNoteVisibleImmediate(group, color);
                     } else {
                         group.hover(noteMouseOver, noteMouseOut); // bind functions 
@@ -471,26 +472,11 @@
         }
 
         function validateGuitarStringNotes() {
-            var hash = {}, uniqueValue, i,
-			validatedGuitarStringNotes = new Array(guitarStringNotes.length);
-
-            for (i = 0; i < guitarStringNotes.length; i++) {
+            for (var i = 0; i < guitarStringNotes.length; i++) {
                 guitarStringNotes[i].noteLetter = validateNoteLetter(guitarStringNotes[i].noteLetter);
-
-                var uniqueValue = getNoteUniqueValue(guitarStringNotes[i]);
-
-                if (!hash[uniqueValue]) {
-                    hash[uniqueValue] = true;
-                } else {
-                    throwDuplicateGuitarStringError();
-                }
             }
         }
-
-        function throwDuplicateGuitarStringError(duplicateNote) {
-            throw "Each string must have a unique note (letter + octave). You have at least one duplicate in your guitarStringNotes array (check for synonyms, like Ab and G#).";
-        }
-
+		
         // This inspects a note letter and returns the representation that
         // will be used in this code
         function validateNoteLetter(noteLetter) {
@@ -689,8 +675,6 @@
 
                 $fretboardContainer.trigger("tuningChanged");
             }
-
-
         }
 
         // could make this a public function that loops over a list of clicked/placed notes
@@ -712,7 +696,6 @@
                             wasCalledProgramatically: true
                         });
                     }
-
                 }
             }
 
