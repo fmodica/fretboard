@@ -4,7 +4,7 @@
 
     $.fn.fretboard = function (options) {
         // The plugin will be called like this:
-        // $('#container').fretboard({ ... {);
+        // $('#container').fretboard({ ... });
         // Iterate over each element in the jQuery 
         // collection, initializing a fretboard.   
         return this.each(function () {
@@ -126,8 +126,7 @@
 			disabled,
 			// This holds the fret numbers that are clicked, from high to low.
 			// Example for a maj7 fingering in Standard E tuning:
-			// [3, 5, 4, null, 3, null] .
-			// If allowing multiple notes per string (not implemented yet) this could be an array of arrays
+			// [[3], [5], [4], [], [3], []] .
 			notesClickedTracker,
 			// Same as above, but for notes placed on the fretboard programatically (instead of clicked)
 			notesPlacedTracker;
@@ -219,7 +218,7 @@
 
             // Add frets and circles for note letters, attach data to the frets, and other things
             for (i = 0; i < numStrings; i++) {
-                notesClickedTracker[i] = null;
+                notesClickedTracker[i] = [];
                 notesPlacedTracker[i] = null;
 
                 stringY = fretboardOrigin[1] + (i * fretHeight);
@@ -392,27 +391,28 @@
         }
 
         self.clearClickedNotes = function () {
-			var i, fret, group, circ, color;
+			var i, j, frets, fret, group, circ, color;
 			
             for (i = 0; i < numStrings; i++) {
-                fret = notesClickedTracker[i];
+                frets = notesClickedTracker[i];
 
-                if (fret !== null) {
-                    group = allRaphaelNotes[i][notesClickedTracker[i]];
-                    circ = group[0];
+                for (j = 0; j < frets.length; j++) {
+                  fret = frets[j];
+                  group = allRaphaelNotes[i][fret];
+                  circ = group[0];
 
-                    // This clicked note could also be a placed note. In that case, 
-                    // it should not be made invisible. Just give it the correct color.
-                    if (fret === notesPlacedTracker[i]) {
-                        color = placedNoteColor;
-                        makeNoteVisibleImmediate(group, color);
-                    } else {
-                        group.hover(noteMouseOver, noteMouseOut); // bind functions 
-                        makeNoteInvisible(group);
-                    }
+                  // This clicked note could also be a placed note. In that case, 
+                  // it should not be made invisible. Just give it the correct color.
+                  if (fret === notesPlacedTracker[i]) {
+                      color = placedNoteColor;
+                      makeNoteVisibleImmediate(group, color);
+                  } else {
+                      group.hover(noteMouseOver, noteMouseOut); // bind functions 
+                      makeNoteInvisible(group);
+                  }
                 }
 
-                notesClickedTracker[i] = null;
+                notesClickedTracker[i] = [];
             }
 
             $fretboardContainer.trigger("notesCleared");
@@ -424,13 +424,19 @@
         }
 
         self.getClickedNotes = function () {
-            var notes = [];
+            var i, j, frets, fret, group, musicalNote, notes = [];
 
-            for (var i = 0; i < guitarStringNotes.length; i++) {
+            for (i = 0; i < guitarStringNotes.length; i++) {
+              notes.push([]);
+              frets = notesClickedTracker[i];
+              
+              for (j = 0; j < frets.length; j++) {
+                fret = frets[j];
+                
                 if (notesClickedTracker[i] !== null) {
-                    var group = allRaphaelNotes[i][notesClickedTracker[i]];
+                    group = allRaphaelNotes[i][fret];
 
-                    var musicalNote = {
+                    musicalNote = {
                         noteLetter: group.noteLetter,
                         noteOctave: group.noteOctave,
                         fretNumber: group.fretNumber,
@@ -439,10 +445,9 @@
                         stringOctave: group.stringOctave
                     }
 
-                    notes.push(musicalNote);
-                } else {
-                    notes.push(null);
-                }
+                    notes[i].push(musicalNote);
+                }                
+              }
             }
 
             return notes;
@@ -525,7 +530,9 @@
 
             for (var i = 0; i < guitarStringNotes.length; i++) {
                 // Find the note, and click it if it's not clicked (otherwise it will disappear)
-                if (getNoteUniqueValue(guitarStringNotes[i]) === getNoteUniqueValue(stringNoteInput) && !notesClickedTracker[i]) {
+                // Edit* actually it should be the user's responsibility to check what they are clicking,
+                // and this should be called "clickNote..." 
+                if (getNoteUniqueValue(guitarStringNotes[i]) === getNoteUniqueValue(stringNoteInput) /*&& !notesClickedTracker[i]*/) {
                     var group = allRaphaelNotes[i][fretNumber];
                     var circ = group[0];
                     circ.trigger("click", circ, params);
@@ -573,8 +580,6 @@
 
             if (notesClickedTracker[stringNumber] === fretNumber) {
                 color = placedNoteColorOverlap;
-
-                //color = placedNoteColor;
                 opacity = 1;
             } else {
                 color = placedNoteColor;
@@ -597,27 +602,41 @@
         }
 
         self.clearPlacedNotes = function () {
-            for (var i = 0; i < notesPlacedTracker.length; i++) {
-                var fret = notesPlacedTracker[i];
-                if (fret !== null) {
-                    var group = allRaphaelNotes[i][fret];
-                    var circ = group[0];
-                    var text = group[1];
-
-                    // This placed note could also be a clicked note. In that case, 
-                    // it should not be made invisible. Just give it the correct color.
-
-                    if (fret === notesClickedTracker[i]) {
-                        var color = clickedNoteColor;
-                        makeNoteVisibleImmediate(group, color);
-                    } else {
-                        makeNoteInvisible(group);
-                        group.hover(noteMouseOver, noteMouseOut); // bind hover events
-                    }
+          var i, j, k, placedFrets, clickedFrets, placedFret, clickedFret, placedGroup, circ, text, wasClicked, color;
+          
+          for (i = 0; i < guitarStringNotes.length; i++) {
+            placedFrets = notesPlacedTracker[i];
+            clickedFrets = notesClickedTracker[i];            
+            
+            // See if any of the frets were also clicked            
+            for (j = 0; j < placedFrets.length; j++) {
+              placedFret = placedFrets[i][j];
+              placedGroup = allRaphaelNotes[i][placedFret];
+              wasClicked = false; 
+              
+              for (k = 0; k < clickedFrets.length; k++) {
+                clickedFret = clickedFrets[i][k];
+               
+                if (clickedFret === placedFret) {
+                  wasClicked = true;
+                  break;
                 }
-
-                notesPlacedTracker[i] = null;
+              }
+              
+              circ = placedGroup[0];
+              text = placedGroup[1];              
+                
+              if (wasClicked) {
+                  color = clickedNoteColor;
+                  makeNoteVisibleImmediate(placedGroup, color);
+              } else {
+                  makeNoteInvisible(placedGroup);
+                  group.hover(noteMouseOver, noteMouseOut); // bind hover events
+              }   
             }
+
+            notesPlacedTracker[i] = [];
+          }
         }
 
         self.addString = function (stringNote) {
