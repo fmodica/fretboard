@@ -631,7 +631,7 @@
                   makeNoteVisibleImmediate(placedGroup, color);
               } else {
                   makeNoteInvisible(placedGroup);
-                  group.hover(noteMouseOver, noteMouseOut); // bind hover events
+                  placedGroup.hover(noteMouseOver, noteMouseOut);
               }   
             }
 
@@ -831,6 +831,7 @@
             if (disabled && !wasCalledProgramatically) {
                 return false;
             }
+            
             var immediatelyVisible = params && params.immediate;
 
             var group = this.data("group");
@@ -839,38 +840,50 @@
             var text = group[1];
             var thisString = group.stringNumber;
             var thisFret = group.fretNumber;
+            
+            var clickedFrets = notesClickedTracker[thisString];
+                        
+            var someFretWasAlreadyClicked = clickedFrets.length > 0;   // needs plural name
+            var fretNumberIndex = clickedFrets.indexOf(thisFret);
+            var thisFretWasAlreadyClicked = fretNumberIndex !== -1;                    
+            
+            var isChordMode = false; // GLOBAL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+                        
+            if (!thisFretWasAlreadyClicked && someFretWasAlreadyClicked && isChordMode) {
+              // Go through and unclick all others
+              for (var i = 0; i < clickedFrets.length; i++) {
+                  var alreadyClickedGroup = allRaphaelNotes[thisString][clickedFrets[i]];
+                  
+                  makeNoteInvisible(alreadyClickedGroup);
+                  alreadyClickedGroup.hover(noteMouseOver, noteMouseOut); 
+              }
+              
+                notesClickedTracker[thisString] = [];
+                notesClickedTracker[thisString].push(thisFret);
+            }
+                        
+            if (thisFretWasAlreadyClicked) {
+              if (immediatelyVisible) {
+                  makeNoteVisibleImmediate(group, '#FFF');
+              } else {
+                  makeNoteVisibleAnimated(group, '#FFF');
+              }
 
-            if (notesClickedTracker[thisString] === null) {
-                notesClickedTracker[thisString] = thisFret;
+              group.hover(noteMouseOver, noteMouseOut); // unbind functions            
+                
+                // set placed note color back?         
+              notesClickedTracker[thisString].splice(fretNumberIndex, 1);                  
+            } else {             
                 if (immediatelyVisible) {
                     makeNoteVisibleImmediate(group, clickedNoteColor);
                 } else {
                     makeNoteVisibleAnimated(group, clickedNoteColor);
                 }
                 // bind functions which are attached to the circle but work for the group
-                group.unhover(noteMouseOver, noteMouseOut);
-            } // if the fret clicked was already clicked...
-            else if ((allRaphaelNotes[thisString][notesClickedTracker[thisString]]).id === group.id) {
-                notesClickedTracker[thisString] = null;
-
-                if (immediatelyVisible) {
-                    makeNoteVisibleImmediate(group, '#FFF');
-                } else {
-                    makeNoteVisibleAnimated(group, '#FFF');
-                }
-
-                group.hover(noteMouseOver, noteMouseOut); // unbind functions 
-            } else {
-                // Take care of note that was already clicked
-                var alreadyClickedGroup = allRaphaelNotes[thisString][notesClickedTracker[thisString]];
-                makeNoteInvisible(alreadyClickedGroup);
-                alreadyClickedGroup.hover(noteMouseOver, noteMouseOut);
-
-                // Take care of new note
-                makeNoteVisibleAnimated(group, clickedNoteColor);
-                group.unhover(noteMouseOver, noteMouseOut); // unbind functions 
-                notesClickedTracker[thisString] = thisFret;
-            }
+                group.unhover(noteMouseOver, noteMouseOut);                
+                
+                notesClickedTracker[thisString].push(thisFret);                
+            } 
 
             //if (!wasCalledProgramatically) {
             $fretboardContainer.trigger("noteClicked")
