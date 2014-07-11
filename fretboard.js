@@ -82,8 +82,6 @@
         "noteOctave": 3
       }, ],
       clickedNoteColor: 'green',
-      placedNoteColor: 'red',
-      placedNoteColorOverlap: 'darkred',
       tuningTriangleColor: 'green',
       fretsToDrawOneCircleOn: [3, 5, 7, 9, 12], // Will do octaves of these numbers as well 
       opacityAnimateSpeed: 125,
@@ -99,10 +97,8 @@
       fretHeight,
       guitarStringNotes,
       clickedNoteColor,
-      placedNoteColor,
       fretboardColor,
       stringColor,
-      placedNoteColorOverlap,
       tuningTriangleColor,
       fretsToDrawOneCircleOn,
       opacityAnimateSpeed,
@@ -125,9 +121,7 @@
       // This holds the fret numbers that are clicked, from high to low.
       // Example for a maj7 fingering in Standard E tuning:
       // [[3], [5], [4], [], [3], []] .
-      notesClickedTracker,
-      // Same as above, but for notes placed on the fretboard programatically (instead of clicked)
-      notesPlacedTracker;
+      notesClickedTracker;
 
     // This function initializes all private variables and can be called
     // internally if a fretboard redraw is necessary, such as when adding/removing 
@@ -135,7 +129,6 @@
     // but for now that is not implemented.
     function init() {
       notesClickedTracker = [];
-      notesPlacedTracker = [];
       extendedConfig = {};
 
       // Extend default config settings.
@@ -154,10 +147,8 @@
       tuningSquares = []; // will hold the squares that show the each string's note letter
       allRaphaelNotes = new Array(numStrings); // a 2-d array that holds each group (circle and text) for each string
       clickedNoteColor = extendedConfig.clickedNoteColor;
-      placedNoteColor = extendedConfig.placedNoteColor;
       fretboardColor = extendedConfig.fretboardColor;
       stringColor = extendedConfig.stringColor;
-      placedNoteColorOverlap = extendedConfig.placedNoteColorOverlap;
       tuningTriangleColor = extendedConfig.tuningTriangleColor;
       fretsToDrawOneCircleOn = extendedConfig.fretsToDrawOneCircleOn;
       opacityAnimateSpeed = extendedConfig.opacityAnimateSpeed;
@@ -210,83 +201,27 @@
     }
 
     self.clearClickedNotes = function () {
-      var i, j, k, placedFrets, clickedFrets, placedFret, clickedFret, clickedGroup, circ, text, wasPlaced, color;
+      var i, j, k, clickedFrets, clickedFret, clickedGroup, circ, text, color;
 
       for (i = 0; i < guitarStringNotes.length; i++) {
-        placedFrets = notesPlacedTracker[i];
         clickedFrets = notesClickedTracker[i];
 
         // See if any of the frets were also clicked            
         for (j = 0; j < clickedFrets.length; j++) {
           clickedFret = clickedFrets[j];
           clickedGroup = allRaphaelNotes[i][clickedFret];
-          wasPlaced = false;
-
-          for (k = 0; k < placedFrets.length; k++) {
-            placedFret = placedFrets[k];
-
-            if (placedFret === clickedFret) {
-              wasPlaced = true;
-              break;
-            }
-          }
 
           circ = clickedGroup[0];
           text = clickedGroup[1];
 
-          if (wasPlaced) {
-            color = placedNoteColor;
-            makeNoteVisibleImmediate(clickedGroup, color);
-          } else {
-            makeNoteInvisible(clickedGroup);
-            clickedGroup.hover(noteMouseOver, noteMouseOut);
-          }
+          makeNoteInvisible(clickedGroup);
+          clickedGroup.hover(noteMouseOver, noteMouseOut);
         }
 
         notesClickedTracker[i] = [];
       }
 
       $fretboardContainer.trigger("clickedNotesCleared");
-    }
-
-    self.clearPlacedNotes = function () {
-      var i, j, k, placedFrets, clickedFrets, placedFret, clickedFret, placedGroup, circ, text, wasClicked, color;
-
-      for (i = 0; i < guitarStringNotes.length; i++) {
-        placedFrets = notesPlacedTracker[i];
-        clickedFrets = notesClickedTracker[i];
-
-        // See if any of the frets were also clicked            
-        for (j = 0; j < placedFrets.length; j++) {
-          placedFret = placedFrets[j];
-          placedGroup = allRaphaelNotes[i][placedFret];
-          wasClicked = false;
-
-          for (k = 0; k < clickedFrets.length; k++) {
-            clickedFret = clickedFrets[k];
-
-            if (clickedFret === placedFret) {
-              wasClicked = true;
-              break;
-            }
-          }
-
-          circ = placedGroup[0];
-          text = placedGroup[1];
-
-          if (wasClicked) {
-            color = clickedNoteColor;
-            makeNoteVisibleImmediate(placedGroup, color);
-          } else {
-            makeNoteInvisible(placedGroup);
-            placedGroup.hover(noteMouseOver, noteMouseOut);
-          }
-        }
-
-        notesPlacedTracker[i] = [];
-      }
-
-      $fretboardContainer.trigger("placedNotesCleared");
     }
 
     self.getGuitarStringNotes = function () {
@@ -317,29 +252,6 @@
 
             notes[i].push(musicalNote);
           }
-        }
-      }
-
-      return notes;
-    }
-
-    self.getPlacedNotes = function () {
-      var notes = [];
-
-      for (var i = 0; i < notesPlacedTracker.length; i++) {
-        if (notesPlacedTracker[i] !== null) {
-          var group = allRaphaelNotes[i][notesPlacedTracker[i]];
-
-          var musicalNote = {
-            noteLetter: group.noteLetter,
-            noteOctave: group.noteOctave,
-            fretNumber: group.fretNumber,
-            stringNumber: group.stringNumber,
-            stringLetter: group.stringLetter,
-            stringOctave: group.stringOctave
-          }
-
-          notes.push(musicalNote);
         }
       }
 
@@ -409,65 +321,8 @@
       });
     }
 
-    // Let this take a note as input instead of stringLetter and stringOctave
-    function placeNoteOnFretboardByStringNoteAndFretNum(stringLetter, stringOctave, fretNumber, params) {
-      var stringNoteInput = {
-        noteLetter: stringLetter,
-        noteOctave: stringOctave
-      };
-
-      for (var i = 0; i < guitarStringNotes.length; i++) {
-        if (getNoteUniqueValue(guitarStringNotes[i]) === getNoteUniqueValue(stringNoteInput)) {
-          var group = allRaphaelNotes[i][fretNumber];
-          placeNote(group, i, fretNumber, params);
-        }
-      }
-    }
-
-    // Let this take a note as input instead of stringLetter and stringOctave
-    self.placeNoteOnFretboardByStringNoteAndFretNum = function (stringLetter, stringOctave, fretNumber, immediate) {
-      placeNoteOnFretboardByStringNoteAndFretNum(validateNoteLetter(stringLetter), stringOctave, validateFretNum(fretNumber), {
-        immediate: immediate,
-        wasCalledProgramatically: true
-      });
-    }
-
-    function placeNote(group, stringNumber, fretNumber, params) {
-      var wasCalledProgramatically = params && params.wasCalledProgramatically;
-      var immediatelyVisible = params && params.immediate;
-
-      var circ = group[0];
-      var text = group[1];
-
-      var color;
-      var opacity;
-
-      if (notesClickedTracker[stringNumber].indexOf(fretNumber) !== -1) {
-        color = placedNoteColorOverlap;
-        opacity = 1;
-      } else {
-        color = placedNoteColor;
-        opacity = 1;
-      }
-
-      if (immediatelyVisible) {
-        makeNoteVisibleImmediate(group, color);
-      } else {
-        makeNoteVisibleAnimated(group, color);
-      }
-
-      group.unhover(noteMouseOver, noteMouseOut);;
-
-      notesPlacedTracker[stringNumber].push(fretNumber);
-
-      //if (!params.wasCalledProgramatically) {
-      $fretboardContainer.trigger("notePlaced");
-      //}
-    }
-
     self.addString = function (stringNote) {
       if (stringNote) {
-        var oldPlacedNotes = notesPlacedTracker.slice(); // make a copy
         var oldClickedNotes = notesClickedTracker.slice();
 
         // add the new
@@ -475,7 +330,7 @@
 
         init();
 
-        resetOldPlacedAndClickedNotes(oldPlacedNotes, oldClickedNotes);
+        resetOldClickedNotes(oldClickedNotes);
 
         $fretboardContainer.trigger("tuningChanged");
       }
@@ -483,14 +338,13 @@
 
     self.removeString = function () {
       if (guitarStringNotes.length > 1) {
-        var oldPlacedNotes = notesPlacedTracker.slice(); // make a copy
         var oldClickedNotes = notesClickedTracker.slice();
 
         settings.guitarStringNotes.pop();
 
         init();
 
-        resetOldPlacedAndClickedNotes(oldPlacedNotes, oldClickedNotes);
+        resetOldClickedNotes(oldClickedNotes);
 
         $fretboardContainer.trigger("tuningChanged");
       }
@@ -501,42 +355,21 @@
       if (newGuitarStringNotes && newGuitarStringNotes.length > 0) {
         var newLength = settings.guitarStringNotes.length;
 
-        var oldPlacedNotes = notesPlacedTracker.slice(0, newLength); // make a copy
         var oldClickedNotes = notesClickedTracker.slice(0, newLength);
 
         settings.guitarStringNotes = newGuitarStringNotes;
 
         init();
 
-        resetOldPlacedAndClickedNotes(oldPlacedNotes, oldClickedNotes);
+        resetOldClickedNotes(oldClickedNotes);
 
         $fretboardContainer.trigger("tuningChanged");
       }
     }
 
-    // could make this a public function that loops over a list of clicked/placed notes
-    // and sets them
-
-    function resetOldPlacedAndClickedNotes(oldPlacedNotes, oldClickedNotes) {
+    // Could make this a public function that loops over a list of clicked notes and sets them
+    function resetOldClickedNotes(oldClickedNotes) {
       var minStrings;
-
-      if (oldPlacedNotes) {
-        minStrings = Math.min(guitarStringNotes.length, oldPlacedNotes.length);
-
-        for (var i = 0; i < minStrings; i++) {
-          var stringNum = i;
-          var fretNums = oldPlacedNotes[i];
-
-          for (var j = 0; j < fretNums.length; j++) {
-            var fretNum = fretNums[j];
-
-            placeNoteOnFretboardByStringNoteAndFretNum(guitarStringNotes[stringNum].noteLetter, guitarStringNotes[stringNum].noteOctave, fretNum, {
-              immediate: true,
-              wasCalledProgramatically: true
-            });
-          }
-        }
-      }
 
       if (oldClickedNotes) {
         minStrings = Math.min(guitarStringNotes.length, oldClickedNotes.length);
@@ -548,13 +381,10 @@
           for (var j = 0; j < fretNums.length; j++) {
             var fretNum = fretNums[j];
 
-            // nulls are "valid" in oldPlacedNotes since it tracks every string
-            if (fretNum !== null) {
-              setClickedNoteByStringNoteAndFretNum(guitarStringNotes[stringNum].noteLetter, guitarStringNotes[stringNum].noteOctave, fretNum, {
-                immediate: true,
-                wasCalledProgramatically: true
-              });
-            }
+            setClickedNoteByStringNoteAndFretNum(guitarStringNotes[stringNum].noteLetter, guitarStringNotes[stringNum].noteOctave, fretNum, {
+              immediate: true,
+              wasCalledProgramatically: true
+            });
           }
         }
       }
@@ -669,14 +499,15 @@
 
       var someFretWasAlreadyClicked = clickedFrets.length > 0; // needs plural name
       var fretNumberIndex = clickedFrets.indexOf(thisFret);
-      var thisFretWasAlreadyClicked = fretNumberIndex !== -1;
+      var clickedFretWasAlreadyClicked = fretNumberIndex !== -1;
 
-      var isChordMode = true; // GLOBAL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+      var isChordMode = false; // GLOBAL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-      if (!thisFretWasAlreadyClicked && someFretWasAlreadyClicked && isChordMode) {
+      if (!clickedFretWasAlreadyClicked && someFretWasAlreadyClicked && isChordMode) {
         // Go through and unclick all others
         for (var i = 0; i < clickedFrets.length; i++) {
-          var alreadyClickedGroup = allRaphaelNotes[thisString][clickedFrets[i]];
+          var alreadyClickedFret = clickedFrets[i];
+          var alreadyClickedGroup = allRaphaelNotes[thisString][alreadyClickedFret];
 
           makeNoteInvisible(alreadyClickedGroup);
           alreadyClickedGroup.hover(noteMouseOver, noteMouseOut);
@@ -686,23 +517,22 @@
         notesClickedTracker[thisString].push(thisFret);
       }
 
-      if (thisFretWasAlreadyClicked) {
+      if (clickedFretWasAlreadyClicked) {     
         if (immediatelyVisible) {
           makeNoteVisibleImmediate(group, '#FFF');
         } else {
           makeNoteVisibleAnimated(group, '#FFF');
         }
-
-        group.hover(noteMouseOver, noteMouseOut); // unbind functions            
-
-        // set placed note color back?         
+        
+        group.hover(noteMouseOver, noteMouseOut); // unbind functions    
         notesClickedTracker[thisString].splice(fretNumberIndex, 1);
       } else {
         if (immediatelyVisible) {
           makeNoteVisibleImmediate(group, clickedNoteColor);
         } else {
           makeNoteVisibleAnimated(group, clickedNoteColor);
-        }
+        }   
+        
         // bind functions which are attached to the circle but work for the group
         group.unhover(noteMouseOver, noteMouseOut);
 
@@ -844,7 +674,6 @@
       // Add frets and circles for note letters, attach data to the frets, and other things
       for (i = 0; i < numStrings; i++) {
         notesClickedTracker[i] = [];
-        notesPlacedTracker[i] = [];
 
         stringY = fretboardOrigin[1] + (i * fretHeight);
 

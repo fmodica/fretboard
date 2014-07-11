@@ -13,7 +13,6 @@
     <body>
         <div id="canvas_container"></div>
         <button class="reset-button-clicked">Unclick Frets</button>
-        <button class="reset-button-placed">Unplace Frets</button>
         <button class="add-string-button">Add String</button>
         <button class="remove-string-button">Remove String</button>
         <script type="text/javascript">
@@ -43,10 +42,6 @@
                 myFretboard.clearClickedNotes();
             });
             
-            $('.reset-button-placed').on("click", function() {
-                myFretboard.clearPlacedNotes();
-            });
-            
             $('.add-string-button').on("click", function() {
                 myFretboard.addString({ noteLetter : "Gb/F#", noteOctave : 2 });
             });
@@ -55,9 +50,6 @@
                 myFretboard.removeString();
             });
             
-            myFretboard.placeNoteOnFretboardByStringNoteAndFretNum("F#", 2, 5);
-            myFretboard.placeNoteOnFretboardByStringNoteAndFretNum("E", 5, 3);
-            myFretboard.placeNoteOnFretboardByStringNoteAndFretNum("D", 4, 5);
             //myFretboard.setClickedNoteByStringNoteAndFretNum("D", 4, 14);
         </script>
     </body>
