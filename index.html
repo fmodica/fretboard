@@ -12,14 +12,19 @@
 
     <body>
         <div id="canvas_container"></div>
-        <button class="reset-button-clicked">Unclick Frets</button>
+        <button class="reset-button">Unclick Frets</button>
         <button class="add-string-button">Add String</button>
         <button class="remove-string-button">Remove String</button>
+        <button class="disable">Disable Fretboard</button>
+        <button class="enable">Enable Fretboard</button>
+				<button class="chord-mode">Toggle chord mode</button>
         <script type="text/javascript">
+					var chordMode = true;
+				
             $('#canvas_container').fretboard({
 				stringColor: "black",
 	            opacityAnimateSpeed : 150,
-							isChordMode : true, 
+							isChordMode : chordMode, 
 	            guitarStringNotes: [                                   
 	                { "noteLetter": "E", "noteOctave": 5 },
 	                { "noteLetter": "B", "noteOctave": 5 },
@@ -36,12 +41,21 @@
 			
             var myFretboard= $('#canvas_container').data('fretboard');
 			
-			//myFretboard.disable();
-			//myFretboard.enable();
-            
-            $('.reset-button-clicked').on("click", function() {
-                myFretboard.clearClickedNotes();
-            });
+      $('.disable').on("click", function() {
+          myFretboard.disable();
+      });
+			
+      $('.enable').on("click", function() {
+          myFretboard.enable();
+      });
+			
+      $('.chord-mode').on("click", function() {
+          myFretboard.setChordMode(!chordMode);
+      });
+			
+      $('.reset-button').on("click", function() {
+          myFretboard.clearClickedNotes();
+      });
             
             $('.add-string-button').on("click", function() {
                 myFretboard.addString({ noteLetter : "Gb/F#", noteOctave : 2 });
@@ -54,6 +68,7 @@
             myFretboard.setClickedNoteByStringNoteAndFretNum({ noteLetter : "E", noteOctave : 5 }, 6);
 						myFretboard.setClickedNoteByStringNoteAndFretNum({ noteLetter : "D", noteOctave : 4 }, 2);
             myFretboard.setClickedNoteByStringNoteAndFretNum({ noteLetter : "E", noteOctave : 3 }, 0);
+						//myFretboard.clearClickedNotes();
         </script>
     </body>
 

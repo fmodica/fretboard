@@ -129,6 +129,8 @@
     // internally if a fretboard redraw is necessary, such as when adding/removing 
     // strings. It would be faster to just draw or remove the strings in question,
     // but for now that is not implemented as it is more complex.
+		// For any variables that can be set by fretboard methods make sure to
+		// use that variable's value if it exists, or else it will be reset.
     function init() {
       notesClickedTracker = [];
       extendedConfig = {};
@@ -176,6 +178,7 @@
       for (var i = 0; i < numStrings; i++) {
         // Probably don't need to call Array, but it works for now
         allRaphaelNotes[i] = new Array(numFrets);
+				notesClickedTracker[i] = [];
       }
 
       validateGuitarStringNotes();
@@ -198,6 +201,10 @@
     self.enable = function () {
       disabled = false;
     }
+		
+		self.setChordMode = function(isChordModeInput) {
+			isChordMode = isChordModeInput;
+		}
 
     self.clearClickedNotes = function () {
       var i, j, k, clickedFrets, clickedFret, clickedGroup, circ, text, color;
@@ -342,7 +349,6 @@
     }
 
     self.setGuitarStringNotes = function (newGuitarStringNotes) {
-
       if (newGuitarStringNotes && newGuitarStringNotes.length > 0) {
         var newLength = settings.guitarStringNotes.length;
 
@@ -661,8 +667,6 @@
 
       // Add frets and circles for note letters, attach data to the frets, and other things
       for (i = 0; i < numStrings; i++) {
-        notesClickedTracker[i] = [];
-
         stringY = fretboardOrigin[1] + (i * fretHeight);
 
         paper.path("M" + stringXBegin + "," + stringY + "L" + stringXEnd + "," + stringY + "z").attr("stroke", stringColor);
