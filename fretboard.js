@@ -61,6 +61,7 @@
       numFrets: 15,
       fretWidth: 67, // (px) 
       fretHeight: 31, // (px)  
+	  	isChordMode: false,
       // Default strings (note letters), from high to low.
       guitarStringNotes: [{
         "noteLetter": "E",
@@ -95,6 +96,7 @@
       numFrets,
       fretWidth,
       fretHeight,
+	  	isChordMode,
       guitarStringNotes,
       clickedNoteColor,
       fretboardColor,
@@ -126,22 +128,21 @@
     // This function initializes all private variables and can be called
     // internally if a fretboard redraw is necessary, such as when adding/removing 
     // strings. It would be faster to just draw or remove the strings in question,
-    // but for now that is not implemented.
+    // but for now that is not implemented as it is more complex.
     function init() {
       notesClickedTracker = [];
       extendedConfig = {};
 
-      // Extend default config settings.
-      // Preserve the original objects (extend/copy properties into a new object).
       if (settings) {
         $.extend(extendedConfig, config, settings);
       }
 
-      // copy config options to fretboard private variables
+      // Copy config options to fretboard private variables
       fretboardOrigin = extendedConfig.fretboardOrigin;
       numFrets = extendedConfig.numFrets;
       fretWidth = extendedConfig.fretWidth;
       fretHeight = extendedConfig.fretHeight / 1.1;
+			isChordMode = extendedConfig.isChordMode;
       guitarStringNotes = extendedConfig.guitarStringNotes;
       numStrings = guitarStringNotes.length;
       tuningSquares = []; // will hold the squares that show the each string's note letter
@@ -161,8 +162,6 @@
       svgWidthBuffer = 0;
       $svg = null;
       $window = $(window);
-
-      console.log("Fretboard init called");
 
       // If this function is being called to add/remove strings, 
       // remove the Raphael paper object as a new one is about to
@@ -221,7 +220,7 @@
         notesClickedTracker[i] = [];
       }
 
-      $fretboardContainer.trigger("clickedNotesCleared");
+      $fretboardContainer.trigger("notesCleared");
     }
 
     self.getGuitarStringNotes = function () {
@@ -267,14 +266,11 @@
     // This inspects a note letter and returns the representation that
     // will be used in this code
     function validateNoteLetter(noteLetter) {
-      var notes = noteLetter.split("/");
-
       // Make sure it's a valid note by checking to see if it has a numeric value
-      for (var i = 0; i < notes.length; i++) {
-        var noteVal = NOTE_LETTER_VALUE_MAP[notes[i]];
-        if (!isNaN(noteVal)) {
-          return ALL_NOTE_LETTERS[noteVal];
-        }
+      var noteVal = NOTE_LETTER_VALUE_MAP[noteLetter];
+			
+      if (!isNaN(noteVal)) {
+        return ALL_NOTE_LETTERS[noteVal];
       }
 
       throwNoteLetterError(noteLetter);
@@ -295,17 +291,12 @@
     }
 
     // To be used internally
-    function setClickedNoteByStringNoteAndFretNum(stringLetter, stringOctave, fretNumber, params) {
-      var stringNoteInput = {
-        noteLetter: stringLetter,
-        noteOctave: stringOctave
-      };
-
+    function setClickedNoteByStringNoteAndFretNum(stringNote, fretNumber, params) {
       for (var i = 0; i < guitarStringNotes.length; i++) {
         // Find the note, and click it if it's not clicked (otherwise it will disappear)
         // Edit* actually it should be the user's responsibility to check what they are clicking,
         // and this should be called "clickNote..." 
-        if (getNoteUniqueValue(guitarStringNotes[i]) === getNoteUniqueValue(stringNoteInput) /*&& !notesClickedTracker[i]*/ ) {
+        if (getNoteUniqueValue(guitarStringNotes[i]) === getNoteUniqueValue(stringNote) /*&& !notesClickedTracker[i]*/ ) {
           var group = allRaphaelNotes[i][fretNumber];
           var circ = group[0];
           circ.trigger("click", circ, params);
@@ -314,8 +305,8 @@
     }
 
     // to be used externally as API function
-    self.setClickedNoteByStringNoteAndFretNum = function (stringLetter, stringOctave, fretNumber, immediate) {
-      setClickedNoteByStringNoteAndFretNum(validateNoteLetter(stringLetter), stringOctave, validateFretNum(fretNumber), {
+    self.setClickedNoteByStringNoteAndFretNum = function (stringNote, fretNumber, immediate) {
+      setClickedNoteByStringNoteAndFretNum({ noteLetter : validateNoteLetter(stringNote.noteLetter), noteOctave : stringNote.noteOctave }, validateFretNum(fretNumber), {
         immediate: immediate,
         wasCalledProgramatically: true
       });
@@ -369,19 +360,19 @@
 
     // Could make this a public function that loops over a list of clicked notes and sets them
     function resetOldClickedNotes(oldClickedNotes) {
-      var minStrings;
+      var minStrings, i, j, stringNum, fretNums, fretNum;
 
       if (oldClickedNotes) {
         minStrings = Math.min(guitarStringNotes.length, oldClickedNotes.length);
 
-        for (var i = 0; i < minStrings; i++) {
-          var stringNum = i;
-          var fretNums = oldClickedNotes[i];
+        for (i = 0; i < minStrings; i++) {
+          stringNum = i;
+          fretNums = oldClickedNotes[i];
 
-          for (var j = 0; j < fretNums.length; j++) {
-            var fretNum = fretNums[j];
+          for (j = 0; j < fretNums.length; j++) {
+            fretNum = fretNums[j];
 
-            setClickedNoteByStringNoteAndFretNum(guitarStringNotes[stringNum].noteLetter, guitarStringNotes[stringNum].noteOctave, fretNum, {
+            setClickedNoteByStringNoteAndFretNum( { noteLetter : guitarStringNotes[stringNum].noteLetter, noteOctave : guitarStringNotes[stringNum].noteOctave }, fretNum, {
               immediate: true,
               wasCalledProgramatically: true
             });
@@ -497,13 +488,11 @@
 
       var clickedFrets = notesClickedTracker[thisString];
 
-      var someFretWasAlreadyClicked = clickedFrets.length > 0; // needs plural name
+      var atLeastOneFretWasClicked = clickedFrets.length > 0; // needs plural name
       var fretNumberIndex = clickedFrets.indexOf(thisFret);
       var clickedFretWasAlreadyClicked = fretNumberIndex !== -1;
 
-      var isChordMode = false; // GLOBAL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-      if (!clickedFretWasAlreadyClicked && someFretWasAlreadyClicked && isChordMode) {
+      if (!clickedFretWasAlreadyClicked && atLeastOneFretWasClicked && isChordMode) {
         // Go through and unclick all others
         for (var i = 0; i < clickedFrets.length; i++) {
           var alreadyClickedFret = clickedFrets[i];
@@ -514,7 +503,6 @@
         }
 
         notesClickedTracker[thisString] = [];
-        notesClickedTracker[thisString].push(thisFret);
       }
 
       if (clickedFretWasAlreadyClicked) {     

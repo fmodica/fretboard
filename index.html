@@ -18,7 +18,8 @@
         <script type="text/javascript">
             $('#canvas_container').fretboard({
 				stringColor: "black",
-	            opacityAnimateSpeed : 150, 
+	            opacityAnimateSpeed : 150,
+							isChordMode : true, 
 	            guitarStringNotes: [                                   
 	                { "noteLetter": "E", "noteOctave": 5 },
 	                { "noteLetter": "B", "noteOctave": 5 },
@@ -49,8 +50,10 @@
             $('.remove-string-button').on("click", function() {
                 myFretboard.removeString();
             });
-            
-            //myFretboard.setClickedNoteByStringNoteAndFretNum("D", 4, 14);
+            myFretboard.setClickedNoteByStringNoteAndFretNum({ noteLetter : "Gb", noteOctave : 2 }, 5);
+            myFretboard.setClickedNoteByStringNoteAndFretNum({ noteLetter : "E", noteOctave : 5 }, 6);
+						myFretboard.setClickedNoteByStringNoteAndFretNum({ noteLetter : "D", noteOctave : 4 }, 2);
+            myFretboard.setClickedNoteByStringNoteAndFretNum({ noteLetter : "E", noteOctave : 3 }, 0);
         </script>
     </body>
 
