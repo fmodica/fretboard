@@ -247,7 +247,7 @@
               noteLetter: group.noteLetter,
               noteOctave: group.noteOctave,
 							stringItsOn : {
-								fretNumber: group.fretNumber,
+								fretNumber: groupfretNumber,
 								note: {
 									noteLetter: group.stringLetter,
 									noteOctave: group.stringOctave
@@ -533,13 +533,9 @@
       }
 
       if (clickedFretWasAlreadyClicked) {
-        if (immediatelyVisible) {
-          makeNoteVisibleImmediate(group, '#FFF');
-        } else {
-          makeNoteVisibleAnimated(group, '#FFF');
-        }
+				makeNoteInvisible(group);
 
-        group.hover(noteMouseOver, noteMouseOut); // unbind functions    
+        group.hover(noteMouseOver, noteMouseOut);     
         notesClickedTracker[thisString].splice(fretNumberIndex, 1);
       } else {
         if (immediatelyVisible) {
@@ -548,7 +544,6 @@
           makeNoteVisibleAnimated(group, clickedNoteColor);
         }
 
-        // bind functions which are attached to the circle but work for the group
         group.unhover(noteMouseOver, noteMouseOut);
 
         notesClickedTracker[thisString].push(thisFret);
