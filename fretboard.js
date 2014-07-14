@@ -58,6 +58,7 @@
     var config = {
       // x and y location of the upper left of the fretboard (the tuning squares will be further to the left)
       fretboardOrigin: [80, 15],
+      disabled: false,
       numFrets: 15,
       fretWidth: 67, // (px) 
       fretHeight: 31, // (px)  
@@ -90,8 +91,9 @@
       stringColor: 'black'
     };
 
-    // Config options will be copied to these private variables
-    var extendedConfig,
+    
+    var settingsCopy = $.extend(true, {}, settings), // a copy so that it can be modified by this code when calling init() without touching original object
+      extendedConfig, // Config options will be copied to these private variables
       fretboardOrigin,
       numFrets,
       fretWidth,
@@ -136,7 +138,7 @@
       extendedConfig = {};
 
       if (settings) {
-        $.extend(extendedConfig, config, settings);
+        $.extend(extendedConfig, config, settingsCopy);
       }
 
       // Copy config options to fretboard private variables
@@ -163,14 +165,8 @@
       svgHeightBuffer = 5;
       svgWidthBuffer = 0;
       $svg = null;
-      $window = $(window);
-
-      // If this function is being called to add/remove strings, 
-      // remove the Raphael paper object as a new one is about to
-      // be created.
-      if (paper) {
-        paper.remove();
-      }
+      $window = $(window),
+      disabled = extendedConfig.disabled;
 
       // create paper object (requires Raphael.js)
       paper = new Raphael($fretboardContainer.attr('id'), '100%', '100%');
@@ -319,59 +315,77 @@
       });
     }
 
-    self.addString = function (stringNote) {
-      if (stringNote) {
-        var oldClickedNotes = notesClickedTracker.slice();
+    // self.addString = function (stringNote) {
+      // if (stringNote) {
+        // var oldClickedNotes = notesClickedTracker.slice();
 
-        // add the new
-        settings.guitarStringNotes.push(stringNote);
+        // // add the new
+        // settings.guitarStringNotes.push(stringNote);
 
-        init();
+        // init();
 
-        resetOldClickedNotes(oldClickedNotes);
+        // resetOldClickedNotes(oldClickedNotes);
 
-        $fretboardContainer.trigger("tuningChanged");
-      }
-    }
+        // $fretboardContainer.trigger("tuningChanged");
+      // }
+    // }
 
-    self.removeString = function () {
-      if (guitarStringNotes.length > 1) {
-        var oldClickedNotes = notesClickedTracker.slice();
+    // self.removeString = function () {
+      // if (guitarStringNotes.length > 1) {
+        // var oldClickedNotes = notesClickedTracker.slice();
 
-        settings.guitarStringNotes.pop();
+        // settings.guitarStringNotes.pop();
 
-        init();
+        // init();
 
-        resetOldClickedNotes(oldClickedNotes);
+        // resetOldClickedNotes(oldClickedNotes);
 
-        $fretboardContainer.trigger("tuningChanged");
-      }
-    }
+        // $fretboardContainer.trigger("tuningChanged");
+      // }
+    // }
 
     self.setGuitarStringNotes = function (newGuitarStringNotes) {
+      var newLength, oldClickedNotes, difference, i;
+      
       if (newGuitarStringNotes && newGuitarStringNotes.length > 0) {
-        var newLength = settings.guitarStringNotes.length;
+        newLength = newGuitarStringNotes.length;
 
-        var oldClickedNotes = notesClickedTracker.slice(0, newLength);
+        oldClickedNotes = notesClickedTracker.slice(0); // copy
+        
+        if (newLength <= oldClickedNotes.length) {
+          oldClickedNotes = notesClickedTracker.slice(0, newLength);
+        } else {
+          difference = newLength - oldClickedNotes.length;
+          
+          for (var i = 0; i < difference; i++) {
+            oldClickedNotes.push([]);
+          }        
+        }
+        
+        console.log(oldClickedNotes);
 
-        settings.guitarStringNotes = newGuitarStringNotes;
+        // Any time init() is called after the first time, we need to modify
+        // the settings object so settings changed throughout the fretboard's life
+        // are preserved. Might need to create a function for this.
+        settingsCopy.guitarStringNotes = newGuitarStringNotes;
+        settingsCopy.isChordMode = isChordMode;
+        settingsCopy.disabled = disabled;
 
+        paper.remove();
+        
         init();
-
+        
         resetOldClickedNotes(oldClickedNotes);
 
         $fretboardContainer.trigger("tuningChanged");
       }
     }
-
+    
     // Could make this a public function that loops over a list of clicked notes and sets them
     function resetOldClickedNotes(oldClickedNotes) {
-      var minStrings, i, j, stringNum, fretNums, fretNum;
+      var i, j, stringNum, fretNums, fretNum;
 
-      if (oldClickedNotes) {
-        minStrings = Math.min(guitarStringNotes.length, oldClickedNotes.length);
-
-        for (i = 0; i < minStrings; i++) {
+        for (i = 0; i < oldClickedNotes.length; i++) {
           stringNum = i;
           fretNums = oldClickedNotes[i];
 
@@ -384,7 +398,6 @@
             });
           }
         }
-      }
     }
 
     function bindEventHandlersToNote(group) {

@@ -20,21 +20,21 @@
 				<button class="chord-mode">Toggle chord mode</button>
         <script type="text/javascript">
 					var chordMode = true;
-				
-            $('#canvas_container').fretboard({
-				stringColor: "black",
-	            opacityAnimateSpeed : 150,
-							isChordMode : chordMode, 
-	            guitarStringNotes: [                                   
+          var guitarStringNotes = [                                   
 	                { "noteLetter": "E", "noteOctave": 5 },
 	                { "noteLetter": "B", "noteOctave": 5 },
 	                { "noteLetter": "G", "noteOctave": 4 },
 	                { "noteLetter": "D", "noteOctave": 4 },
 	                { "noteLetter": "A", "noteOctave": 4 },
 	                { "noteLetter": "E", "noteOctave": 3 },
-	                { "noteLetter": "B", "noteOctave": 3 },
-					{ "noteLetter": "F#", "noteOctave": 2 }
-	            ],
+	                { "noteLetter": "B", "noteOctave": 3 }
+	            ];
+				
+            $('#canvas_container').fretboard({
+				stringColor: "black",
+	            opacityAnimateSpeed : 150,
+							isChordMode : chordMode, 
+	            guitarStringNotes: guitarStringNotes,
 	            numFrets : 15,
 	            fretboardOrigin : [150,25]
 			});
@@ -50,25 +50,28 @@
       });
 			
       $('.chord-mode').on("click", function() {
-          myFretboard.setChordMode(!chordMode);
+        chordMode = !chordMode;
+          myFretboard.setChordMode(chordMode);
       });
 			
       $('.reset-button').on("click", function() {
           myFretboard.clearClickedNotes();
       });
             
-            $('.add-string-button').on("click", function() {
-                myFretboard.addString({ noteLetter : "Gb/F#", noteOctave : 2 });
-            });
-            
-            $('.remove-string-button').on("click", function() {
-                myFretboard.removeString();
-            });
-            myFretboard.setClickedNoteByStringNoteAndFretNum({ noteLetter : "Gb", noteOctave : 2 }, 5);
-            myFretboard.setClickedNoteByStringNoteAndFretNum({ noteLetter : "E", noteOctave : 5 }, 6);
-						myFretboard.setClickedNoteByStringNoteAndFretNum({ noteLetter : "D", noteOctave : 4 }, 2);
-            myFretboard.setClickedNoteByStringNoteAndFretNum({ noteLetter : "E", noteOctave : 3 }, 0);
-						//myFretboard.clearClickedNotes();
+      $('.add-string-button').on("click", function() {
+          guitarStringNotes.push({ noteLetter : "Gb/F#", noteOctave : 2 });
+          myFretboard.setGuitarStringNotes(guitarStringNotes);
+      });
+      
+      $('.remove-string-button').on("click", function() {
+          guitarStringNotes.pop();
+          myFretboard.setGuitarStringNotes(guitarStringNotes);
+      });
+      myFretboard.setClickedNoteByStringNoteAndFretNum({ noteLetter : "Gb", noteOctave : 2 }, 5);
+      myFretboard.setClickedNoteByStringNoteAndFretNum({ noteLetter : "E", noteOctave : 5 }, 6);
+      myFretboard.setClickedNoteByStringNoteAndFretNum({ noteLetter : "D", noteOctave : 4 }, 2);
+      myFretboard.setClickedNoteByStringNoteAndFretNum({ noteLetter : "E", noteOctave : 3 }, 0);
+      //myFretboard.clearClickedNotes();
         </script>
     </body>
 
