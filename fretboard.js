@@ -26,31 +26,36 @@
   Fretboard = function ($fretboardContainer, settings) {
     var self = this; // the fretboard object
 
-    var ALL_NOTE_LETTERS = ["G#/Ab", "A", "A#/Bb", "B", "C", "Db/C#", "D", "Eb/D#", "E", "F", "Gb/F#", "G"];
+    var ALL_NOTE_LETTERS = ["Ab/G#", "A", "A#/Bb", "B", "C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G"];
     // The values in this object are used in note arithmetic and must also map correct to the ALL_NOTE_LETTERS array for validation purposes.
     // Example: Db/C# is value 5, and is at index 5 of ALL_NOTE_LETTERS
     var NOTE_LETTER_VALUE_MAP = {
       "Ab": 0,
       "G#": 0,
-      "G#/Ab": 0,
+      "Ab/G#": 0,
+			"G#/Ab": 0, 
       "A": 1,
       "A#": 2,
       "Bb": 2,
       "A#/Bb": 2,
+			"Bb/A#": 2,
       "B": 3,
       "C": 4,
       "Db": 5,
       "C#": 5,
       "Db/C#": 5,
+			"C#/Db": 5,
       "D": 6,
       "Eb": 7,
       "D#": 7,
       "Eb/D#": 7,
+			"D#/Eb": 7,
       "E": 8,
       "F": 9,
       "Gb": 10,
       "F#": 10,
       "Gb/F#": 10,
+			"F#/Gb" : 10,
       "G": 11
     };
 
