@@ -18,6 +18,7 @@
   <button class="disable">Disable Fretboard</button>
   <button class="enable">Enable Fretboard</button>
   <button class="chord-mode">Toggle chord mode</button>
+	<button class="get-clicked">Get clicked notes (console)</button>
   <script type="text/javascript">
     var chordMode = true;
     var guitarStringNotes = [{
@@ -83,6 +84,7 @@
       guitarStringNotes.pop();
       myFretboard.setGuitarStringNotes(guitarStringNotes);
     });
+		
     myFretboard.setClickedNoteByStringNoteAndFretNum({
       noteLetter: "Gb",
       noteOctave: 2
@@ -99,6 +101,10 @@
       noteLetter: "E",
       noteOctave: 3
     }, 0);
+		
+		$('.get-clicked').on("click", function() {
+			console.log(myFretboard.getClickedNotes());
+		});
      //myFretboard.clearClickedNotes();
   </script>
 </body>

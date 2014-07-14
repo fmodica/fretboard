@@ -246,10 +246,14 @@
             musicalNote = {
               noteLetter: group.noteLetter,
               noteOctave: group.noteOctave,
-              fretNumber: group.fretNumber,
-              stringNumber: group.stringNumber,
-              stringLetter: group.stringLetter,
-              stringOctave: group.stringOctave
+							stringItsOn : {
+								fretNumber: group.fretNumber,
+								note: {
+									noteLetter: group.stringLetter,
+									noteOctave: group.stringOctave
+								}
+								
+							}
             }
 
             notes[i].push(musicalNote);
