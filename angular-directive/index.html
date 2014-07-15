@@ -3,186 +3,195 @@
 <html>
 
 <head>
-  <title>Test Fretboard Page</title>
-  <meta charset="utf-8" />
-  <script src="../jquery-1.9.1.min.js"></script>
-  <script src="../raphael-min.js"></script>
-  <script src="../fretboard.js"></script>
-	<script src="angular.js"></script>
+    <title>Test Fretboard Page</title>
+    <meta charset="utf-8" />
+    <script src="../jquery-1.9.1.min.js"></script>
+    <script src="../raphael-min.js"></script>
+    <script src="../fretboard.js"></script>
+    <script src="angular.js"></script>
 </head>
 
 <body ng-app="myApp">
-	<div ng-controller="MyController">
-  <div id="canvas_container"></div>
-  <button class="reset-button">Unclick Frets</button>
+    <div ng-controller="MyController">
+        <!-- <button class="reset-button">Unclick Frets</button>
   <button class="add-string-button">Add String</button>
   <button class="remove-string-button">Remove String</button>
   <button class="disable">Disable Fretboard</button>
   <button class="enable">Enable Fretboard</button>
   <button class="chord-mode">Toggle chord mode</button>
-	<button class="get-clicked">Get clicked notes (console)</button>
-  <script type="text/javascript">
+	<button class="get-clicked">Get clicked notes (console)</button> -->
+        <script type="text/javascript">
+            var app = angular.module("myApp", []);
 
-	var app = angular.module("myApp", []);
-	
-	app.controller("MyController", ["$scope", function ($scope) {
-		$scope.config = {
-		}
-		
-		$scope.$watch(function() { return $scope.config }, function(newVal, oldval) {
-			console.log($scope.config);
-		}, true);
-	}]);
-	
-	
-	app.directive("fretboard", ["$rootScope", function ($rootScope) {
-	    var fretboardsGeneratedCounter = 0;
+            app.controller("MyController", ["$scope",
+                function ($scope) {
+                    $scope.config = {}
 
-	    return {
-	        restrict: "A",
-	        scope: {
-	            config: "=fretboardConfig",
-	            //tuningChangeCallback : "&fretboardTuningChangeCallback"
-	        },
-	        // The controller code is run before the scopes of other directives which
-	        // need access to it, so create the jQuery fretboard here
-	        controller: ["$scope", "$element", "$attrs", function ($scope, $element, $attrs) {
-	            var ctrl = this;
+                    $scope.$watch(function () {
+                        return $scope.config
+                    }, function (newVal, oldval) {
+                        console.log($scope.config);
+                    }, true);
+                }
+            ]);
 
-	            initialize($scope.config, $element, ctrl);
-            
-							if ($scope.config && $scope.config.disabled) {
-	            $scope.$watch(function () { return $scope.config.disabled; }, function (newVal, oldVal) {                
-	                if (newVal === true) {
-	                    ctrl.jQueryFretboard.disable();
-	                } else {
-	                    ctrl.jQueryFretboard.enable();
-	                }
-	            });
-						}
-	        }],
-	        // we create 3 inner directives so they can each have their own ngModel, which handles two-way data-binding
-	        // for only one thing 
-	        template: 
-	           '<div fretboard-tuning ng-model="config.guitarStringNotes" tuning-change-callback="config.tuningChangeCallback"></div>' +
-	           '<div fretboard-clicked-notes ng-model="config.clickedNotes" clicked-note-callback="config.clickedNoteCallback"></div>'
-	    }
 
-	    function initialize(config, element, ctrl) {
-	        var domId = getUniqueDomIdForFretboard();
-	        element.attr("id", domId).fretboard(config);
+            app.directive("fretboard", ["$rootScope",
+                function ($rootScope) {
+                    var fretboardsGeneratedCounter = 0;
 
-	        ctrl.jQueryFretboardElement = element;
-	        ctrl.jQueryFretboard = element.data('fretboard');
-	    }
+                    return {
+                        restrict: "A",
+                        scope: {
+                            config: "=fretboardConfig",
+                            //tuningChangeCallback : "&fretboardTuningChangeCallback"
+                        },
+                        // The controller code is run before the scopes of other directives which
+                        // need access to it, so create the jQuery fretboard here
+                        controller: ["$scope", "$element", "$attrs",
+                            function ($scope, $element, $attrs) {
+                                var ctrl = this;
 
-	    function getUniqueDomIdForFretboard() {
-					fretboardsGeneratedCounter++;
-	        return "fretboardjs-" + fretboardsGeneratedCounter;
-	    }
-	}]);
+                                initialize($scope.config, $element, ctrl);
 
-	// Do not give these inner directives isolate scope or they will won't be able
-	// to access the config in the fretboard directive's isolate scope
-	app.directive("fretboardTuning", ["$rootScope", "$parse", function ($rootScope, $parse) {
-	    var isFirst = true;
+                                if ($scope.config && $scope.config.disabled) {
+                                    $scope.$watch(function () {
+                                        return $scope.config.disabled;
+                                    }, function (newVal, oldVal) {
+                                        if (newVal === true) {
+                                            ctrl.jQueryFretboard.disable();
+                                        } else {
+                                            ctrl.jQueryFretboard.enable();
+                                        }
+                                    });
+                                }
+                            }
+                        ],
+                        // we create 3 inner directives so they can each have their own ngModel, which handles two-way data-binding
+                        // for only one thing 
+                        template: '<div fretboard-tuning ng-model="config.guitarStringNotes" tuning-change-callback="config.tuningChangeCallback"></div>' +
+                            '<div fretboard-clicked-notes ng-model="config.clickedNotes" clicked-note-callback="config.clickedNoteCallback"></div>'
+                    }
 
-	    return {
-	        restrict: "A",
-	        require: ["ngModel", "^fretboard"],
-	        link: function (scope, element, attrs, ctrls) {
-	            var ngModelCtrl = ctrls[0];
-	            var fretboardCtrl = ctrls[1];
+                    function initialize(config, element, ctrl) {
+                        var domId = getUniqueDomIdForFretboard();
+                        element.attr("id", domId).fretboard(config);
 
-	            var jQueryFretboardElement = fretboardCtrl.jQueryFretboardElement;
-	            var jQueryFretboard = fretboardCtrl.jQueryFretboard;
+                        ctrl.jQueryFretboardElement = element;
+                        ctrl.jQueryFretboard = element.data('fretboard');
+                    }
 
-	            var tuningChangeCallback = ($parse(attrs.tuningChangeCallback))(scope);
+                    function getUniqueDomIdForFretboard() {
+                        fretboardsGeneratedCounter++;
+                        return "fretboardjs-" + fretboardsGeneratedCounter;
+                    }
+                }
+            ]);
 
-	            // Updating the controller
-	            jQueryFretboardElement.on("tuningChanged", function () {
-	                $rootScope.$apply(function () {
-	                    ngModelCtrl.$setViewValue(jQueryFretboard.getGuitarStringNotes());
+             // Do not give these inner directives isolate scope or they will won't be able
+             // to access the config in the fretboard directive's isolate scope
+            app.directive("fretboardTuning", ["$rootScope", "$parse",
+                function ($rootScope, $parse) {
+                    var isFirst = true;
 
-	                    if (tuningChangeCallback) {
-	                        tuningChangeCallback();
-	                    }
-	                });
-	            });
+                    return {
+                        restrict: "A",
+                        require: ["ngModel", "^fretboard"],
+                        link: function (scope, element, attrs, ctrls) {
+                            var ngModelCtrl = ctrls[0];
+                            var fretboardCtrl = ctrls[1];
 
-	            ngModelCtrl.$render = function () {
-								console.log("render");
-								// prevent double rendering the first time
-	                if (isFirst) {
-										console.log("skip");
-										// Put the tuning on the controller in case its config file did not 
-										// define a tuning (in which case the default was used)
-										ngModelCtrl.$setViewValue(jQueryFretboard.getGuitarStringNotes());
-	                    isFirst = false;
-	                    return;
-	                }
-									
-	                jQueryFretboard.setGuitarStringNotes(ngModelCtrl.$viewValue);
+                            var jQueryFretboardElement = fretboardCtrl.jQueryFretboardElement;
+                            var jQueryFretboard = fretboardCtrl.jQueryFretboard;
 
-	                if (tuningChangeCallback) {
-	                    tuningChangeCallback();
-	                }
-	            }
-	        }
-	    }
-	}]);
-	
-	app.directive("fretboardClickedNotes", ["$rootScope", "$parse", function ($rootScope, $parse) {
-	    return {
-	        restrict: "A",
-	        require: ["ngModel", "^fretboard"],
-	        link: function (scope, element, attrs, ctrls) {
-	            var ngModelCtrl = ctrls[0];
-	            var fretboardCtrl = ctrls[1];
+                            var tuningChangeCallback = ($parse(attrs.tuningChangeCallback))(scope);
 
-	            var jQueryFretboardElement = fretboardCtrl.jQueryFretboardElement;
-	            var jQueryFretboard = fretboardCtrl.jQueryFretboard;
-            
-	            var clickedNoteCallback = ($parse(attrs.clickedNoteCallback))(scope);
+                            // Updating the controller
+                            jQueryFretboardElement.on("tuningChanged", function () {
+                                $rootScope.$apply(function () {
+                                    ngModelCtrl.$setViewValue(jQueryFretboard.getGuitarStringNotes());
 
-	            // Updating the controller
-	            jQueryFretboardElement.on("noteClicked", function () {
-	                $rootScope.$apply(function () {
-	                    ngModelCtrl.$setViewValue(jQueryFretboard.getClickedNotes());
+                                    if (tuningChangeCallback) {
+                                        tuningChangeCallback();
+                                    }
+                                });
+                            });
 
-	                    if (clickedNoteCallback) {
-	                        clickedNoteCallback();
-	                    }
-	                });
-	            });
+                            ngModelCtrl.$render = function () {
+                                console.log("render");
+                                // prevent double rendering the first time
+                                if (isFirst) {
+                                    console.log("skip");
+                                    // Put the tuning on the controller in case its config file did not 
+                                    // define a tuning (in which case the default was used)
+                                    ngModelCtrl.$setViewValue(jQueryFretboard.getGuitarStringNotes());
+                                    isFirst = false;
+                                    return;
+                                }
 
-	            ngModelCtrl.$render = function () {
-	                jQueryFretboard.clearClickedNotes(); // will trigger notesCleared event
+                                jQueryFretboard.setGuitarStringNotes(ngModelCtrl.$viewValue);
 
-	                var newNotes = ngModelCtrl.$viewValue;
-									
-									if (!newNotes) {
-										return;
-									}
+                                if (tuningChangeCallback) {
+                                    tuningChangeCallback();
+                                }
+                            }
+                        }
+                    }
+                }
+            ]);
 
-	                for (var i = 0; i < newNotes.length; i++) {
-	                    if (newNotes[i]) {
-	                        jQueryFretboard.setClickedNoteByStringNoteAndFretNum(newNotes[i].stringLetter, newNotes[i].stringOctave, newNotes[i].fretNumber);
-	                    }
-	                }
+            app.directive("fretboardClickedNotes", ["$rootScope", "$parse",
+                function ($rootScope, $parse) {
+                    return {
+                        restrict: "A",
+                        require: ["ngModel", "^fretboard"],
+                        link: function (scope, element, attrs, ctrls) {
+                            var ngModelCtrl = ctrls[0];
+                            var fretboardCtrl = ctrls[1];
 
-	                if (clickedNoteCallback) {
-	                    clickedNoteCallback();
-	                }
-	            }
-	        }
-	    }
-	}]);
-	
-  </script>
-	
-	<div fretboard fretboard-config='config'></div>
-</div>
+                            var jQueryFretboardElement = fretboardCtrl.jQueryFretboardElement;
+                            var jQueryFretboard = fretboardCtrl.jQueryFretboard;
+
+                            var clickedNoteCallback = ($parse(attrs.clickedNoteCallback))(scope);
+
+                            // Updating the controller
+                            jQueryFretboardElement.on("noteClicked", function () {
+                                $rootScope.$apply(function () {
+                                    ngModelCtrl.$setViewValue(jQueryFretboard.getClickedNotes());
+
+                                    if (clickedNoteCallback) {
+                                        clickedNoteCallback();
+                                    }
+                                });
+                            });
+
+                            ngModelCtrl.$render = function () {
+                                jQueryFretboard.clearClickedNotes(); // will trigger notesCleared event
+
+                                var newNotes = ngModelCtrl.$viewValue;
+
+                                if (!newNotes) {
+                                    return;
+                                }
+
+                                for (var i = 0; i < newNotes.length; i++) {
+                                    if (newNotes[i]) {
+                                        jQueryFretboard.setClickedNoteByStringNoteAndFretNum(newNotes[i].stringLetter, newNotes[i].stringOctave, newNotes[i].fretNumber);
+                                    }
+                                }
+
+                                if (clickedNoteCallback) {
+                                    clickedNoteCallback();
+                                }
+                            }
+                        }
+                    }
+                }
+            ]);
+        </script>
+
+        <div fretboard fretboard-config='config'></div>
+    </div>
 </body>
 
 </html>
