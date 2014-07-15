@@ -97,7 +97,9 @@
     };
 
 
-    var settingsCopy = $.extend(true, {}, settings || {}), // a copy so that it can be modified by this code when calling init() without touching original object
+    // Make a copy of the original settings provided by the user, because we may modify it in the code before
+    // programatically calling "init()" when redrawing the fretboard. We don't want to overwrite their original object.
+    var settingsCopy = $.extend(true, {}, settings || {}), 
       extendedConfig, // Config options will be copied to these private variables
       fretboardOrigin,
       numFrets,
@@ -150,6 +152,7 @@
       fretWidth = extendedConfig.fretWidth;
       fretHeight = extendedConfig.fretHeight / 1.1;
       isChordMode = extendedConfig.isChordMode;
+      disabled = extendedConfig.disabled;
       guitarStringNotes = extendedConfig.guitarStringNotes;
       numStrings = guitarStringNotes.length;
       tuningSquares = []; // will hold the squares that show the each string's note letter
@@ -168,8 +171,7 @@
       svgHeightBuffer = 5;
       svgWidthBuffer = 0;
       $svg = null;
-      $window = $(window),
-        disabled = extendedConfig.disabled;
+      $window = $(window);
 
       // create paper object (requires Raphael.js)
       paper = new Raphael($fretboardContainer.attr('id'), '100%', '100%');
@@ -248,13 +250,10 @@
           musicalNote = {
             noteLetter: group.noteLetter,
             noteOctave: group.noteOctave,
+            fretNumber: group.fretNumber,
             stringItsOn: {
-              fretNumber: group.fretNumber,
-              note: {
-                noteLetter: group.stringLetter,
-                noteOctave: group.stringOctave
-              }
-
+              noteLetter: group.stringLetter,
+              noteOctave: group.stringOctave
             }
           }
 
@@ -313,12 +312,11 @@
     }
 
     // to be used externally as API function
-    self.setClickedNoteByStringNoteAndFretNum = function (stringNote, fretNumber, color, immediate) {
+    self.setClickedNoteByStringNoteAndFretNum = function (stringNote, fretNumber, color) {
       setClickedNoteByStringNoteAndFretNum({
         noteLetter: validateNoteLetter(stringNote.noteLetter),
         noteOctave: stringNote.noteOctave
       }, validateFretNum(fretNumber), {
-        immediate: immediate,
         wasCalledProgramatically: true,
         color: color
       });

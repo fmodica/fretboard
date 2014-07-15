@@ -26,9 +26,33 @@
       app.controller("MyController", ["$scope",
         function ($scope) {
           $scope.config = {
-          	isChordMode: false
+            fretboardOrigin: [100,200],
+            numFrets: 16,
+            fretWidth: 60,
+            fretHeight: 30,
+          	isChordMode: true,
+            disabled: false,
+            guitarStringNotes: [
+              { noteLetter: "E", noteOctave: 5 },
+              { noteLetter: "B", noteOctave: 5 },
+              { noteLetter: "G", noteOctave: 4 },
+              { noteLetter: "D", noteOctave: 4 }
+            ],
+            clickedNotes: [
+              { 
+                string : { noteLetter: "E", noteOctave: 5 } ,
+                fretNumber: 5,
+                color: "red"
+              },
+              { 
+                string : { noteLetter: "D", noteOctave: 4 } ,
+                fretNumber: 0,
+                color: "green"
+              }
+            ]
           }
 
+          // For testing
           $scope.$watch(function () {
             return $scope.config
           }, function (newVal, oldval) {
@@ -190,7 +214,7 @@
 
                 for (var i = 0; i < newNotes.length; i++) {
                   if (newNotes[i]) {
-                    jQueryFretboard.setClickedNoteByStringNoteAndFretNum(newNotes[i].stringLetter, newNotes[i].stringOctave, newNotes[i].fretNumber);
+                    jQueryFretboard.setClickedNoteByStringNoteAndFretNum( newNotes[i].string, newNotes[i].fretNumber, newNotes[i].color, newNotes[i].immediate);
                   }
                 }
 
