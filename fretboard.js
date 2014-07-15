@@ -89,6 +89,7 @@
         "noteOctave": 3
       }, ],
       clickedNoteColor: 'green',
+      clickedTextColor: 'black',
       tuningTriangleColor: 'green',
       fretsToDrawOneCircleOn: [3, 5, 7, 9, 12], // Will do octaves of these numbers as well 
       opacityAnimateSpeed: 125,
@@ -108,6 +109,7 @@
       isChordMode,
       guitarStringNotes,
       clickedNoteColor,
+      clickedTextColor,
       fretboardColor,
       stringColor,
       tuningTriangleColor,
@@ -142,6 +144,7 @@
     // For any variables that can be set by fretboard methods make sure to
     // use that variable's value if it exists, or else it will be reset.
     function init() {
+      console.log("init called");
       notesClickedTracker = [];
       extendedConfig = {};
 
@@ -162,7 +165,8 @@
       // A 2-d array that holds each group (circle and text) for each string
       allRaphaelNotes = new Array(numStrings); 
       // Default color a note gets when clicked by a user. You can programatically set clicked notes with diffferent colors
-      clickedNoteColor = extendedConfig.clickedNoteColor;  // need letter color
+      clickedNoteColor = extendedConfig.clickedNoteColor;
+      clickedTextColor = extendedConfig.clickedTextColor;
       fretboardColor = extendedConfig.fretboardColor;
       stringColor = extendedConfig.stringColor;
       tuningTriangleColor = extendedConfig.tuningTriangleColor; // need letter color
@@ -417,7 +421,7 @@
       group.hover(noteMouseOver, noteMouseOut); // bind hover events
     }
 
-    function makeNoteVisibleAnimated(group, circColor) {
+    function makeNoteVisibleAnimated(group, circColor, textColor) {
       var circ = group[0];
       var text = group[1];
       circ.animate({
@@ -429,12 +433,13 @@
       text.animateWith(circ, null, {
         'fill-opacity': 1,
         'stroke-opacity': 1,
-        'opacity': 1
+        'opacity': 1,
+        'fill': textColor
       }, opacityAnimateSpeed);
       group.attr('cursor', 'pointer');
     }
 
-    function makeNoteVisibleImmediate(group, circColor) {
+    function makeNoteVisibleImmediate(group, circColor, textColor) {
       var circ = group[0];
       var text = group[1];
       circ.attr({
@@ -446,7 +451,8 @@
       text.attr({
         'fill-opacity': 1,
         'stroke-opacity': 1,
-        'opacity': 1
+        'opacity': 1,
+        'fill': textColor
       });
       group.attr('cursor', 'pointer');
     }
@@ -503,7 +509,7 @@
 
     function noteClick(params) {
       var wasCalledProgramatically = params && params.wasCalledProgramatically;
-      var color = (params && params.color) || clickedNoteColor;
+      var circColor = (params && params.color) || clickedNoteColor;
 
       if (disabled && !wasCalledProgramatically) {
         return false;
@@ -551,16 +557,17 @@
         notesClickedTracker[thisString].splice(fretNumberIndex, 1);
       } else {
         if (immediatelyVisible) {
-          makeNoteVisibleImmediate(group, color);
+          makeNoteVisibleImmediate(group, circColor, clickedTextColor);  // make this a parameter
         } else {
-          makeNoteVisibleAnimated(group, color);
+          makeNoteVisibleAnimated(group, circColor, clickedTextColor);
         }
 
         group.unhover(noteMouseOver, noteMouseOut);
 
         notesClickedTracker[thisString].push({
           fret: thisFret,
-          color: color
+          circColor: circColor,
+          textColor: clickedTextColor
         });
       }
 

@@ -14,13 +14,9 @@
 
 <body ng-app="myApp">
   <div ng-controller="MyController">
-    <!-- <button class="reset-button">Unclick Frets</button>
-  <button class="add-string-button">Add String</button>
-  <button class="remove-string-button">Remove String</button>
-  <button class="disable">Disable Fretboard</button>
-  <button class="enable">Enable Fretboard</button>
-  <button class="chord-mode">Toggle chord mode</button>
-	<button class="get-clicked">Get clicked notes (console)</button> -->
+   <button ng-click="addString()">Add String</button>
+   <button ng-click="removeString()">Remove String</button>
+   
     <script type="text/javascript">
       var app = angular.module("myApp", ['Scope.safeApply']);
 
@@ -52,12 +48,13 @@
               }
             ],
             clickedNoteColor : "purple",
+            clickedTextColor: "white",
             fretboardColor: "gray",
             stringColor: "white",
             tuningTriangleColor : "brown",
             fretsToDrawOneCircleOn : [3,5,7,9,12],
-            opacityAnimateSpeed: 500,
-            showTuningTriangles: false
+            opacityAnimateSpeed: 300,
+            showTuningTriangles: true
           }
 
           // For testing
@@ -66,6 +63,21 @@
           }, function (newVal, oldval) {
             console.log($scope.config);
           }, true);
+          
+          $scope.addString = function() {
+            // make a copy to change the reference - fix later in the directive
+            $scope.config.guitarStringNotes = $scope.config.guitarStringNotes.slice(0);
+            $scope.config.guitarStringNotes.push({
+              noteLetter: "A", 
+              noteOctave: 4
+            });
+          }
+          
+          $scope.removeString = function() {
+            // make a copy to change the reference - fix later in the directive
+            $scope.config.guitarStringNotes = $scope.config.guitarStringNotes.slice(0);
+            $scope.config.guitarStringNotes.pop();
+          }
         }
       ]);
 
