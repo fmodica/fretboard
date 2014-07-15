@@ -155,14 +155,17 @@
       disabled = extendedConfig.disabled;
       guitarStringNotes = extendedConfig.guitarStringNotes;
       numStrings = guitarStringNotes.length;
-      tuningSquares = []; // will hold the squares that show the each string's note letter
-      allRaphaelNotes = new Array(numStrings); // a 2-d array that holds each group (circle and text) for each string
-      clickedNoteColor = extendedConfig.clickedNoteColor;
+      // Will hold the squares that show the each string's note letter
+      tuningSquares = []; 
+      // A 2-d array that holds each group (circle and text) for each string
+      allRaphaelNotes = new Array(numStrings); 
+      // Default color a note gets when clicked by a user. You can programatically set clicked notes with diffferent colors
+      clickedNoteColor = extendedConfig.clickedNoteColor;  // need letter color
       fretboardColor = extendedConfig.fretboardColor;
       stringColor = extendedConfig.stringColor;
-      tuningTriangleColor = extendedConfig.tuningTriangleColor;
-      fretsToDrawOneCircleOn = extendedConfig.fretsToDrawOneCircleOn;
-      opacityAnimateSpeed = extendedConfig.opacityAnimateSpeed;
+      tuningTriangleColor = extendedConfig.tuningTriangleColor; // need letter color
+      fretsToDrawOneCircleOn = extendedConfig.fretsToDrawOneCircleOn; // only specify the first octaves (0, 3, 5, 7, 9)
+      opacityAnimateSpeed = extendedConfig.opacityAnimateSpeed;  // ms
       letterFontSize = extendedConfig.fretHeight / 4;
       noteCircRad = extendedConfig.fretHeight / 2.5;
       noteTuningSquareWidth = extendedConfig.fretHeight / 1.35;
