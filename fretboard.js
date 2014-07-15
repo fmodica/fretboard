@@ -520,7 +520,14 @@
             var clickedFrets = notesClickedTracker[thisString];
 
             var atLeastOneFretWasClicked = clickedFrets.length > 0; // needs plural name
-            var fretNumberIndex = clickedFrets.indexOf(thisFret);
+						
+						var fretNumberIndex = -1;
+						
+						for (var i = 0; i < clickedFrets.length; i++) {
+							if (clickedFrets[i].fret === thisFret) {
+                fretNumberIndex = i;
+						  }
+					  }
             var clickedFretWasAlreadyClicked = fretNumberIndex !== -1;
 
             if (!clickedFretWasAlreadyClicked && atLeastOneFretWasClicked && isChordMode) {

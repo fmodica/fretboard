@@ -40,6 +40,7 @@
 
 	            initialize($scope.config, $element, ctrl);
             
+							if ($scope.config && $scope.config.disabled) {
 	            $scope.$watch(function () { return $scope.config.disabled; }, function (newVal, oldVal) {                
 	                if (newVal === true) {
 	                    ctrl.jQueryFretboard.disable();
@@ -47,6 +48,7 @@
 	                    ctrl.jQueryFretboard.enable();
 	                }
 	            });
+						}
 	        }],
 	        // we create 3 inner directives so they can each have their own ngModel, which handles two-way data-binding
 	        // for only one thing 
@@ -61,11 +63,10 @@
 
 	        ctrl.jQueryFretboardElement = element;
 	        ctrl.jQueryFretboard = element.data('fretboard');
-
-	        fretboardsGeneratedCounter++; // should not know to have to do this! put in getUniqueDomId method
 	    }
 
 	    function getUniqueDomIdForFretboard() {
+					fretboardsGeneratedCounter++;
 	        return "fretboardjs-" + fretboardsGeneratedCounter;
 	    }
 	}]);
