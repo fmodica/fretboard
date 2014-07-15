@@ -25,7 +25,9 @@
 
       app.controller("MyController", ["$scope",
         function ($scope) {
-          $scope.config = {}
+          $scope.config = {
+          	isChordMode: false
+          }
 
           $scope.$watch(function () {
             return $scope.config
@@ -54,7 +56,7 @@
 
                 initialize($scope.config, $element, ctrl);
 
-                if ($scope.config && $scope.config.disabled) {
+                if ($scope.config.disabled) {
                   $scope.$watch(function () {
                     return $scope.config.disabled;
                   }, function (newVal, oldVal) {
@@ -62,6 +64,18 @@
                       ctrl.jQueryFretboard.disable();
                     } else {
                       ctrl.jQueryFretboard.enable();
+                    }
+                  });
+                }
+								
+                if ($scope.config.isChordMode) {
+                  $scope.$watch(function () {
+                    return $scope.config.isChordMode;
+                  }, function (newVal, oldVal) {
+                    if (newVal === true) {
+                      ctrl.jQueryFretboard.setChordMode(true);
+                    } else {
+                      ctrl.jQueryFretboard.setChordMode(false);
                     }
                   });
                 }
