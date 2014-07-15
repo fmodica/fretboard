@@ -214,7 +214,7 @@
     }
 
     self.clearClickedNotes = function () {
-      var i, j, k, clickedFrets, clickedFret, clickedGroup, circ, text, color;
+      var i, j, clickedFrets, clickedFret, clickedGroup, color;
 
       for (i = 0; i < guitarStringNotes.length; i++) {
         clickedFrets = notesClickedTracker[i];
@@ -223,10 +223,7 @@
         for (j = 0; j < clickedFrets.length; j++) {
           clickedFret = clickedFrets[j].fret;
           clickedGroup = allRaphaelNotes[i][clickedFret];
-
-          circ = clickedGroup[0];
-          text = clickedGroup[1];
-
+          
           makeNoteInvisible(clickedGroup);
           clickedGroup.hover(noteMouseOver, noteMouseOut);
         }

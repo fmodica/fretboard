@@ -41,12 +41,12 @@
             ],
             clickedNotes: [
               { 
-                string : { noteLetter: "E", noteOctave: 5 } ,
+                stringItsOn : { noteLetter: "E", noteOctave: 5 } ,
                 fretNumber: 5,
                 color: "red"
               },
               { 
-                string : { noteLetter: "D", noteOctave: 4 } ,
+                stringItsOn : { noteLetter: "D", noteOctave: 4 } ,
                 fretNumber: 0,
                 color: "green"
               }
@@ -164,10 +164,10 @@
               });
 
               ngModelCtrl.$render = function () {
-                console.log("render");
+                //console.log("render");
                 // prevent double rendering the first time
                 if (isFirst) {
-                  console.log("skip");
+                  //console.log("skip");
                   // Put the tuning on the controller in case its config file did not 
                   // define a tuning (in which case the default was used)
                   ngModelCtrl.$setViewValue(jQueryFretboard.getGuitarStringNotes());
@@ -222,7 +222,7 @@
 
                 for (var i = 0; i < newNotes.length; i++) {
                   if (newNotes[i]) {
-                    jQueryFretboard.setClickedNoteByStringNoteAndFretNum( newNotes[i].string, newNotes[i].fretNumber, newNotes[i].color, newNotes[i].immediate);
+                    jQueryFretboard.setClickedNoteByStringNoteAndFretNum( newNotes[i].stringItsOn, newNotes[i].fretNumber, newNotes[i].color);
                   }
                 }
 
