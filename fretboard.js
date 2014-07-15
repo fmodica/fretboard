@@ -97,7 +97,7 @@
         };
 
 
-        var settingsCopy = $.extend(true, {}, settings), // a copy so that it can be modified by this code when calling init() without touching original object
+        var settingsCopy = $.extend(true, {}, settings || {}), // a copy so that it can be modified by this code when calling init() without touching original object
             extendedConfig, // Config options will be copied to these private variables
             fretboardOrigin,
             numFrets,
@@ -142,9 +142,7 @@
             notesClickedTracker = [];
             extendedConfig = {};
 
-            if (settings) {
-                $.extend(extendedConfig, config, settingsCopy);
-            }
+            $.extend(extendedConfig, config, settingsCopy);
 
             // Copy config options to fretboard private variables
             fretboardOrigin = extendedConfig.fretboardOrigin;
