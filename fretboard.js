@@ -215,7 +215,7 @@
 
         // See if any of the frets were also clicked            
         for (j = 0; j < clickedFrets.length; j++) {
-          clickedFret = clickedFrets[j];
+          clickedFret = clickedFrets[j].fret;
           clickedGroup = allRaphaelNotes[i][clickedFret];
 
           circ = clickedGroup[0];
@@ -243,26 +243,24 @@
         frets = notesClickedTracker[i];
 
         for (j = 0; j < frets.length; j++) {
-          fret = frets[j];
+          fret = frets[j].fret;
 
-          if (notesClickedTracker[i] !== null) {
             group = allRaphaelNotes[i][fret];
 
             musicalNote = {
               noteLetter: group.noteLetter,
               noteOctave: group.noteOctave,
 							stringItsOn : {
-								fretNumber: groupfretNumber,
+								fretNumber: group.fretNumber,
 								note: {
 									noteLetter: group.stringLetter,
 									noteOctave: group.stringOctave
-								}
+			  			}
 								
-							}
-            }
-
-            notes[i].push(musicalNote);
+						}
           }
+
+          notes[i].push(musicalNote);
         }
       }
 
@@ -317,13 +315,14 @@
     }
 
     // to be used externally as API function
-    self.setClickedNoteByStringNoteAndFretNum = function (stringNote, fretNumber, immediate) {
+    self.setClickedNoteByStringNoteAndFretNum = function (stringNote, fretNumber, color, immediate) {
       setClickedNoteByStringNoteAndFretNum({
         noteLetter: validateNoteLetter(stringNote.noteLetter),
         noteOctave: stringNote.noteOctave
       }, validateFretNum(fretNumber), {
         immediate: immediate,
-        wasCalledProgramatically: true
+        wasCalledProgramatically: true,
+				color: color
       });
     }
 
@@ -400,14 +399,15 @@
         fretNums = oldClickedNotes[i];
 
         for (j = 0; j < fretNums.length; j++) {
-          fretNum = fretNums[j];
+          fretNum = fretNums[j].fret;
 
           setClickedNoteByStringNoteAndFretNum({
             noteLetter: guitarStringNotes[stringNum].noteLetter,
             noteOctave: guitarStringNotes[stringNum].noteOctave
           }, fretNum, {
             immediate: true,
-            wasCalledProgramatically: true
+            wasCalledProgramatically: true,
+						color: fretNums[j].color
           });
         }
       }
@@ -504,6 +504,7 @@
 
     function noteClick(params) {
       var wasCalledProgramatically = params && params.wasCalledProgramatically;
+			var color = (params && params.color) || clickedNoteColor;
 
       if (disabled && !wasCalledProgramatically) {
         return false;
@@ -527,7 +528,7 @@
       if (!clickedFretWasAlreadyClicked && atLeastOneFretWasClicked && isChordMode) {
         // Go through and unclick all others
         for (var i = 0; i < clickedFrets.length; i++) {
-          var alreadyClickedFret = clickedFrets[i];
+          var alreadyClickedFret = clickedFrets[i].fret;
           var alreadyClickedGroup = allRaphaelNotes[thisString][alreadyClickedFret];
 
           makeNoteInvisible(alreadyClickedGroup);
@@ -544,14 +545,14 @@
         notesClickedTracker[thisString].splice(fretNumberIndex, 1);
       } else {
         if (immediatelyVisible) {
-          makeNoteVisibleImmediate(group, clickedNoteColor);
+          makeNoteVisibleImmediate(group, color);
         } else {
-          makeNoteVisibleAnimated(group, clickedNoteColor);
+          makeNoteVisibleAnimated(group, color);
         }
 
         group.unhover(noteMouseOver, noteMouseOut);
 
-        notesClickedTracker[thisString].push(thisFret);
+        notesClickedTracker[thisString].push({ fret: thisFret, color: color });
       }
 
       //if (!wasCalledProgramatically) {
