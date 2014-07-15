@@ -9,6 +9,7 @@
   <script src="../raphael-min.js"></script>
   <script src="../fretboard.js"></script>
   <script src="angular.js"></script>
+  <script src="safeApply.js"></script>
 </head>
 
 <body ng-app="myApp">
@@ -21,7 +22,7 @@
   <button class="chord-mode">Toggle chord mode</button>
 	<button class="get-clicked">Get clicked notes (console)</button> -->
     <script type="text/javascript">
-      var app = angular.module("myApp", []);
+      var app = angular.module("myApp", ['Scope.safeApply']);
 
       app.controller("MyController", ["$scope",
         function ($scope) {
@@ -55,7 +56,8 @@
             stringColor: "white",
             tuningTriangleColor : "brown",
             fretsToDrawOneCircleOn : [3,5,7,9,12],
-            opacityAnimateSpeed: 500
+            opacityAnimateSpeed: 500,
+            showTuningTriangles: false
           }
 
           // For testing
@@ -152,7 +154,7 @@
 
               // Updating the controller
               jQueryFretboardElement.on("tuningChanged", function () {
-                $rootScope.$apply(function () {
+                $rootScope.$safeApply(function () {
                   ngModelCtrl.$setViewValue(jQueryFretboard.getGuitarStringNotes());
 
                   if (tuningChangeCallback) {
@@ -200,7 +202,7 @@
 
               // Updating the controller
               jQueryFretboardElement.on("noteClicked", function () {
-                $rootScope.$apply(function () {
+                $rootScope.$safeApply(function () {
                   ngModelCtrl.$setViewValue(jQueryFretboard.getClickedNotes());
 
                   if (clickedNoteCallback) {

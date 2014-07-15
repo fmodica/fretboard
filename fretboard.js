@@ -119,6 +119,7 @@
       numStrings,
       // Will hold the squares (Raphael objects) that show the each string's note letter
       tuningSquares,
+      showTuningTriangles,
       // A 2-d array that holds each Raphael group that contains both the circle and text for each note                           
       allRaphaelNotes,
       svgWidth,
@@ -157,6 +158,7 @@
       numStrings = guitarStringNotes.length;
       // Will hold the squares that show the each string's note letter
       tuningSquares = []; 
+      showTuningTriangles = extendedConfig.showTuningTriangles;
       // A 2-d array that holds each group (circle and text) for each string
       allRaphaelNotes = new Array(numStrings); 
       // Default color a note gets when clicked by a user. You can programatically set clicked notes with diffferent colors
@@ -169,6 +171,7 @@
       letterFontSize = extendedConfig.fretHeight / 4;
       noteCircRad = extendedConfig.fretHeight / 2.5;
       noteTuningSquareWidth = extendedConfig.fretHeight / 1.35;
+      
       svgWidth = 0;
       svgHeight = 0;
       svgHeightBuffer = 5;
@@ -796,14 +799,19 @@
           squareWidth = noteTuningSquareWidth;
           squareX = x - (squareWidth);
           squareY = y - (squareWidth / 2)
+          
+
           square = paper.rect(squareX, squareY, squareWidth, squareWidth).attr("fill", "white");
           squareNoteText = paper.text(squareX + squareWidth / 2, squareY + squareWidth / 2, guitarStringNotes[i].noteLetter).attr("font-size", letterFontSize);
+        
 
           // Show the octave near the note on the tuning square
           squareOctaveTextX = squareX + (.80 * squareWidth);
           squareOctaveTextY = squareY + (.20 * squareWidth);
+        
           squareOctaveText = paper.text(squareOctaveTextX, squareOctaveTextY, allRaphaelNotes[i][0].stringOctave).attr("font-size", letterFontSize);
-
+        
+        
           squareNoteText.data({
             x: squareOctaveTextX,
             y: squareOctaveTextY,
@@ -812,28 +820,31 @@
 
           makeTextUnselectable(squareNoteText);
           makeTextUnselectable(squareOctaveText);
-
+          
+          
           tuningSquares[i] = squareNoteText;
 
-          // Triangles for changing the string tunings
-          midX = squareX + squareWidth + 25;
-          midY = squareY + squareWidth / 2;
-          topX = squareX + squareWidth + 10;
-          topY = midY - squareWidth / 2;
-          bottomX = topX;
-          bottomY = midY + squareWidth / 2;
+          if (showTuningTriangles) {
+            // Triangles for changing the string tunings
+            midX = squareX + squareWidth + 25;
+            midY = squareY + squareWidth / 2;
+            topX = squareX + squareWidth + 10;
+            topY = midY - squareWidth / 2;
+            bottomX = topX;
+            bottomY = midY + squareWidth / 2;
 
-          drawTuningTriangleAndBindEventHandlers(midX, midY, topX, topY, bottomX, bottomY, "right", i);
+            drawTuningTriangleAndBindEventHandlers(midX, midY, topX, topY, bottomX, bottomY, "right", i);
 
-          midX = squareX - 25;
-          midY = squareY + squareWidth / 2;
-          topX = squareX - 10;
-          topY = midY - squareWidth / 2;
-          bottomX = topX;
-          bottomY = midY + squareWidth / 2;
+            midX = squareX - 25;
+            midY = squareY + squareWidth / 2;
+            topX = squareX - 10;
+            topY = midY - squareWidth / 2;
+            bottomX = topX;
+            bottomY = midY + squareWidth / 2;
 
-          drawTuningTriangleAndBindEventHandlers(midX, midY, topX, topY, bottomX, bottomY, "left", i);
-
+            drawTuningTriangleAndBindEventHandlers(midX, midY, topX, topY, bottomX, bottomY, "left", i);
+          }
+          
           if (i === numStrings - 1) {
             svgHeight = squareY + squareWidth + svgHeightBuffer;
           }
