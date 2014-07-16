@@ -93,6 +93,7 @@
 			hoverNoteCircColor: 'white',
 			hoverNoteTextColor: 'black',
       tuningTriangleColor: 'green',
+      showTuningTriangles: true,
       fretsToDrawOneCircleOn: [3, 5, 7, 9, 12], // Will do octaves of these numbers as well 
       opacityAnimateSpeed: 125,
       fretboardColor: 'tan',
