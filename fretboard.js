@@ -88,8 +88,10 @@
         "noteLetter": "E",
         "noteOctave": 3
       }, ],
-      clickedNoteColor: 'green',
-      clickedTextColor: 'black',
+      clickedNoteCircColor: 'green',
+      clickedNoteTextColor: 'black',
+			hoverNoteCircColor: 'white',
+			hoverNoteTextColor: 'black',
       tuningTriangleColor: 'green',
       fretsToDrawOneCircleOn: [3, 5, 7, 9, 12], // Will do octaves of these numbers as well 
       opacityAnimateSpeed: 125,
@@ -108,8 +110,10 @@
       fretHeight,
       isChordMode,
       guitarStringNotes,
-      clickedNoteColor,
-      clickedTextColor,
+      clickedNoteCircColor,
+      clickedNoteTextColor,
+			hoverNoteCircColor,
+			hoverNoteTextColor,
       fretboardColor,
       stringColor,
       tuningTriangleColor,
@@ -165,8 +169,10 @@
       // A 2-d array that holds each group (circle and text) for each string
       allRaphaelNotes = new Array(numStrings); 
       // Default color a note gets when clicked by a user. You can programatically set clicked notes with diffferent colors
-      clickedNoteColor = extendedConfig.clickedNoteColor;
-      clickedTextColor = extendedConfig.clickedTextColor;
+      clickedNoteCircColor = extendedConfig.clickedNoteCircColor;
+      clickedNoteTextColor = extendedConfig.clickedNoteTextColor;
+			hoverNoteCircColor = extendedConfig.hoverNoteCircColor;
+			hoverNoteTextColor = extendedConfig.hoverNoteTextColor;
       fretboardColor = extendedConfig.fretboardColor;
       stringColor = extendedConfig.stringColor;
       tuningTriangleColor = extendedConfig.tuningTriangleColor; // need letter color
@@ -319,13 +325,14 @@
     }
 
     // to be used externally as API function
-    self.setClickedNoteByStringNoteAndFretNum = function (stringNote, fretNumber, color) {
+    self.setClickedNoteByStringNoteAndFretNum = function (stringNote, fretNumber, circColor, textColor) {
       setClickedNoteByStringNoteAndFretNum({
         noteLetter: validateNoteLetter(stringNote.noteLetter),
         noteOctave: stringNote.noteOctave
       }, validateFretNum(fretNumber), {
         wasCalledProgramatically: true,
-        color: color
+        circColor: circColor,
+				textColor: textColor
       });
     }
 
@@ -499,7 +506,7 @@
 
     function noteMouseOver() {
       var group = this.data("group");
-      makeNoteVisibleAnimated(group, '#FFF');
+      makeNoteVisibleAnimated(group, hoverNoteCircColor, hoverNoteTextColor);
     }
 
     function noteMouseOut() {
@@ -508,8 +515,10 @@
     }
 
     function noteClick(params) {
+			console.log(params);
       var wasCalledProgramatically = params && params.wasCalledProgramatically;
-      var circColor = (params && params.color) || clickedNoteColor;
+      var circColor = (params && params.circColor) || clickedNoteCircColor;
+			var textColor = (params && params.textColor) || clickedNoteTextColor;
 
       if (disabled && !wasCalledProgramatically) {
         return false;
@@ -557,9 +566,9 @@
         notesClickedTracker[thisString].splice(fretNumberIndex, 1);
       } else {
         if (immediatelyVisible) {
-          makeNoteVisibleImmediate(group, circColor, clickedTextColor);  // make this a parameter
+          makeNoteVisibleImmediate(group, circColor, textColor);  // make this a parameter
         } else {
-          makeNoteVisibleAnimated(group, circColor, clickedTextColor);
+          makeNoteVisibleAnimated(group, circColor, textColor);
         }
 
         group.unhover(noteMouseOver, noteMouseOut);
@@ -567,7 +576,7 @@
         notesClickedTracker[thisString].push({
           fret: thisFret,
           circColor: circColor,
-          textColor: clickedTextColor
+          textColor: textColor
         });
       }
 

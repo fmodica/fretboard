@@ -39,16 +39,20 @@
               { 
                 stringItsOn : { noteLetter: "E", noteOctave: 5 } ,
                 fretNumber: 5,
-                color: "red"
+                circColor: "red",
+								textColor : "white"
               },
               { 
                 stringItsOn : { noteLetter: "D", noteOctave: 4 } ,
                 fretNumber: 0,
-                color: "green"
+                circColor: "green",
+								textColor: "black"
               }
             ],
-            clickedNoteColor : "purple",
-            clickedTextColor: "white",
+            clickedNoteCircColor : "purple",
+            clickedNoteTextColor: "white",
+						hoverNoteCircColor : "yellow",
+						hoverNoteTextColor: "red",
             fretboardColor: "gray",
             stringColor: "white",
             tuningTriangleColor : "brown",
@@ -234,7 +238,7 @@
 
                 for (var i = 0; i < newNotes.length; i++) {
                   if (newNotes[i]) {
-                    jQueryFretboard.setClickedNoteByStringNoteAndFretNum( newNotes[i].stringItsOn, newNotes[i].fretNumber, newNotes[i].color);
+                    jQueryFretboard.setClickedNoteByStringNoteAndFretNum(newNotes[i].stringItsOn, newNotes[i].fretNumber, newNotes[i].circColor, newNotes[i].textColor);
                   }
                 }
 
