@@ -417,7 +417,8 @@
           }, fretNum, {
             immediate: true,
             wasCalledProgramatically: true,
-            color: fretNums[j].color
+            circColor: fretNums[j].circColor,
+						textColor: fretNums[j].textColor
           });
         }
       }
