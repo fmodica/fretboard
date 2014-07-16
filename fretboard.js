@@ -94,6 +94,7 @@
 			hoverNoteTextColor: 'black',
       tuningTriangleColor: 'green',
       showTuningTriangles: true,
+      showTuningSquares: true,
       fretsToDrawOneCircleOn: [3, 5, 7, 9, 12], // Will do octaves of these numbers as well 
       opacityAnimateSpeed: 125,
       fretboardColor: 'tan',
@@ -126,6 +127,7 @@
       numStrings,
       // Will hold the squares (Raphael objects) that show the each string's note letter
       tuningSquares,
+      showTuningSquares,
       showTuningTriangles,
       // A 2-d array that holds each Raphael group that contains both the circle and text for each note                           
       allRaphaelNotes,
@@ -167,6 +169,7 @@
       // Will hold the squares that show the each string's note letter
       tuningSquares = []; 
       showTuningTriangles = extendedConfig.showTuningTriangles;
+      showTuningSquares = extendedConfig.showTuningSquares;
       // A 2-d array that holds each group (circle and text) for each string
       allRaphaelNotes = new Array(numStrings); 
       // Default color a note gets when clicked by a user. You can programatically set clicked notes with diffferent colors
@@ -626,7 +629,11 @@
         // Set the new string letter on the tuning square and array 
         if (i === 0) {
           guitarStringNotes[thisStringNumber].noteLetter = newNoteLetter;
-          tuningSquares[thisStringNumber].attr("text", newNoteLetter).data("octaveText").attr("text", newNoteOctave);
+          
+          if (showTuningSquares) {
+            tuningSquares[thisStringNumber].attr("text", newNoteLetter).data("octaveText").attr("text", newNoteOctave);
+          }
+          
           guitarStringNotes[thisStringNumber].noteOctave = newNoteOctave;
         }
 
@@ -815,29 +822,30 @@
           squareX = x - (squareWidth);
           squareY = y - (squareWidth / 2)
           
+          if (showTuningSquares) {
+            square = paper.rect(squareX, squareY, squareWidth, squareWidth).attr("fill", "white");
+            squareNoteText = paper.text(squareX + squareWidth / 2, squareY + squareWidth / 2, guitarStringNotes[i].noteLetter).attr("font-size", letterFontSize);
+          
 
-          square = paper.rect(squareX, squareY, squareWidth, squareWidth).attr("fill", "white");
-          squareNoteText = paper.text(squareX + squareWidth / 2, squareY + squareWidth / 2, guitarStringNotes[i].noteLetter).attr("font-size", letterFontSize);
-        
-
-          // Show the octave near the note on the tuning square
-          squareOctaveTextX = squareX + (.80 * squareWidth);
-          squareOctaveTextY = squareY + (.20 * squareWidth);
-        
-          squareOctaveText = paper.text(squareOctaveTextX, squareOctaveTextY, allRaphaelNotes[i][0].stringOctave).attr("font-size", letterFontSize);
-        
-        
-          squareNoteText.data({
-            x: squareOctaveTextX,
-            y: squareOctaveTextY,
-            octaveText: squareOctaveText
-          });
-
-          makeTextUnselectable(squareNoteText);
-          makeTextUnselectable(squareOctaveText);
+            // Show the octave near the note on the tuning square
+            squareOctaveTextX = squareX + (.80 * squareWidth);
+            squareOctaveTextY = squareY + (.20 * squareWidth);
+          
+            squareOctaveText = paper.text(squareOctaveTextX, squareOctaveTextY, allRaphaelNotes[i][0].stringOctave).attr("font-size", letterFontSize);
           
           
-          tuningSquares[i] = squareNoteText;
+            squareNoteText.data({
+              x: squareOctaveTextX,
+              y: squareOctaveTextY,
+              octaveText: squareOctaveText
+            });
+
+            makeTextUnselectable(squareNoteText);
+            makeTextUnselectable(squareOctaveText);
+            
+            
+            tuningSquares[i] = squareNoteText;
+          }
 
           if (showTuningTriangles) {
             // Triangles for changing the string tunings

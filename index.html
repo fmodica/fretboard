@@ -15,42 +15,38 @@
   <button class="reset-button">Unclick Frets</button>
   <button class="add-string-button">Add String</button>
   <button class="remove-string-button">Remove String</button>
-  <button class="disable">Disable Fretboard</button>
-  <button class="enable">Enable Fretboard</button>
+  <button class="disable">Toggle Enable/Disable Fretboard</button>
   <button class="chord-mode">Toggle chord mode</button>
 	<button class="get-clicked">Get clicked notes (console)</button>
   <script type="text/javascript">
     var chordMode = true;
-    var guitarStringNotes = [{
-      "noteLetter": "E",
-      "noteOctave": 5
-    }, {
-      "noteLetter": "B",
-      "noteOctave": 5
-    }, {
-      "noteLetter": "G",
-      "noteOctave": 4
-    }, {
-      "noteLetter": "D",
-      "noteOctave": 4
-    }, {
-      "noteLetter": "A",
-      "noteOctave": 4
-    }, {
-      "noteLetter": "E",
-      "noteOctave": 3
-    }, {
-      "noteLetter": "B",
-      "noteOctave": 3
-    }];
+    var disabled = false;
+    var guitarStringNotes = [
+      { noteLetter: "E", noteOctave: 5 },
+      { noteLetter: "B", noteOctave: 5 },
+      { noteLetter: "G", noteOctave: 4 },
+      { noteLetter: "D", noteOctave: 4 }
+    ];
 
     $('#canvas_container').fretboard({
-      stringColor: "black",
-      opacityAnimateSpeed: 150,
+      fretboardOrigin: [100,200],
+      numFrets: 16,
+      fretWidth: 60,
+      fretHeight: 30,
       isChordMode: chordMode,
+      disabled: disabled,
       guitarStringNotes: guitarStringNotes,
-      numFrets: 15,
-      fretboardOrigin: [150, 25]
+      clickedNoteCircColor : "purple",
+      clickedNoteTextColor: "white",
+      hoverNoteCircColor : "yellow",
+      hoverNoteTextColor: "red",
+      fretboardColor: "gray",
+      stringColor: "white",
+      tuningTriangleColor : "brown",
+      fretsToDrawOneCircleOn : [3,5,7,9,12],
+      opacityAnimateSpeed: 300,
+      showTuningTriangles: true,
+      showTuningSquares: true
     });
 
     var myFretboard = $('#canvas_container').data('fretboard');
@@ -59,8 +55,13 @@
       myFretboard.disable();
     });
 
-    $('.enable').on("click", function () {
-      myFretboard.enable();
+    $('.disable').on("click", function () {
+      disabled = !disabled;
+      if (disabled) {
+        myFretboard.disable();
+      } else {
+        myFretboard.enable();
+      }
     });
 
     $('.chord-mode').on("click", function () {
@@ -84,19 +85,15 @@
       guitarStringNotes.pop();
       myFretboard.setGuitarStringNotes(guitarStringNotes);
     });
-		
+    
     myFretboard.setClickedNoteByStringNoteAndFretNum({
       noteLetter: "E",
       noteOctave: 5
-    }, 6, '#456', 'pink');
+    }, 6, 'red', 'white');
     myFretboard.setClickedNoteByStringNoteAndFretNum({
       noteLetter: "D",
       noteOctave: 4
-    }, 2, 'red', 'yellow');
-    myFretboard.setClickedNoteByStringNoteAndFretNum({
-      noteLetter: "E",
-      noteOctave: 3
-    }, 0);
+    }, 2, 'green', 'black');
 		
 		$('.get-clicked').on("click", function() {
 			console.log(myFretboard.getClickedNotes());
