@@ -22,8 +22,9 @@
 })(jQuery);
 
 (function ($) {
+  "use strict";
   // Make this object available on the global scope
-  Fretboard = function ($fretboardContainer, settings) {
+  window.Fretboard = function ($fretboardContainer, settings) {
     var self = this; // the fretboard object
 
     var ALL_NOTE_LETTERS = ["Ab/G#", "A", "A#/Bb", "B", "C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G"];
