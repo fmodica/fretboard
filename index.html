@@ -88,22 +88,33 @@
       myFretboard.setGuitarStringNotes(guitarStringNotes);
     });
     
-    myFretboard.setClickedNoteByStringNoteAndFretNum({
-      noteLetter: "E",
-      noteOctave: 5
-    }, 5, 'red', 'white');
-    myFretboard.setClickedNoteByStringNoteAndFretNum({
-      noteLetter: "B",
-      noteOctave: 5
-    }, 7, 'green', 'black');
-    myFretboard.setClickedNoteByStringNoteAndFretNum({
-      noteLetter: "G",
-      noteOctave: 4
-    }, 6, 'purple', 'yellow');
-    myFretboard.setClickedNoteByStringNoteAndFretNum({
-      noteLetter: "A",
-      noteOctave: 4
-    }, 5, 'pink', 'brown');
+    myFretboard.setClickedNoteByStringNoteAndFretNum({ 
+      stringItsOn : { noteLetter: "E", noteOctave: 5 },
+      fretNumber: 5,
+      circColor: "red",
+      textColor : "white"
+    });
+    
+    myFretboard.setClickedNoteByStringNoteAndFretNum({ 
+      stringItsOn : { noteLetter: "B", noteOctave: 5 },
+      fretNumber: 7,
+      circColor: "green",
+      textColor: "black"
+    });
+    
+    myFretboard.setClickedNoteByStringNoteAndFretNum({ 
+      stringItsOn : { noteLetter: "G", noteOctave: 4 },
+      fretNumber: 6,
+      circColor: "purple",
+      textColor: "yellow"
+    });
+    
+    myFretboard.setClickedNoteByStringNoteAndFretNum({ 
+      stringItsOn : { noteLetter: "A", noteOctave: 4 } ,
+      fretNumber: 5,
+      circColor: "pink",
+      textColor: "brown"
+    });
 		
 		$('.get-clicked').on("click", function() {
 			console.log(myFretboard.getClickedNotes());

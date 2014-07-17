@@ -314,6 +314,8 @@
     function throwFretNumError(fretNum) {
       throw fretNum + " is not a valid fret number. There are " + numFrets + " frets.";
     }
+    
+//
 
     // To be used internally
     function setClickedNoteByStringNoteAndFretNum(stringNote, fretNumber, params) {
@@ -330,14 +332,14 @@
     }
 
     // to be used externally as API function
-    self.setClickedNoteByStringNoteAndFretNum = function (stringNote, fretNumber, circColor, textColor) {
+    self.setClickedNoteByStringNoteAndFretNum = function (note) {
       setClickedNoteByStringNoteAndFretNum({
-        noteLetter: validateNoteLetter(stringNote.noteLetter),
-        noteOctave: stringNote.noteOctave
-      }, validateFretNum(fretNumber), {
+        noteLetter: validateNoteLetter(note.stringItsOn.noteLetter),
+        noteOctave: note.stringItsOn.noteOctave
+      }, validateFretNum(note.fretNumber), {
         wasCalledProgramatically: true,
-        circColor: circColor,
-				textColor: textColor
+        circColor: note.circColor,
+				textColor: note.textColor
       });
     }
 
