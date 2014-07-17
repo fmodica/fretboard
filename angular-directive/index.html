@@ -14,9 +14,6 @@
 
 <body ng-app="myApp">
   <div ng-controller="MyController">
-   <button ng-click="addString()">Add String</button>
-   <button ng-click="removeString()">Remove String</button>
-   
     <script type="text/javascript">
       var app = angular.module("myApp", ['Scope.safeApply']);
 
@@ -33,7 +30,9 @@
               { noteLetter: "E", noteOctave: 5 },
               { noteLetter: "B", noteOctave: 5 },
               { noteLetter: "G", noteOctave: 4 },
-              { noteLetter: "D", noteOctave: 4 }
+              { noteLetter: "D", noteOctave: 4 },
+              { noteLetter: "A", noteOctave: 4 },
+              { noteLetter: "E", noteOctave: 3 }							
             ],
             clickedNotes: [
               { 
@@ -43,23 +42,35 @@
 								textColor : "white"
               },
               { 
-                stringItsOn : { noteLetter: "D", noteOctave: 4 } ,
-                fretNumber: 0,
+                stringItsOn : { noteLetter: "B", noteOctave: 5 } ,
+                fretNumber: 7,
                 circColor: "green",
 								textColor: "black"
+              },
+              { 
+                stringItsOn : { noteLetter: "G", noteOctave: 4 } ,
+                fretNumber: 6,
+                circColor: "purple",
+								textColor: "yellow"
+              },
+              { 
+                stringItsOn : { noteLetter: "A", noteOctave: 4 } ,
+                fretNumber: 5,
+                circColor: "pink",
+								textColor: "brown"
               }
             ],
-            clickedNoteCircColor : "purple",
-            clickedNoteTextColor: "white",
-						hoverNoteCircColor : "yellow",
-						hoverNoteTextColor: "red",
-            fretboardColor: "gray",
-            stringColor: "white",
-            tuningTriangleColor : "brown",
-            fretsToDrawOneCircleOn : [3,5,7,9,12],
-            opacityAnimateSpeed: 300,
-            showTuningTriangles: true,
-            showTuningSquares: true
+			      clickedNoteCircColor : "purple",
+			      clickedNoteTextColor: "white",
+			      hoverNoteCircColor : "yellow",
+			      hoverNoteTextColor: "red",
+			      fretboardColor: "wheat",
+			      stringColor: "black",
+			      tuningTriangleColor : "blue",
+			      fretsToDrawOneCircleOn : [3,5,7,9,12],
+			      opacityAnimateSpeed: 250,
+			      showTuningTriangles: true,
+			      showTuningSquares: true
           }
 
           // For testing
@@ -73,8 +84,8 @@
             // make a copy to change the reference - fix later in the directive
             $scope.config.guitarStringNotes = $scope.config.guitarStringNotes.slice(0);
             $scope.config.guitarStringNotes.push({
-              noteLetter: "A", 
-              noteOctave: 4
+              noteLetter: "Gb/F#", 
+              noteOctave: 2
             });
           }
           
@@ -83,6 +94,10 @@
             $scope.config.guitarStringNotes = $scope.config.guitarStringNotes.slice(0);
             $scope.config.guitarStringNotes.pop();
           }
+					
+					$scope.unclick = function() {
+						$scope.config.clickedNotes = [];
+					}
         }
       ]);
 
@@ -254,6 +269,10 @@
     </script>
 
     <div fretboard fretboard-config='config'></div>
+
+		<button ng-click="unclick()">Unclick Frets</button>
+    <button ng-click="addString()">Add String</button>
+    <button ng-click="removeString()">Remove String</button>
   </div>
 </body>
 

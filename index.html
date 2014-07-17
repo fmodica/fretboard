@@ -25,7 +25,9 @@
       { noteLetter: "E", noteOctave: 5 },
       { noteLetter: "B", noteOctave: 5 },
       { noteLetter: "G", noteOctave: 4 },
-      { noteLetter: "D", noteOctave: 4 }
+      { noteLetter: "D", noteOctave: 4 },
+      { noteLetter: "A", noteOctave: 4 },
+      { noteLetter: "E", noteOctave: 3 }
     ];
 
     $('#canvas_container').fretboard({
@@ -89,11 +91,19 @@
     myFretboard.setClickedNoteByStringNoteAndFretNum({
       noteLetter: "E",
       noteOctave: 5
-    }, 6, 'red', 'white');
+    }, 5, 'red', 'white');
     myFretboard.setClickedNoteByStringNoteAndFretNum({
-      noteLetter: "D",
+      noteLetter: "B",
+      noteOctave: 5
+    }, 7, 'green', 'black');
+    myFretboard.setClickedNoteByStringNoteAndFretNum({
+      noteLetter: "G",
       noteOctave: 4
-    }, 2, 'green', 'black');
+    }, 6, 'purple', 'yellow');
+    myFretboard.setClickedNoteByStringNoteAndFretNum({
+      noteLetter: "A",
+      noteOctave: 4
+    }, 5, 'pink', 'brown');
 		
 		$('.get-clicked').on("click", function() {
 			console.log(myFretboard.getClickedNotes());
