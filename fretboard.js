@@ -156,7 +156,7 @@
     // For any variables that can be set by fretboard methods make sure to
     // use that variable's value if it exists, or else it will be reset.
     function init() {
-      console.log("init called");
+      //console.log("init called");
       notesClickedTracker = [];
       extendedConfig = {};
 
@@ -527,7 +527,7 @@
     }
 
     function noteClick(params) {
-			console.log(params);
+			//console.log(params);
       var wasCalledProgramatically = params && params.wasCalledProgramatically;
       var circColor = (params && params.circColor) || clickedNoteCircColor;
 			var textColor = (params && params.textColor) || clickedNoteTextColor;

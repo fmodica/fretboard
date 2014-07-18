@@ -75,12 +75,12 @@
             tuningSquaresTextColor: "orange"
           }
 
-          // For testing
-          $scope.$watch(function () {
-            return $scope.config
-          }, function (newVal, oldval) {
-            console.log($scope.config);
-          }, true);
+          // For testing - outputs the config during changes to tuning, clicked notes, etc.
+          //$scope.$watch(function () {
+          //  return $scope.config
+          //}, function (newVal, oldval) {
+          //  console.log($scope.config);
+          //}, true);
           
           $scope.addString = function() {
             // make a copy to change the reference - fix later in the directive
@@ -108,9 +108,12 @@
           $scope.toggleChordMode = function() {
             $scope.config.isChordMode = !$scope.config.isChordMode;
           }
+          
+          $scope.getClickedNotes = function() {
+            console.log($scope.config.clickedNotes);
+          }
         }
       ]);
-
 
       app.directive("fretboard", ["$rootScope",
         function ($rootScope) {
@@ -285,6 +288,7 @@
     <button ng-click="removeString()">Remove String</button>
     <button ng-click="disable()">Toggle Enable/Disable Fretboard</button>
     <button ng-click="toggleChordMode()">Toggle chord mode</button>
+    <button ng-click="getClickedNotes()">Get clicked notes (console)</button>
   </div>
 </body>
 
