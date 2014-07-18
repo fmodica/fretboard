@@ -104,6 +104,10 @@
           $scope.disable = function() {
             $scope.config.disabled = !$scope.config.disabled;
           }
+          
+          $scope.toggleChordMode = function() {
+            $scope.config.isChordMode = !$scope.config.isChordMode;
+          }
         }
       ]);
 
@@ -280,6 +284,7 @@
     <button ng-click="addString()">Add String</button>
     <button ng-click="removeString()">Remove String</button>
     <button ng-click="disable()">Toggle Enable/Disable Fretboard</button>
+    <button ng-click="toggleChordMode()">Toggle chord mode</button>
   </div>
 </body>
 
