@@ -96,6 +96,8 @@
       tuningTriangleColor: 'green',
       showTuningTriangles: true,
       showTuningSquares: true,
+      tuningSquaresColor : "white",
+      tuningSquaresTextColor : "black",
       fretsToDrawOneCircleOn: [3, 5, 7, 9, 12], // Will do octaves of these numbers as well 
       opacityAnimateSpeed: 125,
       fretboardColor: 'tan',
@@ -130,6 +132,8 @@
       tuningSquares,
       showTuningSquares,
       showTuningTriangles,
+      tuningSquaresColor,
+      tuningSquaresTextColor,
       // A 2-d array that holds each Raphael group that contains both the circle and text for each note                           
       allRaphaelNotes,
       svgWidth,
@@ -171,6 +175,8 @@
       tuningSquares = []; 
       showTuningTriangles = extendedConfig.showTuningTriangles;
       showTuningSquares = extendedConfig.showTuningSquares;
+      tuningSquaresColor = extendedConfig.tuningSquaresColor;
+      tuningSquaresTextColor = extendedConfig.tuningSquaresTextColor;
       // A 2-d array that holds each group (circle and text) for each string
       allRaphaelNotes = new Array(numStrings); 
       // Default color a note gets when clicked by a user. You can programatically set clicked notes with diffferent colors
@@ -315,8 +321,6 @@
       throw fretNum + " is not a valid fret number. There are " + numFrets + " frets.";
     }
     
-//
-
     // To be used internally
     function setClickedNoteByStringNoteAndFretNum(stringNote, fretNumber, params) {
       for (var i = 0; i < guitarStringNotes.length; i++) {
@@ -826,8 +830,8 @@
           squareY = y - (squareWidth / 2)
           
           if (showTuningSquares) {
-            square = paper.rect(squareX, squareY, squareWidth, squareWidth).attr("fill", "white");
-            squareNoteText = paper.text(squareX + squareWidth / 2, squareY + squareWidth / 2, guitarStringNotes[i].noteLetter).attr("font-size", letterFontSize);
+            square = paper.rect(squareX, squareY, squareWidth, squareWidth).attr("fill", tuningSquaresColor);
+            squareNoteText = paper.text(squareX + squareWidth / 2, squareY + squareWidth / 2, guitarStringNotes[i].noteLetter).attr( { "font-size" : letterFontSize, fill: tuningSquaresTextColor });
           
 
             // Show the octave near the note on the tuning square
