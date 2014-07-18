@@ -100,6 +100,10 @@
 					$scope.unclick = function() {
 						$scope.config.clickedNotes = [];
 					}
+          
+          $scope.disable = function() {
+            $scope.config.disabled = !$scope.config.disabled;
+          }
         }
       ]);
 
@@ -122,7 +126,7 @@
 
                 initialize($scope.config, $element, ctrl);
 
-                if ($scope.config.disabled) {
+                if ($scope.config.disabled !== undefined) {
                   $scope.$watch(function () {
                     return $scope.config.disabled;
                   }, function (newVal, oldVal) {
@@ -134,7 +138,7 @@
                   });
                 }
 								
-                if ($scope.config.isChordMode) {
+                if ($scope.config.isChordMode !== undefined) {
                   $scope.$watch(function () {
                     return $scope.config.isChordMode;
                   }, function (newVal, oldVal) {
@@ -275,6 +279,7 @@
 		<button ng-click="unclick()">Unclick Frets</button>
     <button ng-click="addString()">Add String</button>
     <button ng-click="removeString()">Remove String</button>
+    <button ng-click="disable()">Toggle Enable/Disable Fretboard</button>
   </div>
 </body>
 
