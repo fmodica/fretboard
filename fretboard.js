@@ -822,11 +822,11 @@
 
         // Add the squares and triangles which will show/control the string tunings
         for (var i = 0; i < numStrings; i++) {
-          x = fretboardOrigin[0] - (fretWidth * (1 / 2));
+          x = fretboardOrigin[0] - fretWidth;
           y = fretboardOrigin[1] + i * (fretHeight);
 
           squareWidth = noteTuningSquareWidth;
-          squareX = x - (squareWidth);
+          squareX = x * (showTuningTriangles ? 2 : 2.5) - (squareWidth);
           squareY = y - (squareWidth / 2)
           
           if (showTuningSquares) {
