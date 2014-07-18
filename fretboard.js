@@ -838,7 +838,7 @@
             squareOctaveTextX = squareX + (.80 * squareWidth);
             squareOctaveTextY = squareY + (.20 * squareWidth);
           
-            squareOctaveText = paper.text(squareOctaveTextX, squareOctaveTextY, allRaphaelNotes[i][0].stringOctave).attr("font-size", letterFontSize);
+            squareOctaveText = paper.text(squareOctaveTextX, squareOctaveTextY, allRaphaelNotes[i][0].stringOctave).attr( { "font-size" : letterFontSize, fill : tuningSquaresTextColor });
           
           
             squareNoteText.data({
@@ -850,24 +850,23 @@
             makeTextUnselectable(squareNoteText);
             makeTextUnselectable(squareOctaveText);
             
-            
             tuningSquares[i] = squareNoteText;
           }
 
           if (showTuningTriangles) {
             // Triangles for changing the string tunings
-            midX = squareX + squareWidth + 25;
+            midX = squareX + squareWidth * 2;
             midY = squareY + squareWidth / 2;
-            topX = squareX + squareWidth + 10;
+            topX = midX - squareWidth / 1.5;
             topY = midY - squareWidth / 2;
             bottomX = topX;
             bottomY = midY + squareWidth / 2;
 
             drawTuningTriangleAndBindEventHandlers(midX, midY, topX, topY, bottomX, bottomY, "right", i);
 
-            midX = squareX - 25;
+            midX = squareX - squareWidth;
             midY = squareY + squareWidth / 2;
-            topX = squareX - 10;
+            topX = midX + squareWidth / 1.5;
             topY = midY - squareWidth / 2;
             bottomX = topX;
             bottomY = midY + squareWidth / 2;
