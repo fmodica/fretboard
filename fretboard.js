@@ -864,7 +864,7 @@
 
             drawTuningTriangleAndBindEventHandlers(midX, midY, topX, topY, bottomX, bottomY, "right", i);
 
-            midX = squareX - squareWidth;
+            midX = squareX - (showTuningSquares ? squareWidth : 0);
             midY = squareY + squareWidth / 2;
             topX = midX + squareWidth / 1.5;
             topY = midY - squareWidth / 2;
