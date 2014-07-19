@@ -101,7 +101,8 @@
       fretsToDrawOneCircleOn: [3, 5, 7, 9, 12], // Will do octaves of these numbers as well 
       opacityAnimateSpeed: 125,
       fretboardColor: 'tan',
-      stringColor: 'black'
+      stringColor: 'black',
+      nutColor: stringColor
     };
 
 
@@ -134,6 +135,7 @@
       showTuningTriangles,
       tuningSquaresColor,
       tuningSquaresTextColor,
+      nutColor,
       // A 2-d array that holds each Raphael group that contains both the circle and text for each note                           
       allRaphaelNotes,
       svgWidth,
@@ -186,6 +188,7 @@
 			hoverNoteTextColor = extendedConfig.hoverNoteTextColor;
       fretboardColor = extendedConfig.fretboardColor;
       stringColor = extendedConfig.stringColor;
+      nutColor = extendedConfig.nutColor;
       tuningTriangleColor = extendedConfig.tuningTriangleColor; // need letter color
       fretsToDrawOneCircleOn = extendedConfig.fretsToDrawOneCircleOn; // only specify the first octaves (0, 3, 5, 7, 9)
       opacityAnimateSpeed = extendedConfig.opacityAnimateSpeed;  // ms
@@ -755,10 +758,11 @@
               //}
 
               if (j === 1) {
-                // Draw a rectangle at the left of the first fret, which represents the nut
-                paper.rect(x - (fretWidth / 5), topFretExtended, (fretWidth / 5), bottomFretExtended - topFretExtended).attr({
-                  fill: stringColor,
-                  stroke: stringColor
+                // Draw a rectangle at the left of the first fret, which represents the nut.
+                // + 1 to prevent fret division from appearing right next to it
+                paper.rect(x - (fretWidth / 5) + 1, topFretExtended, (fretWidth / 5), bottomFretExtended - topFretExtended).attr({
+                  fill: nutColor,
+                  stroke: nutColor
                 });
               }
 
@@ -831,8 +835,7 @@
           
           if (showTuningSquares) {
             square = paper.rect(squareX, squareY, squareWidth, squareWidth).attr("fill", tuningSquaresColor);
-            squareNoteText = paper.text(squareX + squareWidth / 2, squareY + squareWidth / 2, guitarStringNotes[i].noteLetter).attr( { "font-size" : letterFontSize, fill: tuningSquaresTextColor });
-          
+            squareNoteText = paper.text(squareX + squareWidth / 2, squareY + squareWidth / 2, guitarStringNotes[i].noteLetter).attr( { "font-size" : letterFontSize, fill: tuningSquaresTextColor });          
 
             // Show the octave near the note on the tuning square
             squareOctaveTextX = squareX + (.80 * squareWidth);

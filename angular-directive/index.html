@@ -20,7 +20,7 @@
       app.controller("MyController", ["$scope",
         function ($scope) {
           $scope.config = {
-            fretboardOrigin: [100,200],
+            fretboardOrigin: [200,200],
             numFrets: 16,
             fretWidth: 70,
             fretHeight: 35,
@@ -65,14 +65,15 @@
 			      hoverNoteCircColor : "yellow",
 			      hoverNoteTextColor: "red",
 			      fretboardColor: "wheat",
-			      stringColor: "black",
+            stringColor: "black",
             tuningTriangleColor : "blue",
             fretsToDrawOneCircleOn : [3,5,7,9,12],
             opacityAnimateSpeed: 250,
             showTuningTriangles: true,
             showTuningSquares: true,      
             tuningSquaresColor : "black",
-            tuningSquaresTextColor: "orange"
+            tuningSquaresTextColor: "orange",
+            nutColor: "brown"
           }
 
           // For testing - outputs the config during changes to tuning, clicked notes, etc.
