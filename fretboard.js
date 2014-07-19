@@ -379,7 +379,7 @@
     // }
     // }
 
-    self.setGuitarStringNotes = function (newGuitarStringNotes) {
+    self.setTuning = function (newGuitarStringNotes) {
       var newLength, oldClickedNotes, difference, i;
 
       if (newGuitarStringNotes && newGuitarStringNotes.length > 0) {

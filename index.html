@@ -83,12 +83,12 @@
         noteLetter: "Gb/F#",
         noteOctave: 2
       });
-      myFretboard.setGuitarStringNotes(guitarStringNotes);
+      myFretboard.setTuning(guitarStringNotes);
     });
 
     $('.remove-string-button').on("click", function () {
       guitarStringNotes.pop();
-      myFretboard.setGuitarStringNotes(guitarStringNotes);
+      myFretboard.setTuning(guitarStringNotes);
     });
     
     myFretboard.setClickedNoteByStringNoteAndFretNum({ 
