@@ -826,7 +826,7 @@
           y = fretboardOrigin[1] + i * (fretHeight);
 
           squareWidth = noteTuningSquareWidth;
-          squareX = x * (showTuningTriangles ? 2 : 2.5) - (squareWidth);
+          squareX = x + squareWidth / 2 + (showTuningTriangles ? 0 : squareWidth);
           squareY = y - (squareWidth / 2)
           
           if (showTuningSquares) {
