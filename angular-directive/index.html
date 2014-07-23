@@ -25,7 +25,8 @@
             fretWidth: 70,
             fretHeight: 35,
           	isChordMode: true,
-            disabled: false,
+          	noteClickingDisabled: false,
+            tuningClickingDisabled: false,
             guitarStringNotes: [
               { noteLetter: "E", noteOctave: 5 },
               { noteLetter: "B", noteOctave: 5 },
@@ -102,8 +103,12 @@
 						$scope.config.clickedNotes = [];
 					}
           
-          $scope.disable = function() {
-            $scope.config.disabled = !$scope.config.disabled;
+          $scope.toggleNoteClicking = function() {
+            $scope.config.noteClickingDisabled = !$scope.config.noteClickingDisabled;
+          }
+
+          $scope.toggleTuningClicking = function () {
+            $scope.config.tuningClickingDisabled = !$scope.config.tuningClickingDisabled;
           }
           
           $scope.toggleChordMode = function() {
@@ -134,29 +139,35 @@
 
                 initialize($scope.config, $element, ctrl);
 
-                if ($scope.config.disabled !== undefined) {
-                  $scope.$watch(function () {
-                    return $scope.config.disabled;
-                  }, function (newVal, oldVal) {
-                    if (newVal === true) {
-                      ctrl.jQueryFretboard.disable();
-                    } else {
-                      ctrl.jQueryFretboard.enable();
-                    }
-                  });
-                }
+                $scope.$watch(function () {
+                  return $scope.config.noteClickingDisabled;
+                }, function (newVal, oldVal) {
+                  if (newVal === true) {
+                    ctrl.jQueryFretboard.disableNoteClicking();
+                  } else {
+                    ctrl.jQueryFretboard.enableNoteClicking();
+                  }
+                });
+
+                $scope.$watch(function () {
+                  return $scope.config.tuningClickingDisabled;
+                }, function (newVal, oldVal) {
+                  if (newVal === true) {
+                    ctrl.jQueryFretboard.disableTuningClicking();
+                  } else {
+                    ctrl.jQueryFretboard.enableTuningClicking();
+                  }
+                });
 								
-                if ($scope.config.isChordMode !== undefined) {
-                  $scope.$watch(function () {
-                    return $scope.config.isChordMode;
-                  }, function (newVal, oldVal) {
-                    if (newVal === true) {
-                      ctrl.jQueryFretboard.setChordMode(true);
-                    } else {
-                      ctrl.jQueryFretboard.setChordMode(false);
-                    }
-                  });
-                }
+                $scope.$watch(function () {
+                  return $scope.config.isChordMode;
+                }, function (newVal, oldVal) {
+                  if (newVal === true) {
+                    ctrl.jQueryFretboard.setChordMode(true);
+                  } else {
+                    ctrl.jQueryFretboard.setChordMode(false);
+                  }
+                });
               }
             ],
             // we create 3 inner directives so they can each have their own ngModel, which handles two-way data-binding
@@ -287,7 +298,8 @@
 		<button ng-click="unclick()">Unclick Frets</button>
     <button ng-click="addString()">Add String</button>
     <button ng-click="removeString()">Remove String</button>
-    <button ng-click="disable()">Toggle Enable/Disable Fretboard</button>
+    <button ng-click="toggleNoteClicking()">Toggle Note Clicking Allowed</button>
+    <button ng-click="toggleTuningClicking()">Toggle Tuning Arrows Allowed</button>
     <button ng-click="toggleChordMode()">Toggle chord mode</button>
     <button ng-click="getClickedNotes()">Get clicked notes (console)</button>
   </div>

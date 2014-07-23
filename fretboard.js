@@ -64,7 +64,8 @@
     var config = {
       // x and y location of the upper left of the fretboard (the tuning squares will be further to the left)
       fretboardOrigin: [80, 15],
-      disabled: false,
+      noteClickingDisabled: false,
+      tuningClickingDisabled: false,
       numFrets: 15,
       fretWidth: 67, // (px) 
       fretHeight: 31, // (px)  
@@ -145,7 +146,8 @@
       $svg,
       $window,
       paper,
-      disabled,
+      noteClickingDisabled,
+      tuningClickingDisabled,
       // This holds the fret numbers that are clicked, from high to low.
       // Example for a maj7 fingering in Standard E tuning:
       // [[3], [5], [4], [], [3], []] .
@@ -170,7 +172,8 @@
       fretWidth = extendedConfig.fretWidth;
       fretHeight = extendedConfig.fretHeight / 1.1;
       isChordMode = extendedConfig.isChordMode;
-      disabled = extendedConfig.disabled;
+      noteClickingDisabled = extendedConfig.noteClickingDisabled;
+      tuningClickingDisabled = extendedConfig.tuningClickingDisabled;
       guitarStringNotes = extendedConfig.guitarStringNotes;
       numStrings = guitarStringNotes.length;
       // Will hold the squares that show the each string's note letter
@@ -225,12 +228,20 @@
     //    $svg.css('z-index', 1);
     //}
 
-    self.disable = function () {
-      disabled = true;
+    self.disableNoteClicking = function () {
+      noteClickingDisabled = true;
     }
 
-    self.enable = function () {
-      disabled = false;
+    self.disableTuningClicking = function () {
+      tuningClickingDisabled = true;
+    }
+    
+    self.enableNoteClicking = function () {
+      noteClickingDisabled = false;
+    }
+
+    self.enableTuningClicking = function () {
+      tuningClickingDisabled = false;
     }
 
     self.setChordMode = function (isChordModeInput) {
@@ -401,7 +412,8 @@
         // are preserved. Might need to create a function for this.
         settingsCopy.guitarStringNotes = newGuitarStringNotes;
         settingsCopy.isChordMode = isChordMode;
-        settingsCopy.disabled = disabled;
+        settingsCopy.noteClickingDisabled = noteClickingDisabled;
+        settingsCopy.tuningClickingDisabled = tuningClickingDisabled;
 
         paper.remove();
 
@@ -534,7 +546,7 @@
       var circColor = (params && params.circColor) || clickedNoteCircColor;
       var textColor = (params && params.textColor) || clickedNoteTextColor;
 
-      if (disabled && !wasCalledProgramatically) {
+      if (noteClickingDisabled && !wasCalledProgramatically) {
         return false;
       }
 
@@ -600,7 +612,7 @@
     }
 
     function tuningTriangleClick() {
-      if (disabled) {
+      if (tuningClickingDisabled) {
         return false;
       }
 

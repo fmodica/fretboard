@@ -15,12 +15,14 @@
   <button class="reset-button">Unclick Frets</button>
   <button class="add-string-button">Add String</button>
   <button class="remove-string-button">Remove String</button>
-  <button class="disable">Toggle Enable/Disable Fretboard</button>
+  <button class="note-click-disable">Toggle Note Clicking Allowed</button>
+  <button class="tuning-triangle-disable">Toggle Tuning Arrows Allowed</button>
   <button class="chord-mode">Toggle chord mode</button>
 	<button class="get-clicked">Get clicked notes (console)</button>
   <script type="text/javascript">
     var chordMode = true;
-    var disabled = false;
+    var noteClickingDisabled = false;
+    var tuningClickingDisabled = false;
     var guitarStringNotes = [
       { noteLetter: "E", noteOctave: 5 },
       { noteLetter: "B", noteOctave: 5 },
@@ -36,7 +38,8 @@
       fretWidth: 70,
       fretHeight: 35,
       isChordMode: chordMode,
-      disabled: disabled,
+      noteClickingDisabled: noteClickingDisabled,
+      tuningClickingDisabled: tuningClickingDisabled,
       guitarStringNotes: guitarStringNotes,
       clickedNoteCircColor : "purple",
       clickedNoteTextColor: "white",
@@ -55,19 +58,24 @@
     });
 
     var myFretboard = $('#canvas_container').data('fretboard');
-
-    $('.disable').on("click", function () {
-      myFretboard.disable();
-    });
-
-    $('.disable').on("click", function () {
-      disabled = !disabled;
-      if (disabled) {
-        myFretboard.disable();
+    
+    $('.note-click-disable').on("click", function () {
+      noteClickingDisabled = !noteClickingDisabled;
+      if (noteClickingDisabled) {
+        myFretboard.disableNoteClicking();
       } else {
-        myFretboard.enable();
+        myFretboard.enableNoteClicking();
       }
     });
+
+    $('.tuning-triangle-disable').on("click", function () {
+      tuningClickingDisabled = !tuningClickingDisabled;
+      if (tuningClickingDisabled) {
+        myFretboard.disableTuningClicking();
+      } else {
+        myFretboard.enableTuningClicking();
+      }
+    })
 
     $('.chord-mode').on("click", function () {
       chordMode = !chordMode;
