@@ -119,8 +119,8 @@
       guitarStringNotes,
       clickedNoteCircColor,
       clickedNoteTextColor,
-			hoverNoteCircColor,
-			hoverNoteTextColor,
+      hoverNoteCircColor,
+      hoverNoteTextColor,
       fretboardColor,
       stringColor,
       tuningTriangleColor,
@@ -194,7 +194,7 @@
       nutColor = extendedConfig.nutColor;
       tuningTriangleColor = extendedConfig.tuningTriangleColor; // need letter color
       fretsToDrawOneCircleOn = extendedConfig.fretsToDrawOneCircleOn; // only specify the first octaves (0, 3, 5, 7, 9)
-      opacityAnimateSpeed = extendedConfig.opacityAnimateSpeed;  // ms
+      opacityAnimateSpeed = extendedConfig.opacityAnimateSpeed; // ms
       letterFontSize = extendedConfig.fretHeight / 4;
       noteCircRad = extendedConfig.fretHeight / 2.5;
       noteTuningSquareWidth = extendedConfig.fretHeight / 1.35;
@@ -235,7 +235,7 @@
     self.disableTuningClicking = function () {
       tuningClickingDisabled = true;
     }
-    
+
     self.enableNoteClicking = function () {
       noteClickingDisabled = false;
     }
@@ -350,6 +350,8 @@
 
     // to be used externally as API function
     self.setClickedNoteByStringNoteAndFretNum = function (note) {
+      console.log("note inside setClickedNoteByStringNoteAndFretNum");
+      console.log(note);
       setClickedNoteByStringNoteAndFretNum({
         noteLetter: validateNoteLetter(note.stringItsOn.noteLetter),
         noteOctave: note.stringItsOn.noteOctave
@@ -592,7 +594,7 @@
         notesClickedTracker[thisString].splice(fretNumberIndex, 1);
       } else {
         if (immediatelyVisible) {
-          makeNoteVisibleImmediate(group, circColor, textColor);  // make this a parameter
+          makeNoteVisibleImmediate(group, circColor, textColor); // make this a parameter
         } else {
           makeNoteVisibleAnimated(group, circColor, textColor);
         }
@@ -662,9 +664,14 @@
 
         group.noteLetter = newNoteLetter;
         group.noteOctave = newNoteOctave;
+        group.stringLetter = guitarStringNotes[thisStringNumber].noteLetter;
+        group.stringOctave = guitarStringNotes[thisStringNumber].noteOctave;
+        //stringNumber should not change, or fretNumber
 
         //console.log(newNoteLetter + " " + newNoteOctave);
       }
+
+      console.log(guitarStringNotes);
 
       $fretboardContainer.trigger("tuningChanged");
     }
@@ -846,13 +853,19 @@
 
         if (showTuningSquares) {
           square = paper.rect(squareX, squareY, squareWidth, squareWidth).attr("fill", tuningSquaresColor);
-          squareNoteText = paper.text(squareX + squareWidth / 2, squareY + squareWidth / 2, guitarStringNotes[i].noteLetter).attr({ "font-size": letterFontSize, fill: tuningSquaresTextColor });
+          squareNoteText = paper.text(squareX + squareWidth / 2, squareY + squareWidth / 2, guitarStringNotes[i].noteLetter).attr({
+            "font-size": letterFontSize,
+            fill: tuningSquaresTextColor
+          });
 
           // Show the octave near the note on the tuning square
           squareOctaveTextX = squareX + (.80 * squareWidth);
           squareOctaveTextY = squareY + (.20 * squareWidth);
 
-          squareOctaveText = paper.text(squareOctaveTextX, squareOctaveTextY, allRaphaelNotes[i][0].stringOctave).attr({ "font-size": letterFontSize, fill: tuningSquaresTextColor });
+          squareOctaveText = paper.text(squareOctaveTextX, squareOctaveTextY, allRaphaelNotes[i][0].stringOctave).attr({
+            "font-size": letterFontSize,
+            fill: tuningSquaresTextColor
+          });
 
 
           squareNoteText.data({
