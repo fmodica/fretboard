@@ -10,70 +10,88 @@
   <script src="../fretboard.js"></script>
   <script src="angular.js"></script>
   <script src="safeApply.js"></script>
-	<script src="angular-fretboard.js"></script>
+  <script src="angular-fretboard.js"></script>
 </head>
 
 <body ng-app="myApp">
   <div ng-controller="MyController">
     <script type="text/javascript">
-			var app = angular.module("myApp", ['angularFretboard']);
-			
-			app.controller("MyController", ["$scope",
-        function ($scope) {
+      var app = angular.module("myApp", ['angularFretboard']);
+
+      app.controller("MyController", ["$scope",
+        function($scope) {
           $scope.config = {
-            fretboardOrigin: [200,200],
+            fretboardOrigin: [200, 200],
             numFrets: 16,
             fretWidth: 70,
             fretHeight: 35,
-          	isChordMode: true,
-          	noteClickingDisabled: false,
+            isChordMode: true,
+            noteClickingDisabled: false,
             tuningClickingDisabled: false,
-            guitarStringNotes: [
-              { noteLetter: "E", noteOctave: 5 },
-              { noteLetter: "B", noteOctave: 5 },
-              { noteLetter: "G", noteOctave: 4 },
-              { noteLetter: "D", noteOctave: 4 },
-              { noteLetter: "A", noteOctave: 4 },
-              { noteLetter: "E", noteOctave: 3 }							
-            ],
-            clickedNotes: [
-              { 
-                stringItsOn : { noteLetter: "E", noteOctave: 5 } ,
-                fretNumber: 5,
-                circColor: "red",
-								textColor : "white"
+            guitarStringNotes: [{
+              noteLetter: "E",
+              noteOctave: 4
+            }, {
+              noteLetter: "B",
+              noteOctave: 4
+            }, {
+              noteLetter: "G",
+              noteOctave: 3
+            }, {
+              noteLetter: "D",
+              noteOctave: 3
+            }, {
+              noteLetter: "A",
+              noteOctave: 3
+            }, {
+              noteLetter: "E",
+              noteOctave: 2
+            }],
+            clickedNotes: [{
+              stringItsOn: {
+                noteLetter: "E",
+                noteOctave: 4
               },
-              { 
-                stringItsOn : { noteLetter: "B", noteOctave: 5 } ,
-                fretNumber: 7,
-                circColor: "green",
-								textColor: "black"
+              fretNumber: 5,
+              circColor: "red",
+              textColor: "white"
+            }, {
+              stringItsOn: {
+                noteLetter: "B",
+                noteOctave: 4
               },
-              { 
-                stringItsOn : { noteLetter: "G", noteOctave: 4 } ,
-                fretNumber: 6,
-                circColor: "purple",
-								textColor: "yellow"
+              fretNumber: 7,
+              circColor: "green",
+              textColor: "black"
+            }, {
+              stringItsOn: {
+                noteLetter: "G",
+                noteOctave: 3
               },
-              { 
-                stringItsOn : { noteLetter: "A", noteOctave: 4 } ,
-                fretNumber: 5,
-                circColor: "pink",
-								textColor: "brown"
-              }
-            ],
-			      clickedNoteCircColor : "purple",
-			      clickedNoteTextColor: "white",
-			      hoverNoteCircColor : "yellow",
-			      hoverNoteTextColor: "red",
-			      fretboardColor: "wheat",
+              fretNumber: 6,
+              circColor: "purple",
+              textColor: "yellow"
+            }, {
+              stringItsOn: {
+                noteLetter: "A",
+                noteOctave: 3
+              },
+              fretNumber: 5,
+              circColor: "pink",
+              textColor: "brown"
+            }],
+            clickedNoteCircColor: "purple",
+            clickedNoteTextColor: "white",
+            hoverNoteCircColor: "yellow",
+            hoverNoteTextColor: "red",
+            fretboardColor: "wheat",
             stringColor: "black",
-            tuningTriangleColor : "blue",
-            fretsToDrawOneCircleOn : [3,5,7,9,12],
+            tuningTriangleColor: "blue",
+            fretsToDrawOneCircleOn: [3, 5, 7, 9, 12],
             opacityAnimateSpeed: 250,
             showTuningTriangles: true,
-            showTuningSquares: true,      
-            tuningSquaresColor : "black",
+            showTuningSquares: true,
+            tuningSquaresColor: "black",
             tuningSquaresTextColor: "orange",
             nutColor: "brown"
           }
@@ -84,38 +102,38 @@
           //}, function (newVal, oldval) {
           //  console.log($scope.config);
           //}, true);
-          
+
           $scope.addString = function() {
             // make a copy to change the reference - fix later in the directive
             $scope.config.guitarStringNotes = $scope.config.guitarStringNotes.slice(0);
             $scope.config.guitarStringNotes.push({
-              noteLetter: "Gb/F#", 
+              noteLetter: "Gb/F#",
               noteOctave: 2
             });
           }
-          
+
           $scope.removeString = function() {
             // make a copy to change the reference - fix later in the directive
             $scope.config.guitarStringNotes = $scope.config.guitarStringNotes.slice(0);
             $scope.config.guitarStringNotes.pop();
           }
-					
-					$scope.unclick = function() {
-						$scope.config.clickedNotes = [];
-					}
-          
+
+          $scope.unclick = function() {
+            $scope.config.clickedNotes = [];
+          }
+
           $scope.toggleNoteClicking = function() {
             $scope.config.noteClickingDisabled = !$scope.config.noteClickingDisabled;
           }
 
-          $scope.toggleTuningClicking = function () {
+          $scope.toggleTuningClicking = function() {
             $scope.config.tuningClickingDisabled = !$scope.config.tuningClickingDisabled;
           }
-          
+
           $scope.toggleChordMode = function() {
             $scope.config.isChordMode = !$scope.config.isChordMode;
           }
-          
+
           $scope.getClickedNotes = function() {
             console.log($scope.config.clickedNotes);
           }
@@ -125,7 +143,7 @@
 
     <div fretboard fretboard-config='config'></div>
 
-		<button ng-click="unclick()">Unclick Frets</button>
+    <button ng-click="unclick()">Unclick Frets</button>
     <button ng-click="addString()">Add String</button>
     <button ng-click="removeString()">Remove String</button>
     <button ng-click="toggleNoteClicking()">Toggle Note Clicking Allowed</button>

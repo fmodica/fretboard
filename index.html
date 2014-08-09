@@ -18,22 +18,33 @@
   <button class="note-click-disable">Toggle Note Clicking Allowed</button>
   <button class="tuning-triangle-disable">Toggle Tuning Arrows Allowed</button>
   <button class="chord-mode">Toggle chord mode</button>
-	<button class="get-clicked">Get clicked notes (console)</button>
+  <button class="get-clicked">Get clicked notes (console)</button>
   <script type="text/javascript">
     var chordMode = true;
     var noteClickingDisabled = false;
     var tuningClickingDisabled = false;
-    var guitarStringNotes = [
-      { noteLetter: "E", noteOctave: 5 },
-      { noteLetter: "B", noteOctave: 5 },
-      { noteLetter: "G", noteOctave: 4 },
-      { noteLetter: "D", noteOctave: 4 },
-      { noteLetter: "A", noteOctave: 4 },
-      { noteLetter: "E", noteOctave: 3 }
-    ];
+    var guitarStringNotes = [{
+      noteLetter: "E",
+      noteOctave: 4
+    }, {
+      noteLetter: "B",
+      noteOctave: 4
+    }, {
+      noteLetter: "G",
+      noteOctave: 3
+    }, {
+      noteLetter: "D",
+      noteOctave: 3
+    }, {
+      noteLetter: "A",
+      noteOctave: 3
+    }, {
+      noteLetter: "E",
+      noteOctave: 2
+    }];
 
     $('#canvas_container').fretboard({
-      fretboardOrigin: [200,200],
+      fretboardOrigin: [200, 200],
       numFrets: 16,
       fretWidth: 70,
       fretHeight: 35,
@@ -41,25 +52,25 @@
       noteClickingDisabled: noteClickingDisabled,
       tuningClickingDisabled: tuningClickingDisabled,
       guitarStringNotes: guitarStringNotes,
-      clickedNoteCircColor : "purple",
+      clickedNoteCircColor: "purple",
       clickedNoteTextColor: "white",
-      hoverNoteCircColor : "yellow",
+      hoverNoteCircColor: "yellow",
       hoverNoteTextColor: "red",
       fretboardColor: "wheat",
       stringColor: "black",
-      tuningTriangleColor : "blue",
-      fretsToDrawOneCircleOn : [3,5,7,9,12],
+      tuningTriangleColor: "blue",
+      fretsToDrawOneCircleOn: [3, 5, 7, 9, 12],
       opacityAnimateSpeed: 250,
       showTuningTriangles: true,
-      showTuningSquares: true,      
-      tuningSquaresColor : "black",
+      showTuningSquares: true,
+      tuningSquaresColor: "black",
       tuningSquaresTextColor: "orange",
       nutColor: "brown"
     });
 
     var myFretboard = $('#canvas_container').data('fretboard');
-    
-    $('.note-click-disable').on("click", function () {
+
+    $('.note-click-disable').on("click", function() {
       noteClickingDisabled = !noteClickingDisabled;
       if (noteClickingDisabled) {
         myFretboard.disableNoteClicking();
@@ -68,25 +79,31 @@
       }
     });
 
-    $('.tuning-triangle-disable').on("click", function () {
+    $('.tuning-triangle-disable').on("click", function() {
+
       tuningClickingDisabled = !tuningClickingDisabled;
       if (tuningClickingDisabled) {
+
         myFretboard.disableTuningClicking();
+
       } else {
+
         myFretboard.enableTuningClicking();
+
       }
+
     })
 
-    $('.chord-mode').on("click", function () {
+     $('.chord-mode').on("click", function() {
       chordMode = !chordMode;
       myFretboard.setChordMode(chordMode);
     });
 
-    $('.reset-button').on("click", function () {
+    $('.reset-button').on("click", function() {
       myFretboard.clearClickedNotes();
     });
 
-    $('.add-string-button').on("click", function () {
+    $('.add-string-button').on("click", function() {
       guitarStringNotes.push({
         noteLetter: "Gb/F#",
         noteOctave: 2
@@ -94,42 +111,54 @@
       myFretboard.setTuning(guitarStringNotes);
     });
 
-    $('.remove-string-button').on("click", function () {
+    $('.remove-string-button').on("click", function() {
       guitarStringNotes.pop();
       myFretboard.setTuning(guitarStringNotes);
     });
-    
-    myFretboard.setClickedNoteByStringNoteAndFretNum({ 
-      stringItsOn : { noteLetter: "E", noteOctave: 5 },
+
+    myFretboard.setClickedNoteByStringNoteAndFretNum({
+      stringItsOn: {
+        noteLetter: "E",
+        noteOctave: 4
+      },
       fretNumber: 5,
       circColor: "red",
-      textColor : "white"
+      textColor: "white"
     });
-    
-    myFretboard.setClickedNoteByStringNoteAndFretNum({ 
-      stringItsOn : { noteLetter: "B", noteOctave: 5 },
+
+    myFretboard.setClickedNoteByStringNoteAndFretNum({
+      stringItsOn: {
+        noteLetter: "B",
+        noteOctave: 4
+      },
       fretNumber: 7,
       circColor: "green",
       textColor: "black"
     });
-    
-    myFretboard.setClickedNoteByStringNoteAndFretNum({ 
-      stringItsOn : { noteLetter: "G", noteOctave: 4 },
+
+    myFretboard.setClickedNoteByStringNoteAndFretNum({
+      stringItsOn: {
+        noteLetter: "G",
+        noteOctave: 3
+      },
       fretNumber: 6,
       circColor: "purple",
       textColor: "yellow"
     });
-    
-    myFretboard.setClickedNoteByStringNoteAndFretNum({ 
-      stringItsOn : { noteLetter: "A", noteOctave: 4 } ,
+
+    myFretboard.setClickedNoteByStringNoteAndFretNum({
+      stringItsOn: {
+        noteLetter: "A",
+        noteOctave: 3
+      },
       fretNumber: 5,
       circColor: "pink",
       textColor: "brown"
     });
-		
-		$('.get-clicked').on("click", function() {
-			console.log(myFretboard.getClickedNotes());
-		});
+
+    $('.get-clicked').on("click", function() {
+      console.log(myFretboard.getClickedNotes());
+    });
      //myFretboard.clearClickedNotes();
   </script>
 </body>
