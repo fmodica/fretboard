@@ -5,7 +5,7 @@ app.directive("fretboard", ["$rootScope",
     var fretboardsGeneratedCounter = 0;
 
     return {
-      restrict: "A",
+      restrict: "AE",
       scope: {
         config: "=fretboardConfig"
       },
@@ -84,7 +84,7 @@ app.directive("fretboardTuning", ["$rootScope", "$parse",
     var isFirst = true;
 
     return {
-      restrict: "A",
+      restrict: "AE",
       require: ["ngModel", "^fretboard"],
       link: function(scope, element, attrs, ctrls) {
         var ngModelCtrl = ctrls[0];
@@ -119,7 +119,7 @@ app.directive("fretboardTuning", ["$rootScope", "$parse",
 app.directive("fretboardClickedNotes", ["$rootScope", "$parse",
   function($rootScope, $parse) {
     return {
-      restrict: "A",
+      restrict: "AE",
       require: ["ngModel", "^fretboard"],
       link: function(scope, element, attrs, ctrls) {
         var ngModelCtrl = ctrls[0];
@@ -154,9 +154,9 @@ app.directive("fretboardClickedNotes", ["$rootScope", "$parse",
                 }
               }
             }
+			
+			unWatchFretboard();
           }
-
-          unWatchFretboard();
         });
       }
     }
