@@ -27,37 +27,37 @@
 	window.Fretboard = function($fretboardContainer, settings) {
 		var self = this; // the fretboard object
 
-		var ALL_NOTE_LETTERS = ["Ab/G#", "A", "A#/Bb", "B", "C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G"];
+		var ALL_NOTE_LETTERS = ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B" ];
 		// The values in this object are used in note arithmetic and must also map correct to the ALL_NOTE_LETTERS array for validation purposes.
 		// Example: Db/C# is value 5, and is at index 5 of ALL_NOTE_LETTERS
 		var NOTE_LETTER_VALUE_MAP = {
-			"Ab": 0,
-			"G#": 0,
-			"Ab/G#": 0,
-			"G#/Ab": 0,
-			"A": 1,
-			"A#": 2,
-			"Bb": 2,
-			"A#/Bb": 2,
-			"Bb/A#": 2,
-			"B": 3,
-			"C": 4,
-			"Db": 5,
-			"C#": 5,
-			"Db/C#": 5,
-			"C#/Db": 5,
-			"D": 6,
-			"Eb": 7,
-			"D#": 7,
-			"Eb/D#": 7,
-			"D#/Eb": 7,
-			"E": 8,
-			"F": 9,
-			"Gb": 10,
-			"F#": 10,
-			"Gb/F#": 10,
-			"F#/Gb": 10,
-			"G": 11
+			"C": 0,
+			"Db": 1,
+			"C#": 1,
+			"Db/C#": 1,
+			"C#/Db": 1,
+			"D": 2,
+			"Eb": 3,
+			"D#": 3,
+			"Eb/D#": 3,
+			"D#/Eb": 3,
+			"E": 4,
+			"F": 5,
+			"Gb": 6,
+			"F#": 6,
+			"Gb/F#": 6,
+			"F#/Gb": 6,
+			"G": 7,
+			"Ab": 8,
+			"G#": 8,
+			"Ab/G#": 8,
+			"G#/Ab": 8,
+			"A": 9,
+			"A#": 10,
+			"Bb": 10,
+			"A#/Bb": 10,
+			"Bb/A#": 10,
+			"B": 11,
 		};
 
 		// Default config settings
@@ -703,7 +703,7 @@
 
 		function getNoteOctaveByFretNumber(stringOctave, stringLetter, fretNumber) {
 			// The string letter has a value, which can be thought of as an amount
-			// of notes above the note that begins an octave (Ab, whose value is 0).
+			// of notes above the note that begins an octave (C, whose value is 0).
 			// Add the fret number to that.
 			var fretOffset = NOTE_LETTER_VALUE_MAP[stringLetter] + fretNumber;
 			// Now divide by 12 and floor it. That is the number of octaves this
