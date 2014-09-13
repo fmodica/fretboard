@@ -15,6 +15,7 @@
   <button class="reset-button">Unclick Frets</button>
   <button class="add-string-button">Add String</button>
   <button class="remove-string-button">Remove String</button>
+  <button class="change-tuning-button">Change Tuning</button>
   <button class="note-click-disable">Toggle Note Clicking Allowed</button>
   <button class="tuning-triangle-disable">Toggle Tuning Arrows Allowed</button>
   <button class="chord-mode">Toggle chord mode</button>
@@ -114,6 +115,17 @@
     $('.remove-string-button').on("click", function() {
       guitarStringNotes.pop();
       myFretboard.setTuning(guitarStringNotes);
+    });
+    
+    $('.change-tuning-button').on("click", function() {
+        for (var i = 0; i < guitarStringNotes.length; i += 2){
+            --guitarStringNotes[i].noteOctave;
+        }
+        
+        guitarStringNotes[0].noteLetter = "F";
+        guitarStringNotes[4].noteLetter = "Ab";
+        
+        myFretboard.setTuning(guitarStringNotes); 
     });
 
     myFretboard.setClickedNoteByStringNoteAndFretNum({

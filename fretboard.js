@@ -347,7 +347,6 @@
 		}
 
 		// To be used internally
-
 		function setClickedNoteByStringNoteAndFretNum(stringNote, fretNumber, params) {
 			for (var i = 0; i < guitarStringNotes.length; i++) {
 				// Find the note, and click it if it's not clicked (otherwise it will disappear)
@@ -410,31 +409,42 @@
 			if (newGuitarStringNotes && newGuitarStringNotes.length > 0) {
 				newLength = newGuitarStringNotes.length;
 
+				// Update the clickedNotes to take into account more or less strings
 				oldClickedNotes = notesClickedTracker.slice(0); // copy
 
 				if (newLength <= oldClickedNotes.length) {
 					oldClickedNotes = notesClickedTracker.slice(0, newLength);
 				} else {
 					difference = newLength - oldClickedNotes.length;
-
-					for (var i = 0; i < difference; i++) {
-						oldClickedNotes.push([]);
+					
+					if (difference) {
+						for (var i = 0; i < difference; i++) {
+							oldClickedNotes.push([]);
+						}
 					}
 				}
 
 				// Any time init() is called after the first time, we need to modify
 				// the settings object so settings changed throughout the fretboard's life
 				// are preserved. Might need to create a function for this.
-				settingsCopy.guitarStringNotes = newGuitarStringNotes;
-				settingsCopy.isChordMode = isChordMode;
-				settingsCopy.noteClickingDisabled = noteClickingDisabled;
-				settingsCopy.tuningClickingDisabled = tuningClickingDisabled;
+				//settingsCopy.guitarStringNotes = newGuitarStringNotes;
+				//settingsCopy.isChordMode = isChordMode;
+				//settingsCopy.noteClickingDisabled = noteClickingDisabled;
+				//settingsCopy.tuningClickingDisabled = tuningClickingDisabled;
 
-				paper.remove();
+				//paper.remove();
 
-				init();
+				//init();
 
-				resetOldClickedNotes(oldClickedNotes);
+				for (i = 0; i < newGuitarStringNotes.length; i++) {
+					// If a guitar string was already drawn, just change the notes so it's quicker.
+					// Otherwise, draw a new guitar string.
+					if (i < guitarStringNotes.length) {
+						alterGuitarString(i, newGuitarStringNotes[i]);
+					}
+				}
+
+				//resetOldClickedNotes(oldClickedNotes);
 
 				$fretboardContainer.trigger("tuningChanged");
 			}
@@ -626,68 +636,58 @@
 			$fretboardContainer.trigger("noteClicked")
 			//}
 		}
+		
+		function alterGuitarString(stringNumber, newGuitarStringNote) {
+			var i, group, circ, text, newNoteOnThisFret;
+			
+			guitarStringNotes[stringNumber] = newGuitarStringNote;
+
+			if (showTuningSquares) {
+				tuningSquares[stringNumber].attr("text", newGuitarStringNote.noteLetter).data("octaveText").attr("text", newGuitarStringNote.noteOctave);
+			}
+			
+			for (i = 0; i <= numFrets; i++) {
+				group = allRaphaelNotes[stringNumber][i];
+				circ = group[0];
+				text = group[1];
+
+				newNoteOnThisFret = {
+					noteLetter: getNoteLetterByFretNumber(newGuitarStringNote.noteLetter, i),
+					noteOctave: getNoteOctaveByFretNumber(newGuitarStringNote.noteOctave, newGuitarStringNote.noteLetter, i)
+				}
+				
+				text.attr("text", newNoteOnThisFret.noteLetter);     
+
+				group.noteLetter = newNoteOnThisFret.noteLetter;
+				group.noteOctave = newNoteOnThisFret.noteOctave;
+				group.stringLetter = guitarStringNotes[stringNumber].noteLetter;
+				group.stringOctave = guitarStringNotes[stringNumber].noteOctave;
+			}			
+			
+			$fretboardContainer.trigger("tuningChanged");
+		}
 
 		function tuningTriangleClick() {
 			if (tuningClickingDisabled) {
 				return false;
 			}
 
-			var triangle = this;
+			var triangle = this,
+				thisStringNumber = triangle.data("stringNumber"),
+				direction = triangle.data("direction"),
+				previousGuitarStringNote = guitarStringNotes[thisStringNumber],
+				newGuitarStringNoteLetter, 
+				newGuitarStringNoteOctave,
+				equivalentFretNumber = (direction === "right" ? 1 : 11);
 
-			var thisStringNumber = triangle.data("stringNumber");
-			var direction = triangle.data("direction");
-			var previousStringLetter = guitarStringNotes[thisStringNumber].noteLetter;
+			// The 11th fret note is the same as going down one fret, but subtract one from the octave number
+			newGuitarStringNoteLetter = getNoteLetterByFretNumber(previousGuitarStringNote.noteLetter, equivalentFretNumber);
+			newGuitarStringNoteOctave = getNoteOctaveByFretNumber(previousGuitarStringNote.noteOctave - (direction === "right" ? 0 : 1), previousGuitarStringNote.noteLetter, equivalentFretNumber);
 
-			//console.log("new notes");
-
-			for (var i = 0; i <= numFrets; i++) {
-				var group = allRaphaelNotes[thisStringNumber][i];
-				var circ = group[0];
-				var text = group[1];
-
-				var previousNoteOctave = group.noteOctave;
-				var newNoteLetter;
-				var newNoteOctave;
-
-				if (direction === "right") {
-					newNoteLetter = getNoteLetterByFretNumber(previousStringLetter, i + 1);
-					if (newNoteLetter === ALL_NOTE_LETTERS[0])
-						newNoteOctave = ++previousNoteOctave;
-					else
-						newNoteOctave = previousNoteOctave;
-				} else {
-					newNoteLetter = getNoteLetterByFretNumber(previousStringLetter, i - 1);
-					if (newNoteLetter === ALL_NOTE_LETTERS[11])
-						newNoteOctave = --previousNoteOctave;
-					else
-						newNoteOctave = previousNoteOctave;
-				}
-
-				// Set the new string letter on the tuning square and array 
-				if (i === 0) {
-					guitarStringNotes[thisStringNumber].noteLetter = newNoteLetter;
-
-					if (showTuningSquares) {
-						tuningSquares[thisStringNumber].attr("text", newNoteLetter).data("octaveText").attr("text", newNoteOctave);
-					}
-
-					guitarStringNotes[thisStringNumber].noteOctave = newNoteOctave;
-				}
-
-				text.attr("text", newNoteLetter); // change the text    
-
-				group.noteLetter = newNoteLetter;
-				group.noteOctave = newNoteOctave;
-				group.stringLetter = guitarStringNotes[thisStringNumber].noteLetter;
-				group.stringOctave = guitarStringNotes[thisStringNumber].noteOctave;
-				//stringNumber should not change, or fretNumber
-
-				//console.log(newNoteLetter + " " + newNoteOctave);
-			}
-
-			//console.log(guitarStringNotes);
-
-			$fretboardContainer.trigger("tuningChanged");
+			alterGuitarString(thisStringNumber, {
+				noteLetter:  newGuitarStringNoteLetter,
+				noteOctave: newGuitarStringNoteOctave
+			});
 		}
 
 		function drawTuningTriangleAndBindEventHandlers(midX, midY, topX, topY, bottomX, bottomY, direction, stringNumber) {
