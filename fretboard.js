@@ -756,9 +756,8 @@
 					squareNoteText, squareOctaveText, squareOctaveTextX, squareOctaveTextY;
 
 					// TODO: Refactor out of this method, this is hacky
-			if (isFirstDraw) {
-				ui.stringLines.push(paper.path("M" + stringXBegin + "," + stringY + "L" + stringXEnd + "," + stringY + "z").attr("stroke", stringColor));
-			}
+				ui.stringLines.push(paper.path("M" + stringXBegin + "," + stringY + "L" + stringXEnd + "," + stringY + "z").attr("stroke", stringColor).toBack());
+
 			
 			for (j = 0; j < numFrets + 1; j++) {
 				// Coordinates for the left of the fret and string
@@ -769,17 +768,17 @@
 				circX = x + fretWidth * (1 / 2);
 				circY = y;
 
-				if (isFirstDraw && j > 0) {
+				if (isFirstDraw && j > 0) {					
 					// Draw the left vertical line (left edge of the fret)
-					console.log("Drawing left fret line");
-					ui.fretLeftLines.push(paper.path("M" + x + "," + topFretExtended + "L" + x + "," + bottomFretExtended + "z").attr("stroke", stringColor));
-
-					// If it's the last fret, close it on the right
-					//if (j === numFrets) {
-					//    var lineRight = paper.path("M" + (x + fretWidth) + "," + topFretExtended + 
-					// "L" + (x + fretWidth) + "," + bottomFretExtended + "z").attr("stroke", 'black');
-					//}
-
+					
+					if (j > 1) {
+						console.log("Drawing left fret line");
+						ui.fretLeftLines.push(paper.path("M" + x + "," + topFretExtended + "L" + x + "," + bottomFretExtended + "z").attr("stroke", stringColor));
+					}
+					
+					console.log("Drawing fret circle");
+					drawFretCircle(j, circX, circY, topFretExtended, bottomFretExtended);
+					
 					if (j === 1) {
 						// Draw a rectangle at the left of the first fret, which represents the nut.
 						// + 1 to prevent fret division from appearing right next to it
@@ -789,9 +788,6 @@
 							stroke: nutColor
 						});
 					}
-					
-					console.log("Drawing fret circle");
-					drawFretCircle(j, circX, circY, topFretExtended, bottomFretExtended);
 				}
 				
 				if (j === numFrets) {
@@ -913,16 +909,16 @@
 		}
 
 		function drawAndWireUpFretboard() {
+			for (var i = 0; i < guitarStringNotes.length; i++) {
+				draw(i, (i === 0));
+			}
+			
 			// Draw the rectangle that represents the guitar body 
 			console.log("drawing guitar body");
 			ui.body = paper.rect(stringXBegin, topFretExtended, stringXEnd - stringXBegin, bottomFretExtended - topFretExtended).attr({
 				"fill": fretboardColor,
 				'stroke-opacity': 0
-			});
-			
-			for (var i = 0; i < guitarStringNotes.length; i++) {
-				draw(i, true);
-			}
+			}).toBack();
 			
 			$window.on("load resize", function() {
 				setScrollBar();
