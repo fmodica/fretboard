@@ -191,7 +191,7 @@
 				
 				// Probably don't need to call Array, but it works for now
 				ui.allRaphaelNotes[i] = new Array(numFrets + 1);
-				ui.allRaphaelTuningTriangles[i] = [];
+				ui.allRaphaelTuningTriangles[i] = [new Array(2)];
 			}
 			
 			ui.body = null;
@@ -366,38 +366,59 @@
 		}
 		
 		self.setTuning = function(newGuitarStringNotes) {
-			var newLength, oldClickedNotes, difference, i;
+			var newLength, oldLength, oldGuitarStringNotes, difference, i;
 
-			if (newGuitarStringNotes && newGuitarStringNotes.length > 0) {
-				newLength = newGuitarStringNotes.length;
-
-				// Update the clickedNotes to take into account more or less strings
-				oldClickedNotes = notesClickedTracker.slice(0); // copy
-
-				if (newLength <= oldClickedNotes.length) {
-					oldClickedNotes = notesClickedTracker.slice(0, newLength);
-				} else {
-					difference = newLength - oldClickedNotes.length;
-					
-					if (difference) {
-						for (var i = 0; i < difference; i++) {
-							oldClickedNotes.push([]);
-						}
-					}
-				}
-				
-				for (i = 0; i < newGuitarStringNotes.length; i++) {
-					// If a guitar string was already drawn, just change the notes so it's quicker.
-					// Otherwise, draw a new guitar string.
-					if (i < guitarStringNotes.length) {
-						alterGuitarString(i, newGuitarStringNotes[i]);
-					}
-				}
-
-				//resetOldClickedNotes(oldClickedNotes);
-
-				ui.$fretboardContainer.trigger("tuningChanged");
+			if (!newGuitarStringNotes || !newGuitarStringNotes.length) {
+				return;
 			}
+			
+			oldGuitarStringNotes = guitarStringNotes.slice(0);
+			oldLength = oldGuitarStringNotes.length;
+			newLength = newGuitarStringNotes.length;
+			difference = newLength - oldLength;
+
+			guitarStringNotes = newGuitarStringNotes.slice(0);
+			
+			validateGuitarStringNotes();
+			
+			if (difference < 0) {
+				notesClickedTracker = notesClickedTracker.slice(0, newLength);
+				ui.allRaphaelNotes = ui.allRaphaelNotes.slice(0, newLength);
+				ui.allRaphaelTuningSquares = ui.allRaphaelTuningSquares.slice(0, newLength);
+				ui.allRaphaelTuningTriangles = ui.allRaphaelTuningTriangles.slice(0, newLength);
+			} else {
+				for (i = 0; i < difference; i++) {
+					// Only need to add slots for things that are 2D arrays, 
+					// because the inner array will get accessed by index.
+					// TODO: This problem can probably be fixed by doing pushes 
+					// instead of accessing by inner index on creation.
+					notesClickedTracker.push([]);
+					ui.allRaphaelNotes.push(new Array(numFrets + 1)); // meh
+					ui.allRaphaelTuningTriangles.push(new Array(2));
+				}
+			}
+			
+			// Drop any clicked notes from strings that don't exist anymore,
+			// or add the necessary slots if new strings will be created
+			for (i = 0; i < guitarStringNotes.length; i++) {
+				// If a guitar string was already drawn, and the new note is different than the
+				// old note just change the notes so it's quick.
+				// Otherwise, draw/remove guitar strings.
+				debugger;
+				if (i < oldLength) {
+					if (getNoteUniqueValue(oldGuitarStringNotes[i]) !== getNoteUniqueValue(guitarStringNotes[i]) ) {
+
+						console.log("altering");
+						alterGuitarString(i, guitarStringNotes[i]);
+					}
+				} else {
+					draw(i);
+				}
+			}
+			
+			setSvgHeight();
+			
+			ui.$fretboardContainer.trigger("tuningChanged");
 		}
 
 		// Could make this a public function that loops over a list of clicked notes and sets them
