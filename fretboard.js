@@ -219,7 +219,7 @@
 			
 			for (var i = 0; i < guitarStringNotes.length; i++) {
 				// Probably don't need to call Array, but it works for now
-				ui.allRaphaelNotes[i] = new Array(numFrets);
+				ui.allRaphaelNotes[i] = new Array(numFrets + 1);
 				notesClickedTracker[i] = [];
 			}
 
@@ -698,10 +698,12 @@
 			return fretboardOrigin[1] + (stringNumber * fretHeight);
 		}
 		
-		function drawInstrumentString(i) {
+		function draw(i) {
 			var stringY = calculateStringYCoordinate(i),
 					j, x, y, circX, circY, circ, stringLetter, noteLetter,
-					stringOctave, noteOctave, text, group;
+					stringOctave, noteOctave, text, group,
+						squareWidth, squareX, squareY, square, midX, midY, topX, topY, bottomX, bottomY,
+						squareNoteText, squareOctaveText, squareOctaveTextX, squareOctaveTextY;
 
 			paper.path("M" + stringXBegin + "," + stringY + "L" + stringXEnd + "," + stringY + "z").attr("stroke", stringColor);
 
@@ -790,15 +792,6 @@
 				// Store it for tracking
 				ui.allRaphaelNotes[i][j] = group;
 			}
-		}
-		
-		// svg height calculation is done in here because it depends on tuning squares
-		function drawTuningSection(i) {
-			// Clean up these var declarations - some have been moved into functions
-			var i, x, y,
-				stringLetter, noteLetter, stringOctave, noteOctave, text, group,
-				squareWidth, squareX, squareY, square, midX, midY, topX, topY, bottomX, bottomY,
-				squareNoteText, squareOctaveText, squareOctaveTextX, squareOctaveTextY;
 			
 			x = fretboardOrigin[0] - fretWidth;
 			y = fretboardOrigin[1] + i * (fretHeight);
@@ -822,7 +815,6 @@
 					"font-size": letterFontSize,
 					fill: tuningSquaresTextColor
 				});
-
 
 				squareNoteText.data({
 					x: squareOctaveTextX,
@@ -859,7 +851,7 @@
 
 			if (i === guitarStringNotes.length - 1) {
 				svgHeight = squareY + squareWidth + svgHeightBuffer;
-			}			
+			}		
 		}
 		
 		function setSvgHeight() {
@@ -876,17 +868,11 @@
 				"fill": fretboardColor,
 				'stroke-opacity': 0
 			});
-
-			// Add frets and circles for note letters, attach data to the frets, and other things
-			for (i = 0; i < guitarStringNotes.length; i++) {
-				drawInstrumentString(i);
+			
+			for (var i = 0; i < guitarStringNotes.length; i++) {
+				draw(i);
 			}
 			
-			// Add the squares and triangles which will show/control the string tunings
-			for (var i = 0; i < guitarStringNotes.length; i++) {
-				drawTuningSection(i);
-			}
-
 			$window.on("load resize", function() {
 				setScrollBar();
 			});
