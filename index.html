@@ -118,13 +118,10 @@
     });
     
     $('.change-tuning-button').on("click", function() {
-        for (var i = 0; i < guitarStringNotes.length; i += 2){
+        for (var i = 0; i < guitarStringNotes.length; i++){
             --guitarStringNotes[i].noteOctave;
         }
-        
-        guitarStringNotes[0].noteLetter = "F";
-        guitarStringNotes[4].noteLetter = "Ab";
-        
+		
         myFretboard.setTuning(guitarStringNotes); 
     });
 
