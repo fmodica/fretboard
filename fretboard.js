@@ -160,17 +160,11 @@
 				allRaphaelNotes : null
 			};
 
-		// This function initializes all private variables and can be called
-		// internally if a fretboard redraw is necessary, such as when adding/removing 
-		// strings. It would be faster to just draw or remove the strings in question,
-		// but for now that is not implemented as it is more complex.
-		// For any variables that can be set by fretboard methods make sure to
-		// use that variable's value if it exists, or else it will be reset.
-
+		// This function initializes all private variables and then calls methods 
+		// to draw and wire up the fretboard
 		function init() {
 			console.log("init called");
 			
-			notesClickedTracker = [];
 			extendedConfig = {};
 
 			$.extend(extendedConfig, config, settingsCopy);
@@ -206,7 +200,6 @@
 			letterFontSize = extendedConfig.fretHeight / 4;
 			noteCircRad = extendedConfig.fretHeight / 2.5;
 			noteTuningSquareWidth = extendedConfig.fretHeight / 1.35;
-
 			svgWidth = 0;
 			svgHeight = 0;
 			svgHeightBuffer = 5;
@@ -219,11 +212,11 @@
 			bottomFretExtended = fretboardOrigin[1] + ((guitarStringNotes.length - 1) * fretHeight) + (1 / 4 * fretHeight),
 			stringXBegin = fretboardOrigin[0] + (fretWidth * (1 / 5));
 			stringXEnd = fretboardOrigin[0] + (fretWidth * (numFrets)) + (1 * fretWidth);
-			
 			// create paper object (requires Raphael.js)
 			paper = new Raphael(ui.$fretboardContainer.attr('id'), '100%', '100%');
 			ui.$svg = ui.$fretboardContainer.find("svg");
-
+			notesClickedTracker = [];
+			
 			for (var i = 0; i < guitarStringNotes.length; i++) {
 				// Probably don't need to call Array, but it works for now
 				ui.allRaphaelNotes[i] = new Array(numFrets);
@@ -231,7 +224,6 @@
 			}
 
 			validateGuitarStringNotes();
-
 			drawAndWireUpFretboard();
 		}
 
@@ -800,6 +792,7 @@
 			}
 		}
 		
+		// svg height calculation is done in here because it depends on tuning squares
 		function drawTuningSection(i) {
 			// Clean up these var declarations - some have been moved into functions
 			var i, x, y,
@@ -878,7 +871,6 @@
 		}
 
 		function drawAndWireUpFretboard() {
-			debugger;
 			// Draw the rectangle that represents the guitar body 
 			paper.rect(stringXBegin, topFretExtended, stringXEnd - stringXBegin, bottomFretExtended - topFretExtended).attr({
 				"fill": fretboardColor,
