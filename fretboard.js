@@ -150,15 +150,7 @@
 			// Example for a maj7 fingering in Standard E tuning:
 			// [[3], [5], [4], [], [3], []] .
 			notesClickedTracker,
-			ui = {
-				$fretboardContainer: null,
-				$svg : null,
-				body : null,
-				nut : null,
-				fretCircles: null,
-				allRaphaelTuningSquares : null,                      
-				allRaphaelNotes : null
-			};
+			ui;
 
 		// This function initializes all private variables and then calls methods 
 		// to draw and wire up the fretboard
@@ -169,7 +161,7 @@
 
 			$.extend(extendedConfig, config, settingsCopy);
 
-			// Copy config options to fretboard private variables
+			notesClickedTracker = [];
 			fretboardOrigin = extendedConfig.fretboardOrigin;
 			numFrets = extendedConfig.numFrets;
 			fretWidth = extendedConfig.fretWidth;
@@ -178,14 +170,36 @@
 			noteClickingDisabled = extendedConfig.noteClickingDisabled;
 			tuningClickingDisabled = extendedConfig.tuningClickingDisabled;
 			guitarStringNotes = extendedConfig.guitarStringNotes;
-			// Will hold the squares that show the each string's note letter
-			ui.allRaphaelTuningSquares = [];
 			showTuningTriangles = extendedConfig.showTuningTriangles;
 			showTuningSquares = extendedConfig.showTuningSquares;
 			tuningSquaresColor = extendedConfig.tuningSquaresColor;
 			tuningSquaresTextColor = extendedConfig.tuningSquaresTextColor;
+			
+			ui = {};
+			ui.$fretboardContainer = $fretboardContainer;
+			// create paper object (requires Raphael.js)
+			paper = new Raphael(ui.$fretboardContainer.attr('id'), '100%', '100%');
+			ui.$svg = ui.$fretboardContainer.find("svg");
 			// A 2-d array that holds each group (circle and text) for each string
 			ui.allRaphaelNotes = new Array(guitarStringNotes.length);
+			// Will hold the squares that show the each string's note letter
+			ui.allRaphaelTuningSquares = [];
+			ui.allRaphaelTuningTriangles = [];
+			
+			for (var i = 0; i < guitarStringNotes.length; i++) {
+				notesClickedTracker[i] = [];
+				
+				// Probably don't need to call Array, but it works for now
+				ui.allRaphaelNotes[i] = new Array(numFrets + 1);
+				ui.allRaphaelTuningTriangles[i] = [];
+			}
+			
+			ui.body = null;
+			ui.nut = null;
+			ui.fretLeftLines = [];
+			ui.fretCircles = [];
+			ui.stringLines = [];
+
 			// Default color a note gets when clicked by a user. You can programatically set clicked notes with diffferent colors
 			clickedNoteCircColor = extendedConfig.clickedNoteCircColor;
 			clickedNoteTextColor = extendedConfig.clickedNoteTextColor;
@@ -204,7 +218,6 @@
 			svgHeight = 0;
 			svgHeightBuffer = 5;
 			svgWidthBuffer = 0;
-			ui.$fretboardContainer = $fretboardContainer;
 			$window = $(window);
 			// For drawing things that extend above or below the top/bottom string, 
 			// like the left vertical part of the fret or the guitar body
@@ -212,16 +225,6 @@
 			bottomFretExtended = fretboardOrigin[1] + ((guitarStringNotes.length - 1) * fretHeight) + (1 / 4 * fretHeight),
 			stringXBegin = fretboardOrigin[0] + (fretWidth * (1 / 5));
 			stringXEnd = fretboardOrigin[0] + (fretWidth * (numFrets)) + (1 * fretWidth);
-			// create paper object (requires Raphael.js)
-			paper = new Raphael(ui.$fretboardContainer.attr('id'), '100%', '100%');
-			ui.$svg = ui.$fretboardContainer.find("svg");
-			notesClickedTracker = [];
-			
-			for (var i = 0; i < guitarStringNotes.length; i++) {
-				// Probably don't need to call Array, but it works for now
-				ui.allRaphaelNotes[i] = new Array(numFrets + 1);
-				notesClickedTracker[i] = [];
-			}
 
 			validateGuitarStringNotes();
 			drawAndWireUpFretboard();
@@ -258,7 +261,7 @@
 					clickedFret = clickedFrets[j].fret;
 					clickedGroup = ui.allRaphaelNotes[i][clickedFret];
 
-					makeNoteInvisible(clickedGroup);
+					makeNoteInvisibleAnimated(clickedGroup);
 					clickedGroup.hover(noteMouseOver, noteMouseOut);
 				}
 
@@ -463,7 +466,7 @@
 			group.attr('cursor', 'pointer');
 		}
 
-		function makeNoteInvisible(group) {
+		function makeNoteInvisibleAnimated(group) {
 			group.animate({
 				'fill-opacity': 0,
 				'stroke-opacity': 0,
@@ -490,7 +493,7 @@
 				var matchOrMultiple = ((fret - num) % 12);
 
 				if (matchOrMultiple === 0) {
-					paper.circle(circX, topFretExtended + ((bottomFretExtended - topFretExtended) / 2), noteCircRad / 3).attr("fill", "black");
+					ui.fretCircles.push(paper.circle(circX, topFretExtended + ((bottomFretExtended - topFretExtended) / 2), noteCircRad / 3).attr("fill", "black"));
 					break;
 				}
 			}
@@ -505,12 +508,14 @@
 
 		function noteMouseOver() {
 			var group = this.data("group");
+			
 			makeNoteVisibleAnimated(group, hoverNoteCircColor, hoverNoteTextColor);
 		}
 
 		function noteMouseOut() {
 			var group = this.data("group");
-			makeNoteInvisible(group);
+			
+			makeNoteInvisibleAnimated(group);
 		}
 
 		function noteClick(params) {
@@ -551,7 +556,7 @@
 					var alreadyClickedFret = clickedFrets[i].fret;
 					var alreadyClickedGroup = ui.allRaphaelNotes[thisString][alreadyClickedFret];
 
-					makeNoteInvisible(alreadyClickedGroup);
+					makeNoteInvisibleAnimated(alreadyClickedGroup);
 					alreadyClickedGroup.hover(noteMouseOver, noteMouseOut);
 				}
 
@@ -559,7 +564,7 @@
 			}
 
 			if (clickedFretWasAlreadyClicked) {
-				makeNoteInvisible(group);
+				makeNoteInvisibleAnimated(group);
 
 				group.hover(noteMouseOver, noteMouseOut);
 				notesClickedTracker[thisString].splice(fretNumberIndex, 1);
@@ -638,12 +643,13 @@
 		}
 
 		function drawTuningTriangleAndBindEventHandlers(midX, midY, topX, topY, bottomX, bottomY, direction, stringNumber) {
-			var tri = paper.path("M" + midX + "," + midY + "L" + topX + "," + topY + "L" + bottomX + "," + bottomY + "z");
-
-			tri.attr("fill", tuningTriangleColor).attr("cursor", "pointer").data({
+			var tri = paper.path("M" + midX + "," + midY + "L" + topX + "," + topY + "L" + bottomX + "," + bottomY + "z")
+					.attr("fill", tuningTriangleColor).attr("cursor", "pointer").data({
 				"direction": direction,
 				"stringNumber": stringNumber
 			});
+			
+			ui.allRaphaelTuningTriangles[stringNumber].push(tri);
 
 			bindEventHandlersToTuningTriangle(tri)
 		}
@@ -705,7 +711,7 @@
 						squareWidth, squareX, squareY, square, midX, midY, topX, topY, bottomX, bottomY,
 						squareNoteText, squareOctaveText, squareOctaveTextX, squareOctaveTextY;
 
-			paper.path("M" + stringXBegin + "," + stringY + "L" + stringXEnd + "," + stringY + "z").attr("stroke", stringColor);
+			ui.stringLines.push(paper.path("M" + stringXBegin + "," + stringY + "L" + stringXEnd + "," + stringY + "z").attr("stroke", stringColor));
 
 			for (j = 0; j < numFrets + 1; j++) {
 
@@ -719,7 +725,7 @@
 
 				if (j > 0) {
 					// Draw the left vertical line (left edge of the fret)
-					paper.path("M" + x + "," + topFretExtended + "L" + x + "," + bottomFretExtended + "z").attr("stroke", stringColor);
+					ui.fretLeftLines.push(paper.path("M" + x + "," + topFretExtended + "L" + x + "," + bottomFretExtended + "z").attr("stroke", stringColor));
 
 					// If it's the last fret, close it on the right
 					//if (j === numFrets) {
@@ -730,7 +736,7 @@
 					if (j === 1) {
 						// Draw a rectangle at the left of the first fret, which represents the nut.
 						// + 1 to prevent fret division from appearing right next to it
-						paper.rect(x - (fretWidth / 5) + 1, topFretExtended, (fretWidth / 5), bottomFretExtended - topFretExtended).attr({
+						ui.nut = paper.rect(x - (fretWidth / 5) + 1, topFretExtended, (fretWidth / 5), bottomFretExtended - topFretExtended).attr({
 							fill: nutColor,
 							stroke: nutColor
 						});
@@ -864,7 +870,7 @@
 
 		function drawAndWireUpFretboard() {
 			// Draw the rectangle that represents the guitar body 
-			paper.rect(stringXBegin, topFretExtended, stringXEnd - stringXBegin, bottomFretExtended - topFretExtended).attr({
+			ui.body = paper.rect(stringXBegin, topFretExtended, stringXEnd - stringXBegin, bottomFretExtended - topFretExtended).attr({
 				"fill": fretboardColor,
 				'stroke-opacity': 0
 			});
