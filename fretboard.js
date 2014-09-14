@@ -409,6 +409,8 @@
 				notesClickedTracker = notesClickedTracker.slice(0, newLength);
 				ui.allRaphaelNotes = ui.allRaphaelNotes.slice(0, newLength);
 				ui.allRaphaelTuningSquares = ui.allRaphaelTuningSquares.slice(0, newLength);
+				ui.allRaphaelTuningSquareNoteLetters = ui.allRaphaelTuningSquareNoteLetters.slice(0, newLength);
+				ui.allRaphaelTuningSquareNoteOctaves = ui.allRaphaelTuningSquareNoteOctaves.slice(0, newLength);
 				ui.allRaphaelTuningTriangles = ui.allRaphaelTuningTriangles.slice(0, newLength);
 			} else {
 				for (i = 0; i < difference; i++) {
