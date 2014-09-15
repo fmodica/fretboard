@@ -121,6 +121,15 @@
         for (var i = 0; i < guitarStringNotes.length; i++){
             --guitarStringNotes[i].noteOctave;
         }
+        guitarStringNotes.push({
+          noteLetter: "Gb/F#",
+          noteOctave: 2
+        });
+		
+        guitarStringNotes.push({
+          noteLetter: "Gb/F#",
+          noteOctave: 1
+        });
 		
         myFretboard.setTuning(guitarStringNotes); 
     });

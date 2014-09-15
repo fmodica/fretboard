@@ -128,6 +128,7 @@
 			opacityAnimateSpeed,
 			letterFontSize,
 			noteCircRad,
+			fretCircRad,
 			noteTuningSquareWidth,
 			showTuningSquares,
 			showTuningTriangles,
@@ -185,6 +186,7 @@
 			
 			for (var i = 0; i < guitarStringNotes.length; i++) {
 				notesClickedTracker[i] = [];
+				
 				ui.allRaphaelNotes[i] = [];
 				ui.allRaphaelTuningTriangles[i] = [];
 			}
@@ -208,6 +210,7 @@
 			opacityAnimateSpeed = extendedConfig.opacityAnimateSpeed; // ms
 			letterFontSize = extendedConfig.fretHeight / 4;
 			noteCircRad = extendedConfig.fretHeight / 2.5;
+			fretCircRad = noteCircRad / 3;
 			noteTuningSquareWidth = extendedConfig.fretHeight / 1.35;
 			svgWidth = 0;
 			svgHeight = 0;
@@ -370,8 +373,6 @@
 			
 			validateGuitarStringNotes();
 			
-			debugger;
-			
 			if (difference < 0) {
 				// Remove any strings from the dom that aren't part of the new tuning
 				// and also their events (unhover and clicks)
@@ -383,10 +384,6 @@
 					ui.allRaphaelTuningSquares[i].remove();
 					ui.allRaphaelTuningSquareNoteLetters[i].remove();
 					ui.allRaphaelTuningSquareNoteOctaves[i].remove();
-					//ui.body = null;
-					//ui.nut = null;
-					//ui.fretLeftLines = [];
-					//ui.fretCircles = [];
 					ui.stringLines[i].remove();
 					
 					for (j = 0; j < ui.allRaphaelNotes[i].length; j++) {
@@ -411,7 +408,7 @@
 					// because the inner array will get accessed by index.
 					// (TODO Do they need to be accessed by index elsewhere when adding items? Push alone is not ok?)
 					notesClickedTracker.push([]);
-					ui.allRaphaelNotes.push([]); // meh
+					ui.allRaphaelNotes.push([]); 
 					ui.allRaphaelTuningTriangles.push([]);
 				}
 			}
@@ -433,7 +430,32 @@
 				}
 			}
 			
-			fixHeightsWidthsDepths();
+			var topFretExtended = getTopFretExtended();
+			var bottomFretExtended = getBottomFretExtended();
+			
+			var newHeight = bottomFretExtended - topFretExtended;
+
+			ui.body.attr("height", newHeight);
+			ui.nut.attr("height", newHeight);
+			
+			for (i = 0; i < ui.fretLeftLines.length; i++) {
+				 // ui.fretLeftLines has no lines for open note and first fret (which is covered by the nut)
+				 // so the first left line stored is actually for the 2nd fret, so add 2 to i
+				var leftXVal = getFretLeftXVal(i + 2);
+				// This path could be a function, it's used in the initial draw too
+				ui.fretLeftLines[i].attr("path", "M" + leftXVal + "," + topFretExtended + "L" + leftXVal + "," + bottomFretExtended + "z");
+			}
+			
+			var circ;
+			
+			for (i = 0; i < ui.fretCircles.length; i++) {
+				circ = ui.fretCircles[i];
+				
+				// function for the topFretExtended + newHeight part? Duplicated?
+				circ.translate(0,  (topFretExtended + newHeight / 2) - (circ.getBBox().y +  fretCircRad));
+			}
+				
+			doPostDrawFixes();
 			
 			ui.$fretboardContainer.trigger("tuningChanged");
 		}
@@ -531,7 +553,7 @@
 				var matchOrMultiple = ((fret - num) % 12);
 
 				if (matchOrMultiple === 0) {
-					ui.fretCircles.push(paper.circle(circX, topFretExtended + ((bottomFretExtended - topFretExtended) / 2), noteCircRad / 3).attr("fill", "black"));
+					ui.fretCircles.push(paper.circle(circX, topFretExtended + ((bottomFretExtended - topFretExtended) / 2), fretCircRad).attr("fill", "black"));
 					break;
 				}
 			}
@@ -687,7 +709,7 @@
 				"direction": direction,
 				"stringNumber": stringNumber
 			});
-			debugger;
+			
 			ui.allRaphaelTuningTriangles[stringNumber].push(tri);
 
 			bindEventHandlersToTuningTriangle(tri)
@@ -743,6 +765,18 @@
 			return fretboardOrigin[1] + (stringNumber * fretHeight);
 		}
 		
+		function getBottomFretExtended() {
+			return fretboardOrigin[1] + ((guitarStringNotes.length - 1) * fretHeight) + (1 / 4 * fretHeight);
+		}
+		
+		function getTopFretExtended() {
+			return fretboardOrigin[1] - (1 / 4 * fretHeight);
+		}
+		
+		function getFretLeftXVal(j) {
+			return fretboardOrigin[0] + j * (fretWidth);
+		}
+		
 		// This isFirstDraw thing is hacky - do separate method for stuff that happens once
 		function draw(i, isFirstDraw) {
 			var stringY = calculateStringYCoordinate(i),
@@ -750,16 +784,16 @@
 					stringOctave, noteOctave, text, group,
 					squareWidth, squareX, squareY, square, midX, midY, topX, topY, bottomX, bottomY,
 					squareNoteText, squareOctaveText, squareOctaveTextX, squareOctaveTextY,
-					topFretExtended = fretboardOrigin[1] - (1 / 4 * fretHeight),
-					bottomFretExtended = fretboardOrigin[1] + ((guitarStringNotes.length - 1) * fretHeight) + (1 / 4 * fretHeight),
+					topFretExtended = getTopFretExtended(),
+					bottomFretExtended = getBottomFretExtended(),
 					stringXBegin = fretboardOrigin[0] + (fretWidth * (1 / 5)),
 					stringXEnd = fretboardOrigin[0] + (fretWidth * (numFrets)) + (1 * fretWidth);
 			
 			ui.stringLines.push(paper.path("M" + stringXBegin + "," + stringY + "L" + stringXEnd + "," + stringY + "z").attr("stroke", stringColor).toFront());
-			
+
 			for (j = 0; j < numFrets + 1; j++) {
 				// Coordinates for the left of the fret and string
-				x = fretboardOrigin[0] + j * (fretWidth);
+				x = getFretLeftXVal(j);
 				y = fretboardOrigin[1] + i * (fretHeight);
 
 				// Coordinates for the center of the fret and string
@@ -898,9 +932,9 @@
 			}
 		}
 		
-		function fixHeightsWidthsDepths() {
+		function doPostDrawFixes() {
 			svgWidth = fretboardOrigin[0] + numFrets * (fretWidth) + svgWidthBuffer;
-			svgHeight = fretboardOrigin[1] + (guitarStringNotes.length * fretHeight)+ 100;
+			svgHeight = fretboardOrigin[1] + (guitarStringNotes.length * fretHeight);
 			
 			ui.nut.toFront();
 			ui.body.toBack();
@@ -910,6 +944,8 @@
 				width: svgWidth,
 				"z-index": 1
 			});
+			
+			setScrollBar();
 		}
 
 		function drawAndWireUpFretboard() {
@@ -921,8 +957,7 @@
 				setScrollBar();
 			});
 			
-			fixHeightsWidthsDepths();
-			setScrollBar();
+			doPostDrawFixes();
 		}
 
 		init();
@@ -938,4 +973,4 @@ Raphael.el.trigger = function(str, scope, params) {
 			this.events[i].f.call(scope, params);
 		}
 	}
-};
+}
