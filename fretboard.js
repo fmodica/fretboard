@@ -136,14 +136,9 @@
 			nutColor,
 			svgWidth,
 			svgHeight,
-			svgHeightBuffer,
 			svgWidthBuffer,
 			$window,
 			paper,
-			topFretExtended,
-			bottomFretExtended,
-			stringXBegin,
-			stringXEnd,
 			noteClickingDisabled,
 			tuningClickingDisabled,
 			// This holds the fret numbers that are clicked, from high to low.
@@ -216,15 +211,8 @@
 			noteTuningSquareWidth = extendedConfig.fretHeight / 1.35;
 			svgWidth = 0;
 			svgHeight = 0;
-			svgHeightBuffer = 5;
 			svgWidthBuffer = 0;
 			$window = $(window);
-			// For drawing things that extend above or below the top/bottom string, 
-			// like the left vertical part of the fret or the guitar body
-			topFretExtended = fretboardOrigin[1] - (1 / 4 * fretHeight);
-			bottomFretExtended = fretboardOrigin[1] + ((guitarStringNotes.length - 1) * fretHeight) + (1 / 4 * fretHeight),
-			stringXBegin = fretboardOrigin[0] + (fretWidth * (1 / 5));
-			stringXEnd = fretboardOrigin[0] + (fretWidth * (numFrets)) + (1 * fretWidth);
 
 			validateGuitarStringNotes();
 			drawAndWireUpFretboard();
@@ -373,6 +361,7 @@
 			}
 			
 			oldGuitarStringNotes = $.extend(true, [], guitarStringNotes);
+			
 			oldLength = oldGuitarStringNotes.length;
 			newLength = newGuitarStringNotes.length;
 			difference = newLength - oldLength;
@@ -381,13 +370,16 @@
 			
 			validateGuitarStringNotes();
 			
+			debugger;
+			
 			if (difference < 0) {
 				// Remove any strings from the dom that aren't part of the new tuning
 				// and also their events (unhover and clicks)
 				var lowestStringToDeleteIndex = oldLength - 1;
 				var highestStringToDeleteIndex = lowestStringToDeleteIndex + (difference + 1); // difference is negative, offset 1
-				// note letter and note octave has to go too!
+
 				for (i = lowestStringToDeleteIndex; i <= highestStringToDeleteIndex; i++) {
+					// square-stuff could be in a set, and just call remove on the set
 					ui.allRaphaelTuningSquares[i].remove();
 					ui.allRaphaelTuningSquareNoteLetters[i].remove();
 					ui.allRaphaelTuningSquareNoteOctaves[i].remove();
@@ -412,6 +404,7 @@
 				ui.allRaphaelTuningSquareNoteLetters = ui.allRaphaelTuningSquareNoteLetters.slice(0, newLength);
 				ui.allRaphaelTuningSquareNoteOctaves = ui.allRaphaelTuningSquareNoteOctaves.slice(0, newLength);
 				ui.allRaphaelTuningTriangles = ui.allRaphaelTuningTriangles.slice(0, newLength);
+				ui.stringLines = ui.stringLines.slice(0, newLength);
 			} else {
 				for (i = 0; i < difference; i++) {
 					// Only need to add slots for things that are 2D arrays, 
@@ -440,7 +433,7 @@
 				}
 			}
 			
-			setSvgHeight();
+			fixHeightsWidthsDepths();
 			
 			ui.$fretboardContainer.trigger("tuningChanged");
 		}
@@ -750,16 +743,19 @@
 			return fretboardOrigin[1] + (stringNumber * fretHeight);
 		}
 		
+		// This isFirstDraw thing is hacky - do separate method for stuff that happens once
 		function draw(i, isFirstDraw) {
 			var stringY = calculateStringYCoordinate(i),
 					j, x, y, circX, circY, circ, stringLetter, noteLetter,
 					stringOctave, noteOctave, text, group,
 					squareWidth, squareX, squareY, square, midX, midY, topX, topY, bottomX, bottomY,
-					squareNoteText, squareOctaveText, squareOctaveTextX, squareOctaveTextY;
-
-					// TODO: Refactor out of this method, this is hacky
-				ui.stringLines.push(paper.path("M" + stringXBegin + "," + stringY + "L" + stringXEnd + "," + stringY + "z").attr("stroke", stringColor).toBack());
-
+					squareNoteText, squareOctaveText, squareOctaveTextX, squareOctaveTextY,
+					topFretExtended = fretboardOrigin[1] - (1 / 4 * fretHeight),
+					bottomFretExtended = fretboardOrigin[1] + ((guitarStringNotes.length - 1) * fretHeight) + (1 / 4 * fretHeight),
+					stringXBegin = fretboardOrigin[0] + (fretWidth * (1 / 5)),
+					stringXEnd = fretboardOrigin[0] + (fretWidth * (numFrets)) + (1 * fretWidth);
+			
+			ui.stringLines.push(paper.path("M" + stringXBegin + "," + stringY + "L" + stringXEnd + "," + stringY + "z").attr("stroke", stringColor).toFront());
 			
 			for (j = 0; j < numFrets + 1; j++) {
 				// Coordinates for the left of the fret and string
@@ -772,8 +768,7 @@
 
 				if (isFirstDraw && j > 0) {					
 					// Draw the left vertical line (left edge of the fret)
-					
-					if (j > 1) {
+					if (j > 1 && j < numFrets) {
 						console.log("Drawing left fret line");
 						ui.fretLeftLines.push(paper.path("M" + x + "," + topFretExtended + "L" + x + "," + bottomFretExtended + "z").attr("stroke", stringColor));
 					}
@@ -792,10 +787,6 @@
 					}
 				}
 				
-				if (j === numFrets) {
-					svgWidth = x + fretWidth + svgWidthBuffer;
-				}
-
 				// Draw note circle and note text, and attach data to them
 				circ = paper.circle(circX, circY, noteCircRad).attr("fill", "white");
 
@@ -896,13 +887,24 @@
 
 				drawTuningTriangleAndBindEventHandlers(midX, midY, topX, topY, bottomX, bottomY, "left", i);
 			}
-
-			if (i === guitarStringNotes.length - 1) {
-				svgHeight = squareY + squareWidth + svgHeightBuffer;
-			}		
+			
+			if (isFirstDraw) {
+				// Draw the rectangle that represents the guitar body 
+				console.log("drawing guitar body");
+				ui.body = paper.rect(stringXBegin, topFretExtended, stringXEnd - stringXBegin, bottomFretExtended - topFretExtended).attr({
+					"fill": fretboardColor,
+					'stroke-opacity': 0
+				});
+			}
 		}
 		
-		function setSvgHeight() {
+		function fixHeightsWidthsDepths() {
+			svgWidth = fretboardOrigin[0] + numFrets * (fretWidth) + svgWidthBuffer;
+			svgHeight = fretboardOrigin[1] + (guitarStringNotes.length * fretHeight)+ 100;
+			
+			ui.nut.toFront();
+			ui.body.toBack();
+			
 			ui.$svg.css({
 				height: svgHeight,
 				width: svgWidth,
@@ -915,18 +917,11 @@
 				draw(i, (i === 0));
 			}
 			
-			// Draw the rectangle that represents the guitar body 
-			console.log("drawing guitar body");
-			ui.body = paper.rect(stringXBegin, topFretExtended, stringXEnd - stringXBegin, bottomFretExtended - topFretExtended).attr({
-				"fill": fretboardColor,
-				'stroke-opacity': 0
-			}).toBack();
-			
 			$window.on("load resize", function() {
 				setScrollBar();
 			});
 			
-			setSvgHeight();
+			fixHeightsWidthsDepths();
 			setScrollBar();
 		}
 
