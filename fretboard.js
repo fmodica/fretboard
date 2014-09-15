@@ -378,10 +378,11 @@
 			if (difference < 0) {
 				// Remove any strings from the dom that aren't part of the new tuning
 				// and also their events (unhover and clicks)
-				var lowestStringToDeleteIndex = oldLength - 1;
-				var highestStringToDeleteIndex = lowestStringToDeleteIndex + (difference + 1); // difference is negative, offset 1
+			  var highestStringToDeleteIndex = oldLength - 1;
+			  var lowestStringToDeleteIndex = highestStringToDeleteIndex + (difference + 1); // difference is negative, offset 1
 
-				for (i = lowestStringToDeleteIndex; i <= highestStringToDeleteIndex; i++) {
+			  for (i = lowestStringToDeleteIndex; i <= highestStringToDeleteIndex; i++) {
+			    console.log("removing");
 					// square-stuff could be in a set, and just call remove on the set
 					ui.allRaphaelTuningSquares[i].remove();
 					ui.allRaphaelTuningSquareNoteLetters[i].remove();
@@ -428,6 +429,7 @@
 						alterGuitarString(i, guitarStringNotes[i]);
 					}
 				} else {
+				  console.log("drawing");
 					draw(i, false);
 				}
 			}
