@@ -340,6 +340,8 @@
 				// This path could be a function, it's used in the initial draw too
 				ui.fretLeftLines[i].attr("path", "M" + leftXVal + "," + topFretExtended + "L" + leftXVal + "," + bottomFretExtended + "z");
 			}			
+			
+			doPostDrawFixes();
 		}
 
 		self.setTuning = function(newGuitarStringNotes) {
