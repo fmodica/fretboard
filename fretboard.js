@@ -294,21 +294,6 @@
 			});
 		}
 		
-		function animateFretCircPositions(topFretExtended, newHeight) {
-			var circ, i;
-
-			for (i = 0; i < ui.fretCircles.length; i++) {
-				circ = ui.fretCircles[i];
-		
-				circ.animate({
-					cy: topFretExtended + newHeight / 2
-				}, fretboardAnimationSpeed)
-		
-				// Translation
-				//circ.translate(0, (topFretExtended + newHeight / 2) - (circ.getBBox().y + fretCircRad));
-			}
-		}
-		
 		function doCommonTuningChangeRedraw(oldGuitarStringNotes, topFretExtended, bottomFretExtended, newHeight) {
 			var i, oldLength = oldGuitarStringNotes.length;
 			
@@ -328,18 +313,7 @@
 				  console.log("drawing");
 					draw(i);
 				}
-			}
-
-			ui.body.attr("height", newHeight);
-			ui.nut.attr("height", newHeight);
-
-			for (i = 0; i < ui.fretLeftLines.length; i++) {
-				// ui.fretLeftLines has no lines for open note and first fret (which is covered by the nut)
-				// so the first left line stored is actually for the 2nd fret, so add 2 to i
-				var leftXVal = getFretLeftXVal(i + 2);
-				// This path could be a function, it's used in the initial draw too
-				ui.fretLeftLines[i].attr("path", "M" + leftXVal + "," + topFretExtended + "L" + leftXVal + "," + bottomFretExtended + "z");
-			}			
+			}	
 			
 			doPostDrawFixes();
 		}
@@ -367,7 +341,7 @@
 
 			if (difference < 0) {
 				// We are removing strings, so shorten the svg height first and then draw
-				animateSvgHeight(function() {
+				animateFretboardHeight(function() {
 					// Remove any strings from the dom that aren't part of the new tuning
 					// and also their events (unhover and clicks)
 				  var highestStringToDeleteIndex = oldLength - 1;
@@ -401,8 +375,6 @@
 					doCommonTuningChangeRedraw(oldGuitarStringNotes, topFretExtended, bottomFretExtended, newHeight);
 				});
 				
-				animateFretCircPositions(topFretExtended, newHeight);
-				
 			} else {
 				for (i = 0; i < difference; i++) {
 					// Only need to add slots for things that are 2D arrays, 
@@ -414,8 +386,7 @@
 				
 				// We are adding strings, so draw them first and then animate the svg height
 				doCommonTuningChangeRedraw(oldGuitarStringNotes, topFretExtended, bottomFretExtended, newHeight);
-				animateSvgHeight(null);
-				animateFretCircPositions(topFretExtended, newHeight);
+				animateFretboardHeight(null);
 			}
 
 			ui.$fretboardContainer.trigger("tuningChanged");
@@ -913,9 +884,14 @@
 			}
 		}
 		
-		function animateSvgHeight(cb) {
+		function animateFretboardHeight(cb) {
+			var topFretExtended = getTopFretExtended(),
+					bottomFretExtended = getBottomFretExtended(),
+					newHeight = bottomFretExtended - topFretExtended,
+					i, circ, 
+			
 			svgWidth = fretboardOrigin[0] + numFrets * fretWidth + svgWidthBuffer;
-			svgHeight = fretboardOrigin[1] + ((guitarStringNotes.length - 1) * fretHeight) + fretHeight/2;
+			svgHeight = fretboardOrigin[1] + ((guitarStringNotes.length - 1) * fretHeight) + fretHeight / 2;
 			
 			ui.$svg.css({
 				"z-index": 1
@@ -923,6 +899,28 @@
 				height: svgHeight,
 				width: svgWidth
 			}, fretboardAnimationSpeed, null, cb);
+			
+			for (i = 0; i < ui.fretCircles.length; i++) {
+				circ = ui.fretCircles[i];
+		
+				circ.animateWith(ui.$svg, null, {
+					cy: topFretExtended + newHeight / 2
+				}, fretboardAnimationSpeed)
+		
+				// Translation
+				//circ.translate(0, (topFretExtended + newHeight / 2) - (circ.getBBox().y + fretCircRad));
+			}
+			
+			ui.body.animateWith(ui.$svg, null, {height: newHeight}, fretboardAnimationSpeed);
+			ui.nut.animateWith(ui.$svg, null, {height: newHeight}, fretboardAnimationSpeed);
+
+			for (i = 0; i < ui.fretLeftLines.length; i++) {
+				// ui.fretLeftLines has no lines for open note and first fret (which is covered by the nut)
+				// so the first left line stored is actually for the 2nd fret, so add 2 to i
+				var leftXVal = getFretLeftXVal(i + 2);
+				// This path could be a function, it's used in the initial draw too
+				ui.fretLeftLines[i].animateWith(ui.$svg, null, { path: "M" + leftXVal + "," + topFretExtended + "L" + leftXVal + "," + bottomFretExtended + "z" }, fretboardAnimationSpeed);
+			}		
 		}
 
 		function doPostDrawFixes() {
@@ -950,7 +948,7 @@
 			});
 
 			doPostDrawFixes();
-			animateSvgHeight();
+			animateFretboardHeight();
 		}
 		
 		function initVariables() {
@@ -964,7 +962,7 @@
 			fretboardOrigin = extendedConfig.fretboardOrigin;
 			numFrets = extendedConfig.numFrets;
 			fretWidth = extendedConfig.fretWidth;
-			fretHeight = extendedConfig.fretHeight / 1.1;
+			fretHeight = extendedConfig.fretHeight;
 			isChordMode = extendedConfig.isChordMode;
 			noteClickingDisabled = extendedConfig.noteClickingDisabled;
 			tuningClickingDisabled = extendedConfig.tuningClickingDisabled;
