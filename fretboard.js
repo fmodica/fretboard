@@ -29,7 +29,7 @@
 
 		var ALL_NOTE_LETTERS = ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"];
 		// The values in this object are used in note arithmetic and must also map correct to the ALL_NOTE_LETTERS array for validation purposes.
-		// Example: Db/C# is value 5, and is at index 5 of ALL_NOTE_LETTERS
+		// Example: Db/C# is value 1, and is at index 1 of ALL_NOTE_LETTERS
 		var NOTE_LETTER_VALUE_MAP = {
 			"C": 0,
 			"Db": 1,
@@ -103,7 +103,8 @@
 			opacityAnimateSpeed: 125,
 			fretboardColor: 'tan',
 			stringColor: 'black',
-			nutColor: 'black'
+			nutColor: 'black',
+			fretboardAnimationSpeed: 100
 		};
 
 
@@ -135,6 +136,7 @@
 			tuningSquaresColor,
 			tuningSquaresTextColor,
 			nutColor,
+			fretboardAnimationSpeed,
 			svgWidth,
 			svgHeight,
 			svgWidthBuffer,
@@ -153,71 +155,8 @@
 
 		function init() {
 			console.log("init called");
-
-			extendedConfig = {};
-
-			$.extend(extendedConfig, config, settingsCopy);
-
-			notesClickedTracker = [];
-			fretboardOrigin = extendedConfig.fretboardOrigin;
-			numFrets = extendedConfig.numFrets;
-			fretWidth = extendedConfig.fretWidth;
-			fretHeight = extendedConfig.fretHeight / 1.1;
-			isChordMode = extendedConfig.isChordMode;
-			noteClickingDisabled = extendedConfig.noteClickingDisabled;
-			tuningClickingDisabled = extendedConfig.tuningClickingDisabled;
-			guitarStringNotes = extendedConfig.guitarStringNotes;
-			showTuningTriangles = extendedConfig.showTuningTriangles;
-			showTuningSquares = extendedConfig.showTuningSquares;
-			tuningSquaresColor = extendedConfig.tuningSquaresColor;
-			tuningSquaresTextColor = extendedConfig.tuningSquaresTextColor;
-
-			ui = {};
-			ui.$fretboardContainer = $fretboardContainer;
-			// create paper object (requires Raphael.js)
-			paper = new Raphael(ui.$fretboardContainer.attr('id'), '100%', '100%');
-			ui.$svg = ui.$fretboardContainer.find("svg");
-			// A 2-d array that holds each group (circle and text) for each string
-			ui.allRaphaelNotes = new Array(guitarStringNotes.length);
-			// Will hold the squares that show the each string's note letter
-			ui.allRaphaelTuningSquares = [];
-			ui.allRaphaelTuningSquareNoteLetters = [];
-			ui.allRaphaelTuningSquareNoteOctaves = [];
-			ui.allRaphaelTuningTriangles = [];
-
-			for (var i = 0; i < guitarStringNotes.length; i++) {
-				notesClickedTracker[i] = [];
-
-				ui.allRaphaelNotes[i] = [];
-				ui.allRaphaelTuningTriangles[i] = [];
-			}
-
-			ui.body = null;
-			ui.nut = null;
-			ui.fretLeftLines = [];
-			ui.fretCircles = [];
-			ui.stringLines = [];
-
-			// Default color a note gets when clicked by a user. You can programatically set clicked notes with diffferent colors
-			clickedNoteCircColor = extendedConfig.clickedNoteCircColor;
-			clickedNoteTextColor = extendedConfig.clickedNoteTextColor;
-			hoverNoteCircColor = extendedConfig.hoverNoteCircColor;
-			hoverNoteTextColor = extendedConfig.hoverNoteTextColor;
-			fretboardColor = extendedConfig.fretboardColor;
-			stringColor = extendedConfig.stringColor;
-			nutColor = extendedConfig.nutColor;
-			tuningTriangleColor = extendedConfig.tuningTriangleColor; // need letter color
-			fretsToDrawOneCircleOn = extendedConfig.fretsToDrawOneCircleOn; // only specify the first octaves (0, 3, 5, 7, 9)
-			opacityAnimateSpeed = extendedConfig.opacityAnimateSpeed; // ms
-			letterFontSize = extendedConfig.fretHeight / 4;
-			noteCircRad = extendedConfig.fretHeight / 2.5;
-			fretCircRad = noteCircRad / 3;
-			noteTuningSquareWidth = extendedConfig.fretHeight / 1.35;
-			svgWidth = 0;
-			svgHeight = 0;
-			svgWidthBuffer = 0;
-			$window = $(window);
-
+			
+			initVariables();
 			validateGuitarStringNotes();
 			drawAndWireUpFretboard();
 		}
@@ -333,9 +272,6 @@
 
 		function setClickedNoteByStringNoteAndFretNum(stringNote, fretNumber, params) {
 			for (var i = 0; i < guitarStringNotes.length; i++) {
-				// Find the note, and click it if it's not clicked (otherwise it will disappear)
-				// Edit* actually it should be the user's responsibility to check what they are clicking,
-				// and this should be called "clickNote..." 
 				if (getNoteUniqueValue(guitarStringNotes[i]) === getNoteUniqueValue(stringNote) /*&& !notesClickedTracker[i]*/ ) {
 					var group = ui.allRaphaelNotes[i][fretNumber];
 					var circ = group[0];
@@ -357,6 +293,54 @@
 				textColor: note.textColor
 			});
 		}
+		
+		function animateFretCircPositions(topFretExtended, newHeight) {
+			var circ, i;
+
+			for (i = 0; i < ui.fretCircles.length; i++) {
+				circ = ui.fretCircles[i];
+		
+				circ.animate({
+					cy: topFretExtended + newHeight / 2
+				}, fretboardAnimationSpeed)
+		
+				// Translation
+				//circ.translate(0, (topFretExtended + newHeight / 2) - (circ.getBBox().y + fretCircRad));
+			}
+		}
+		
+		function doCommonTuningChangeRedraw(oldGuitarStringNotes, topFretExtended, bottomFretExtended, newHeight) {
+			var i, oldLength = oldGuitarStringNotes.length;
+			
+			// Drop any clicked notes from strings that don't exist anymore,
+			// or add the necessary slots if new strings will be created
+			for (i = 0; i < guitarStringNotes.length; i++) {
+				// If a guitar string was already drawn, and the new note is different than the
+				// old note just change the notes so it's quick.
+				// Otherwise, draw/remove guitar strings.
+				if (i < oldLength) {
+					if (getNoteUniqueValue(oldGuitarStringNotes[i]) !== getNoteUniqueValue(guitarStringNotes[i])) {
+
+						console.log("altering");
+						alterGuitarString(i, guitarStringNotes[i]);
+					}
+				} else {
+				  console.log("drawing");
+					draw(i);
+				}
+			}
+
+			ui.body.attr("height", newHeight);
+			ui.nut.attr("height", newHeight);
+
+			for (i = 0; i < ui.fretLeftLines.length; i++) {
+				// ui.fretLeftLines has no lines for open note and first fret (which is covered by the nut)
+				// so the first left line stored is actually for the 2nd fret, so add 2 to i
+				var leftXVal = getFretLeftXVal(i + 2);
+				// This path could be a function, it's used in the initial draw too
+				ui.fretLeftLines[i].attr("path", "M" + leftXVal + "," + topFretExtended + "L" + leftXVal + "," + bottomFretExtended + "z");
+			}			
+		}
 
 		self.setTuning = function(newGuitarStringNotes) {
 			var newLength, oldLength, oldGuitarStringNotes, difference, i, j;
@@ -373,99 +357,69 @@
 
 			guitarStringNotes = $.extend(true, [], newGuitarStringNotes);
 
+			var topFretExtended = getTopFretExtended();
+			var bottomFretExtended = getBottomFretExtended();
+			var newHeight = bottomFretExtended - topFretExtended;
+
 			validateGuitarStringNotes();
 
 			if (difference < 0) {
-				// Remove any strings from the dom that aren't part of the new tuning
-				// and also their events (unhover and clicks)
-			  var highestStringToDeleteIndex = oldLength - 1;
-			  var lowestStringToDeleteIndex = highestStringToDeleteIndex + (difference + 1); // difference is negative, offset 1
+				// We are removing strings, so shorten the svg height first and then draw
+				animateSvgHeight(function() {
+					// Remove any strings from the dom that aren't part of the new tuning
+					// and also their events (unhover and clicks)
+				  var highestStringToDeleteIndex = oldLength - 1;
+				  var lowestStringToDeleteIndex = highestStringToDeleteIndex + (difference + 1); // difference is negative, offset 1
 
-			  for (i = lowestStringToDeleteIndex; i <= highestStringToDeleteIndex; i++) {
-			    console.log("removing");
-					// square-stuff could be in a set, and just call remove on the set
-					ui.allRaphaelTuningSquares[i].remove();
-					ui.allRaphaelTuningSquareNoteLetters[i].remove();
-					ui.allRaphaelTuningSquareNoteOctaves[i].remove();
-					ui.stringLines[i].remove();
+				  for (i = lowestStringToDeleteIndex; i <= highestStringToDeleteIndex; i++) {
+				    console.log("removing");
+						// square-stuff could be in a set, and just call remove on the set
+						ui.allRaphaelTuningSquares[i].remove();
+						ui.allRaphaelTuningSquareNoteLetters[i].remove();
+						ui.allRaphaelTuningSquareNoteOctaves[i].remove();
+						ui.stringLines[i].remove();
 
-					for (j = 0; j < ui.allRaphaelNotes[i].length; j++) {
-						ui.allRaphaelNotes[i][j].unhover(noteMouseOver, noteMouseOut).unclick(noteClick).remove();
+						for (j = 0; j < ui.allRaphaelNotes[i].length; j++) {
+							ui.allRaphaelNotes[i][j].unhover(noteMouseOver, noteMouseOut).unclick(noteClick).remove();
+						}
+
+						for (j = 0; j < 2; j++) {
+							ui.allRaphaelTuningTriangles[i][j].unclick(tuningTriangleClick).remove();
+						}
 					}
 
-					for (j = 0; j < 2; j++) {
-						ui.allRaphaelTuningTriangles[i][j].unclick(tuningTriangleClick).remove();
-					}
-				}
-
-				notesClickedTracker = notesClickedTracker.slice(0, newLength);
-				ui.allRaphaelNotes = ui.allRaphaelNotes.slice(0, newLength);
-				ui.allRaphaelTuningSquares = ui.allRaphaelTuningSquares.slice(0, newLength);
-				ui.allRaphaelTuningSquareNoteLetters = ui.allRaphaelTuningSquareNoteLetters.slice(0, newLength);
-				ui.allRaphaelTuningSquareNoteOctaves = ui.allRaphaelTuningSquareNoteOctaves.slice(0, newLength);
-				ui.allRaphaelTuningTriangles = ui.allRaphaelTuningTriangles.slice(0, newLength);
-				ui.stringLines = ui.stringLines.slice(0, newLength);
+					notesClickedTracker = notesClickedTracker.slice(0, newLength);
+					ui.allRaphaelNotes = ui.allRaphaelNotes.slice(0, newLength);
+					ui.allRaphaelTuningSquares = ui.allRaphaelTuningSquares.slice(0, newLength);
+					ui.allRaphaelTuningSquareNoteLetters = ui.allRaphaelTuningSquareNoteLetters.slice(0, newLength);
+					ui.allRaphaelTuningSquareNoteOctaves = ui.allRaphaelTuningSquareNoteOctaves.slice(0, newLength);
+					ui.allRaphaelTuningTriangles = ui.allRaphaelTuningTriangles.slice(0, newLength);
+					ui.stringLines = ui.stringLines.slice(0, newLength);
+					
+					doCommonTuningChangeRedraw(oldGuitarStringNotes, topFretExtended, bottomFretExtended, newHeight);
+				});
+				
+				animateFretCircPositions(topFretExtended, newHeight);
+				
 			} else {
 				for (i = 0; i < difference; i++) {
 					// Only need to add slots for things that are 2D arrays, 
 					// because the inner array will get accessed by index.
-					// (TODO Do they need to be accessed by index elsewhere when adding items? Push alone is not ok?)
 					notesClickedTracker.push([]);
 					ui.allRaphaelNotes.push([]);
 					ui.allRaphaelTuningTriangles.push([]);
 				}
+				
+				// We are adding strings, so draw them first and then animate the svg height
+				doCommonTuningChangeRedraw(oldGuitarStringNotes, topFretExtended, bottomFretExtended, newHeight);
+				animateSvgHeight(null);
+				animateFretCircPositions(topFretExtended, newHeight);
 			}
-
-			// Drop any clicked notes from strings that don't exist anymore,
-			// or add the necessary slots if new strings will be created
-			for (i = 0; i < guitarStringNotes.length; i++) {
-				// If a guitar string was already drawn, and the new note is different than the
-				// old note just change the notes so it's quick.
-				// Otherwise, draw/remove guitar strings.
-				if (i < oldLength) {
-					if (getNoteUniqueValue(oldGuitarStringNotes[i]) !== getNoteUniqueValue(guitarStringNotes[i])) {
-
-						console.log("altering");
-						alterGuitarString(i, guitarStringNotes[i]);
-					}
-				} else {
-				  console.log("drawing");
-					draw(i, false);
-				}
-			}
-
-			var topFretExtended = getTopFretExtended();
-			var bottomFretExtended = getBottomFretExtended();
-
-			var newHeight = bottomFretExtended - topFretExtended;
-
-			ui.body.attr("height", newHeight);
-			ui.nut.attr("height", newHeight);
-
-			for (i = 0; i < ui.fretLeftLines.length; i++) {
-				// ui.fretLeftLines has no lines for open note and first fret (which is covered by the nut)
-				// so the first left line stored is actually for the 2nd fret, so add 2 to i
-				var leftXVal = getFretLeftXVal(i + 2);
-				// This path could be a function, it's used in the initial draw too
-				ui.fretLeftLines[i].attr("path", "M" + leftXVal + "," + topFretExtended + "L" + leftXVal + "," + bottomFretExtended + "z");
-			}
-
-			var circ;
-
-			for (i = 0; i < ui.fretCircles.length; i++) {
-				circ = ui.fretCircles[i];
-
-				// function for the topFretExtended + newHeight part? Duplicated?
-				circ.translate(0, (topFretExtended + newHeight / 2) - (circ.getBBox().y + fretCircRad));
-			}
-
-			doPostDrawFixes();
 
 			ui.$fretboardContainer.trigger("tuningChanged");
 		}
 
 		// Could make this a public function that loops over a list of clicked notes and sets them
-
 		function resetOldClickedNotes(oldClickedNotes) {
 			var i, j, stringNum, fretNums, fretNum;
 
@@ -780,38 +734,45 @@
 		function getFretLeftXVal(j) {
 			return fretboardOrigin[0] + j * (fretWidth);
 		}
-
-		// This isFirstDraw thing is hacky - do separate method for stuff that happens once
-
-		function draw(i, isFirstDraw) {
-			var stringY = calculateStringYCoordinate(i),
-				j, x, y, circX, circY, circ, stringLetter, noteLetter,
-				stringOctave, noteOctave, text, group,
-				squareWidth, squareX, squareY, square, midX, midY, topX, topY, bottomX, bottomY,
-				squareNoteText, squareOctaveText, squareOctaveTextX, squareOctaveTextY,
-				topFretExtended = getTopFretExtended(),
+		
+		function getStringXBegin() {
+			return fretboardOrigin[0] + (fretWidth * (1 / 5));
+		}
+		
+		function getStringXEnd() {
+			return fretboardOrigin[0] + (fretWidth * (numFrets));
+		}
+		
+		function drawOneTimeElements() {
+			var topFretExtended = getTopFretExtended(),
 				bottomFretExtended = getBottomFretExtended(),
-				stringXBegin = fretboardOrigin[0] + (fretWidth * (1 / 5)),
-				stringXEnd = fretboardOrigin[0] + (fretWidth * (numFrets)) + (1 * fretWidth);
-
-			ui.stringLines.push(paper.path("M" + stringXBegin + "," + stringY + "L" + stringXEnd + "," + stringY + "z").attr("stroke", stringColor).toFront());
-
-			for (j = 0; j < numFrets + 1; j++) {
+				stringXBegin = getStringXBegin(),
+				stringXEnd = getStringXEnd(),
+				i, j,
 				// Coordinates for the left of the fret and string
-				x = getFretLeftXVal(j);
-				y = fretboardOrigin[1] + i * (fretHeight);
-
+				x = getFretLeftXVal(j),
+				y = fretboardOrigin[1] + i * (fretHeight),
 				// Coordinates for the center of the fret and string
-				circX = x + fretWidth * (1 / 2);
+				circX = x + fretWidth * (1 / 2),
 				circY = y;
-
-				if (isFirstDraw && j > 0) {
-					// Draw the left vertical line (left edge of the fret)
-					if (j > 1 && j < numFrets) {
-						console.log("Drawing left fret line");
-						ui.fretLeftLines.push(paper.path("M" + x + "," + topFretExtended + "L" + x + "," + bottomFretExtended + "z").attr("stroke", stringColor));
-					}
-
+				
+			// Draw the rectangle that represents the guitar body 
+			console.log("drawing guitar body");
+			ui.body = paper.rect(stringXBegin, topFretExtended, stringXEnd - stringXBegin, bottomFretExtended - topFretExtended).attr({
+				"fill": fretboardColor,
+				'stroke-opacity': 0
+			});	
+			
+			for (j = 0; j <= numFrets; j++) {
+				x = getFretLeftXVal(j);
+				
+				circX = x + fretWidth * (1 / 2);
+				if (j > 1 && j < numFrets) {
+					console.log("Drawing left fret line");
+					ui.fretLeftLines.push(paper.path("M" + x + "," + topFretExtended + "L" + x + "," + bottomFretExtended + "z").attr("stroke", stringColor));
+				}
+				
+				if (j > 0) {
 					console.log("Drawing fret circle");
 					drawFretCircle(j, circX, circY, topFretExtended, bottomFretExtended);
 
@@ -825,6 +786,30 @@
 						});
 					}
 				}
+			}
+		}
+
+		function draw(i) {
+			var stringY = calculateStringYCoordinate(i),
+				j, x, y, circX, circY, circ, stringLetter, noteLetter,
+				stringOctave, noteOctave, text, group,
+				squareWidth, squareX, squareY, square, midX, midY, topX, topY, bottomX, bottomY,
+				squareNoteText, squareOctaveText, squareOctaveTextX, squareOctaveTextY,
+				topFretExtended = getTopFretExtended(),
+				bottomFretExtended = getBottomFretExtended(),
+				stringXBegin = getStringXBegin(),
+				stringXEnd = getStringXEnd()
+				
+			ui.stringLines.push(paper.path("M" + stringXBegin + "," + stringY + "L" + stringXEnd + "," + stringY + "z").attr("stroke", stringColor).toFront());
+
+			for (j = 0; j < numFrets + 1; j++) {
+				// Coordinates for the left of the fret and string
+				x = getFretLeftXVal(j);
+				y = fretboardOrigin[1] + i * (fretHeight);
+
+				// Coordinates for the center of the fret and string
+				circX = x + fretWidth * (1 / 2);
+				circY = y;
 
 				// Draw note circle and note text, and attach data to them
 				circ = paper.circle(circX, circY, noteCircRad).attr("fill", "white");
@@ -865,8 +850,6 @@
 
 				bindEventHandlersToNote(group);
 				makeNoteInvisibleImmediate(group);
-
-				group.toFront();
 
 				// Store it for tracking
 				ui.allRaphaelNotes[i][j] = group;
@@ -926,47 +909,117 @@
 
 				drawTuningTriangleAndBindEventHandlers(midX, midY, topX, topY, bottomX, bottomY, "left", i);
 			}
-
-			if (isFirstDraw) {
-				// Draw the rectangle that represents the guitar body 
-				console.log("drawing guitar body");
-				ui.body = paper.rect(stringXBegin, topFretExtended, stringXEnd - stringXBegin, bottomFretExtended - topFretExtended).attr({
-					"fill": fretboardColor,
-					'stroke-opacity': 0
-				});
-			}
+		}
+		
+		function animateSvgHeight(cb) {
+			svgWidth = fretboardOrigin[0] + numFrets * fretWidth + svgWidthBuffer;
+			svgHeight = fretboardOrigin[1] + ((guitarStringNotes.length - 1) * fretHeight) + fretHeight/2;
+			
+			ui.$svg.css({
+				"z-index": 1
+			}).animate({
+				height: svgHeight,
+				width: svgWidth
+			}, fretboardAnimationSpeed, null, cb);
 		}
 
 		function doPostDrawFixes() {
-			svgWidth = fretboardOrigin[0] + numFrets * (fretWidth) + svgWidthBuffer;
-			svgHeight = fretboardOrigin[1] + (guitarStringNotes.length * fretHeight);
-
 			ui.nut.toFront();
 			ui.body.toBack();
-
-			ui.$svg.css({
-				height: svgHeight,
-				width: svgWidth,
-				"z-index": 1
-			});
+			
+			for (var i = 0; i < ui.allRaphaelNotes.length; i++) {
+				for (var j = 0; j < ui.allRaphaelNotes[i].length; j++) {
+					ui.allRaphaelNotes[i][j].toFront();
+				}
+			}
 
 			setScrollBar();
 		}
 
 		function drawAndWireUpFretboard() {
 			for (var i = 0; i < guitarStringNotes.length; i++) {
-				draw(i, (i === 0));
+				draw(i);
 			}
+			
+			drawOneTimeElements();
 
 			$window.on("load resize", function() {
 				setScrollBar();
 			});
 
 			doPostDrawFixes();
+			animateSvgHeight();
+		}
+		
+		function initVariables() {
+			extendedConfig = {};
+
+			$.extend(extendedConfig, config, settingsCopy);
+
+			// create paper object (requires Raphael.js)
+			paper = new Raphael($fretboardContainer.attr('id'), '100%', '100%');
+			notesClickedTracker = [];
+			fretboardOrigin = extendedConfig.fretboardOrigin;
+			numFrets = extendedConfig.numFrets;
+			fretWidth = extendedConfig.fretWidth;
+			fretHeight = extendedConfig.fretHeight / 1.1;
+			isChordMode = extendedConfig.isChordMode;
+			noteClickingDisabled = extendedConfig.noteClickingDisabled;
+			tuningClickingDisabled = extendedConfig.tuningClickingDisabled;
+			guitarStringNotes = extendedConfig.guitarStringNotes;
+			showTuningTriangles = extendedConfig.showTuningTriangles;
+			showTuningSquares = extendedConfig.showTuningSquares;
+			tuningSquaresColor = extendedConfig.tuningSquaresColor;
+			tuningSquaresTextColor = extendedConfig.tuningSquaresTextColor;
+
+			ui = {
+				$fretboardContainer : $fretboardContainer,
+				$svg : $fretboardContainer.find("svg"),
+				// A 2-d array that holds each group (circle and text) for each string
+				allRaphaelNotes : [],
+				// Will hold the squares that show the each string's note letter
+				allRaphaelTuningSquares : [],
+				allRaphaelTuningSquareNoteLetters : [],
+				allRaphaelTuningSquareNoteOctaves : [],
+				allRaphaelTuningTriangles : [],
+				body : null,
+				nut : null,
+				fretLeftLines : [],
+				fretCircles : [],
+				stringLines : []
+		}
+
+			//Add inner array for 2d arrays
+			for (var i = 0; i < guitarStringNotes.length; i++) {
+				notesClickedTracker.push([]);
+				ui.allRaphaelNotes.push([]);
+				ui.allRaphaelTuningTriangles.push([]);
+			}
+
+			clickedNoteCircColor = extendedConfig.clickedNoteCircColor;
+			clickedNoteTextColor = extendedConfig.clickedNoteTextColor;
+			hoverNoteCircColor = extendedConfig.hoverNoteCircColor;
+			hoverNoteTextColor = extendedConfig.hoverNoteTextColor;
+			fretboardColor = extendedConfig.fretboardColor;
+			stringColor = extendedConfig.stringColor;
+			nutColor = extendedConfig.nutColor;
+			tuningTriangleColor = extendedConfig.tuningTriangleColor; 
+			// only specify the first octaves (0, 3, 5, 7, 9)
+			fretsToDrawOneCircleOn = extendedConfig.fretsToDrawOneCircleOn; 
+			opacityAnimateSpeed = extendedConfig.opacityAnimateSpeed;
+			fretboardAnimationSpeed = extendedConfig.fretboardAnimationSpeed;
+			letterFontSize = extendedConfig.fretHeight / 4;
+			noteCircRad = extendedConfig.fretHeight / 2.5;
+			fretCircRad = noteCircRad / 3;
+			noteTuningSquareWidth = extendedConfig.fretHeight / 1.35;
+			svgWidth = 0;
+			svgHeight = 0;
+			svgWidthBuffer = 0;
+			$window = $(window);
 		}
 
 		init();
-	};
+	}
 })(jQuery);
 
 // This function allows us to call a "trigger" event on a Raphael element.
