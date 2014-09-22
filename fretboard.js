@@ -314,8 +314,6 @@
 					draw(i);
 				}
 			}
-
-			doPostDrawFixes();
 		}
 
 		self.setTuning = function(newGuitarStringNotes) {
@@ -340,40 +338,39 @@
 			validateGuitarStringNotes();
 
 			if (difference < 0) {
-				// We are removing strings, so shorten the svg height first and then draw
-				animateFretboardHeight(function() {
-					// Remove any strings from the dom that aren't part of the new tuning
-					// and also their events (unhover and clicks)
-					var highestStringToDeleteIndex = oldLength - 1;
-					var lowestStringToDeleteIndex = highestStringToDeleteIndex + (difference + 1); // difference is negative, offset 1
+				// Remove any strings from the dom that aren't part of the new tuning
+				// and also their events (unhover and clicks)
+				var highestStringToDeleteIndex = oldLength - 1;
+				var lowestStringToDeleteIndex = highestStringToDeleteIndex + (difference + 1); // difference is negative, offset 1
 
-					for (i = lowestStringToDeleteIndex; i <= highestStringToDeleteIndex; i++) {
-						console.log("removing");
-						// square-stuff could be in a set, and just call remove on the set
-						ui.allRaphaelTuningSquares[i].remove();
-						ui.allRaphaelTuningSquareNoteLetters[i].remove();
-						ui.allRaphaelTuningSquareNoteOctaves[i].remove();
-						ui.stringLines[i].remove();
+				for (i = lowestStringToDeleteIndex; i <= highestStringToDeleteIndex; i++) {
+					console.log("removing");
+					// square-stuff could be in a set, and just call remove on the set
+					ui.allRaphaelTuningSquares[i].remove();
+					ui.allRaphaelTuningSquareNoteLetters[i].remove();
+					ui.allRaphaelTuningSquareNoteOctaves[i].remove();
+					ui.stringLines[i].remove();
 
-						for (j = 0; j < ui.allRaphaelNotes[i].length; j++) {
-							ui.allRaphaelNotes[i][j].unhover(noteMouseOver, noteMouseOut).unclick(noteClick).remove();
-						}
-
-						for (j = 0; j < 2; j++) {
-							ui.allRaphaelTuningTriangles[i][j].unclick(tuningTriangleClick).remove();
-						}
+					for (j = 0; j < ui.allRaphaelNotes[i].length; j++) {
+						ui.allRaphaelNotes[i][j].unhover(noteMouseOver, noteMouseOut).unclick(noteClick).remove();
 					}
 
-					notesClickedTracker = notesClickedTracker.slice(0, newLength);
-					ui.allRaphaelNotes = ui.allRaphaelNotes.slice(0, newLength);
-					ui.allRaphaelTuningSquares = ui.allRaphaelTuningSquares.slice(0, newLength);
-					ui.allRaphaelTuningSquareNoteLetters = ui.allRaphaelTuningSquareNoteLetters.slice(0, newLength);
-					ui.allRaphaelTuningSquareNoteOctaves = ui.allRaphaelTuningSquareNoteOctaves.slice(0, newLength);
-					ui.allRaphaelTuningTriangles = ui.allRaphaelTuningTriangles.slice(0, newLength);
-					ui.stringLines = ui.stringLines.slice(0, newLength);
+					for (j = 0; j < 2; j++) {
+						ui.allRaphaelTuningTriangles[i][j].unclick(tuningTriangleClick).remove();
+					}
+				}
 
-					doCommonTuningChangeRedraw(oldGuitarStringNotes, topFretExtended, bottomFretExtended, newHeight);
-				});
+				notesClickedTracker = notesClickedTracker.slice(0, newLength);
+				ui.allRaphaelNotes = ui.allRaphaelNotes.slice(0, newLength);
+				ui.allRaphaelTuningSquares = ui.allRaphaelTuningSquares.slice(0, newLength);
+				ui.allRaphaelTuningSquareNoteLetters = ui.allRaphaelTuningSquareNoteLetters.slice(0, newLength);
+				ui.allRaphaelTuningSquareNoteOctaves = ui.allRaphaelTuningSquareNoteOctaves.slice(0, newLength);
+				ui.allRaphaelTuningTriangles = ui.allRaphaelTuningTriangles.slice(0, newLength);
+				ui.stringLines = ui.stringLines.slice(0, newLength);
+
+				doCommonTuningChangeRedraw(oldGuitarStringNotes, topFretExtended, bottomFretExtended, newHeight);
+				// We are removing strings, so shorten the svg height first and then draw
+				animateFretboardHeight(doPostDrawFixes);
 
 			} else {
 				for (i = 0; i < difference; i++) {
@@ -386,7 +383,7 @@
 
 				// We are adding strings, so draw them first and then animate the svg height
 				doCommonTuningChangeRedraw(oldGuitarStringNotes, topFretExtended, bottomFretExtended, newHeight);
-				animateFretboardHeight(null);
+				animateFretboardHeight(doPostDrawFixes);
 			}
 
 			ui.$fretboardContainer.trigger("tuningChanged");
@@ -939,7 +936,7 @@
 					ui.allRaphaelNotes[i][j].toFront();
 				}
 			}
-
+			
 			setScrollBar();
 		}
 
@@ -953,9 +950,8 @@
 			$window.on("load resize", function() {
 				setScrollBar();
 			});
-
-			doPostDrawFixes();
-			animateFretboardHeight();
+			
+			animateFretboardHeight(doPostDrawFixes);
 		}
 
 		function initVariables() {
