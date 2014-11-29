@@ -25,13 +25,12 @@
 	"use strict";
 	// Make this object available on the global scope
 	window.Fretboard = function($fretboardContainer, settings) {
-		var self = this; // the fretboard object
-
-		var ALL_NOTE_LETTERS = ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"];
+		var self = this, // the fretboard object
+		    ALL_NOTE_LETTERS = ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"],
 		
 		// The values in this object are used in note arithmetic and must also map correct to the ALL_NOTE_LETTERS array for validation purposes.
 		// Example: Db/C# is at index 1 and is considered valid input but will be converted the value at index 1 of ALL_NOTE_LETTERS, which is C#/Db.
-		var NOTE_LETTER_VALUE_MAP = {
+            NOTE_LETTER_VALUE_MAP = {
 			"C": 0,
 			"Db": 1,
 			"C#": 1,
@@ -59,10 +58,10 @@
 			"A#/Bb": 10,
 			"Bb/A#": 10,
 			"B": 11,
-		};
+		},
 
 		// Default config settings
-		var config = {
+		config = {
 			// x and y location of the upper left of the fretboard (the tuning squares 
 			// will be further to the left).
 			fretboardOrigin: [80, 15],
@@ -111,55 +110,55 @@
 			stringColor: 'black',
 			nutColor: 'black',
 			fretboardAnimationSpeed: 100
-		};
+		},
 
 		// Make a copy of the original settings provided by the user.
-		var settingsCopy = $.extend(true, {}, settings || {}),
-			extendedConfig,
-			fretboardOrigin,
-			numFrets,
-			fretWidth,
-			fretHeight,
-			isChordMode,
-			guitarStringNotes,
-			clickedNoteCircColor,
-			clickedNoteTextColor,
-			hoverNoteCircColor,
-			hoverNoteTextColor,
-			fretboardColor,
-			stringColor,
-			tuningTriangleColor,
-			fretsToDrawOneCircleOn,
-			opacityAnimateSpeed,
-			letterFontSize,
-			noteCircRad,
-			fretCircRad,
-			noteTuningSquareWidth,
-			showTuningSquares,
-			showTuningTriangles,
-			tuningSquaresColor,
-			tuningSquaresTextColor,
-			nutColor,
-			fretboardAnimationSpeed,
-			svgWidth,
-			svgHeight,
-			svgWidthBuffer,
-			$window,
-			paper,
-			noteClickingDisabled,
-			tuningClickingDisabled,
-			// This holds the fret numbers that are clicked, from high to low.
-			// Example for a maj7 fingering in Standard E tuning:
-			// [[3], [5], [4], [], [3], []] .
-			notesClickedTracker,
-			// This will be an object that holds all ui elements (Raphael objects).
-			ui;
+		settingsCopy = $.extend(true, {}, settings || {}),
+		extendedConfig,
+		fretboardOrigin,
+		numFrets,
+		fretWidth,
+		fretHeight,
+		isChordMode,
+		guitarStringNotes,
+		clickedNoteCircColor,
+		clickedNoteTextColor,
+		hoverNoteCircColor,
+		hoverNoteTextColor,
+		fretboardColor,
+		stringColor,
+		tuningTriangleColor,
+		fretsToDrawOneCircleOn,
+		opacityAnimateSpeed,
+		letterFontSize,
+		noteCircRad,
+		fretCircRad,
+		noteTuningSquareWidth,
+		showTuningSquares,
+		showTuningTriangles,
+		tuningSquaresColor,
+		tuningSquaresTextColor,
+		nutColor,
+		fretboardAnimationSpeed,
+		svgWidth,
+		svgHeight,
+		svgWidthBuffer,
+		$window,
+		paper,
+		noteClickingDisabled,
+		tuningClickingDisabled,
+		// This holds the fret numbers that are clicked, from high to low.
+		// Example for a maj7 fingering in Standard E tuning:
+		// [[3], [5], [4], [], [3], []] .
+		notesClickedTracker,
+		// This will be an object that holds all ui elements (Raphael objects).
+		ui;
 			
 		function init() {
 			console.log("init called");
 
 			initVariables();
-			validateGuitarStringNotes();
+			validateNotes(guitarStringNotes);
 			drawAndWireUpFretboard();
 		}
 
@@ -236,9 +235,9 @@
 			return notes;
 		}
 
-		function validateGuitarStringNotes() {
-			for (var i = 0; i < guitarStringNotes.length; i++) {
-				guitarStringNotes[i].noteLetter = validateNoteLetter(guitarStringNotes[i].noteLetter);
+		function validateNotes(notes) {
+			for (var i = 0; i < notes.length; i++) {
+				notes[i].noteLetter = validateNoteLetter(notes[i].noteLetter);
 			}
 		}
 
@@ -339,7 +338,7 @@
 			var bottomFretExtended = getBottomFretExtended();
 			var newHeight = bottomFretExtended - topFretExtended;
 
-			validateGuitarStringNotes();
+			validateNotes(guitarStringNotes);
 
 			if (difference < 0) {
 				// Remove any strings from the dom that aren't part of the new tuning
@@ -419,8 +418,8 @@
 		}
 
 		function bindEventHandlersToNote(group) {
-			group.click(noteClick); // bind click events
-			group.hover(noteMouseOver, noteMouseOut); // bind hover events
+			group.click(noteClick);
+			group.hover(noteMouseOver, noteMouseOut);
 		}
 
 		function makeNoteVisibleAnimated(group, circColor, textColor) {
