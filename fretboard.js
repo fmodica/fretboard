@@ -28,8 +28,9 @@
 		var self = this; // the fretboard object
 
 		var ALL_NOTE_LETTERS = ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"];
+		
 		// The values in this object are used in note arithmetic and must also map correct to the ALL_NOTE_LETTERS array for validation purposes.
-		// Example: Db/C# is value 1, and is at index 1 of ALL_NOTE_LETTERS
+		// Example: Db/C# is at index 1 and is considered valid input but will be converted the value at index 1 of ALL_NOTE_LETTERS, which is C#/Db.
 		var NOTE_LETTER_VALUE_MAP = {
 			"C": 0,
 			"Db": 1,
@@ -62,13 +63,17 @@
 
 		// Default config settings
 		var config = {
-			// x and y location of the upper left of the fretboard (the tuning squares will be further to the left)
+			// x and y location of the upper left of the fretboard (the tuning squares 
+			// will be further to the left).
 			fretboardOrigin: [80, 15],
 			noteClickingDisabled: false,
+			// For the default tuner
 			tuningClickingDisabled: false,
 			numFrets: 15,
-			fretWidth: 67, // (px) 
-			fretHeight: 31, // (px)  
+			fretWidth: 67, 
+			fretHeight: 31,
+			// If isChordMode is true, clicking a note on a string will result
+			// in any other notes on that string disappearing.
 			isChordMode: false,
 			// Default strings (note letters), from high to low.
 			guitarStringNotes: [{
@@ -99,7 +104,8 @@
 			showTuningSquares: true,
 			tuningSquaresColor: "white",
 			tuningSquaresTextColor: "black",
-			fretsToDrawOneCircleOn: [3, 5, 7, 9, 12], // Will do octaves of these numbers as well 
+			// Octaves of these numbers will have circles drawn on them too.
+			fretsToDrawOneCircleOn: [3, 5, 7, 9, 12], 
 			opacityAnimateSpeed: 125,
 			fretboardColor: 'tan',
 			stringColor: 'black',
@@ -107,11 +113,9 @@
 			fretboardAnimationSpeed: 100
 		};
 
-
-		// Make a copy of the original settings provided by the user, because we may modify it in the code before
-		// programatically calling "init()" when redrawing the fretboard. We don't want to overwrite their original object.
+		// Make a copy of the original settings provided by the user.
 		var settingsCopy = $.extend(true, {}, settings || {}),
-			extendedConfig, // Config options will be copied to these private variables
+			extendedConfig,
 			fretboardOrigin,
 			numFrets,
 			fretWidth,
@@ -148,11 +152,9 @@
 			// Example for a maj7 fingering in Standard E tuning:
 			// [[3], [5], [4], [], [3], []] .
 			notesClickedTracker,
+			// This will be an object that holds all ui elements (Raphael objects).
 			ui;
-
-		// This function initializes all private variables and then calls methods 
-		// to draw and wire up the fretboard
-
+			
 		function init() {
 			console.log("init called");
 
@@ -241,8 +243,7 @@
 		}
 
 		// This inspects a note letter and returns the representation that
-		// will be used in this code
-
+		// will be used in this codes
 		function validateNoteLetter(noteLetter) {
 			// Make sure it's a valid note by checking to see if it has a numeric value
 			var noteVal = NOTE_LETTER_VALUE_MAP[noteLetter];
@@ -259,9 +260,12 @@
 		}
 
 		function validateFretNum(fretNum) {
-			if (!isNaN(fretNum) && fretNum <= numFrets) {
+		    console.log(numFrets);
+			if (!isNaN(fretNum) && fretNum >= 0 && fretNum <= numFrets) {
 				return fretNum;
 			}
+			
+			throwFretNumError(fretNum);
 		}
 
 		function throwFretNumError(fretNum) {
@@ -711,7 +715,7 @@
 		}
 
 		function getStringXEnd() {
-			return fretboardOrigin[0] + (fretWidth * (numFrets));
+			return fretboardOrigin[0] + (fretWidth * (numFrets + 1));
 		}
 
 		function drawOneTimeElements() {
@@ -738,7 +742,7 @@
 				x = getFretLeftXVal(j);
 
 				circX = x + fretWidth * (1 / 2);
-				if (j > 1 && j < numFrets) {
+				if (j > 1 && j <= numFrets) {
 					console.log("Drawing left fret line");
 					ui.fretLeftLines.push(paper.path("M" + x + "," + topFretExtended + "L" + x + "," + bottomFretExtended + "z").attr("stroke", stringColor));
 				}
@@ -773,7 +777,7 @@
 
 				ui.stringLines.push(paper.path("M" + stringXBegin + "," + stringY + "L" + stringXEnd + "," + stringY + "z").attr("stroke", stringColor).toFront());
 
-			for (j = 0; j < numFrets + 1; j++) {
+			for (j = 0; j <= numFrets; j++) {
 				// Coordinates for the left of the fret and string
 				x = getFretLeftXVal(j);
 				y = fretboardOrigin[1] + i * (fretHeight);
@@ -888,7 +892,7 @@
 				newHeight = bottomFretExtended - topFretExtended,
 				i, circ,
 
-				svgWidth = fretboardOrigin[0] + numFrets * fretWidth + svgWidthBuffer;
+				svgWidth = fretboardOrigin[0] + (numFrets + 1) * fretWidth + svgWidthBuffer;
 			svgHeight = fretboardOrigin[1] + ((guitarStringNotes.length - 1) * fretHeight) + fretHeight / 2;
 
 			ui.$svg.css({
@@ -963,6 +967,7 @@
 			paper = new Raphael($fretboardContainer.attr('id'), '100%', '100%');
 			notesClickedTracker = [];
 			fretboardOrigin = extendedConfig.fretboardOrigin;
+			console.log(extendedConfig);
 			numFrets = extendedConfig.numFrets;
 			fretWidth = extendedConfig.fretWidth;
 			fretHeight = extendedConfig.fretHeight;
