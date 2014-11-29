@@ -110,7 +110,9 @@ if (!Array.isArray) {
 			tuningSquaresColor: "white",
 			tuningSquaresTextColor: "black",
 			// Octaves of these numbers will have circles drawn on them too.
-			fretsToDrawOneCircleOn: [3, 5, 7, 9, 12], 
+			// 0 is actually ignored, but if included then 12, 24, 36, etc 
+			// will have circles.
+			fretsToDrawOneCircleOn: [0, 3, 5, 7, 9], 
 			opacityAnimateSpeed: 125,
 			fretboardColor: 'tan',
 			stringColor: 'black',
@@ -301,10 +303,12 @@ if (!Array.isArray) {
 
 		// to be used externally as API function
 		self.setClickedNoteByStringNoteAndFretNum = function(note) {
+		    var noteLetter = validateNoteLetter(note.stringItsOn.noteLetter);
+		    
 			validateFretNum(note.fretNumber);
 			
 			setClickedNoteByStringNoteAndFretNum({
-				noteLetter: validateNoteLetter(note.stringItsOn.noteLetter),
+				noteLetter: noteLetter,
 				noteOctave: note.stringItsOn.noteOctave
 			}, note.fretNumber, {
 				wasCalledProgramatically: true,
@@ -313,63 +317,63 @@ if (!Array.isArray) {
 			});
 		}
 
-		function doCommonTuningChangeRedraw(oldGuitarStringNotes, topFretExtended, bottomFretExtended, newHeight) {
+		function doCommonTuningChangeRedrawLogic(oldGuitarStringNotes, topFretExtended, bottomFretExtended, newHeight) {
 			var i, oldLength = oldGuitarStringNotes.length;
 
-			// Drop any clicked notes from strings that don't exist anymore,
-			// or add the necessary slots if new strings will be created
+			// If a guitar string was already drawn at location i, and the new note that should
+			// be on that string is different than the old note just change the notes so it's quick.
+			// Otherwise, draw/remove guitar strings.
 			for (i = 0; i < guitarStringNotes.length; i++) {
-				// If a guitar string was already drawn, and the new note is different than the
-				// old note just change the notes so it's quick.
-				// Otherwise, draw/remove guitar strings.
 				if (i < oldLength) {
 					if (getNoteUniqueValue(oldGuitarStringNotes[i]) !== getNoteUniqueValue(guitarStringNotes[i])) {
-
-						console.log("altering");
 						alterGuitarString(i, guitarStringNotes[i]);
+					} else {
+					    console.log("notes were the same - doing nothing");
 					}
 				} else {
-					console.log("drawing");
-					draw(i);
+					drawGuitarStringAtLocation(i);
 				}
 			}
 		}
 
 		self.setTuning = function(newGuitarStringNotes) {
-			var newLength, oldLength, oldGuitarStringNotes, difference, i, j;
+			var newLength, oldLength, oldGuitarStringNotes, numberOfNewStrings, i, j,
+			    topFretExtended, bottomFretExtended, newHeight, highestStringToDeleteIndex,
+			    lowestStringToDeleteIndex;
 
-			if (!newGuitarStringNotes || !newGuitarStringNotes.length) {
-				return;
-			}
-
+			validateNotes(newGuitarStringNotes);
+			
 			oldGuitarStringNotes = $.extend(true, [], guitarStringNotes);
 
 			oldLength = oldGuitarStringNotes.length;
 			newLength = newGuitarStringNotes.length;
-			difference = newLength - oldLength;
+			numberOfNewStrings = newLength - oldLength;
 
+            // copy to the private variable
 			guitarStringNotes = $.extend(true, [], newGuitarStringNotes);
 
-			var topFretExtended = getTopFretExtended();
-			var bottomFretExtended = getBottomFretExtended();
-			var newHeight = bottomFretExtended - topFretExtended;
-
-			validateNotes(guitarStringNotes);
-
-			if (difference < 0) {
+			topFretExtended = getTopFretExtended();
+			bottomFretExtended = getBottomFretExtended();
+			newHeight = bottomFretExtended - topFretExtended;
+			
+			// If we are removing strings
+			if (numberOfNewStrings < 0) {
 				// Remove any strings from the dom that aren't part of the new tuning
 				// and also their events (unhover and clicks)
-				var highestStringToDeleteIndex = oldLength - 1;
-				var lowestStringToDeleteIndex = highestStringToDeleteIndex + (difference + 1); // difference is negative, offset 1
+				highestStringToDeleteIndex = oldLength - 1;
+				 // numberOfNewStrings is negative, offset 1
+				lowestStringToDeleteIndex = highestStringToDeleteIndex + (numberOfNewStrings + 1);
 
+                 // Remove ui elements
 				for (i = lowestStringToDeleteIndex; i <= highestStringToDeleteIndex; i++) {
 					console.log("removing");
-					// square-stuff could be in a set, and just call remove on the set
+					// square-stuff could be in a set, and just call remove on the set?
 					ui.allRaphaelTuningSquares[i].remove();
 					ui.allRaphaelTuningSquareNoteLetters[i].remove();
 					ui.allRaphaelTuningSquareNoteOctaves[i].remove();
 					ui.stringLines[i].remove();
 
+                    
 					for (j = 0; j < ui.allRaphaelNotes[i].length; j++) {
 						ui.allRaphaelNotes[i][j].unhover(noteMouseOver, noteMouseOut).unclick(noteClick).remove();
 					}
@@ -378,7 +382,8 @@ if (!Array.isArray) {
 						ui.allRaphaelTuningTriangles[i][j].unclick(tuningTriangleClick).remove();
 					}
 				}
-
+				
+				// Shorten arrays that track the UI elements
 				notesClickedTracker = notesClickedTracker.slice(0, newLength);
 				ui.allRaphaelNotes = ui.allRaphaelNotes.slice(0, newLength);
 				ui.allRaphaelTuningSquares = ui.allRaphaelTuningSquares.slice(0, newLength);
@@ -387,21 +392,23 @@ if (!Array.isArray) {
 				ui.allRaphaelTuningTriangles = ui.allRaphaelTuningTriangles.slice(0, newLength);
 				ui.stringLines = ui.stringLines.slice(0, newLength);
 
-				doCommonTuningChangeRedraw(oldGuitarStringNotes, topFretExtended, bottomFretExtended, newHeight);
-				// We are removing strings, so shorten the svg height first and then draw
+				doCommonTuningChangeRedrawLogic(oldGuitarStringNotes, topFretExtended, bottomFretExtended, newHeight);
+				
 				animateFretboardHeight(doPostDrawFixes);
 
 			} else {
-				for (i = 0; i < difference; i++) {
+				for (i = 0; i < numberOfNewStrings; i++) {
 					// Only need to add slots for things that are 2D arrays, 
 					// because the inner array will get accessed by index.
+					// The function that actually draws the new strings will 
+					// add everythin gelse.
 					notesClickedTracker.push([]);
 					ui.allRaphaelNotes.push([]);
 					ui.allRaphaelTuningTriangles.push([]);
 				}
 
-				// We are adding strings, so draw them first and then animate the svg height
-				doCommonTuningChangeRedraw(oldGuitarStringNotes, topFretExtended, bottomFretExtended, newHeight);
+				doCommonTuningChangeRedrawLogic(oldGuitarStringNotes, topFretExtended, bottomFretExtended, newHeight);
+				
 				animateFretboardHeight(doPostDrawFixes);
 			}
 
@@ -494,14 +501,17 @@ if (!Array.isArray) {
 			triangle.click(tuningTriangleClick);
 		}
 
-		function drawFretCircle(fret, circX, circY, topFretExtended, bottomFretExtended) {
-			for (var k = 0; k < fretsToDrawOneCircleOn.length; k++) {
-				var num = fretsToDrawOneCircleOn[k];
+		function drawFretCircle(fretNum, circX, circY, topFretExtended, bottomFretExtended) {
+		    var i, num, matchOrMultiple;
+		    
+			for (i = 0; i < fretsToDrawOneCircleOn.length; i++) {
+				num = fretsToDrawOneCircleOn[i];
 
-				var matchOrMultiple = ((fret - num) % 12);
+				matchOrMultiple = ((fretNum - num) % 12);
 
 				if (matchOrMultiple === 0) {
 					ui.fretCircles.push(paper.circle(circX, topFretExtended + ((bottomFretExtended - topFretExtended) / 2), fretCircRad).attr("fill", "black"));
+					
 					break;
 				}
 			}
@@ -598,6 +608,8 @@ if (!Array.isArray) {
 		}
 
 		function alterGuitarString(stringNumber, newGuitarStringNote) {
+		    console.log("altering");
+		    
 			var i, group, circ, text, newNoteOnThisFret;
 
 			guitarStringNotes[stringNumber] = newGuitarStringNote;
@@ -779,7 +791,9 @@ if (!Array.isArray) {
 			}
 		}
 
-		function draw(i) {
+		function drawGuitarStringAtLocation(i) {
+		    console.log("drawing");
+		    
 			var stringY = calculateStringYCoordinate(i),
 				j, x, y, circX, circY, circ, stringLetter, noteLetter,
 				stringOctave, noteOctave, text, group,
@@ -788,9 +802,9 @@ if (!Array.isArray) {
 				topFretExtended = getTopFretExtended(),
 				bottomFretExtended = getBottomFretExtended(),
 				stringXBegin = getStringXBegin(),
-				stringXEnd = getStringXEnd()
+				stringXEnd = getStringXEnd();
 
-				ui.stringLines.push(paper.path("M" + stringXBegin + "," + stringY + "L" + stringXEnd + "," + stringY + "z").attr("stroke", stringColor).toFront());
+			ui.stringLines.push(paper.path("M" + stringXBegin + "," + stringY + "L" + stringXEnd + "," + stringY + "z").attr("stroke", stringColor).toFront());
 
 			for (j = 0; j <= numFrets; j++) {
 				// Coordinates for the left of the fret and string
@@ -907,8 +921,8 @@ if (!Array.isArray) {
 				newHeight = bottomFretExtended - topFretExtended,
 				i, circ,
 
-				svgWidth = fretboardOrigin[0] + (numFrets + 1) * fretWidth + svgWidthBuffer;
-			svgHeight = fretboardOrigin[1] + ((guitarStringNotes.length - 1) * fretHeight) + fretHeight / 2;
+				svgWidth = fretboardOrigin[0] + (numFrets + 1) * fretWidth + svgWidthBuffer,
+			    svgHeight = fretboardOrigin[1] + ((guitarStringNotes.length - 1) * fretHeight) + fretHeight / 2;
 
 			ui.$svg.css({
 				"z-index": 1
@@ -961,7 +975,7 @@ if (!Array.isArray) {
 
 		function drawAndWireUpFretboard() {
 			for (var i = 0; i < guitarStringNotes.length; i++) {
-				draw(i);
+				drawGuitarStringAtLocation(i);
 			}
 
 			drawOneTimeElements();
@@ -1000,17 +1014,22 @@ if (!Array.isArray) {
 			ui = {
 				$fretboardContainer: $fretboardContainer,
 				$svg: $fretboardContainer.find("svg"),
-				// A 2-d array that holds each group (circle and text) for each string
+				// This will be a 2-d array that holds each group (circle and text) for each guitar string.
 				allRaphaelNotes: [],
-				// Will hold the squares that show the each string's note letter
+				// The squares that show the each string's note letter.
 				allRaphaelTuningSquares: [],
 				allRaphaelTuningSquareNoteLetters: [],
 				allRaphaelTuningSquareNoteOctaves: [],
+				// Another 2-d array (since there are 2 per guitar string)
 				allRaphaelTuningTriangles: [],
+				// The rectangle that represents the body of the guitar
 				body: null,
 				nut: null,
+				// The vertical lines that separate frets
 				fretLeftLines: [],
+				// The circles that you usually see on the 3rd, 5th, 7th, 9th, 12th, etc frets
 				fretCircles: [],
+				// The guitar strings
 				stringLines: []
 			}
 
@@ -1029,7 +1048,7 @@ if (!Array.isArray) {
 			stringColor = extendedConfig.stringColor;
 			nutColor = extendedConfig.nutColor;
 			tuningTriangleColor = extendedConfig.tuningTriangleColor;
-			// only specify the first octaves (0, 3, 5, 7, 9)
+			// Only the first octave needs to be specified (0,3,5,7,9)
 			fretsToDrawOneCircleOn = extendedConfig.fretsToDrawOneCircleOn;
 			opacityAnimateSpeed = extendedConfig.opacityAnimateSpeed;
 			fretboardAnimationSpeed = extendedConfig.fretboardAnimationSpeed;

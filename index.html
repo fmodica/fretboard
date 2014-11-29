@@ -60,7 +60,7 @@
       fretboardColor: "wheat",
       stringColor: "black",
       tuningTriangleColor: "blue",
-      fretsToDrawOneCircleOn: [3, 5, 7, 9, 12],
+      fretsToDrawOneCircleOn: [0, 3, 5, 7, 9],
       opacityAnimateSpeed: 250,
       showTuningTriangles: true,
       showTuningSquares: true,
@@ -118,7 +118,7 @@
     });
     
     $('.change-tuning-button').on("click", function() {
-        for (var i = 0; i < guitarStringNotes.length; i++){
+        for (var i = 2; i < guitarStringNotes.length; i++){
             --guitarStringNotes[i].noteOctave;
         }
         guitarStringNotes.push({
