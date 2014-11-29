@@ -1,3 +1,9 @@
+if (!Array.isArray) {
+  Array.isArray = function(arg) {
+    return Object.prototype.toString.call(arg) === '[object Array]';
+  };
+}
+
 // The jQuery plugin
 (function($) {
 	"use strict";
@@ -158,7 +164,6 @@
 			console.log("init called");
 
 			initVariables();
-			validateNotes(guitarStringNotes);
 			drawAndWireUpFretboard();
 		}
 
@@ -236,13 +241,17 @@
 		}
 
 		function validateNotes(notes) {
+		    if (!Array.isArray(notes)) {
+		        throw "\"notes\" must be in an array. It is: " + notes;
+		    }
+		    
 			for (var i = 0; i < notes.length; i++) {
 				notes[i].noteLetter = validateNoteLetter(notes[i].noteLetter);
 			}
 		}
 
 		// This inspects a note letter and returns the representation that
-		// will be used in this codes
+		// will be used in this code.
 		function validateNoteLetter(noteLetter) {
 			// Make sure it's a valid note by checking to see if it has a numeric value
 			var noteVal = NOTE_LETTER_VALUE_MAP[noteLetter];
@@ -255,16 +264,23 @@
 		}
 
 		function throwNoteLetterError(noteLetter) {
-			throw noteLetter + " is not a valid note. All valid notes are defined in the following array: " + ALL_NOTE_LETTERS;
+			throw noteLetter + " is not a valid note.";
+		}
+		
+		function validateNumFrets(fretNums) {
+			if (isNaN(fretNums) || fretNums < 1) {
+				throwFretNumsError(fretNums); 
+			}		
+		}
+		
+		function throwFretNumsError(fretNums) {
+		    throw fretNums + " is not a valid number of frets.";
 		}
 
 		function validateFretNum(fretNum) {
-		    console.log(numFrets);
-			if (!isNaN(fretNum) && fretNum >= 0 && fretNum <= numFrets) {
-				return fretNum;
+			if (isNaN(fretNum) || fretNum < 0 || fretNum > numFrets) {
+				throwFretNumError(fretNum);
 			}
-			
-			throwFretNumError(fretNum);
 		}
 
 		function throwFretNumError(fretNum) {
@@ -285,12 +301,12 @@
 
 		// to be used externally as API function
 		self.setClickedNoteByStringNoteAndFretNum = function(note) {
-			//console.log("note inside setClickedNoteByStringNoteAndFretNum");
-			//console.log(note);
+			validateFretNum(note.fretNumber);
+			
 			setClickedNoteByStringNoteAndFretNum({
 				noteLetter: validateNoteLetter(note.stringItsOn.noteLetter),
 				noteOctave: note.stringItsOn.noteOctave
-			}, validateFretNum(note.fretNumber), {
+			}, note.fretNumber, {
 				wasCalledProgramatically: true,
 				circColor: note.circColor,
 				textColor: note.textColor
@@ -958,26 +974,28 @@
 		}
 
 		function initVariables() {
-			extendedConfig = {};
+		    extendedConfig = {};
 
-			$.extend(extendedConfig, config, settingsCopy);
-
-			// create paper object (requires Raphael.js)
-			paper = new Raphael($fretboardContainer.attr('id'), '100%', '100%');
-			notesClickedTracker = [];
-			fretboardOrigin = extendedConfig.fretboardOrigin;
-			console.log(extendedConfig);
-			numFrets = extendedConfig.numFrets;
-			fretWidth = extendedConfig.fretWidth;
-			fretHeight = extendedConfig.fretHeight;
-			isChordMode = extendedConfig.isChordMode;
-			noteClickingDisabled = extendedConfig.noteClickingDisabled;
-			tuningClickingDisabled = extendedConfig.tuningClickingDisabled;
-			guitarStringNotes = extendedConfig.guitarStringNotes;
-			showTuningTriangles = extendedConfig.showTuningTriangles;
-			showTuningSquares = extendedConfig.showTuningSquares;
-			tuningSquaresColor = extendedConfig.tuningSquaresColor;
-			tuningSquaresTextColor = extendedConfig.tuningSquaresTextColor;
+		    $.extend(extendedConfig, config, settingsCopy);
+		    
+		    // create paper object (requires Raphael.js)
+		    paper = new Raphael($fretboardContainer.attr('id'), '100%', '100%');
+		    notesClickedTracker = [];
+		    fretboardOrigin = extendedConfig.fretboardOrigin;
+		    numFrets = extendedConfig.numFrets;
+		    fretWidth = extendedConfig.fretWidth;
+		    fretHeight = extendedConfig.fretHeight;
+		    isChordMode = extendedConfig.isChordMode;
+		    guitarStringNotes = extendedConfig.guitarStringNotes;
+		    noteClickingDisabled = extendedConfig.noteClickingDisabled;
+		    tuningClickingDisabled = extendedConfig.tuningClickingDisabled;
+		    showTuningTriangles = extendedConfig.showTuningTriangles;
+		    showTuningSquares = extendedConfig.showTuningSquares;
+		    tuningSquaresColor = extendedConfig.tuningSquaresColor;
+		    tuningSquaresTextColor = extendedConfig.tuningSquaresTextColor;
+		
+			validateNumFrets(numFrets);
+            validateNotes(guitarStringNotes);
 
 			ui = {
 				$fretboardContainer: $fretboardContainer,
