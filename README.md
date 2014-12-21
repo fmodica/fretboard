@@ -1,4 +1,4 @@
 fretboard.js
 ============
 
-(In progress) A jQuery plugin for displaying an interactive clickable fretboard of any number of frets, strings, and tunings. I am also working on an AngularJS wrapper for this.
+(In progress) An angularJS directive for displaying an interactive and configurable fretboard of any number of frets, strings, tunings, and styles.
