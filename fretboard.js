@@ -63,17 +63,15 @@
                     for (j = 0; j <= numFrets; j++) {
                         letter = "A";
                         
-                        $fret = get$Fret(letter, j);
-                        $note = get$Note();
-                        $letter = get$Letter(letter);
-                        $note.append($letter);
+                        $fret = get$Fret(j);
+                        $note = get$Note(letter);
                         $fret.width(fretWidth).append($note);
                         $stringContainer.append($fret); 
                     }
                 }
             }
             
-            function get$Fret(letter, fretNum) {
+            function get$Fret(fretNum) {
                 var $fret, numFrets = settings.numFrets;
                 
                 $fret = $("<div class='fret'></div>");
@@ -95,8 +93,30 @@
                 return $("<div class='string'></div>");
             }
             
-            function get$Note() {
-                return $("<div class='note'></div>");
+            function get$Note(letter) {
+                var $note, $letter;
+                
+                $letter = get$Letter(letter);
+                
+                $note = $("<div class='note'></div>");
+                
+                $note.on("mouseover", function() {
+                    $(this).animate({
+                        opacity: 1
+                    }, 500);
+                });
+                
+                $note.on("mouseout", function() {
+                    $(this).animate({
+                        opacity: 0
+                    }, 500);
+                });
+                
+                $note.css("opacity", 0);
+                
+                $note.append($letter);
+                
+                return $note;
             }
             
             function get$Letter(letter) {
