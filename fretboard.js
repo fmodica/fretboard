@@ -1,3 +1,88 @@
+(function($) {
+    "use strict";
+    
+    window.Fretboard = function(options, $element) {
+        var self = this,
+            // The value for C needs to be first
+            DEFAULT_NOTE_LETTERS = ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"],
+            DEFAULT_TUNING = [{
+                    "letter": "E",
+                    "octave": 5
+                }, {
+                    "letter": "B",
+                    "octave": 5
+                }, {
+                    "letter": "G",
+                    "octave": 4
+                }, {
+                    "letter": "D",
+                    "octave": 4
+                }, {
+                    "letter": "A",
+                    "octave": 4
+                }, {
+                    "letter": "E",
+                    "octave": 3
+            }],
+            DEFAULT_NUM_FRETS = 15,
+            defaults = {
+                allNoteLetters: DEFAULT_NOTE_LETTERS,
+                tuning: DEFAULT_TUNING,
+                numFrets: DEFAULT_NUM_FRETS
+            },
+            settings = {},
+            ui = {
+                $body: null,
+                $stringContainers: {}
+            };
+            
+		    $.extend(settings, defaults, options);
+		    
+		    validate();
+		    init();
+            
+            function init() {
+                var numStrings = settings.tuning.length,
+                    i, j, $stringContainer, $string, $fret, $note, 
+                    $letter, letter, fretWidth;
+                    
+                ui.$body = $("<div class='body'></div>");
+                
+                $element.append(ui.$body);
+                
+                for (i = 0; i < numStrings; i++) {
+                    $stringContainer = $("<div class='string-container'></div>");
+                    $string = $("<div class='string'></div>");
+                    $stringContainer.append($string);
+                    ui.$body.append($stringContainer);
+                    // Make the hash key the note of the string
+                    ui.$stringContainers[i] = $stringContainer;
+                    fretWidth = $stringContainer.width() / (settings.numFrets + 1);
+                    
+                    for (j = 0; j <= settings.numFrets; j++) {
+                        letter = "A";
+                        $fret = $("<div class='fret'></div>");
+                        $note = $("<div class='note'></div>");
+                        $letter = $("<div class='letter'>" + letter + "</div>");
+                        $note.append($letter);
+                        $fret.width(fretWidth).append($note);
+                        $stringContainer.append($fret); 
+                    }
+                }
+            }
+            
+            function validate() {
+                validateAllNoteLetters();
+            }
+            
+            function validateAllNoteLetters() {
+                 if (settings.allNoteLetters.length !== 12) {
+                    throw "allNoteLetters is not valid: " + settings.allNoteLetters;
+                }
+            }
+    };
+})(jQuery);
+
 if (!Array.isArray) {
   Array.isArray = function(arg) {
     return Object.prototype.toString.call(arg) === '[object Array]';
@@ -10,19 +95,19 @@ if (!Array.isArray) {
 
 	$.fn.fretboard = function(options) {
 		// The plugin will be called like this:
-		// $('#container').fretboard({ ... });
+		// $('.fretboard-container').fretboard({ ... });
 		// Iterate over each element in the jQuery 
 		// collection, initializing a fretboard.   
 		return this.each(function() {
-			var element = $(this);
+			var $element = $(this), fretboard;
 
 			// Return early if this element already has a plugin instance.
 			// Otherwise, place a fretboard object on the element's data
-			if (element.data('fretboard')) return;
+			if ($element.data('fretboard')) return;
 
-			var fretboard = new Fretboard(element, options);
+			fretboard = new Fretboard(options, $element);
 
-			element.data('fretboard', fretboard);
+			$element.data('fretboard', fretboard);
 		});
 	};
 })(jQuery);
@@ -30,7 +115,7 @@ if (!Array.isArray) {
 (function($) {
 	"use strict";
 	// Make this object available on the global scope
-	window.Fretboard = function($fretboardContainer, settings) {
+	window.Fretboard_old = function($fretboardContainer, settings) {
 		var self = this, // the fretboard object
 		    ALL_NOTE_LETTERS = ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"],
 		
@@ -1065,14 +1150,3 @@ if (!Array.isArray) {
 		init();
 	}
 })(jQuery);
-
-// This function allows us to call a "trigger" event on a Raphael element.
-// It takes the name of the event to fire and the scope to fire it with
-Raphael.el.trigger = function(str, scope, params) {
-	scope = scope || this;
-	for (var i = 0; i < this.events.length; i++) {
-		if (this.events[i].name === str) {
-			this.events[i].f.call(scope, params);
-		}
-	}
-}

@@ -1,0 +1,74 @@
+.container {
+    max-width: 1000px;
+    min-height:600px;
+    margin: 0 auto;
+}
+
+.fretboard * {
+    box-sizing: border-box;
+    position: relative;
+}
+
+.fretboard {
+    width: 100%;
+}
+
+.fretboard .body {
+    background: tan;
+    overflow: hidden;
+    width: 100%;
+}
+
+.fretboard .fret {
+	display: inline-block;
+	height: 100%;
+	border-right: 1px solid black;
+	/* Padding is OK but no margins or it
+	   will push frets to the next row */
+}
+
+.fretboard .fret:last-child {
+    border: none;
+}
+
+.fretboard .string-container {
+    height: 50px;
+}
+
+.fretboard .string {
+    height: 1px;
+    background: black;
+    top: 25px;
+    z-index: 1;
+}
+
+.fretboard .note {
+    visibility: hidden;
+	border-radius: 50%;
+	width: 35px;
+	height: 35px; 
+	margin-top: 7.5px;
+	background: white;
+	cursor: pointer;
+    margin-left: auto;
+    margin-right: auto;
+    z-index: 20;
+}
+
+.fretboard .note:hover {
+    background: blue;
+    visibility: visible;
+}
+
+.fretboard .letter {
+	color: black;
+	text-align: center;
+    top: 10px;
+    font-size: 15px;
+    line-height: 15px;
+    z-index: 10;
+}
+
+.fretboard .note:hover .letter {
+	color: white;
+}
