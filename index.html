@@ -27,7 +27,7 @@
         (function($) {
             var options = {
                 allNoteLetters: ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"],
-                guitarStringNotes: [{
+                tuning: [{
                     letter: "E",
                     octave: 4
                 }, {
@@ -47,6 +47,8 @@
                     octave: 2
                 }],
                 numFrets: 16,
+                opacityAnimateSpeed: 250,
+                
                 isChordMode: true,
                 noteClickingDisabled: false,
                 tuningClickingDisabled: false,
@@ -84,7 +86,6 @@
                 fretboardColor: "wheat",
                 stringColor: "black",
                 tuningTriangleColor: "blue",
-                opacityAnimateSpeed: 250,
                 showTuningTriangles: true,
                 showTuningSquares: true,
                 tuningSquaresColor: "black",

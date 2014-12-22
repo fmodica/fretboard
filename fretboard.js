@@ -28,7 +28,8 @@
             defaults = {
                 allNoteLetters: DEFAULT_NOTE_LETTERS,
                 tuning: DEFAULT_TUNING,
-                numFrets: DEFAULT_NUM_FRETS
+                numFrets: DEFAULT_NUM_FRETS,
+                opacityAnimateSpeed: 200
             },
             settings = {},
             ui = {
@@ -100,16 +101,22 @@
                 
                 $note = $("<div class='note'></div>");
                 
-                $note.on("mouseover", function() {
+                // Use mouseenter and mouseleave instead of mouseover
+                // and mouseout because those will trigger events on 
+                // inner elements. For example, if you over over the 
+                // note circle, and then hover over its letter, the 
+                // circle's mouseout event would trigger, causing 
+                // the circle to disappear which is wrong.
+                $note.on("mouseenter", function() {
                     $(this).animate({
                         opacity: 1
-                    }, 500);
+                    }, settings.opacityAnimateSpeed);
                 });
                 
-                $note.on("mouseout", function() {
+                $note.on("mouseleave", function() {
                     $(this).animate({
                         opacity: 0
-                    }, 500);
+                    }, settings.opacityAnimateSpeed);
                 });
                 
                 $note.css("opacity", 0);
