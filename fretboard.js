@@ -43,32 +43,64 @@
             
             function init() {
                 var numStrings = settings.tuning.length,
-                    i, j, $stringContainer, $string, $fret, $note, 
-                    $letter, letter, fretWidth;
+                    numFrets = settings.numFrets,
+                    i, j, $stringContainer, $string, $fret, 
+                    $note, $letter, letter, fretWidth;
                     
                 ui.$body = $("<div class='body'></div>");
                 
                 $element.append(ui.$body);
                 
                 for (i = 0; i < numStrings; i++) {
-                    $stringContainer = $("<div class='string-container'></div>");
-                    $string = $("<div class='string'></div>");
+                    $stringContainer = get$StringContainer();
+                    $string = get$String();
                     $stringContainer.append($string);
                     ui.$body.append($stringContainer);
                     // Make the hash key the note of the string
                     ui.$stringContainers[i] = $stringContainer;
                     fretWidth = $stringContainer.width() / (settings.numFrets + 1);
                     
-                    for (j = 0; j <= settings.numFrets; j++) {
+                    for (j = 0; j <= numFrets; j++) {
                         letter = "A";
-                        $fret = $("<div class='fret'></div>");
-                        $note = $("<div class='note'></div>");
-                        $letter = $("<div class='letter'>" + letter + "</div>");
+                        
+                        $fret = get$Fret(letter, j);
+                        $note = get$Note();
+                        $letter = get$Letter(letter);
                         $note.append($letter);
                         $fret.width(fretWidth).append($note);
                         $stringContainer.append($fret); 
                     }
                 }
+            }
+            
+            function get$Fret(letter, fretNum) {
+                var $fret, numFrets = settings.numFrets;
+                
+                $fret = $("<div class='fret'></div>");
+                
+                if (fretNum === 0) {
+                    $fret.addClass("first");
+                } else if (fretNum === numFrets) {
+                    $fret.addClass("last");
+                }
+                
+                return $fret;
+            }
+            
+            function get$StringContainer() {
+                return $("<div class='string-container'></div>");
+            }
+            
+            function get$String() {
+                return $("<div class='string'></div>");
+            }
+            
+            function get$Note() {
+                return $("<div class='note'></div>");
+            }
+            
+            function get$Letter(letter) {
+                return $("<div class='letter'>" + letter + "</div>");
             }
             
             function validate() {

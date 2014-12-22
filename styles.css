@@ -1,5 +1,5 @@
 .container {
-    max-width: 1000px;
+    max-width: 1200px;
     min-height:600px;
     margin: 0 auto;
 }
@@ -10,7 +10,8 @@
 }
 
 .fretboard {
-    width: 100%;
+    width: 90%;
+    margin: 0 auto;
 }
 
 .fretboard .body {
@@ -27,7 +28,11 @@
 	   will push frets to the next row */
 }
 
-.fretboard .fret:last-child {
+.fretboard .fret.first {
+    border-right: 10px solid black;
+}
+
+.fretboard .fret.last {
     border: none;
 }
 
@@ -43,7 +48,7 @@
 }
 
 .fretboard .note {
-    visibility: hidden;
+    opacity: 0;
 	border-radius: 50%;
 	width: 35px;
 	height: 35px; 
@@ -55,9 +60,9 @@
     z-index: 20;
 }
 
-.fretboard .note:hover {
+.fretboard .note:hover{
     background: blue;
-    visibility: visible;
+    opacity: 1;
 }
 
 .fretboard .letter {
