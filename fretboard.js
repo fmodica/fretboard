@@ -53,8 +53,8 @@
             $element.append(ui.$body);
 
             for (i = 0; i < numStrings; i++) {
-                $stringContainer = get$StringContainer();
-                $string = get$String();
+                $stringContainer = getStringContainerEl();
+                $string = getStringEl();
                 $stringContainer.append($string);
                 ui.$body.append($stringContainer);
                 // Make the hash key the note of the string
@@ -62,19 +62,24 @@
                 fretWidth = $stringContainer.width() / (settings.numFrets + 1);
 
                 for (j = 0; j <= numFrets; j++) {
-                    letter = "A";
-
-                    $fret = get$Fret(j);
-                    $note = get$Note(letter);
-                    $fret.width(fretWidth).append($note);
+                    letter = i + j;
+                    $fret = getFretEl(j, fretWidth, letter);
                     $stringContainer.append($fret);
                 }
             }
         }
+        
+        function getStringContainerEl() {
+            return $("<div class='string-container'></div>");
+        }
+        
+        function getStringEl() {
+            return $("<div class='string'></div>");
+        }
 
-        function get$Fret(fretNum) {
-            var $fret, numFrets = settings.numFrets;
-
+        function getFretEl(fretNum, fretWidth, letter) {
+            var $fret, $note, numFrets = settings.numFrets;
+            
             $fret = $("<div class='fret'></div>");
 
             if (fretNum === 0) {
@@ -82,22 +87,18 @@
             } else if (fretNum === numFrets) {
                 $fret.addClass("last");
             }
+            
+            $note = getNoteEl(letter);
+            
+            $fret.width(fretWidth).append($note);
 
             return $fret;
         }
 
-        function get$StringContainer() {
-            return $("<div class='string-container'></div>");
-        }
-
-        function get$String() {
-            return $("<div class='string'></div>");
-        }
-
-        function get$Note(letter) {
+        function getNoteEl(letter) {
             var $note, $letter;
 
-            $letter = get$Letter(letter);
+            $letter = getLetterEl(letter);
 
             $note = $("<div class='note'></div>");
 
@@ -126,7 +127,7 @@
             return $note;
         }
 
-        function get$Letter(letter) {
+        function getLetterEl(letter) {
             return $("<div class='letter'>" + letter + "</div>");
         }
 
