@@ -6,6 +6,8 @@
             $window = $(window),
             fretCssClass = "fret",
             fretSelector = "." + fretCssClass,
+            fretContainerCssClass = "fret-container",
+            fretContainerSelector = "." + fretContainerCssClass,
             // The value for C needs to be first
             DEFAULT_NOTE_LETTERS = ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"],
             DEFAULT_TUNING = [{
@@ -43,6 +45,9 @@
 
         function init() {
             $element.append(getFretboardBodyEl());
+            
+            setDimensions();
+            $window.on("resize", setDimensions);
         }
         
         function getFretboardBodyEl() {
@@ -51,14 +56,16 @@
                 i;
                 
             for (i = 0; i < numStrings; i++) {
-                $fretboardBody.append(getStringContainer(i));
+                $fretboardBody.append(getFretContainer(i));
             }
+            
+            $element.trigger("drawn");
             
             return $fretboardBody;
         }
         
-        function getStringContainer(i) {
-            var $stringContainer = $("<div class='string-container'></div>"),
+        function getFretContainer(i) {
+            var $fretContainer = $("<div class='" + fretContainerCssClass + "'></div>"),
                 $string = getStringEl(),
                 numFrets = settings.numFrets,
                 fretWidth, 
@@ -67,33 +74,34 @@
                 letter, 
                 i;
                 
-            $stringContainer.append($string);
+            //$fretContainer.append($string);
             
-            $element.append($stringContainer);
+            $element.append($fretContainer);
 
             for (i = 0; i <= numFrets; i++) {
                 letter = fretNum = i;
                 $fret = getFretEl(fretNum, letter);
-                $stringContainer.append($fret);
+                $fretContainer.append($fret);
             }
             
-            setFretWidths($stringContainer);
-            
-            $window.on("resize", function() { 
-                setFretWidths($stringContainer);
-            }); 
-            
-            return $stringContainer;
+            return $fretContainer;
         }
         
-        function setFretWidths($stringContainer) {
+        function setDimensions() {
             var numFrets = settings.numFrets,
-                // including padding, border, and margin
-                fretWidth = (100 / (numFrets + 1)) + "%";
+                numStrings = settings.tuning.length,
+                fretWidth,
+                fretContainerHeight;
+                
+            fretWidth = (100 / (numFrets + 1)) + "%";
+            fretContainerHeight = (100 / numStrings) + "%";
             
             // Make the frets take up the whole width of the string container by 
             // default. It can still be overridden in CSS.
-            $stringContainer.find(fretSelector).css("width", fretWidth);
+            $element.find(fretSelector).css("width", fretWidth);
+            $element.find(fretContainerSelector).css("height", fretContainerHeight);
+            
+            $element.trigger("dimensions");
         }
         
         function getStringEl() {
@@ -146,7 +154,7 @@
                 }, settings.opacityAnimateSpeed);
             });
 
-            $note.css("opacity", 0);
+            //$note.css("opacity", 0);
 
             $note.append($letter);
 

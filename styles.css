@@ -12,15 +12,14 @@
 .fretboard {
     margin: 0 auto;
     width: 90%;
-    min-width: 700px;
-    max-width: 1400px;
-    overflow-x: scroll;
-    overflow-y: hidden;
 }
 
 .fretboard .body {
     background: wheat;
-    width:100%;
+    min-width: 700px;
+    max-width: 1400px;
+    height: 220px;
+    overflow: hidden;
 }
 
 .fretboard .fret {
@@ -40,9 +39,9 @@
     border: none;
 }
 
-.fretboard .string-container {
-    height: 35px;
+.fretboard .fret-container {
     width: 100%;
+    overflow: auto;
 }
 
 .fretboard .string {
@@ -55,13 +54,13 @@
 .fretboard .note {
 	border-radius: 50%;
 	width: 25px;
-	height: 25px; 
+	height: 25px;
+	 
 	background: white;
 	cursor: pointer;
     margin-left: auto;
     margin-right: auto;
-    z-index: 20;
-    top: 7px;
+    z-index: 10;
 }
 
 .fretboard .note:hover{
