@@ -31,47 +31,55 @@
                 numFrets: DEFAULT_NUM_FRETS,
                 opacityAnimateSpeed: 200
             },
-            settings = {},
-            ui = {
-                $body: null,
-                $stringContainers: {}
-            };
-
+            settings = {};
+            
         $.extend(settings, defaults, options);
 
         validate();
         init();
 
         function init() {
-            var numStrings = settings.tuning.length,
-                numFrets = settings.numFrets,
-                i, j, $stringContainer, $string, $fret,
-                $note, $letter, letter, fretWidth;
-
-            ui.$body = $("<div class='body'></div>");
-
-            $element.append(ui.$body);
-
-            for (i = 0; i < numStrings; i++) {
-                $stringContainer = getStringContainerEl();
-                $string = getStringEl();
-                $stringContainer.append($string);
-                ui.$body.append($stringContainer);
-                // Make the hash key the note of the string
-                ui.$stringContainers[i] = $stringContainer;
-                fretWidth = $stringContainer.width() / (settings.numFrets + 1);
-
-                for (j = 0; j <= numFrets; j++) {
-                    letter = i + j;
-                    $fret = getFretEl(j, fretWidth, letter);
-                    $stringContainer.append($fret);
-                }
-            }
+            $element.append(getFretboardBodyEl());
         }
         
-        function getStringContainerEl() {
-            return $("<div class='string-container'></div>");
+        function getFretboardBodyEl() {
+            var numStrings = settings.tuning.length,
+                $fretboardBody = $("<div class='body'></div>"),
+                i;
+                
+            for (i = 0; i < numStrings; i++) {
+                $fretboardBody.append(getStringContainer(i));
+            }
+            
+            return $fretboardBody;
         }
+        
+        function getStringContainer(i) {
+            var $stringContainer = $("<div class='string-container'></div>"),
+                $string = getStringEl(),
+                numFrets = settings.numFrets,
+                $body = $("body"),
+                fretWidth, letter, $fret, i, fretNum;
+                
+            $stringContainer.append($string);
+            
+            // Add it to the DOM before getting its width 
+            // or else it will be zero
+            $body.append($stringContainer.css("visibility", "hidden"));
+
+            fretWidth = $stringContainer.width() / (numFrets + 1);
+            
+            $stringContainer.remove().css("visibility", "visible");
+
+            for (i = 0; i <= numFrets; i++) {
+                letter = fretNum = i;
+                $fret = getFretEl(fretNum, fretWidth, letter);
+                $stringContainer.append($fret);
+            }
+            
+            return $stringContainer;
+        }
+        
         
         function getStringEl() {
             return $("<div class='string'></div>");
