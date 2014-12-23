@@ -2,34 +2,38 @@
     max-width: 1200px;
     min-height:600px;
     margin: 0 auto;
+    overflow-x: hidden;
 }
 
 .fretboard * {
-    box-sizing: border-box;
     position: relative;
 }
 
 .fretboard {
-    width: 90%;
     margin: 0 auto;
+    width: 90%;
+    min-width: 700px;
+    max-width: 1400px;
+    overflow-x: scroll;
+    overflow-y: hidden;
 }
 
 .fretboard .body {
-    background: tan;
-    overflow: hidden;
-    width: 100%;
+    background: wheat;
+    width:100%;
 }
 
 .fretboard .fret {
-	display: inline-block;
+    /* width is set in JS but can be overridden (the
+       frets will fill the .string-container space) */
+    box-sizing: border-box;
+	float: left;
 	height: 100%;
-	border-right: 1px solid black;
-	/* Padding is OK but no margins or it
-	   will push frets to the next row */
+	border-right: 2px solid black;
 }
 
 .fretboard .fret.first {
-    border-right: 10px solid black;
+    border-right: 15px solid black;
 }
 
 .fretboard .fret.last {
@@ -37,26 +41,27 @@
 }
 
 .fretboard .string-container {
-    height: 50px;
+    height: 35px;
+    width: 100%;
 }
 
 .fretboard .string {
-    height: 1px;
+    height: 2px;
     background: black;
-    top: 25px;
+    top: 20px;
     z-index: 1;
 }
 
 .fretboard .note {
 	border-radius: 50%;
-	width: 35px;
-	height: 35px; 
-	margin-top: 7.5px;
+	width: 25px;
+	height: 25px; 
 	background: white;
 	cursor: pointer;
     margin-left: auto;
     margin-right: auto;
     z-index: 20;
+    top: 7px;
 }
 
 .fretboard .note:hover{
@@ -66,7 +71,7 @@
 .fretboard .letter {
 	color: black;
 	text-align: center;
-    top: 10px;
+    top: 6px;
     font-size: 15px;
     line-height: 15px;
     z-index: 0;
