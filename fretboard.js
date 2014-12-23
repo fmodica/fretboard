@@ -10,6 +10,10 @@
             fretContainerSelector = "." + fretContainerCssClass,
             noteCssClass = "note",
             noteSelector = "." + noteCssClass,
+            letterCssClass = "letter",
+            letterSelector = "." + letterCssClass,
+            stringCssClass = "string",
+            stringSelector = "." + stringCssClass,
             // The value for C needs to be first
             DEFAULT_NOTE_LETTERS = ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"],
             DEFAULT_TUNING = [{
@@ -61,7 +65,7 @@
                 $fretboardBody.append(getFretContainer(i));
             }
             
-            $element.trigger("drawn");
+            $element.trigger("bodyDrawn");
             
             return $fretboardBody;
         }
@@ -96,8 +100,7 @@
                 fretWidthInPercent,
                 $fretContainers,
                 fretContainerHeightInPercent,
-                fretContainerHeightInPixels,
-                $notes;
+                fretContainerHeightInPixels;
                 
             fretWidthInPercent = (100 / (numFrets + 1)) + "%";
             fretContainerHeightInPercent = (100 / numStrings) + "%";
@@ -112,25 +115,30 @@
             
             fretContainerHeightInPixels = $($fretContainers[0]).outerHeight(true);
             
-            $notes = $element.find(noteSelector);
+            $element.find(noteSelector).each(verticallyCenter);
             
-            $notes.each(function() {
-                var $this = $(this),
-                    noteHeight = $this.outerHeight(true),
-                    difference,
-                    top;
-                    
-                difference = fretContainerHeightInPixels - noteHeight;
-                top = difference ? (difference / 2) : 0;
+            $element.find(letterSelector).each(verticallyCenter);
+            
+            $element.find(stringSelector).each(verticallyCenter);
+            
+            $element.trigger("dimensionsSet");
+        }
+        
+        function verticallyCenter() {
+            var $this = $(this),
+                thisHeight = $this.outerHeight(true),
+                parentHeight = $this.parent().outerHeight(true),
+                difference,
+                top;
                 
-                $this.css("top", top);
-            });
+            difference = parentHeight - thisHeight;
+            top = difference ? (difference / 2) : 0;
             
-            $element.trigger("dimensions");
+            $this.css("top", top);
         }
         
         function getStringEl() {
-            return $("<div class='string'></div>");
+            return $("<div class='" + stringCssClass + "'></div>");
         }
 
         function getFretEl(fretNum, letter) {
@@ -179,7 +187,7 @@
                 }, settings.opacityAnimateSpeed);
             });
 
-            //$note.css("opacity", 0);
+            $note.css("opacity", 0);
 
             $note.append($letter);
 
@@ -187,7 +195,7 @@
         }
 
         function getLetterEl(letter) {
-            return $("<div class='letter'>" + letter + "</div>");
+            return $("<div class='" + letterCssClass + "'>" + letter + "</div>");
         }
 
         function validate() {

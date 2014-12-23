@@ -1,6 +1,10 @@
+/* Set the .body and the .note widths/heights. 
+   The rest get calculated in JS (but can be 
+   overridden using !important) */
+
 .container {
     max-width: 1200px;
-    min-height:600px;
+    min-height: 600px;
     margin: 0 auto;
     overflow-x: hidden;
 }
@@ -16,9 +20,10 @@
 
 .fretboard .body {
     background: wheat;
+    border: 1px solid black;
     min-width: 700px;
     max-width: 1400px;
-    height: 300px;
+    height: 250px;
     overflow: hidden;
 }
 
@@ -56,8 +61,9 @@
 
 .fretboard .note {
 	border-radius: 50%;
-	width: 25px;
-	height: 25px;
+	border: 1px solid black;
+	width: 30px;
+	height: 30px;
 	/* If we give this absolute positioning then we'll have to 
 	   calculate the horizontal centering (margin auto won't 
 	   work */
@@ -74,9 +80,9 @@
 }
 
 .fretboard .letter {
+    position: relative;
 	color: black;
 	text-align: center;
-    top: 6px;
     font-size: 15px;
     line-height: 15px;
     z-index: 0;
