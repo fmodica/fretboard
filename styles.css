@@ -18,7 +18,7 @@
     background: wheat;
     min-width: 700px;
     max-width: 1400px;
-    height: 220px;
+    height: 300px;
     overflow: hidden;
 }
 
@@ -45,9 +45,12 @@
 }
 
 .fretboard .string {
+    /* We don't want this affecting the placement of other 
+       elements, so it will have absolute positioning */
+    position: absolute;
     height: 2px;
+    width: 100%;
     background: black;
-    top: 20px;
     z-index: 1;
 }
 
@@ -55,7 +58,10 @@
 	border-radius: 50%;
 	width: 25px;
 	height: 25px;
-	 
+	/* If we give this absolute positioning then we'll have to 
+	   calculate the horizontal centering (margin auto won't 
+	   work */
+	position: relative;
 	background: white;
 	cursor: pointer;
     margin-left: auto;

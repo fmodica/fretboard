@@ -8,6 +8,8 @@
             fretSelector = "." + fretCssClass,
             fretContainerCssClass = "fret-container",
             fretContainerSelector = "." + fretContainerCssClass,
+            noteCssClass = "note",
+            noteSelector = "." + noteCssClass,
             // The value for C needs to be first
             DEFAULT_NOTE_LETTERS = ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"],
             DEFAULT_TUNING = [{
@@ -66,7 +68,6 @@
         
         function getFretContainer(i) {
             var $fretContainer = $("<div class='" + fretContainerCssClass + "'></div>"),
-                $string = getStringEl(),
                 numFrets = settings.numFrets,
                 fretWidth, 
                 $fret, 
@@ -74,7 +75,7 @@
                 letter, 
                 i;
                 
-            //$fretContainer.append($string);
+            $fretContainer.append(getStringEl());
             
             $element.append($fretContainer);
 
@@ -87,19 +88,43 @@
             return $fretContainer;
         }
         
+        // Calculate default widths/heights. They can be overridden in CSS.
         function setDimensions() {
             var numFrets = settings.numFrets,
                 numStrings = settings.tuning.length,
-                fretWidth,
-                fretContainerHeight;
+                $frets,
+                fretWidthInPercent,
+                $fretContainers,
+                fretContainerHeightInPercent,
+                fretContainerHeightInPixels,
+                $notes;
                 
-            fretWidth = (100 / (numFrets + 1)) + "%";
-            fretContainerHeight = (100 / numStrings) + "%";
+            fretWidthInPercent = (100 / (numFrets + 1)) + "%";
+            fretContainerHeightInPercent = (100 / numStrings) + "%";
             
-            // Make the frets take up the whole width of the string container by 
-            // default. It can still be overridden in CSS.
-            $element.find(fretSelector).css("width", fretWidth);
-            $element.find(fretContainerSelector).css("height", fretContainerHeight);
+            // Make the frets take up the whole width of the fret container.
+            // Make the fret container heights take up the body's height.
+            $frets = $element.find(fretSelector)
+                .css("width", fretWidthInPercent);
+                
+            $fretContainers = $element.find(fretContainerSelector)
+                .css("height", fretContainerHeightInPercent);
+            
+            fretContainerHeightInPixels = $($fretContainers[0]).outerHeight(true);
+            
+            $notes = $element.find(noteSelector);
+            
+            $notes.each(function() {
+                var $this = $(this),
+                    noteHeight = $this.outerHeight(true),
+                    difference,
+                    top;
+                    
+                difference = fretContainerHeightInPixels - noteHeight;
+                top = difference ? (difference / 2) : 0;
+                
+                $this.css("top", top);
+            });
             
             $element.trigger("dimensions");
         }
@@ -134,7 +159,7 @@
 
             $letter = getLetterEl(letter);
 
-            $note = $("<div class='note'></div>");
+            $note = $("<div class='" + noteCssClass + "'></div>");
 
             // Use mouseenter and mouseleave instead of mouseover
             // and mouseout because those will trigger events on 
