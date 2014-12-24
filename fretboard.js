@@ -39,12 +39,12 @@
                 "letter": "E",
                 "octave": 3
             }],
-            DEFAULT_NUM_FRETS = 15,
             defaults = {
                 allNoteLetters: DEFAULT_NOTE_LETTERS,
                 tuning: DEFAULT_TUNING,
-                numFrets: DEFAULT_NUM_FRETS,
-                isChordMode: true
+                numFrets: 15,
+                isChordMode: true,
+                noteClickingDisabled: false,
             },
             settings = {};
             
@@ -78,6 +78,10 @@
                 });
                 
             return clickedNotes;
+        }
+        
+        self.setNoteClickingDisabled = function(isDisabled) {
+            settings.noteClickingDisabled = isDisabled;
         }
         
         function getFretboardBodyEl() {
@@ -158,6 +162,10 @@
                 .on("click", function() {
                     var $clickedNote = $(this);
                     
+                    if (settings.noteClickingDisabled) {
+                        return;
+                    }
+                    
                     if($clickedNote.hasClass(clickedCssClass)) {
                         $clickedNote
                             .removeClass(clickedCssClass)
@@ -182,7 +190,6 @@
                                 // Compare the actual DOM elements (the jQuery wrappers 
                                 // will have different references)
                                 if ($clickedNote[0] !== $otherNote[0]) {
-                                    // Unclick it and make it invisible
                                     $otherNote
                                         .removeClass(clickedCssClass)
                                         .removeClass(hoverCssClass)

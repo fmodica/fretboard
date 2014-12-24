@@ -17,8 +17,9 @@
         
         <button class="toggle-chord-mode">Toggle chord mode</button>
         <button class="get-clicked-notes">Get clicked notes</button>
+        <button class="note-clicking-disabled">Disable/enable note clicking</button>
         
-        <!-- <button ng-click="unclick()">Unclick Frets</button>
+    <!-- <button ng-click="unclick()">Unclick Frets</button>
     <button ng-click="addString()">Add String</button>
     <button ng-click="removeString()">Remove String</button>
     <button ng-click="toggleNoteClicking()">Toggle Note Clicking Allowed</button>
@@ -29,6 +30,7 @@
     <script type="text/javascript">
         (function($) {
             var isChordMode = true,
+                isDisabled = false,
                 options = {
                 allNoteLetters: ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"],
                 tuning: [{
@@ -52,8 +54,10 @@
                 }],
                 numFrets: 16,
                 isChordMode: isChordMode,
+                noteClickingDisabled: isDisabled,
                 
-                noteClickingDisabled: false,
+                
+                
                 tuningClickingDisabled: false,
                 clickedNotes: [{
                     stringItsOn: {
@@ -109,6 +113,12 @@
             
             $(".get-clicked-notes").on("click", function() {
                 console.log($fretboardAPI.getClickedNotes());
+            });
+            
+            $(".note-clicking-disabled").on("click", function() {
+                isDisabled = !isDisabled;
+                
+                $fretboardAPI.setNoteClickingDisabled(isDisabled);
             });
         })(jQuery);
     </script>
