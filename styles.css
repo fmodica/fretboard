@@ -1,6 +1,7 @@
 /* Set the .body and the .note widths/heights. 
    The rest get calculated in JS (but can be 
-   overridden using !important) */
+   overridden using !important). Notes should
+   get a font-size and line-height. */
 
 .container {
     max-width: 1200px;
@@ -62,8 +63,8 @@
 .fretboard-container .note {
 	border-radius: 50%;
 	border: 1px solid black;
-	width: 30px;
-	height: 30px;
+	width: 32px;
+	height: 32px;
 	/* If we give this absolute positioning then we'll have to 
 	   calculate the horizontal centering (margin auto won't 
 	   work */
@@ -95,8 +96,8 @@
 .fretboard-container .letter {
     position: relative;
 	text-align: center;
-    font-size: 15px;
-    line-height: 15px;
+    font-size: 10px;
+    line-height: 10px;
     z-index: 0;
     
 	color: black;

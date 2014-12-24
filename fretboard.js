@@ -83,10 +83,12 @@
         function getFretboardBodyEl() {
             var numStrings = settings.tuning.length,
                 $fretboardBody = $("<div class='body'></div>"),
+                stringNote,
                 i;
                 
             for (i = 0; i < numStrings; i++) {
-                $fretboardBody.append(getFretContainer(i));
+                stringNote = settings.tuning[i];
+                $fretboardBody.append(getFretContainerEl(stringNote));
             }
             
             $element.trigger("bodyDrawn");
@@ -94,87 +96,29 @@
             return $fretboardBody;
         }
         
-        function getFretContainer(i) {
+        function getFretContainerEl(stringNote) {
             var $fretContainer = $("<div class='" + fretContainerCssClass + "'></div>"),
                 numFrets = settings.numFrets,
-                fretWidth, 
-                $fret, 
-                fretNum,
-                letter, 
+                $fret,
+                note,
                 i;
                 
             $fretContainer.append(getStringEl());
 
             for (i = 0; i <= numFrets; i++) {
+                note = getNoteByFretNumber(stringNote, i);
+                
                 $fret = getFretEl({
-                    letter: i,
-                    octave: 1,
+                    letter : note.letter,
+                    octave: note.octave,
                     fretNumber: i,
-                    stringItsOn: {
-                        letter: 1,
-                        octave: 1
-                    }
+                    stringItsOn: stringNote
                 });
                 
                 $fretContainer.append($fret);
             }
             
             return $fretContainer;
-        }
-        
-        // Calculate default widths/heights. They can be overridden in CSS.
-        function setDimensions() {
-            var numFrets = settings.numFrets,
-                numStrings = settings.tuning.length,
-                fretWidthInPercent,
-                // fretContainerHeightInPercent,
-                fretContainerHeightInPixels;
-                
-            // Doing the width in percent seems to be better for Chrome
-            fretWidthInPercent = (100 / (numFrets + 1)) + "%";
-            
-            // fretContainerHeightInPercent = (100 / numStrings) + "%";
-            // Doing the height in pixels seems to be better for Safari
-            fretContainerHeightInPixels = ($element.find(".body").outerHeight(true) / numStrings) + "px";
-            
-            // Make the frets take up the whole width of the fret container.
-            // Make the fret container heights take up the body's height.
-            $element
-                .find(fretSelector)
-                .css("width", fretWidthInPercent);
-                
-            $element
-                .find(fretContainerSelector)
-                .css("height", /*fretContainerHeightInPercent*/ fretContainerHeightInPixels);
-            
-            //fretContainerHeightInPixels = $($fretContainers[0]).outerHeight(true);
-            
-            $element
-                .find(noteSelector)
-                .each(verticallyCenter);
-            
-            $element
-                .find(letterSelector)
-                .each(verticallyCenter);
-            
-            $element
-                .find(stringSelector)
-                .each(verticallyCenter);
-            
-            $element.trigger("dimensionsSet");
-        }
-        
-        function verticallyCenter() {
-            var $this = $(this),
-                thisHeight = $this.outerHeight(true),
-                parentHeight = $this.parent().outerHeight(true),
-                difference,
-                top;
-                
-            difference = parentHeight - thisHeight;
-            top = difference ? (difference / 2) : 0;
-            
-            $this.css("top", top);
         }
         
         function getStringEl() {
@@ -255,16 +199,84 @@
             return $note;
         }
         
+        function getLetterEl(letter) {
+            return $("<div class='" + letterCssClass + "'>" + letter + "</div>");
+        }
+        
+        // Calculate default widths/heights. They can be overridden in CSS.
+        function setDimensions() {
+            var numFrets = settings.numFrets,
+                numStrings = settings.tuning.length,
+                fretWidthInPercent,
+                // fretContainerHeightInPercent,
+                fretContainerHeightInPixels;
+                
+            // Doing the width in percent seems to be better for Chrome
+            fretWidthInPercent = (100 / (numFrets + 1)) + "%";
+            
+            // fretContainerHeightInPercent = (100 / numStrings) + "%";
+            // Doing the height in pixels seems to be better for Safari
+            fretContainerHeightInPixels = ($element.find(".body").outerHeight(true) / numStrings) + "px";
+            
+            // Make the frets take up the whole width of the fret container.
+            // Make the fret container heights take up the body's height.
+            $element
+                .find(fretSelector)
+                .css("width", fretWidthInPercent);
+                
+            $element
+                .find(fretContainerSelector)
+                .css("height", /*fretContainerHeightInPercent*/ fretContainerHeightInPixels);
+            
+            //fretContainerHeightInPixels = $($fretContainers[0]).outerHeight(true);
+            
+            $element
+                .find(noteSelector)
+                .each(verticallyCenter);
+            
+            $element
+                .find(letterSelector)
+                .each(verticallyCenter);
+            
+            $element
+                .find(stringSelector)
+                .each(verticallyCenter);
+            
+            $element.trigger("dimensionsSet");
+        }
+        
+        function verticallyCenter() {
+            var $this = $(this),
+                thisHeight = $this.outerHeight(true),
+                parentHeight = $this.parent().outerHeight(true),
+                difference,
+                top;
+                
+            difference = parentHeight - thisHeight;
+            top = difference ? (difference / 2) : 0;
+            
+            $this.css("top", top);
+        }
+        
+        function getNoteByFretNumber(stringNote, fretNumber) {
+            var fretOffset = settings.allNoteLetters.indexOf(stringNote.letter) + fretNumber,
+                numOctavesAboveString = Math.floor(fretOffset / 12);
+                
+                // Reduce the index by the correct amount to get it below 12
+                fretOffset = fretOffset - (12 * numOctavesAboveString);
+
+            return { 
+                letter: settings.allNoteLetters[fretOffset],
+                octave: stringNote.octave + numOctavesAboveString
+            }
+        }
+        
         function noteMouseEnter() {
             $(this).addClass(hoverCssClass);
         }
         
         function noteMouseLeave() {
             $(this).removeClass(hoverCssClass);
-        }
-
-        function getLetterEl(letter) {
-            return $("<div class='" + letterCssClass + "'>" + letter + "</div>");
         }
 
         function validate() {
