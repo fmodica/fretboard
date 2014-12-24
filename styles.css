@@ -1,8 +1,3 @@
-/* Set the .body and the .note widths/heights. 
-   The rest get calculated in JS (but can be 
-   overridden using !important). Notes should
-   get a font-size and line-height. */
-
 .container {
     min-width: 280px;
     max-width: 1600px;
@@ -15,23 +10,61 @@
     position: relative;
 }
 
+/* This serves to wrap the fretboard body plus 
+   anything else we want to put in here */
 .fretboard-container {
-    margin: 0 auto;
-    overflow: hidden;
-    width: 90%;
+    width: 100%;
 }
 
 .fretboard-container .body {
     background: wheat;
     border: 1px solid black;
-    min-width: 700px;
-    max-width: 1400px;
-    width: 90%;
-    height: 240px;
-    overflow: hidden;
-    margin: 0 auto;
 }
 
+/* Horizontal layout examples */
+
+/* The instrument body has a set width, and the frets evenly distribute 
+   inside of it: */
+.fretboard-container .body {
+    width: 800px;
+    /* Set the JS config option "autoSizeFretWidths" to true */
+}
+
+
+/* The instrument body expands to the size of the frets inside,
+   and you don't need the body to be centered horizontally */
+.fretboard-container .body {
+    width: auto;
+    display: inline-block;
+    /* float:left will work too instead of inline-block */
+    
+    /* Set the JS config option "autoSizeFretWidths" to false */
+    
+    /* TODO DEAL WITH SCROLL ISSUE WHEN BROWSER IS SMALL */
+}
+.fretboard-container .fret {
+    width: 55px;
+}   
+
+
+
+/* The instrument body expands to the size of the frets inside,
+   and you DO need the body to be centered horizontally */
+.fretboard-container .body {
+    width: auto;
+    display: table;
+    margin: 0 auto;
+    
+    /* TODO DEAL WITH SCROLL ISSUE WHEN BROWSER IS SMALL */
+}
+
+.fretboard-container .fret {
+    width: 55px;
+}   
+
+
+
+/*
 .my-fretboard-js.fretboard-container .body.strings-7 {
     height: 280px;
 }
@@ -47,13 +80,11 @@
 .my-fretboard-js.fretboard-container .body.frets-18 {
     width: 1260px;
 }
+*/
 
 .fretboard-container .fret {
-    /* width is set in JS but can be overridden (the
-       frets will fill the .string-container space) */
     box-sizing: border-box;
 	float: left;
-	height: 100%;
 	border-right: 2px solid black;
 }
 
@@ -67,7 +98,8 @@
 
 .fretboard-container .fret-container {
     width: 100%;
-    overflow: auto;
+    /* To contain the floated frets */
+    overflow:hidden;
 }
 
 .fretboard-container .string {
@@ -83,8 +115,8 @@
 .fretboard-container .note {
 	border-radius: 50%;
 	border: 1px solid black;
-	width: 32px;
-	height: 32px;
+	width: 28px;
+	height: 28px;
 	/* If we give this absolute positioning then we'll have to 
 	   calculate the horizontal centering (margin auto won't 
 	   work */
@@ -141,6 +173,7 @@
 }
 
 /* Theme Examples */
+
 /*
 .my-fretboard-js.fretboard-container .body {
     background: url(http://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/NGC_4414_%28NASA-med%29.jpg/582px-NGC_4414_%28NASA-med%29.jpg);

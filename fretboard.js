@@ -47,6 +47,8 @@
                 numFrets: 15,
                 isChordMode: true,
                 noteClickingDisabled: false,
+                autoSizeFretWidths: false,
+                autoSizeFretHeights: false
             },
             settings = {};
             
@@ -239,28 +241,29 @@
         function setDimensions() {
             var numFrets = settings.numFrets,
                 numStrings = settings.tuning.length,
+                forceWidths = settings.autoSizeFretWidths,
+                forceHeights = settings.autoSizeFretHeights,
+                $frets = $element.find(fretSelector),
                 fretWidthInPercent,
-                // fretContainerHeightInPercent,
-                fretContainerHeightInPixels;
-                
-            // Doing the width in percent seems to be better for Chrome
-            fretWidthInPercent = (100 / (numFrets + 1)) + "%";
-            
-            // fretContainerHeightInPercent = (100 / numStrings) + "%";
-            // Doing the height in pixels seems to be better for Safari
-            fretContainerHeightInPixels = ($element.find(bodySelector).outerHeight(true) / numStrings) + "px";
+                // fretHeightInPercent,
+                fretHeightInPixels;
             
             // Make the frets take up the whole width of the fret container.
-            // Make the fret container heights take up the body's height.
-            $element
-                .find(fretSelector)
-                .css("width", fretWidthInPercent);
+            // Doing the width in percent seems to be better for Chrome
+            if (forceWidths) {
+                fretWidthInPercent = (100 / (numFrets + 1)) + "%";
                 
-            $element
-                .find(fretContainerSelector)
-                .css("height", /*fretContainerHeightInPercent*/ fretContainerHeightInPixels);
+                $frets.css("width", fretWidthInPercent);
+            }
             
-            //fretContainerHeightInPixels = $($fretContainers[0]).outerHeight(true);
+            if (forceHeights) {
+                // fretHeightInPercent = (100 / numStrings) + "%";
+                // Doing the height in pixels seems to be better for Safari
+                fretHeightInPixels = ($element.find(bodySelector).outerHeight(true) / numStrings) + "px";
+                
+                // Make the fret container heights take up the body's height.
+                $frets.css("height", /*fretHeightInPercent*/ fretHeightInPixels);
+            }
             
             $element
                 .find(noteSelector)
