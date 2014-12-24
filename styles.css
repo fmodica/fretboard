@@ -100,6 +100,14 @@
     line-height: 10px;
     z-index: 0;
     
+    /* Make text unselectable */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    
 	color: black;
     -webkit-transition: color 200ms linear;
     -moz-transition: color 200ms linear;
