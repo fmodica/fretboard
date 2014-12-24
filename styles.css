@@ -21,17 +21,30 @@
     border: 1px solid black;
 }
 
-/* Horizontal layout examples */
+
+
+
+
+
+
+
+
+
+/* ***** Horizontal layout examples ***** */
 
 /* The instrument body has a set width, and the frets evenly distribute 
    inside of it: */
 .fretboard-container .body {
     width: 800px;
+    overflow-x: scroll;
     /* Set the JS config option "autoSizeFretWidths" to true */
 }
 
 
-/* The instrument body expands to the size of the frets inside,
+
+
+
+/* The instrument body width expands to the size of the frets inside,
    and you don't need the body to be centered horizontally */
 .fretboard-container .body {
     width: auto;
@@ -48,39 +61,67 @@
 
 
 
-/* The instrument body expands to the size of the frets inside,
+
+
+/* The instrument body width expands to the size of the frets inside,
    and you DO need the body to be centered horizontally */
 .fretboard-container .body {
     width: auto;
     display: table;
     margin: 0 auto;
     
+    /* Set the JS config option "autoSizeFretWidths" to false */
+    
     /* TODO DEAL WITH SCROLL ISSUE WHEN BROWSER IS SMALL */
 }
 
 .fretboard-container .fret {
     width: 55px;
-}   
+}
+/* ***** End of Horizontal layout examples ***** */
 
 
 
-/*
-.my-fretboard-js.fretboard-container .body.strings-7 {
-    height: 280px;
+
+
+
+
+
+
+
+/* ***** Vertical layout examples ***** */
+
+/* The instrument body has a set height, and the frets evenly distribute 
+   inside of it: */
+.fretboard-container .body {
+    height: 300px;
+    /* Set the JS config option "autoSizeFretHeights" to true */
 }
 
-.my-fretboard-js.fretboard-container .body.strings-8 {
-    height: 320px;
+
+
+
+
+/* The instrument body height expands to the size of the frets inside */
+.fretboard-container .body {
+    height: auto
+    
+    /* Set the JS config option "autoSizeFretHeights" to false */
+}
+.fretboard-container .fret {
+    height: 55px;
 }
 
-.my-fretboard-js.fretboard-container .body.frets-17 {
-    width: 1190px;
-}
+/* ***** End of Vertical layout examples ***** */
 
-.my-fretboard-js.fretboard-container .body.frets-18 {
-    width: 1260px;
-}
-*/
+
+
+
+
+
+
+
+
 
 .fretboard-container .fret {
     box-sizing: border-box;
