@@ -194,7 +194,6 @@
                     if($clickedNote.hasClass(clickedCssClass)) {
                         $clickedNote
                             .removeClass(clickedCssClass)
-                            .removeClass(hoverCssClass)
                             .on("mouseenter", noteMouseEnter)
                             .on("mouseleave", noteMouseLeave);
                     } else {
@@ -204,8 +203,8 @@
                             .off("mouseleave", noteMouseLeave); 
                     }
                     
-                    // If we're in chord mode then get all other clicked notes 
-                    // was clicked unclick it and bind callbacks
+                    // If we're in chord mode then get rid of all of the
+                    // other clicked notes
                     if (settings.isChordMode) {
                         $clickedNote
                             .closest(fretContainerSelector)
