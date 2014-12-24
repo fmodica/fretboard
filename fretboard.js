@@ -5,6 +5,8 @@
         var self = this,
             $window = $(window),
             fretboardContainerCssClass = "fretboard-container",
+            bodyCssClass = "body",
+            bodySelector = "." + bodyCssClass,
             fretCssClass = "fret",
             fretSelector = "." + fretCssClass,
             fretContainerCssClass = "fret-container",
@@ -84,9 +86,18 @@
             settings.noteClickingDisabled = isDisabled;
         }
         
+        self.setTuning = function(tuning) {
+            var clickedNotes = self.getClickedNotes();
+            
+            $element.empty();
+            settings.tuning = tuning;
+            validate();
+            init();
+        }
+        
         function getFretboardBodyEl() {
             var numStrings = settings.tuning.length,
-                $fretboardBody = $("<div class='body'></div>"),
+                $fretboardBody = $("<div class='" + bodyCssClass + "'></div>"),
                 stringNote,
                 i;
                 
@@ -95,6 +106,7 @@
                 $fretboardBody.append(getFretContainerEl(stringNote));
             }
             
+            $fretboardBody.addClass("strings-" + numStrings);
             $element.trigger("bodyDrawn");
             
             return $fretboardBody;
@@ -223,7 +235,7 @@
             
             // fretContainerHeightInPercent = (100 / numStrings) + "%";
             // Doing the height in pixels seems to be better for Safari
-            fretContainerHeightInPixels = ($element.find(".body").outerHeight(true) / numStrings) + "px";
+            fretContainerHeightInPixels = ($element.find(bodySelector).outerHeight(true) / numStrings) + "px";
             
             // Make the frets take up the whole width of the fret container.
             // Make the fret container heights take up the body's height.

@@ -18,7 +18,7 @@
         <button class="toggle-chord-mode">Toggle chord mode</button>
         <button class="get-clicked-notes">Get clicked notes</button>
         <button class="note-clicking-disabled">Disable/enable note clicking</button>
-        
+        <button class="change-tuning">Change tuning</button>
     <!-- <button ng-click="unclick()">Unclick Frets</button>
     <button ng-click="addString()">Add String</button>
     <button ng-click="removeString()">Remove String</button>
@@ -31,64 +31,65 @@
         (function($) {
             var isChordMode = true,
                 isDisabled = false,
-                options = {
-                allNoteLetters: ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"],
-                tuning: [{
-                    letter: "E",
-                    octave: 4
-                }, {
-                    letter: "B",
-                    octave: 4
-                }, {
-                    letter: "G",
-                    octave: 3
-                }, {
-                    letter: "D",
-                    octave: 3
-                }, {
-                    letter: "A",
-                    octave: 3
-                }, {
-                    letter: "E",
-                    octave: 2
-                }],
-                numFrets: 16,
-                isChordMode: isChordMode,
-                noteClickingDisabled: isDisabled,
-                
-                
-                
-                tuningClickingDisabled: false,
-                clickedNotes: [{
-                    stringItsOn: {
+                tuning = [{
                         letter: "E",
                         octave: 4
-                    },
-                    fretNumber: 5,
-                    stringItsOn: {
+                    }, {
                         letter: "B",
                         octave: 4
-                    },
-                    fretNumber: 7,
-                }, {
-                    stringItsOn: {
+                    }, {
                         letter: "G",
                         octave: 3
-                    },
-                    fretNumber: 6,
-                }, {
-                    stringItsOn: {
+                    }, {
+                        letter: "D",
+                        octave: 3
+                    }, {
                         letter: "A",
                         octave: 3
-                    },
-                    fretNumber: 5,
-                }],
-                fretsToDrawOneCircleOn: [3, 5, 7, 9, 12],
-                showTuningTriangles: true,
-                showTuningSquares: true
-            },
-            $fretboard = $(".my-fretboard-js"),
-            $fretboardAPI;
+                    }, {
+                        letter: "E",
+                        octave: 2
+                    }],
+                options = {
+                    allNoteLetters: ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"],
+                    tuning: tuning,
+                    numFrets: 16,
+                    isChordMode: isChordMode,
+                    noteClickingDisabled: isDisabled,
+                    
+                    
+                    
+                    tuningClickingDisabled: false,
+                    clickedNotes: [{
+                        stringItsOn: {
+                            letter: "E",
+                            octave: 4
+                        },
+                        fretNumber: 5,
+                        stringItsOn: {
+                            letter: "B",
+                            octave: 4
+                        },
+                        fretNumber: 7,
+                    }, {
+                        stringItsOn: {
+                            letter: "G",
+                            octave: 3
+                        },
+                        fretNumber: 6,
+                    }, {
+                        stringItsOn: {
+                            letter: "A",
+                            octave: 3
+                        },
+                        fretNumber: 5,
+                    }],
+                    fretsToDrawOneCircleOn: [3, 5, 7, 9, 12],
+                    showTuningTriangles: true,
+                    showTuningSquares: true
+                },
+                $fretboard = $(".my-fretboard-js"),
+                $fretboardAPI;
             
             $fretboard.fretboard(options);
             $fretboardAPI = $fretboard.data('fretboard'); 
@@ -107,6 +108,21 @@
                 isDisabled = !isDisabled;
                 
                 $fretboardAPI.setNoteClickingDisabled(isDisabled);
+            });
+            
+            $(".change-tuning").on("click", function() {
+                var i;
+                
+                if (tuning.length < 8) {
+                    tuning.push({
+                        letter: tuning[tuning.length - 1].letter,
+                        octave: tuning[tuning.length - 1].octave + 1
+                    });
+                } else {
+                    tuning.pop();
+                }
+                
+                $fretboardAPI.setTuning(tuning);
             });
         })(jQuery);
     </script>
