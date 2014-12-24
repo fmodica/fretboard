@@ -9,16 +9,16 @@
     overflow-x: hidden;
 }
 
-.fretboard * {
+.fretboard-container * {
     position: relative;
 }
 
-.fretboard {
+.fretboard-container {
     margin: 0 auto;
     width: 90%;
 }
 
-.fretboard .body {
+.fretboard-container .body {
     background: wheat;
     border: 1px solid black;
     min-width: 700px;
@@ -27,7 +27,7 @@
     overflow: hidden;
 }
 
-.fretboard .fret {
+.fretboard-container .fret {
     /* width is set in JS but can be overridden (the
        frets will fill the .string-container space) */
     box-sizing: border-box;
@@ -36,20 +36,20 @@
 	border-right: 2px solid black;
 }
 
-.fretboard .fret.first {
+.fretboard-container .fret.first {
     border-right: 15px solid black;
 }
 
-.fretboard .fret.last {
+.fretboard-container .fret.last {
     border: none;
 }
 
-.fretboard .fret-container {
+.fretboard-container .fret-container {
     width: 100%;
     overflow: auto;
 }
 
-.fretboard .string {
+.fretboard-container .string {
     /* We don't want this affecting the placement of other 
        elements, so it will have absolute positioning */
     position: absolute;
@@ -59,7 +59,7 @@
     z-index: 1;
 }
 
-.fretboard .note {
+.fretboard-container .note {
 	border-radius: 50%;
 	border: 1px solid black;
 	width: 30px;
@@ -68,26 +68,44 @@
 	   calculate the horizontal centering (margin auto won't 
 	   work */
 	position: relative;
-	background: white;
 	cursor: pointer;
     margin-left: auto;
     margin-right: auto;
     z-index: 10;
+
+    opacity: 0;
+	
+	background: white;
+    -webkit-transition: background-color 200ms linear;
+    -moz-transition: background-color 200ms linear;
+    -o-transition: background-color 200ms linear;
+    -ms-transition: background-color 200ms linear;
+    transition: background-color 200ms linear;
 }
 
-.fretboard .note:hover{
-    background: white;
+.fretboard-container .note.hover {
+    opacity: 1;
 }
 
-.fretboard .letter {
+.fretboard-container .note.clicked {
+    background: blue;
+}
+
+.fretboard-container .letter {
     position: relative;
-	color: black;
 	text-align: center;
     font-size: 15px;
     line-height: 15px;
     z-index: 0;
+    
+	color: black;
+    -webkit-transition: color 200ms linear;
+    -moz-transition: color 200ms linear;
+    -o-transition: color 200ms linear;
+    -ms-transition: color 200ms linear;
+    transition: color 200ms linear;
 }
 
-.fretboard .note:hover .letter {
-	color: black;
+.fretboard-container .note.clicked .letter {
+    color: white;
 }

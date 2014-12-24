@@ -4,6 +4,7 @@
     window.Fretboard = function(options, $element) {
         var self = this,
             $window = $(window),
+            fretboardContainerCssClass = "fretboard-container",
             fretCssClass = "fret",
             fretSelector = "." + fretCssClass,
             fretContainerCssClass = "fret-container",
@@ -14,6 +15,8 @@
             letterSelector = "." + letterCssClass,
             stringCssClass = "string",
             stringSelector = "." + stringCssClass,
+            clickedCssClass = "clicked",
+            clickedSelector = "." + clickedCssClass,
             // The value for C needs to be first
             DEFAULT_NOTE_LETTERS = ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"],
             DEFAULT_TUNING = [{
@@ -40,16 +43,20 @@
                 allNoteLetters: DEFAULT_NOTE_LETTERS,
                 tuning: DEFAULT_TUNING,
                 numFrets: DEFAULT_NUM_FRETS,
-                opacityAnimateSpeed: 200
+                isChordMode: true
             },
             settings = {};
             
         $.extend(settings, defaults, options);
+        
+        console.log("Settings: ");
+        console.log(settings);
 
         validate();
         init();
 
         function init() {
+            $element.addClass(fretboardContainerCssClass);
             $element.append(getFretboardBodyEl());
             
             setDimensions();
@@ -99,11 +106,15 @@
                 $frets,
                 fretWidthInPercent,
                 $fretContainers,
-                fretContainerHeightInPercent,
+                // fretContainerHeightInPercent,
                 fretContainerHeightInPixels;
                 
+            // Doing the width in percent seems to be better for Chrome
             fretWidthInPercent = (100 / (numFrets + 1)) + "%";
-            fretContainerHeightInPercent = (100 / numStrings) + "%";
+            
+            // fretContainerHeightInPercent = (100 / numStrings) + "%";
+            // Doing the height in pixels seems to be better for Safari
+            fretContainerHeightInPixels = ($element.find(".body").outerHeight(true) / numStrings) + "px";
             
             // Make the frets take up the whole width of the fret container.
             // Make the fret container heights take up the body's height.
@@ -111,15 +122,21 @@
                 .css("width", fretWidthInPercent);
                 
             $fretContainers = $element.find(fretContainerSelector)
-                .css("height", fretContainerHeightInPercent);
+                .css("height", /*fretContainerHeightInPercent*/ fretContainerHeightInPixels);
             
-            fretContainerHeightInPixels = $($fretContainers[0]).outerHeight(true);
+            //fretContainerHeightInPixels = $($fretContainers[0]).outerHeight(true);
             
-            $element.find(noteSelector).each(verticallyCenter);
+            $element
+                .find(noteSelector)
+                .each(verticallyCenter);
             
-            $element.find(letterSelector).each(verticallyCenter);
+            $element
+                .find(letterSelector)
+                .each(verticallyCenter);
             
-            $element.find(stringSelector).each(verticallyCenter);
+            $element
+                .find(stringSelector)
+                .each(verticallyCenter);
             
             $element.trigger("dimensionsSet");
         }
@@ -167,31 +184,25 @@
 
             $letter = getLetterEl(letter);
 
-            $note = $("<div class='" + noteCssClass + "'></div>");
-
-            // Use mouseenter and mouseleave instead of mouseover
-            // and mouseout because those will trigger events on 
-            // inner elements. For example, if you over over the 
-            // note circle, and then hover over its letter, the 
-            // circle's mouseout event would trigger, causing 
-            // the circle to disappear which is wrong.
-            $note.on("mouseenter", function() {
-                $(this).animate({
-                    opacity: 1
-                }, settings.opacityAnimateSpeed);
-            });
-
-            $note.on("mouseleave", function() {
-                $(this).animate({
-                    opacity: 0
-                }, settings.opacityAnimateSpeed);
-            });
-
-            $note.css("opacity", 0);
-
-            $note.append($letter);
+            $note = $("<div class='" + noteCssClass + "'></div>")
+                .on("mouseenter", noteMouseEnter)
+                .on("mouseleave", noteMouseLeave)
+                .on("click", function() {
+                    var $this = $(this);
+                    
+                    $this.toggleClass(clickedCssClass);
+                })
+                .append($letter);
 
             return $note;
+        }
+        
+        function noteMouseEnter() {
+            $(this).addClass("hover");
+        }
+        
+        function noteMouseLeave() {
+            $(this).removeClass("hover");
         }
 
         function getLetterEl(letter) {

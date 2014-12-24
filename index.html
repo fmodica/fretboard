@@ -5,13 +5,15 @@
 <head>
     <title>Test Fretboard Page</title>
     <script src="./jquery-1.11.2.min.js"></script>
+    <!-- To animate background colors -->
+    <script src="./jquery.color-2.1.2.min.js"></script>
     <script src="./fretboard.js"></script>
     <link rel="stylesheet" type="text/css" href="./styles.css">
 </head>
 
 <body>
     <div class="container">
-        <div class="fretboard">
+        <div class="fretboard-js">
         
         </div>
 
@@ -48,8 +50,8 @@
                 }],
                 numFrets: 16,
                 opacityAnimateSpeed: 100,
-                
                 isChordMode: true,
+                
                 noteClickingDisabled: false,
                 tuningClickingDisabled: false,
                 clickedNotes: [{
@@ -93,7 +95,7 @@
                 nutColor: "brown"
             }
             
-            $(".fretboard").fretboard(options);
+            $(".fretboard-js").fretboard(options);
         })(jQuery);
     </script>
 </body>
