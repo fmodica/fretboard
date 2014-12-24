@@ -97,6 +97,7 @@
         
         function getFretboardBodyEl() {
             var numStrings = settings.tuning.length,
+                numFrets = settings.numFrets,
                 $fretboardBody = $("<div class='" + bodyCssClass + "'></div>"),
                 stringNote,
                 i;
@@ -106,7 +107,10 @@
                 $fretboardBody.append(getFretContainerEl(stringNote));
             }
             
-            $fretboardBody.addClass("strings-" + numStrings);
+            $fretboardBody
+                .addClass("strings-" + numStrings)
+                .addClass("frets-" + numFrets);
+            
             $element.trigger("bodyDrawn");
             
             return $fretboardBody;
