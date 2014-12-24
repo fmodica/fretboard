@@ -64,6 +64,10 @@
             $window.on("resize", setDimensions);
         }
         
+        self.setChordMode = function(isChordMode) {
+            settings.isChordMode = isChordMode;
+        }
+        
         function getFretboardBodyEl() {
             var numStrings = settings.tuning.length,
                 $fretboardBody = $("<div class='body'></div>"),

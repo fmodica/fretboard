@@ -13,9 +13,9 @@
 
 <body>
     <div class="container">
-        <div class="fretboard-js">
+        <div class="fretboard-js"></div>
         
-        </div>
+        <button class="toggle-chord-mode">Toggle chord mode</button>
 
         <!-- <button ng-click="unclick()">Unclick Frets</button>
     <button ng-click="addString()">Add String</button>
@@ -27,7 +27,8 @@
     </div>
     <script type="text/javascript">
         (function($) {
-            var options = {
+            var isChordMode = true,
+                options = {
                 allNoteLetters: ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"],
                 tuning: [{
                     letter: "E",
@@ -49,7 +50,7 @@
                     octave: 2
                 }],
                 numFrets: 16,
-                isChordMode: true,
+                isChordMode: isChordMode,
                 
                 noteClickingDisabled: false,
                 tuningClickingDisabled: false,
@@ -92,9 +93,18 @@
                 tuningSquaresColor: "black",
                 tuningSquaresTextColor: "orange",
                 nutColor: "brown"
-            }
+            },
+            $fretboard = $(".fretboard-js"),
+            $fretboardAPI;
             
-            $(".fretboard-js").fretboard(options);
+            $fretboard.fretboard(options);
+            $fretboardAPI = $fretboard.data('fretboard'); 
+            
+            $(".toggle-chord-mode").on("click", function() {
+                isChordMode = !isChordMode;
+                
+                $fretboardAPI.setChordMode(isChordMode);
+            });
         })(jQuery);
     </script>
 </body>
