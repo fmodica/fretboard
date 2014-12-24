@@ -16,7 +16,8 @@
         <div class="fretboard-js"></div>
         
         <button class="toggle-chord-mode">Toggle chord mode</button>
-
+        <button class="get-clicked-notes">Get clicked notes</button>
+        
         <!-- <button ng-click="unclick()">Unclick Frets</button>
     <button ng-click="addString()">Add String</button>
     <button ng-click="removeString()">Remove String</button>
@@ -104,6 +105,10 @@
                 isChordMode = !isChordMode;
                 
                 $fretboardAPI.setChordMode(isChordMode);
+            });
+            
+            $(".get-clicked-notes").on("click", function() {
+                console.log($fretboardAPI.getClickedNotes());
             });
         })(jQuery);
     </script>
