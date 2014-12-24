@@ -15,6 +15,7 @@
             letterSelector = "." + letterCssClass,
             stringCssClass = "string",
             stringSelector = "." + stringCssClass,
+            hoverCssClass = "hover",
             clickedCssClass = "clicked",
             clickedSelector = "." + clickedCssClass,
             // The value for C needs to be first
@@ -188,9 +189,43 @@
                 .on("mouseenter", noteMouseEnter)
                 .on("mouseleave", noteMouseLeave)
                 .on("click", function() {
-                    var $this = $(this);
+                    var $clickedNote = $(this);
                     
-                    $this.toggleClass(clickedCssClass);
+                    if($clickedNote.hasClass(clickedCssClass)) {
+                        $clickedNote
+                            .removeClass(clickedCssClass)
+                            .removeClass(hoverCssClass)
+                            .on("mouseenter", noteMouseEnter)
+                            .on("mouseleave", noteMouseLeave);
+                    } else {
+                        $clickedNote
+                            .addClass(clickedCssClass)
+                            .off("mouseenter", noteMouseEnter)
+                            .off("mouseleave", noteMouseLeave); 
+                    }
+                    
+                    // If we're in chord mode then get all other clicked notes 
+                    // was clicked unclick it and bind callbacks
+                    if (settings.isChordMode) {
+                        $clickedNote
+                            .closest(fretContainerSelector)
+                            .find(noteSelector + clickedSelector)
+                            .each(function() {
+                                var $otherNote = $(this);
+                                
+                                // Compare the actual DOM elements (the jQuery wrappers 
+                                // will have different references)
+                                if ($clickedNote[0] !== $otherNote[0]) {
+                                    // Unclick it and make it invisible
+                                    $otherNote
+                                        .removeClass(clickedCssClass)
+                                        .removeClass(hoverCssClass)
+                                        .on("mouseenter", noteMouseEnter)
+                                        .on("mouseleave", noteMouseLeave);
+                                }
+                            });
+                            
+                    }
                 })
                 .append($letter);
 
@@ -198,11 +233,11 @@
         }
         
         function noteMouseEnter() {
-            $(this).addClass("hover");
+            $(this).addClass(hoverCssClass);
         }
         
         function noteMouseLeave() {
-            $(this).removeClass("hover");
+            $(this).removeClass(hoverCssClass);
         }
 
         function getLetterEl(letter) {

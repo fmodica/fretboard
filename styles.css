@@ -74,6 +74,7 @@
     z-index: 10;
 
     opacity: 0;
+    /* Need to animate this */
 	
 	background: white;
     -webkit-transition: background-color 200ms linear;
