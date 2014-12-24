@@ -95,6 +95,15 @@
             init();
         }
         
+        self.setNumFrets = function(numFrets) {
+            var clickedNotes = self.getClickedNotes();
+            
+            $element.empty();
+            settings.numFrets = numFrets;
+            validate();
+            init();
+        }
+        
         function getFretboardBodyEl() {
             var numStrings = settings.tuning.length,
                 numFrets = settings.numFrets,

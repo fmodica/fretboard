@@ -4,7 +4,8 @@
    get a font-size and line-height. */
 
 .container {
-    max-width: 1200px;
+    min-width: 280px;
+    max-width: 1600px;
     min-height: 600px;
     margin: 0 auto;
     overflow-x: hidden;
@@ -16,6 +17,7 @@
 
 .fretboard-container {
     margin: 0 auto;
+    overflow: hidden;
     width: 90%;
 }
 
@@ -24,8 +26,26 @@
     border: 1px solid black;
     min-width: 700px;
     max-width: 1400px;
+    width: 90%;
     height: 240px;
     overflow: hidden;
+    margin: 0 auto;
+}
+
+.my-fretboard-js.fretboard-container .body.strings-7 {
+    height: 280px;
+}
+
+.my-fretboard-js.fretboard-container .body.strings-8 {
+    height: 320px;
+}
+
+.my-fretboard-js.fretboard-container .body.frets-17 {
+    width: 1190px;
+}
+
+.my-fretboard-js.fretboard-container .body.frets-18 {
+    width: 1260px;
 }
 
 .fretboard-container .fret {
@@ -121,19 +141,11 @@
 }
 
 /* Theme Examples */
-
+/*
 .my-fretboard-js.fretboard-container .body {
     background: url(http://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/NGC_4414_%28NASA-med%29.jpg/582px-NGC_4414_%28NASA-med%29.jpg);
     background-size: contain;
     border: none;
-}
-
-.my-fretboard-js.fretboard-container .body.strings-7 {
-    height: 280px;
-}
-
-.my-fretboard-js.fretboard-container .body.strings-8 {
-    height: 320px;
 }
 
 .my-fretboard-js.fretboard-container .fret {
@@ -160,7 +172,7 @@
 .my-fretboard-js.fretboard-container .note {
     border: 1px solid green;
 }
-
+*/
 
 
 

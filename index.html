@@ -19,6 +19,7 @@
         <button class="get-clicked-notes">Get clicked notes</button>
         <button class="note-clicking-disabled">Disable/enable note clicking</button>
         <button class="change-tuning">Change tuning</button>
+        <button class="change-fret-num">Change Number of Frets</button>
     <!-- <button ng-click="unclick()">Unclick Frets</button>
     <button ng-click="addString()">Add String</button>
     <button ng-click="removeString()">Remove String</button>
@@ -50,10 +51,11 @@
                         letter: "E",
                         octave: 2
                     }],
+                numFrets = 16,
                 options = {
                     allNoteLetters: ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"],
                     tuning: tuning,
-                    numFrets: 16,
+                    numFrets: numFrets,
                     isChordMode: isChordMode,
                     noteClickingDisabled: isDisabled,
                     
@@ -111,8 +113,6 @@
             });
             
             $(".change-tuning").on("click", function() {
-                var i;
-                
                 if (tuning.length < 8) {
                     tuning.push({
                         letter: tuning[tuning.length - 1].letter,
@@ -123,6 +123,17 @@
                 }
                 
                 $fretboardAPI.setTuning(tuning);
+            });
+            
+            $(".change-fret-num").on("click", function() {
+                
+                if (numFrets < 18) {
+                    numFrets++;
+                } else {
+                    numFrets--;
+                }
+                
+                $fretboardAPI.setNumFrets(numFrets);
             });
         })(jQuery);
     </script>
