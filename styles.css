@@ -121,7 +121,7 @@
 }
 
 /* Theme Examples */
-/*
+
 .my-fretboard-js.fretboard-container .body {
     background: url(http://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/NGC_4414_%28NASA-med%29.jpg/582px-NGC_4414_%28NASA-med%29.jpg);
     background-size: contain;
@@ -146,12 +146,13 @@
 
 .my-fretboard-js.fretboard-container .note.clicked {
     background: green;
+    border: 1px solid white;
 }
 
 .my-fretboard-js.fretboard-container .note {
-    border: 1px solid white;
+    border: 1px solid green;
 }
-*/
+
 
 
 
