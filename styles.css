@@ -111,3 +111,39 @@
 .fretboard-container .note.clicked .letter {
     color: white;
 }
+
+/* Theme Examples */
+/*
+.my-fretboard-js.fretboard-container .body {
+    background: url(http://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/NGC_4414_%28NASA-med%29.jpg/582px-NGC_4414_%28NASA-med%29.jpg);
+    background-size: contain;
+    border: none;
+}
+
+.my-fretboard-js.fretboard-container .fret {
+    border-right: 2px solid white;
+}
+
+.my-fretboard-js.fretboard-container .fret.first {
+    border-right: 15px solid white;
+}
+
+.my-fretboard-js.fretboard-container .fret.last {
+    border-right: none;
+}
+
+.my-fretboard-js.fretboard-container .string {
+    background: white;
+}
+
+.my-fretboard-js.fretboard-container .note.clicked {
+    background: green;
+}
+
+.my-fretboard-js.fretboard-container .note {
+    border: 1px solid white;
+}
+*/
+
+
+
