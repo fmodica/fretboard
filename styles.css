@@ -37,8 +37,8 @@
 	cursor: pointer;
     z-index: 10;
 
-    opacity: 0;
     /* Need to animate this */
+	opacity: 0;
 	
 	background: white;
     -webkit-transition: background-color 200ms linear;

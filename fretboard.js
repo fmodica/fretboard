@@ -59,11 +59,22 @@
         init();
 
         function init() {
+            var timer;
+            
             $element.addClass(fretboardContainerCssClass);
             $element.append(getFretboardBodyEl());
             
-            setDimensions();
-            $window.on("resize", setDimensions);
+            setDimensions(true, true, true, true);
+            
+            // Track browser resizing so we only recalculate positions on the 
+            // last resize after X milliseconds
+			$window.on("resize",function() {
+				clearTimeout(timer);
+		
+				timer = setTimeout(function() {
+                    setDimensions(false, true, true, true);
+                }, 50);
+			});
         }
         
         self.setChordMode = function(isChordMode) {
@@ -87,12 +98,24 @@
         }
         
         self.setTuning = function(tuning) {
-            var clickedNotes = self.getClickedNotes();
+            var clickedNotes = self.getClickedNotes(),
+                tuningLength,
+                tuningNote,
+                i,
+                j;
             
             settings.tuning = tuning;
-            validate();
+            tuningLength = tuning.length;
             
-            
+            for (i = 0; i < tuningLength; i++) {
+                tuningNote = tuning[i];
+                
+                console.log(tuningNote);
+            }
+            //validate();   
+            $element.empty();
+            init();
+            self.setClickedNotes(clickedNotes); 
         }
         
         self.setNumFrets = function(numFrets) {
@@ -100,7 +123,7 @@
             
             $element.empty();
             settings.numFrets = numFrets;
-            validate();
+            //validate();
             init();
             self.setClickedNotes(clickedNotes);
         }
@@ -288,7 +311,7 @@
         }
         
         // Calculate default widths/heights. They can be overridden in CSS.
-        function setDimensions() {
+        function setDimensions(animateBody, animateNotes, animateFretLines, animateStrings) {
             var numFrets = settings.numFrets,
                 numStrings = settings.tuning.length,
                 $fretboardBody = $element.find(bodySelector),
@@ -300,12 +323,32 @@
                 fretboardContainerRightPosition,
                 fretWidthInPixels,
                 fretHeightInPixels;
+                
+                console.log("setting dimensions");
             
             fretboardBodyRightPosition = $fretboardBody.offset().left + $fretboardBody.outerWidth();
             fretboardContainerRightPosition = $element.offset().left + $element.outerWidth();    
             
             fretWidthInPixels = fretboardBodyWidth / (numFrets + 1);
             fretHeightInPixels = fretboardBodyHeight / numStrings;
+            
+            $fretboardBody
+                .css({
+                    height: 0
+                })
+                .animate({
+                    height: fretboardBodyHeight,
+                    width: fretboardBodyWidth
+                }, { 
+                    duration: animateBody ? 500 : 0, 
+                    queue: false, 
+                    complete: function() {
+                        $fretboardBody.css({
+                            height: "",
+                            width: ""
+                        });
+                    }
+                });
             
             $stringContainers.each(function(stringNum, stringContainerEl) {
                 var $stringContainer,
@@ -334,24 +377,25 @@
                     noteLeftVal = fretLeftVal + ((fretWidthInPixels / 2) - (noteWidth / 2));
                     noteTopVal = fretTopVal + ((fretHeightInPixels / 2)  - (noteHeight / 2));
                     
-                    $note.css({
+                    // queue: false means run the animations together (not one after the other)
+                    $note.animate({
                         left: noteLeftVal,
                         top: noteTopVal
-                    });
+                    }, { duration: animateNotes ? 500 : 0, queue: false });
                     
                     $fretLine = $($fretLines[fretNum]);
                     
-                    $fretLine.css({
+                    $fretLine.animate({
                         left: fretLeftVal + fretWidthInPixels - ($fretLine.outerWidth() / 2),
                         height: fretboardBodyHeight
-                    });
+                    },  { duration: animateFretLines ? 500 : 0, queue: false } );
                     
                 });
                 
                 // Set the string position across the note, taking into account the string's thickness
-                $string.css({
+                $string.animate({
                     top: noteTopVal + (noteHeight / 2)  - ($string.outerHeight() / 2)
-                });
+                }, { duration: animateStrings ? 500 : 0, queue: false } );
             });
             
             /* If the body is bigger than the container put a scroll on the container.
@@ -362,7 +406,7 @@
             } else {
                 $element.css("overflow-x", "hidden");
             }
-            
+           
             $element.trigger("dimensionsSet");
         }
         
