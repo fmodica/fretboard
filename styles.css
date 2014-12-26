@@ -6,141 +6,22 @@
     overflow-x: hidden;
 }
 
-.fretboard-container * {
+.fretboard-container, .fretboard-container * {
     position: relative;
 }
 
-/* This serves to wrap the fretboard body plus 
-   anything else we want to put in here */
 .fretboard-container {
     width: 100%;
+    /* So the inline-block elements (frets) don't have any weird white space */
+    font-size: 0; 
 }
 
 .fretboard-container .body {
     background: wheat;
     border: 1px solid black;
-}
-
-
-
-
-
-
-
-
-
-
-/* ***** Horizontal layout examples ***** */
-
-/* The instrument body has a set width, and the frets evenly distribute 
-   inside of it: */
-.fretboard-container .body {
-    width: 800px;
-    overflow-x: scroll;
-    /* Set the JS config option "autoSizeFretWidths" to true */
-}
-
-
-
-
-
-/* The instrument body width expands to the size of the frets inside,
-   and you don't need the body to be centered horizontally */
-.fretboard-container .body {
-    width: auto;
-    display: inline-block;
-    /* float:left will work too instead of inline-block */
-    
-    /* Set the JS config option "autoSizeFretWidths" to false */
-    
-    /* TODO DEAL WITH SCROLL ISSUE WHEN BROWSER IS SMALL */
-}
-.fretboard-container .fret {
-    width: 55px;
-}   
-
-
-
-
-
-/* The instrument body width expands to the size of the frets inside,
-   and you DO need the body to be centered horizontally */
-.fretboard-container .body {
-    width: auto;
-    display: table;
     margin: 0 auto;
-    
-    /* Set the JS config option "autoSizeFretWidths" to false */
-    
-    /* TODO DEAL WITH SCROLL ISSUE WHEN BROWSER IS SMALL */
-}
-
-.fretboard-container .fret {
-    width: 55px;
-}
-/* ***** End of Horizontal layout examples ***** */
-
-
-
-
-
-
-
-
-
-
-/* ***** Vertical layout examples ***** */
-
-/* The instrument body has a set height, and the frets evenly distribute 
-   inside of it: */
-.fretboard-container .body {
-    height: 300px;
-    /* Set the JS config option "autoSizeFretHeights" to true */
-}
-
-
-
-
-
-/* The instrument body height expands to the size of the frets inside */
-.fretboard-container .body {
-    height: auto
-    
-    /* Set the JS config option "autoSizeFretHeights" to false */
-}
-.fretboard-container .fret {
-    height: 55px;
-}
-
-/* ***** End of Vertical layout examples ***** */
-
-
-
-
-
-
-
-
-
-
-.fretboard-container .fret {
-    box-sizing: border-box;
-	float: left;
-	border-right: 2px solid black;
-}
-
-.fretboard-container .fret.first {
-    border-right: 15px solid black;
-}
-
-.fretboard-container .fret.last {
-    border: none;
-}
-
-.fretboard-container .fret-container {
-    width: 100%;
-    /* To contain the floated frets */
-    overflow:hidden;
+    width: 1000px;
+    height: 250px;
 }
 
 .fretboard-container .string {
@@ -156,15 +37,13 @@
 .fretboard-container .note {
 	border-radius: 50%;
 	border: 1px solid black;
-	width: 28px;
-	height: 28px;
+	width: 32px;
+	height: 32px;
 	/* If we give this absolute positioning then we'll have to 
 	   calculate the horizontal centering (margin auto won't 
 	   work */
-	position: relative;
+	position: absolute;
 	cursor: pointer;
-    margin-left: auto;
-    margin-right: auto;
     z-index: 10;
 
     opacity: 0;
@@ -188,8 +67,9 @@
 
 .fretboard-container .letter {
     position: relative;
+    top:10px;
 	text-align: center;
-    font-size: 10px;
+    font-size: 11px;
     line-height: 10px;
     z-index: 0;
     

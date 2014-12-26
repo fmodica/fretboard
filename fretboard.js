@@ -7,10 +7,8 @@
             fretboardContainerCssClass = "fretboard-container",
             bodyCssClass = "body",
             bodySelector = "." + bodyCssClass,
-            fretCssClass = "fret",
-            fretSelector = "." + fretCssClass,
-            fretContainerCssClass = "fret-container",
-            fretContainerSelector = "." + fretContainerCssClass,
+            stringContainerCssClass = "string-container",
+            stringContainerSelector = "." + stringContainerCssClass,
             noteCssClass = "note",
             noteSelector = "." + noteCssClass,
             letterCssClass = "letter",
@@ -47,8 +45,6 @@
                 numFrets: 15,
                 isChordMode: true,
                 noteClickingDisabled: false,
-                autoSizeFretWidths: false,
-                autoSizeFretHeights: false
             },
             settings = {};
             
@@ -65,7 +61,7 @@
             $element.append(getFretboardBodyEl());
             
             setDimensions();
-            $window.on("resize", setDimensions);
+            //$window.on("resize", setDimensions);
         }
         
         self.setChordMode = function(isChordMode) {
@@ -110,12 +106,32 @@
             var numStrings = settings.tuning.length,
                 numFrets = settings.numFrets,
                 $fretboardBody = $("<div class='" + bodyCssClass + "'></div>"),
-                stringNote,
-                i;
+                $stringContainer,
+                openNote,
+                noteData,
+                $note,
+                i,
+                j;
                 
             for (i = 0; i < numStrings; i++) {
-                stringNote = settings.tuning[i];
-                $fretboardBody.append(getFretContainerEl(stringNote));
+                openNote = settings.tuning[i];
+                $stringContainer = $("<div class='" + stringContainerCssClass + "'></div>");
+                
+                for (j = 0; j <= numFrets; j++) {
+                    noteData = getNoteByFretNumber(openNote, j);
+                    
+                    $note = getNoteEl({
+                        letter : noteData.letter,
+                        octave: noteData.octave,
+                        stringNumber: i,
+                        fretNumber: j,
+                        stringItsOn: openNote
+                    });
+                    
+                    $stringContainer.append($note);
+                }
+                
+                $fretboardBody.append($stringContainer);
             }
             
             $fretboardBody
@@ -127,54 +143,8 @@
             return $fretboardBody;
         }
         
-        function getFretContainerEl(stringNote) {
-            var $fretContainer = $("<div class='" + fretContainerCssClass + "'></div>"),
-                numFrets = settings.numFrets,
-                $fret,
-                note,
-                i;
-                
-            $fretContainer.append(getStringEl());
-
-            for (i = 0; i <= numFrets; i++) {
-                note = getNoteByFretNumber(stringNote, i);
-                
-                $fret = getFretEl({
-                    letter : note.letter,
-                    octave: note.octave,
-                    fretNumber: i,
-                    stringItsOn: stringNote
-                });
-                
-                $fretContainer.append($fret);
-            }
-            
-            return $fretContainer;
-        }
-        
         function getStringEl() {
             return $("<div class='" + stringCssClass + "'></div>");
-        }
-
-        function getFretEl(noteData) {
-            var numFrets = settings.numFrets,
-                fretNum = noteData.fretNumber,
-                $fret, 
-                $note;
-            
-            $fret = $("<div class='" + fretCssClass + "'></div>");
-
-            if (fretNum === 0) {
-                $fret.addClass("first");
-            } else if (fretNum === numFrets) {
-                $fret.addClass("last");
-            }
-            
-            $note = getNoteEl(noteData);
-            
-            $fret.append($note);
-
-            return $fret;
         }
 
         function getNoteEl(noteData) {
@@ -209,7 +179,7 @@
                     // other clicked notes
                     if (settings.isChordMode) {
                         $clickedNote
-                            .closest(fretContainerSelector)
+                            .closest(stringContainerSelector)
                             .find(noteSelector + clickedSelector)
                             .each(function() {
                                 var $otherNote = $(this);
@@ -241,30 +211,38 @@
         function setDimensions() {
             var numFrets = settings.numFrets,
                 numStrings = settings.tuning.length,
-                forceWidths = settings.autoSizeFretWidths,
-                forceHeights = settings.autoSizeFretHeights,
-                $frets = $element.find(fretSelector),
-                fretWidthInPercent,
-                // fretHeightInPercent,
+                $fretboardBody = $element.find(bodySelector),
+                $notes = $element.find(noteSelector),
+                containerWidth = $element.outerWidth(true),
+                bodyWidth = $fretboardBody.outerWidth(true),
+                fretWidthInPixels,
                 fretHeightInPixels;
+               
+               
+            fretWidthInPixels = $fretboardBody.outerWidth() / (numFrets + 1);
+            fretHeightInPixels = $fretboardBody.outerHeight() / numStrings;
             
-            // Make the frets take up the whole width of the fret container.
-            // Doing the width in percent seems to be better for Chrome
-            if (forceWidths) {
-                fretWidthInPercent = (100 / (numFrets + 1)) + "%";
+            $notes.each(function(index) {
+                var $this = $(this),
+                    noteData = $this.data('noteData'),
+                    fretNum = noteData.fretNumber,
+                    stringNum = noteData.stringNumber,
+                    noteWidth = $this.outerWidth(),
+                    noteHeight = $this.outerHeight(),
+                    leftVal,
+                    topVal;
+                    
+                    leftVal = (fretNum * fretWidthInPixels) + ((fretWidthInPixels / 2) - (noteWidth / 2));
+                    topVal = (stringNum * fretHeightInPixels) + ((fretHeightInPixels / 2)  - (noteHeight / 2));
+                    
+                    $this.css({
+                        left: leftVal,
+                        top: topVal
+                    });
+                    
+            });
                 
-                $frets.css("width", fretWidthInPercent);
-            }
-            
-            if (forceHeights) {
-                // fretHeightInPercent = (100 / numStrings) + "%";
-                // Doing the height in pixels seems to be better for Safari
-                fretHeightInPixels = ($element.find(bodySelector).outerHeight(true) / numStrings) + "px";
-                
-                // Make the fret container heights take up the body's height.
-                $frets.css("height", /*fretHeightInPercent*/ fretHeightInPixels);
-            }
-            
+            /*
             $element
                 .find(noteSelector)
                 .each(verticallyCenter);
@@ -275,7 +253,16 @@
             
             $element
                 .find(stringSelector)
-                .each(verticallyCenter);
+                .each(verticallyCenter); */
+                
+            /* If the body is bigger than the container put a scroll on the container.
+               We don't always want overflow-x scroll to be there because the scroll 
+               will show even when not needed and looks ugly. */
+            if (bodyWidth >= containerWidth) {
+                $element.css("overflow-x", "scroll");
+            } else {
+                $element.css("overflow-x", "hidden");
+            }
             
             $element.trigger("dimensionsSet");
         }
