@@ -158,10 +158,12 @@
                     tuning.pop();
                 }*/
                 
-                tuning.push({
+                /*tuning.push({
                     letter: tuning[tuning.length - 1].letter,
                     octave: tuning[tuning.length - 1].octave - 1
-                });
+                });*/
+                
+                tuning.pop();
                 
                 $fretboard.each(function() {
                     $(this).data('fretboard').setTuning(tuning);

@@ -107,21 +107,19 @@
                 $fretboardBody = $element.find(bodySelector),
                 $stringContainers = $element.find(stringContainerSelector),
                 newTuning = $.extend(true, [], tuning),
+                newTuningLength = newTuning.length,
                 oldTuning = $.extend(true, [], settings.tuning),
                 oldTuningLength = oldTuning.length,
-                tuningLength = tuning.length,
                 tuningNote,
                 i;
            
             settings.tuning = newTuning;
             
-            debugger;
-            
             // If the new tuning has at least as many strings as the old
             // tuning, modify/add strings to the DOM.
-            if (tuningLength >= oldTuningLength) {
+            if (newTuningLength >= oldTuningLength) {
                 // Handle addition or modification of strings
-                for (i = 0; i < tuningLength; i++) {
+                for (i = 0; i < newTuningLength; i++) {
                     tuningNote = newTuning[i];
                     
                     // If a string exists, alter it
@@ -132,6 +130,7 @@
                     }
                 }
             } else {
+                debugger;
                 // Remove strings from the DOM
                 for (i = newTuningLength; i < oldTuningLength; i++) {
                     $($stringContainers[i]).remove();
