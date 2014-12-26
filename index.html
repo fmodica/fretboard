@@ -36,8 +36,9 @@
         <button class="set-clicked-notes">Set clicked notes</button>
         <button class="get-clicked-notes">Get clicked notes</button>
         <button class="note-clicking-disabled">Disable/enable note clicking</button>
-        <button class="change-tuning">Change tuning</button>
-        <button class="change-fret-num">Change Number of Frets</button>
+        <button class="add-string">Add string</button>
+        <button class="remove-string">Remove string</button>
+        <!--<button class="change-fret-num">Change Number of Frets</button>-->
     <!-- <button ng-click="unclick()">Unclick Frets</button>
     <button ng-click="addString()">Add String</button>
     <button ng-click="removeString()">Remove String</button>
@@ -148,15 +149,26 @@
                 });
             });
             
-            $(".change-tuning").on("click", function() {
-                tuning[0].letter = "A";
+            $(".remove-string").on("click", function() {
+                tuning.pop();
                 
-                tuning.push({
-                    letter: tuning[tuning.length - 1].letter,
-                    octave: tuning[tuning.length - 1].octave - 1
+                $fretboard.each(function() {
+                    $(this).data('fretboard').setTuning(tuning);
                 });
-                
-                //tuning.pop();
+            });
+            
+            $(".add-string").on("click", function() {
+                if (tuning.length) {
+                    tuning.push({
+                        letter: tuning[tuning.length - 1].letter,
+                        octave: tuning[tuning.length - 1].octave - 1
+                    });
+                } else {
+                    tuning.push({
+                        letter: "E",
+                        octave: 4
+                    });
+                }
                 
                 $fretboard.each(function() {
                     $(this).data('fretboard').setTuning(tuning);

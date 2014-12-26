@@ -111,6 +111,7 @@
                 newTuningLength = newTuning.length,
                 oldTuning = $.extend(true, [], settings.tuning),
                 oldTuningLength = oldTuning.length,
+                tuningLengthDifference = oldTuningLength - newTuningLength,
                 newTuningNote,
                 oldTuningNote,
                 $newStringContainer,
@@ -123,54 +124,50 @@
            
             settings.tuning = newTuning;
             
-            // If the new tuning has at least as many strings as the old
-            // tuning, modify/add strings to the DOM.
-            if (newTuningLength >= oldTuningLength) {
-                for (i = 0; i < newTuningLength; i++) {
-                    newTuningNote = newTuning[i];
-                    oldTuningNote = oldTuning[i];
-                    $newStringContainer = getStringContainerEl(newTuningNote);
-                    
-                    // If a string exists, alter it if the new open note is different than the old
-                    if (i < oldTuningLength) {
-                        if (!notesAreEqual(newTuningNote, oldTuningNote)) {
-                            console.log("altering");
-                            // Create a new string but don't add it to the DOM. Just use its info
-                            // to modify the string already in the DOM.
-                            $newStringContainerNotes = $newStringContainer.find(noteSelector);
-                            $existingStringContainerNotes = $($stringContainers[i]).find(noteSelector);
+            // Modification/addition of strings
+            for (i = 0; i < newTuningLength; i++) {
+                newTuningNote = newTuning[i];
+                oldTuningNote = oldTuning[i];
+                $newStringContainer = getStringContainerEl(newTuningNote);
+                
+                // If a string exists, alter it if the new open note is different than the old
+                if (i < oldTuningLength) {
+                    if (!notesAreEqual(newTuningNote, oldTuningNote)) {
+                        console.log("altering");
+                        // Create a new string but don't add it to the DOM. Just use its info
+                        // to modify the string already in the DOM.
+                        $newStringContainerNotes = $newStringContainer.find(noteSelector);
+                        $existingStringContainerNotes = $($stringContainers[i]).find(noteSelector);
+                        
+                        for (j = 0; j < numFrets; j++) {
+                            newNoteData = $($newStringContainerNotes[j]).data('noteData');
+                            $existingNote = $($existingStringContainerNotes[j]);
                             
-                            for (j = 0; j < numFrets; j++) {
-                                newNoteData = $($newStringContainerNotes[j]).data('noteData');
-                                $existingNote = $($existingStringContainerNotes[j]);
-                                
-                                $existingNote
-                                    .data('noteData', newNoteData)
-                                    .find(letterSelector)
-                                    .text(newNoteData.letter);
-                            } 
-                        } else {
-                            console.log("notes are the same");
-                        }
+                            $existingNote
+                                .data('noteData', newNoteData)
+                                .find(letterSelector)
+                                .text(newNoteData.letter);
+                        } 
                     } else {
-                        // Add new string
-                        console.log("adding");
-                        $fretboardBody.append($newStringContainer);
+                        console.log("notes are the same");
                     }
+                } else {
+                    // Add new string
+                    console.log("adding");
+                    $fretboardBody.append($newStringContainer);
                 }
-            } else {
-                // Remove strings from the DOM
-                console.log("removing");
-                for (i = newTuningLength; i < oldTuningLength; i++) {
-                    $($stringContainers[i]).remove();
+            }
+            
+            // Removal of strings
+            
+            if (tuningLengthDifference) {
+                for (i = 0; i < tuningLengthDifference; i++) {
+                    console.log("removing");
+                    $($stringContainers[oldTuningLength - 1 - i]).remove();
                 }
             }
             
             setDimensions(false, true, true, true);
-            //validate();   
-            //$element.empty();
-            //init();
-            //self.setClickedNotes(clickedNotes); 
         }
         
         self.setNumFrets = function(numFrets) {
@@ -178,7 +175,6 @@
             
             $element.empty();
             settings.numFrets = numFrets;
-            //validate();
             init();
             self.setClickedNotes(clickedNotes);
         }
