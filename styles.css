@@ -11,12 +11,15 @@
 }
 
 .fretboard-container {
-    width: 100%;
+    /* The scroll bar on the body will respect margins on this
+       element but not padding for some reason */
+    margin: 20px;
     /* So the inline-block elements (frets) don't have any weird white space */
     font-size: 0; 
 }
 
 .fretboard-container .body {
+    /* Put any padding or margin on the fretboard-container */
     background: wheat;
     border: 1px solid black;
     margin: 0 auto;
@@ -67,10 +70,10 @@
 
 .fretboard-container .letter {
     position: relative;
-    top:10px;
+    top: 10.5px;
 	text-align: center;
     font-size: 11px;
-    line-height: 10px;
+    line-height: 11px;
     z-index: 0;
     
     /* Make text unselectable */

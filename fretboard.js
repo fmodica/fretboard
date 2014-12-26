@@ -61,7 +61,7 @@
             $element.append(getFretboardBodyEl());
             
             setDimensions();
-            //$window.on("resize", setDimensions);
+            $window.on("resize", setDimensions);
         }
         
         self.setChordMode = function(isChordMode) {
@@ -123,7 +123,6 @@
                     $note = getNoteEl({
                         letter : noteData.letter,
                         octave: noteData.octave,
-                        stringNumber: i,
                         fretNumber: j,
                         stringItsOn: openNote
                     });
@@ -212,34 +211,42 @@
             var numFrets = settings.numFrets,
                 numStrings = settings.tuning.length,
                 $fretboardBody = $element.find(bodySelector),
-                $notes = $element.find(noteSelector),
-                containerWidth = $element.outerWidth(true),
-                bodyWidth = $fretboardBody.outerWidth(true),
+                $strings = $element.find(stringContainerSelector),
+                $string,
+                $notes,
+                $note,
+                fretboardBodyRightPosition,
+                fretboardContainerRightPosition,
                 fretWidthInPixels,
                 fretHeightInPixels;
-               
-               
-            fretWidthInPixels = $fretboardBody.outerWidth() / (numFrets + 1);
-            fretHeightInPixels = $fretboardBody.outerHeight() / numStrings;
             
-            $notes.each(function(index) {
-                var $this = $(this),
-                    noteData = $this.data('noteData'),
-                    fretNum = noteData.fretNumber,
-                    stringNum = noteData.stringNumber,
-                    noteWidth = $this.outerWidth(),
-                    noteHeight = $this.outerHeight(),
-                    leftVal,
-                    topVal;
-                    
+            // Fretboard left position plus width with any padding/border
+            fretboardBodyRightPosition = $fretboardBody.offset().left + $fretboardBody.outerWidth();
+            fretboardContainerRightPosition = $element.offset().left + $element.outerWidth();    
+            fretWidthInPixels = $fretboardBody.width() / (numFrets + 1);
+            fretHeightInPixels = $fretboardBody.height() / numStrings;
+            
+            $strings.each(function(stringNum, stringEl) {
+                $string = $(stringEl);
+                
+                $notes = $string.find(noteSelector);
+                
+                $notes.each(function(fretNum, noteEl) {
+                    var $note = $(noteEl),
+                        noteWidth = $note.outerWidth(),
+                        noteHeight = $note.outerHeight(),
+                        leftVal,
+                        topVal;
+                        
                     leftVal = (fretNum * fretWidthInPixels) + ((fretWidthInPixels / 2) - (noteWidth / 2));
                     topVal = (stringNum * fretHeightInPixels) + ((fretHeightInPixels / 2)  - (noteHeight / 2));
                     
-                    $this.css({
+                    $note.css({
                         left: leftVal,
                         top: topVal
                     });
-                    
+                        
+                });
             });
                 
             /*
@@ -258,7 +265,7 @@
             /* If the body is bigger than the container put a scroll on the container.
                We don't always want overflow-x scroll to be there because the scroll 
                will show even when not needed and looks ugly. */
-            if (bodyWidth >= containerWidth) {
+            if (fretboardBodyRightPosition >= fretboardContainerRightPosition) {
                 $element.css("overflow-x", "scroll");
             } else {
                 $element.css("overflow-x", "hidden");
