@@ -12,8 +12,24 @@
 </head>
 
 <body>
+    <style>
+    .container {
+        min-width: 280px;
+        max-width: 1600px;
+        min-height: 600px;
+        margin: 0 auto;
+        overflow-x: hidden;
+        background: lightgray;
+    }
+    
+    button {
+        margin: 20px 2px;
+    }
+    </style>
     <div class="container">
         <div class="my-fretboard-js"></div>
+        
+        <div class="my-fretboard-js space-theme"></div>
         
         <button class="toggle-chord-mode">Toggle chord mode</button>
         <button class="get-clicked-notes">Get clicked notes</button>
@@ -90,26 +106,31 @@
                     showTuningTriangles: true,
                     showTuningSquares: true
                 },
-                $fretboard = $(".my-fretboard-js"),
-                $fretboardAPI;
+                $fretboard = $(".my-fretboard-js");
             
-            $fretboard.fretboard(options);
-            $fretboardAPI = $fretboard.data('fretboard'); 
+            $fretboard.fretboard(options); 
             
             $(".toggle-chord-mode").on("click", function() {
                 isChordMode = !isChordMode;
                 
-                $fretboardAPI.setChordMode(isChordMode);
+                $fretboard.each(function() {
+                    $(this).data('fretboard').setChordMode(isChordMode);
+                });
             });
             
             $(".get-clicked-notes").on("click", function() {
-                console.log($fretboardAPI.getClickedNotes());
+                $fretboard.each(function() {
+                    console.log($(this).data('fretboard').getClickedNotes());
+                });
+                
             });
             
             $(".note-clicking-disabled").on("click", function() {
                 isDisabled = !isDisabled;
                 
-                $fretboardAPI.setNoteClickingDisabled(isDisabled);
+                $fretboard.each(function() {
+                    $(this).data('fretboard').setNoteClickingDisabled(isDisabled);
+                });
             });
             
             $(".change-tuning").on("click", function() {
@@ -122,7 +143,9 @@
                     tuning.pop();
                 }
                 
-                $fretboardAPI.setTuning(tuning);
+                $fretboard.each(function() {
+                    $(this).data('fretboard').setTuning(tuning);
+                });
             });
             
             $(".change-fret-num").on("click", function() {
@@ -133,7 +156,9 @@
                     numFrets--;
                 }
                 
-                $fretboardAPI.setNumFrets(numFrets);
+                $fretboard.each(function() {
+                    $(this).data('fretboard').setNumFrets(numFrets);
+                });
             });
         })(jQuery);
     </script>

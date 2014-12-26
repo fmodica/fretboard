@@ -15,6 +15,8 @@
             letterSelector = "." + letterCssClass,
             stringCssClass = "string",
             stringSelector = "." + stringCssClass,
+            fretLineCssClass = "fret-line",
+            fretLineSelector = "." + fretLineCssClass,
             hoverCssClass = "hover",
             clickedCssClass = "clicked",
             clickedSelector = "." + clickedCssClass,
@@ -110,12 +112,19 @@
                 openNote,
                 noteData,
                 $note,
+                $fretLine,
                 i,
                 j;
                 
             for (i = 0; i < numStrings; i++) {
                 openNote = settings.tuning[i];
                 $stringContainer = getStringContainerEl();
+                
+                if (i === 0) {
+                    $stringContainer.addClass("first");
+                } else if (i === numStrings - 1) {
+                    $stringContainer.addClass("last");
+                }   
                 
                 for (j = 0; j <= numFrets; j++) {
                     noteData = getNoteByFretNumber(openNote, j);
@@ -127,7 +136,16 @@
                         stringItsOn: openNote
                     });
                     
+                    $fretLine = getFretLine();
+                    
+                    if (j === 0) {
+                        $fretLine.addClass("first");
+                    } else if (j === numFrets) {
+                        $fretLine.addClass("last");
+                    }
+                    
                     $stringContainer.append($note);
+                    $stringContainer.append($fretLine);
                 }
                 
                 $stringContainer.append(getStringEl());
@@ -211,22 +229,29 @@
             return $("<div class='" + letterCssClass + "'>" + letter + "</div>");
         }
         
+        function getFretLine() {
+            return $("<div class='" + fretLineCssClass + "'></div>");
+        }
+        
         // Calculate default widths/heights. They can be overridden in CSS.
         function setDimensions() {
             var numFrets = settings.numFrets,
                 numStrings = settings.tuning.length,
                 $fretboardBody = $element.find(bodySelector),
+                fretboardBodyHeight = $fretboardBody.height(),
+                fretboardBodyWidth = $fretboardBody.width(),
                 $stringContainers = $element.find(stringContainerSelector),
+                $fretLines = $element.find(fretLineSelector),
                 fretboardBodyRightPosition,
                 fretboardContainerRightPosition,
                 fretWidthInPixels,
                 fretHeightInPixels;
             
-            // Fretboard left position plus width with any padding/border
             fretboardBodyRightPosition = $fretboardBody.offset().left + $fretboardBody.outerWidth();
             fretboardContainerRightPosition = $element.offset().left + $element.outerWidth();    
-            fretWidthInPixels = $fretboardBody.width() / (numFrets + 1);
-            fretHeightInPixels = $fretboardBody.height() / numStrings;
+            
+            fretWidthInPixels = fretboardBodyWidth / (numFrets + 1);
+            fretHeightInPixels = fretboardBodyHeight / numStrings;
             
             $stringContainers.each(function(stringNum, stringContainerEl) {
                 var $stringContainer,
@@ -235,8 +260,11 @@
                     $note,
                     noteWidth,
                     noteHeight,
-                    leftVal,
-                    topVal;
+                    fretLeftVal,
+                    fretTopVal,
+                    noteLeftVal,
+                    noteTopVal,
+                    $fretLine;
                     
                 $stringContainer = $(stringContainerEl);
                 $string = $stringContainer.find(stringSelector);
@@ -246,32 +274,31 @@
                     $note = $(noteEl);
                     noteWidth = $note.outerWidth();
                     noteHeight = $note.outerHeight();
-                    leftVal;
-                        
-                    leftVal = (fretNum * fretWidthInPixels) + ((fretWidthInPixels / 2) - (noteWidth / 2));
-                    topVal = (stringNum * fretHeightInPixels) + ((fretHeightInPixels / 2)  - (noteHeight / 2));
+                    
+                    fretLeftVal = fretNum * fretWidthInPixels;
+                    fretTopVal = stringNum * fretHeightInPixels;
+                    noteLeftVal = fretLeftVal + ((fretWidthInPixels / 2) - (noteWidth / 2));
+                    noteTopVal = fretTopVal + ((fretHeightInPixels / 2)  - (noteHeight / 2));
                     
                     $note.css({
-                        left: leftVal,
-                        top: topVal
+                        left: noteLeftVal,
+                        top: noteTopVal
                     });
+                    
+                    $fretLine = $($fretLines[fretNum]);
+                    
+                    $fretLine.css({
+                        left: fretLeftVal + fretWidthInPixels - ($fretLine.outerWidth() / 2),
+                        height: fretboardBodyHeight
+                    });
+                    
                 });
                 
-                // Set the string position across the note, taking into account the
-                // string's thickness
+                // Set the string position across the note, taking into account the string's thickness
                 $string.css({
-                    top: topVal + (noteHeight / 2)  - ($string.outerHeight() / 2)
+                    top: noteTopVal + (noteHeight / 2)  - ($string.outerHeight() / 2)
                 });
             });
-                
-            
-            /*$element
-                .find(noteSelector)
-                .each(verticallyCenter);
-            
-            $element
-                .find(letterSelector)
-                .each(verticallyCenter); */
             
             /* If the body is bigger than the container put a scroll on the container.
                We don't always want overflow-x scroll to be there because the scroll 
@@ -283,19 +310,6 @@
             }
             
             $element.trigger("dimensionsSet");
-        }
-        
-        function verticallyCenter() {
-            var $this = $(this),
-                thisHeight = $this.outerHeight(true),
-                parentHeight = $this.parent().outerHeight(true),
-                difference,
-                top;
-                
-            difference = parentHeight - thisHeight;
-            top = difference ? (difference / 2) : 0;
-            
-            $this.css("top", top);
         }
         
         function getNoteByFretNumber(stringNote, fretNumber) {
