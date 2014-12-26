@@ -103,35 +103,64 @@
         }
         
         self.setTuning = function(tuning) {
-            var clickedNotes = self.getClickedNotes(),
+            var numFrets = settings.numFrets,
+                clickedNotes = self.getClickedNotes(),
                 $fretboardBody = $element.find(bodySelector),
                 $stringContainers = $element.find(stringContainerSelector),
                 newTuning = $.extend(true, [], tuning),
                 newTuningLength = newTuning.length,
                 oldTuning = $.extend(true, [], settings.tuning),
                 oldTuningLength = oldTuning.length,
-                tuningNote,
-                i;
+                newTuningNote,
+                oldTuningNote,
+                $newStringContainer,
+                $newStringContainerNotes,
+                $existingStringContainerNotes,
+                newNoteData,
+                $existingNote,
+                i,
+                j;
            
             settings.tuning = newTuning;
             
             // If the new tuning has at least as many strings as the old
             // tuning, modify/add strings to the DOM.
             if (newTuningLength >= oldTuningLength) {
-                // Handle addition or modification of strings
                 for (i = 0; i < newTuningLength; i++) {
-                    tuningNote = newTuning[i];
+                    newTuningNote = newTuning[i];
+                    oldTuningNote = oldTuning[i];
+                    $newStringContainer = getStringContainerEl(newTuningNote);
                     
-                    // If a string exists, alter it
+                    // If a string exists, alter it if the new open note is different than the old
                     if (i < oldTuningLength) {
-                    
+                        if (!notesAreEqual(newTuningNote, oldTuningNote)) {
+                            console.log("altering");
+                            // Create a new string but don't add it to the DOM. Just use its info
+                            // to modify the string already in the DOM.
+                            $newStringContainerNotes = $newStringContainer.find(noteSelector);
+                            $existingStringContainerNotes = $($stringContainers[i]).find(noteSelector);
+                            
+                            for (j = 0; j < numFrets; j++) {
+                                newNoteData = $($newStringContainerNotes[j]).data('noteData');
+                                $existingNote = $($existingStringContainerNotes[j]);
+                                
+                                $existingNote
+                                    .data('noteData', newNoteData)
+                                    .find(letterSelector)
+                                    .text(newNoteData.letter);
+                            } 
+                        } else {
+                            console.log("notes are the same");
+                        }
                     } else {
-                        $fretboardBody.append(getStringContainerEl(tuningNote));
+                        // Add new string
+                        console.log("adding");
+                        $fretboardBody.append($newStringContainer);
                     }
                 }
             } else {
-                debugger;
                 // Remove strings from the DOM
+                console.log("removing");
                 for (i = newTuningLength; i < oldTuningLength; i++) {
                     $($stringContainers[i]).remove();
                 }

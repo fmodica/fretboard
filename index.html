@@ -149,21 +149,14 @@
             });
             
             $(".change-tuning").on("click", function() {
-                /*if (tuning.length < 8) {
-                    tuning.push({
-                        letter: tuning[tuning.length - 1].letter,
-                        octave: tuning[tuning.length - 1].octave - 1
-                    });
-                } else {
-                    tuning.pop();
-                }*/
+                tuning[0].letter = "A";
                 
-                /*tuning.push({
+                tuning.push({
                     letter: tuning[tuning.length - 1].letter,
                     octave: tuning[tuning.length - 1].octave - 1
-                });*/
+                });
                 
-                tuning.pop();
+                //tuning.pop();
                 
                 $fretboard.each(function() {
                     $(this).data('fretboard').setTuning(tuning);
@@ -171,7 +164,6 @@
             });
             
             $(".change-fret-num").on("click", function() {
-                
                 if (numFrets < 18) {
                     numFrets++;
                 } else {
