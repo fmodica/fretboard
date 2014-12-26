@@ -63,9 +63,7 @@
             $element.append(getFretboardBodyEl());
             
             setDimensions();
-            $window
-                .off("resize", setDimensions)
-                .on("resize", setDimensions);
+            $window.on("resize", setDimensions);
         }
         
         self.setChordMode = function(isChordMode) {
@@ -91,9 +89,11 @@
         self.setTuning = function(tuning) {
             var clickedNotes = self.getClickedNotes();
             
-            $element.empty();
             settings.tuning = tuning;
             validate();
+            
+            
+            
             init();
             self.setClickedNotes(clickedNotes);
         }
@@ -160,43 +160,17 @@
                 $fretboardBody = $("<div class='" + bodyCssClass + "'></div>"),
                 $stringContainer,
                 openNote,
-                noteData,
-                $note,
-                $fretLine,
-                i,
-                j;
+                i;
                 
             for (i = 0; i < numStrings; i++) {
                 openNote = settings.tuning[i];
-                $stringContainer = getStringContainerEl();
+                $stringContainer = getStringContainerEl(openNote);
                 
                 if (i === 0) {
                     $stringContainer.addClass("first");
                 } else if (i === numStrings - 1) {
                     $stringContainer.addClass("last");
                 }   
-                
-                for (j = 0; j <= numFrets; j++) {
-                    noteData = getNoteByFretNumber(openNote, j);
-                    
-                    $note = getNoteEl({
-                        letter : noteData.letter,
-                        octave: noteData.octave,
-                        fretNumber: j,
-                        stringItsOn: openNote
-                    });
-                    
-                    $fretLine = getFretLine();
-                    
-                    if (j === 0) {
-                        $fretLine.addClass("first");
-                    } else if (j === numFrets) {
-                        $fretLine.addClass("last");
-                    }
-                    
-                    $stringContainer.append($note);
-                    $stringContainer.append($fretLine);
-                }
                 
                 $stringContainer.append(getStringEl());
                 $fretboardBody.append($stringContainer);
@@ -211,8 +185,37 @@
             return $fretboardBody;
         }
         
-        function getStringContainerEl() {
-            return $("<div class='" + stringContainerCssClass + "'></div>");
+        function getStringContainerEl(openNote) {
+            var $stringContainer = $("<div class='" + stringContainerCssClass + "'></div>"),
+                numFrets = settings.numFrets,
+                $note,
+                $fretLine,
+                noteData,
+                i;
+            
+            for (i = 0; i <= numFrets; i++) {
+                noteData = getNoteByFretNumber(openNote, i);
+                
+                $note = getNoteEl({
+                    letter : noteData.letter,
+                    octave: noteData.octave,
+                    fretNumber: i,
+                    stringItsOn: openNote
+                });
+                
+                $fretLine = getFretLine();
+                
+                if (i === 0) {
+                    $fretLine.addClass("first");
+                } else if (i === numFrets) {
+                    $fretLine.addClass("last");
+                }
+                
+                $stringContainer.append($note);
+                $stringContainer.append($fretLine);
+            }
+            
+            return $stringContainer;
         }
         
         function getStringEl() {
