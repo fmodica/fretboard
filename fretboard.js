@@ -63,7 +63,9 @@
             $element.append(getFretboardBodyEl());
             
             setDimensions();
-            $window.on("resize", setDimensions);
+            $window
+                .off("resize", setDimensions)
+                .on("resize", setDimensions);
         }
         
         self.setChordMode = function(isChordMode) {
