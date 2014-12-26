@@ -115,7 +115,7 @@
                 
             for (i = 0; i < numStrings; i++) {
                 openNote = settings.tuning[i];
-                $stringContainer = $("<div class='" + stringContainerCssClass + "'></div>");
+                $stringContainer = getStringContainerEl();
                 
                 for (j = 0; j <= numFrets; j++) {
                     noteData = getNoteByFretNumber(openNote, j);
@@ -130,6 +130,7 @@
                     $stringContainer.append($note);
                 }
                 
+                $stringContainer.append(getStringEl());
                 $fretboardBody.append($stringContainer);
             }
             
@@ -140,6 +141,10 @@
             $element.trigger("bodyDrawn");
             
             return $fretboardBody;
+        }
+        
+        function getStringContainerEl() {
+            return $("<div class='" + stringContainerCssClass + "'></div>");
         }
         
         function getStringEl() {
@@ -211,10 +216,7 @@
             var numFrets = settings.numFrets,
                 numStrings = settings.tuning.length,
                 $fretboardBody = $element.find(bodySelector),
-                $strings = $element.find(stringContainerSelector),
-                $string,
-                $notes,
-                $note,
+                $stringContainers = $element.find(stringContainerSelector),
                 fretboardBodyRightPosition,
                 fretboardContainerRightPosition,
                 fretWidthInPixels,
@@ -226,17 +228,25 @@
             fretWidthInPixels = $fretboardBody.width() / (numFrets + 1);
             fretHeightInPixels = $fretboardBody.height() / numStrings;
             
-            $strings.each(function(stringNum, stringEl) {
-                $string = $(stringEl);
-                
-                $notes = $string.find(noteSelector);
+            $stringContainers.each(function(stringNum, stringContainerEl) {
+                var $stringContainer,
+                    $string,
+                    $notes,
+                    $note,
+                    noteWidth,
+                    noteHeight,
+                    leftVal,
+                    topVal;
+                    
+                $stringContainer = $(stringContainerEl);
+                $string = $stringContainer.find(stringSelector);
+                $notes = $stringContainer.find(noteSelector);
                 
                 $notes.each(function(fretNum, noteEl) {
-                    var $note = $(noteEl),
-                        noteWidth = $note.outerWidth(),
-                        noteHeight = $note.outerHeight(),
-                        leftVal,
-                        topVal;
+                    $note = $(noteEl);
+                    noteWidth = $note.outerWidth();
+                    noteHeight = $note.outerHeight();
+                    leftVal;
                         
                     leftVal = (fretNum * fretWidthInPixels) + ((fretWidthInPixels / 2) - (noteWidth / 2));
                     topVal = (stringNum * fretHeightInPixels) + ((fretHeightInPixels / 2)  - (noteHeight / 2));
@@ -245,23 +255,24 @@
                         left: leftVal,
                         top: topVal
                     });
-                        
+                });
+                
+                // Set the string position across the note, taking into account the
+                // string's thickness
+                $string.css({
+                    top: topVal + (noteHeight / 2)  - ($string.outerHeight() / 2)
                 });
             });
                 
-            /*
-            $element
+            
+            /*$element
                 .find(noteSelector)
                 .each(verticallyCenter);
             
             $element
                 .find(letterSelector)
-                .each(verticallyCenter);
-            
-            $element
-                .find(stringSelector)
                 .each(verticallyCenter); */
-                
+            
             /* If the body is bigger than the container put a scroll on the container.
                We don't always want overflow-x scroll to be there because the scroll 
                will show even when not needed and looks ugly. */
