@@ -59,10 +59,18 @@
         init();
 
         function init() {
-            var timer;
+            var $fretboardBody = getFretboardBodyEl(),
+                numStrings = settings.tuning.length,
+                numFrets = settings.numFrets,
+                timer;
             
             $element.addClass(fretboardContainerCssClass);
-            $element.append(getFretboardBodyEl());
+            
+            $fretboardBody
+                .addClass("strings-" + numStrings)
+                .addClass("frets-" + numFrets);
+                
+            $element.append($fretboardBody);
             
             setDimensions(true, true, true, true);
             
@@ -113,8 +121,8 @@
                 console.log(tuningNote);
             }
             //validate();   
-            $element.empty();
-            init();
+            //$element.empty();
+            //init();
             self.setClickedNotes(clickedNotes); 
         }
         
@@ -183,28 +191,21 @@
                 numFrets = settings.numFrets,
                 $fretboardBody = $("<div class='" + bodyCssClass + "'></div>"),
                 $stringContainer,
+                $fretLine,
                 openNote,
                 i;
                 
             for (i = 0; i < numStrings; i++) {
                 openNote = settings.tuning[i];
                 $stringContainer = getStringContainerEl(openNote);
-                
-                if (i === 0) {
-                    $stringContainer.addClass("first");
-                } else if (i === numStrings - 1) {
-                    $stringContainer.addClass("last");
-                }   
-                
                 $stringContainer.append(getStringEl());
                 $fretboardBody.append($stringContainer);
             }
             
-            $fretboardBody
-                .addClass("strings-" + numStrings)
-                .addClass("frets-" + numFrets);
-            
-            $element.trigger("bodyDrawn");
+            for (i = 0; i <= numFrets; i++) {
+                $fretLine = getFretLine();
+                $fretboardBody.append($fretLine);
+            }
             
             return $fretboardBody;
         }
@@ -213,7 +214,6 @@
             var $stringContainer = $("<div class='" + stringContainerCssClass + "'></div>"),
                 numFrets = settings.numFrets,
                 $note,
-                $fretLine,
                 noteData,
                 i;
             
@@ -227,16 +227,7 @@
                     stringItsOn: openNote
                 });
                 
-                $fretLine = getFretLine();
-                
-                if (i === 0) {
-                    $fretLine.addClass("first");
-                } else if (i === numFrets) {
-                    $fretLine.addClass("last");
-                }
-                
                 $stringContainer.append($note);
-                $stringContainer.append($fretLine);
             }
             
             return $stringContainer;
@@ -323,14 +314,28 @@
                 fretboardContainerRightPosition,
                 fretWidthInPixels,
                 fretHeightInPixels;
-                
-                console.log("setting dimensions");
             
             fretboardBodyRightPosition = $fretboardBody.offset().left + $fretboardBody.outerWidth();
             fretboardContainerRightPosition = $element.offset().left + $element.outerWidth();    
             
             fretWidthInPixels = fretboardBodyWidth / (numFrets + 1);
             fretHeightInPixels = fretboardBodyHeight / numStrings;
+            
+            $fretLines.each(function(fretNum, fretLineEl) {
+                var fretLeftVal = fretNum * fretWidthInPixels,
+                    $fretLine = $(fretLineEl);
+                
+                if (fretNum === 0) {
+                    $fretLine.addClass("first");
+                } else if (fretNum === numFrets) {
+                    $fretLine.addClass("last");
+                }
+                
+                $fretLine.animate({
+                    left: fretLeftVal + fretWidthInPixels - ($fretLine.outerWidth() / 2),
+                    height: fretboardBodyHeight
+                },  { duration: animateFretLines ? 500 : 0, queue: false } );
+            });
             
             $fretboardBody
                 .css({
@@ -364,6 +369,13 @@
                     $fretLine;
                     
                 $stringContainer = $(stringContainerEl);
+                
+                if (stringNum === 0) {
+                    $stringContainer.addClass("first");
+                } else if (stringNum === numStrings - 1) {
+                    $stringContainer.addClass("last");
+                }
+                
                 $string = $stringContainer.find(stringSelector);
                 $notes = $stringContainer.find(noteSelector);
                 
@@ -382,14 +394,6 @@
                         left: noteLeftVal,
                         top: noteTopVal
                     }, { duration: animateNotes ? 500 : 0, queue: false });
-                    
-                    $fretLine = $($fretLines[fretNum]);
-                    
-                    $fretLine.animate({
-                        left: fretLeftVal + fretWidthInPixels - ($fretLine.outerWidth() / 2),
-                        height: fretboardBodyHeight
-                    },  { duration: animateFretLines ? 500 : 0, queue: false } );
-                    
                 });
                 
                 // Set the string position across the note, taking into account the string's thickness
