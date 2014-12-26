@@ -104,6 +104,52 @@
             init();
         }
         
+        self.setClickedNotes = function(notesToClick) {
+            var notesToClickLength = notesToClick.length, 
+                tuning = settings.tuning,
+                tuningLength = tuning.length,
+                i, 
+                j,
+                tuningNote,
+                noteToClick,
+                stringItsOn,
+                $stringContainer,
+                $note;
+            
+            if (!notesToClick) {
+                return;
+            }
+            
+            // For each note that needs to be clicked check its stringItsOn
+            // property to see if it matches a note object in the tuning array.
+            // If it does, get the of the matched note in the tuning array and 
+            // get the find the corresponding $stringContainer and click its 
+            // note.
+            
+            for (i = 0; i < notesToClickLength; i++) {
+                noteToClick = notesToClick[i];
+                stringItsOn = noteToClick && noteToClick.stringItsOn;
+                
+                if (!stringItsOn) {
+                    continue;
+                }
+                
+                for (j = 0; j < tuningLength; j++) {
+                    tuningNote = tuning[j];
+                    
+                    if (tuningNote.letter === stringItsOn.letter && tuningNote.octave === stringItsOn.octave) {
+                        $stringContainer = $($element.find(stringContainerSelector)[j]);
+                        $note = $($stringContainer.find(noteSelector)[noteToClick.fretNumber]);
+                        
+                        if (!$note.hasClass(clickedCssClass)) {
+                            // Make it behave the same as if you hovered over and clicked it
+                            $note.trigger("mouseover").trigger("click");
+                        }
+                    }
+                }   
+            }
+        }
+        
         function getFretboardBodyEl() {
             var numStrings = settings.tuning.length,
                 numFrets = settings.numFrets,

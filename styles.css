@@ -54,6 +54,7 @@
 
 .fretboard-container .note.clicked {
     background: blue;
+    opacity: 1;
 }
 
 .fretboard-container .letter {

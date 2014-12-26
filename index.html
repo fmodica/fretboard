@@ -33,6 +33,7 @@
         <div class="my-fretboard-js space-theme"></div>
         
         <button class="toggle-chord-mode">Toggle chord mode</button>
+        <button class="set-clicked-notes">Set clicked notes</button>
         <button class="get-clicked-notes">Get clicked notes</button>
         <button class="note-clicking-disabled">Disable/enable note clicking</button>
         <button class="change-tuning">Change tuning</button>
@@ -69,6 +70,37 @@
                         octave: 2
                     }],
                 numFrets = 16,
+                clickedNotes = [{
+                    stringItsOn: {
+                        letter: "E",
+                        octave: 4
+                    },
+                    fretNumber: 3
+                },{
+                    stringItsOn: {
+                        letter: "B",
+                        octave: 4
+                    },
+                    fretNumber: 5
+                }, {
+                    stringItsOn: {
+                        letter: "G",
+                        octave: 3
+                    },
+                    fretNumber: 4
+                }, {
+                    stringItsOn: {
+                        letter: "D",
+                        octave: 3
+                    },
+                    fretNumber: 5
+                }, {
+                    stringItsOn: {
+                        letter: "A",
+                        octave: 3
+                    },
+                    fretNumber: 3
+                }],
                 options = {
                     allNoteLetters: ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"],
                     tuning: tuning,
@@ -79,30 +111,6 @@
                     
                     
                     tuningClickingDisabled: false,
-                    clickedNotes: [{
-                        stringItsOn: {
-                            letter: "E",
-                            octave: 4
-                        },
-                        fretNumber: 5,
-                        stringItsOn: {
-                            letter: "B",
-                            octave: 4
-                        },
-                        fretNumber: 7,
-                    }, {
-                        stringItsOn: {
-                            letter: "G",
-                            octave: 3
-                        },
-                        fretNumber: 6,
-                    }, {
-                        stringItsOn: {
-                            letter: "A",
-                            octave: 3
-                        },
-                        fretNumber: 5,
-                    }],
                     fretsToDrawOneCircleOn: [3, 5, 7, 9, 12],
                     showTuningTriangles: true,
                     showTuningSquares: true
@@ -116,6 +124,12 @@
                 
                 $fretboard.each(function() {
                     $(this).data('fretboard').setChordMode(isChordMode);
+                });
+            });
+            
+            $(".set-clicked-notes").on("click", function() {
+                $fretboard.each(function() {
+                    $(this).data('fretboard').setClickedNotes(clickedNotes);
                 });
             });
             
