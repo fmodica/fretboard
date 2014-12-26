@@ -149,14 +149,19 @@
             });
             
             $(".change-tuning").on("click", function() {
-                if (tuning.length < 8) {
+                /*if (tuning.length < 8) {
                     tuning.push({
                         letter: tuning[tuning.length - 1].letter,
                         octave: tuning[tuning.length - 1].octave - 1
                     });
                 } else {
                     tuning.pop();
-                }
+                }*/
+                
+                tuning.push({
+                    letter: tuning[tuning.length - 1].letter,
+                    octave: tuning[tuning.length - 1].octave - 1
+                });
                 
                 $fretboard.each(function() {
                     $(this).data('fretboard').setTuning(tuning);

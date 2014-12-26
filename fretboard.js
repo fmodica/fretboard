@@ -50,7 +50,9 @@
             },
             settings = {};
             
-        $.extend(settings, defaults, options);
+        // Make a copy of the options that were passed in, just in case the 
+        // user modifies that object. Then extend it with the defaults.
+        $.extend(settings, defaults, $.extend(true, [], options));
         
         console.log("Settings: ");
         console.log(settings);
@@ -65,11 +67,6 @@
                 timer;
             
             $element.addClass(fretboardContainerCssClass);
-            
-            $fretboardBody
-                .addClass("strings-" + numStrings)
-                .addClass("frets-" + numFrets);
-                
             $element.append($fretboardBody);
             
             setDimensions(true, true, true, true);
@@ -107,23 +104,45 @@
         
         self.setTuning = function(tuning) {
             var clickedNotes = self.getClickedNotes(),
-                tuningLength,
+                $fretboardBody = $element.find(bodySelector),
+                $stringContainers = $element.find(stringContainerSelector),
+                newTuning = $.extend(true, [], tuning),
+                oldTuning = $.extend(true, [], settings.tuning),
+                oldTuningLength = oldTuning.length,
+                tuningLength = tuning.length,
                 tuningNote,
-                i,
-                j;
+                i;
+           
+            settings.tuning = newTuning;
             
-            settings.tuning = tuning;
-            tuningLength = tuning.length;
+            debugger;
             
-            for (i = 0; i < tuningLength; i++) {
-                tuningNote = tuning[i];
-                
-                console.log(tuningNote);
+            // If the new tuning has at least as many strings as the old
+            // tuning, modify/add strings to the DOM.
+            if (tuningLength >= oldTuningLength) {
+                // Handle addition or modification of strings
+                for (i = 0; i < tuningLength; i++) {
+                    tuningNote = newTuning[i];
+                    
+                    // If a string exists, alter it
+                    if (i < oldTuningLength) {
+                    
+                    } else {
+                        $fretboardBody.append(getStringContainerEl(tuningNote));
+                    }
+                }
+            } else {
+                // Remove strings from the DOM
+                for (i = newTuningLength; i < oldTuningLength; i++) {
+                    $($stringContainers[i]).remove();
+                }
             }
+            
+            setDimensions(false, true, true, true);
             //validate();   
             //$element.empty();
             //init();
-            self.setClickedNotes(clickedNotes); 
+            //self.setClickedNotes(clickedNotes); 
         }
         
         self.setNumFrets = function(numFrets) {
@@ -198,7 +217,6 @@
             for (i = 0; i < numStrings; i++) {
                 openNote = settings.tuning[i];
                 $stringContainer = getStringContainerEl(openNote);
-                $stringContainer.append(getStringEl());
                 $fretboardBody.append($stringContainer);
             }
             
@@ -229,6 +247,8 @@
                 
                 $stringContainer.append($note);
             }
+            
+            $stringContainer.append(getStringEl());
             
             return $stringContainer;
         }
@@ -315,9 +335,19 @@
                 fretWidthInPixels,
                 fretHeightInPixels;
             
-            fretboardBodyRightPosition = $fretboardBody.offset().left + $fretboardBody.outerWidth();
-            fretboardContainerRightPosition = $element.offset().left + $element.outerWidth();    
+            $fretboardBody
+                .removeClass()
+                .addClass(bodyCssClass)
+                .addClass("strings-" + numStrings)
+                .addClass("frets-" + numFrets);
+                
+            // Remove any classes that were added before since there might be a different
+            // number of strings/frets now.
+            $fretLines.removeClass("first").removeClass("last");
+            $stringContainers.removeClass("first").removeClass("last");
             
+            fretboardBodyRightPosition = $fretboardBody.offset().left + $fretboardBody.outerWidth();
+            fretboardContainerRightPosition = $element.offset().left + $element.outerWidth();
             fretWidthInPixels = fretboardBodyWidth / (numFrets + 1);
             fretHeightInPixels = fretboardBodyHeight / numStrings;
             
@@ -337,6 +367,7 @@
                 },  { duration: animateFretLines ? 500 : 0, queue: false } );
             });
             
+            /*
             $fretboardBody
                 .css({
                     height: 0
@@ -353,7 +384,7 @@
                             width: ""
                         });
                     }
-                });
+                }); */
             
             $stringContainers.each(function(stringNum, stringContainerEl) {
                 var $stringContainer,
