@@ -93,6 +93,7 @@
             settings.tuning = tuning;
             validate();
             init();
+            self.setClickedNotes(clickedNotes);
         }
         
         self.setNumFrets = function(numFrets) {
@@ -102,6 +103,7 @@
             settings.numFrets = numFrets;
             validate();
             init();
+            self.setClickedNotes(clickedNotes);
         }
         
         self.setClickedNotes = function(notesToClick) {
