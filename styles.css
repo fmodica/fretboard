@@ -99,9 +99,9 @@
     display: none;
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 1200px) {
     .fretboard-container .body {
-        width: 800px;
+        width: 900px;
     }
     
     .fretboard-container .note {
