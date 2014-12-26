@@ -98,38 +98,42 @@
 
 /* Theme Examples */
 
-/*
-.my-fretboard-js.fretboard-container .body {
+
+.fretboard-container .body {
     background: url(http://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/NGC_4414_%28NASA-med%29.jpg/582px-NGC_4414_%28NASA-med%29.jpg);
     background-size: contain;
     border: none;
 }
 
-.my-fretboard-js.fretboard-container .fret {
-    border-right: 2px solid white;
-}
-
-.my-fretboard-js.fretboard-container .fret.first {
-    border-right: 15px solid white;
-}
-
-.my-fretboard-js.fretboard-container .fret.last {
-    border-right: none;
-}
-
-.my-fretboard-js.fretboard-container .string {
+.fretboard-container .string {
     background: white;
 }
 
-.my-fretboard-js.fretboard-container .note.clicked {
+.fretboard-container .note.clicked {
     background: green;
     border: 1px solid white;
 }
 
-.my-fretboard-js.fretboard-container .note {
+.fretboard-container .note {
     border: 1px solid green;
 }
-*/
+
+@media (max-width: 800px) {
+    .fretboard-container .body {
+        width: 800px;
+    }
+    
+    .fretboard-container .note {
+        width: 30px;
+        height: 30px;
+    }
+    
+    .fretboard-container .letter {
+        top: 10px;
+        font-size: 10px;
+        line-height: 10px;
+    }
+}
 
 
 
