@@ -93,9 +93,6 @@
             validate();
             
             
-            
-            init();
-            self.setClickedNotes(clickedNotes);
         }
         
         self.setNumFrets = function(numFrets) {
@@ -141,7 +138,7 @@
                 for (j = 0; j < tuningLength; j++) {
                     tuningNote = tuning[j];
                     
-                    if (tuningNote.letter === stringItsOn.letter && tuningNote.octave === stringItsOn.octave) {
+                    if (notesAreEqual(tuningNote, stringItsOn)) {
                         $stringContainer = $($element.find(stringContainerSelector)[j]);
                         $note = $($stringContainer.find(noteSelector)[noteToClick.fretNumber]);
                         
@@ -152,6 +149,10 @@
                     }
                 }   
             }
+        }
+        
+        function notesAreEqual(note1, note2) {
+            return note1.letter === note2.letter && note1.octave === note2.octave;
         }
         
         function getFretboardBodyEl() {
