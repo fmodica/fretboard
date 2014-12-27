@@ -65,7 +65,8 @@
                 noteClickingDisabled: false,
                 dimensionsFunc: DEFAULT_DIMENSIONS_FUNC
             },
-            settings = {};
+            settings = {},
+            $fretboardBody;
             
         // Make a copy of the options that were passed in, just in case the 
         // user modifies that object. Then extend it with the defaults.
@@ -78,18 +79,21 @@
         init();
 
         function init() {
-            var $fretboardBody = getFretboardBodyEl(),
-                numStrings = settings.tuning.length,
+            var numStrings = settings.tuning.length,
                 numFrets = settings.numFrets,
                 timer;
-            
-            $element.addClass(fretboardContainerCssClass);
-            $element.append($fretboardBody);
+                
+            // Set the instance variable
+            $fretboardBody = getFretboardBodyEl(); 
+             
+            $element
+                .addClass(fretboardContainerCssClass)    
+                .append($fretboardBody);
             
             setDimensions(false, false, false, false);
             
-            // Track browser resizing so we only recalculate positions on the 
-            // last resize after X milliseconds
+            // Animate the fretboard dimensions on resize, but only 
+            // on the last resize after X milliseconds
 			$window.on("resize",function() {
 				clearTimeout(timer);
 		
@@ -121,8 +125,6 @@
         
         self.setTuning = function(tuning) {
             var numFrets = settings.numFrets,
-                clickedNotes = self.getClickedNotes(),
-                $fretboardBody = $element.find(bodySelector),
                 $stringContainers = $element.find(stringContainerSelector),
                 newTuning = $.extend(true, [], tuning),
                 newTuningLength = newTuning.length,
@@ -190,10 +192,9 @@
         self.setNumFrets = function(numFrets) {
             var clickedNotes = self.getClickedNotes();
             
-            $element.empty();
             settings.numFrets = numFrets;
-            init();
-            self.setClickedNotes(clickedNotes);
+            
+            
         }
         
         self.setClickedNotes = function(notesToClick) {
@@ -362,53 +363,32 @@
             return $("<div class='" + fretLineCssClass + "'></div>");
         }
         
-        // Calculate default widths/heights. They can be overridden in CSS.
+        // Absolutely position all of the inner elements, and animate their positioning if requested
         function setDimensions(animateBody, animateNotes, animateFretLines, animateStrings) {
             var numFrets = settings.numFrets,
                 numStrings = settings.tuning.length,
-                $fretboardBody = $element.find(bodySelector),
                 dimensions = settings.dimensionsFunc(),
                 fretboardBodyHeight = dimensions.height,
                 fretboardBodyWidth = dimensions.width,
                 $stringContainers = $element.find(stringContainerSelector),
                 $fretLines = $element.find(fretLineSelector),
-                fretboardBodyRightPosition,
-                fretboardContainerRightPosition,
                 fretWidthInPixels,
                 fretHeightInPixels;
-            
+                
+            // Remove any classes that were added before since there might be a different
+            // number of strings/frets now.
             $fretboardBody
                 .removeClass()
                 .addClass(bodyCssClass)
                 .addClass("strings-" + numStrings)
                 .addClass("frets-" + numFrets);
-                
-            // Remove any classes that were added before since there might be a different
-            // number of strings/frets now.
             $fretLines.removeClass("first").removeClass("last");
             $stringContainers.removeClass("first").removeClass("last");
+            
+            animateFretboardBody(fretboardBodyWidth, fretboardBodyHeight, animateBody);
+            
             fretWidthInPixels = fretboardBodyWidth / (numFrets + 1);
             fretHeightInPixels = fretboardBodyHeight / numStrings;
-            
-            $fretboardBody.animate({
-                height: fretboardBodyHeight,
-                width: fretboardBodyWidth
-            }, { 
-                duration: animateBody ? 500 : 0, 
-                queue: false, 
-                complete: function() {
-                    fretboardBodyRightPosition = $fretboardBody.offset().left + $fretboardBody.outerWidth();
-                    fretboardContainerRightPosition = $element.offset().left + $element.outerWidth();
-                    /* If the body is bigger than the container put a scroll on the container.
-                       We don't always want overflow-x scroll to be there because the scroll 
-                       will show even when not needed and looks ugly. */
-                    if (fretboardBodyRightPosition >= fretboardContainerRightPosition) {
-                        $element.css("overflow-x", "scroll");
-                    } else {
-                        $element.css("overflow-x", "hidden");
-                    }
-                }
-            });
             
             $fretLines.each(function(fretNum, fretLineEl) {
                 var fretLeftVal = fretNum * fretWidthInPixels,
@@ -474,6 +454,31 @@
             });
             
             $element.trigger("dimensionsSet");
+        }
+        
+        function animateFretboardBody(fretboardBodyWidth, fretboardBodyHeight, animate) {
+            var fretboardBodyRightPosition,
+                fretboardContainerRightPosition;
+                
+            $fretboardBody.animate({
+                height: fretboardBodyHeight,
+                width: fretboardBodyWidth
+            }, { 
+                duration: animate ? 500 : 0, 
+                queue: false, 
+                complete: function() {
+                    fretboardBodyRightPosition = $fretboardBody.offset().left + $fretboardBody.outerWidth();
+                    fretboardContainerRightPosition = $element.offset().left + $element.outerWidth();
+                    /* If the body is bigger than the container put a scroll on the container.
+                       We don't always want overflow-x scroll to be there because the scroll 
+                       will show even when not needed and looks ugly. */
+                    if (fretboardBodyRightPosition >= fretboardContainerRightPosition) {
+                        $element.css("overflow-x", "scroll");
+                    } else {
+                        $element.css("overflow-x", "hidden");
+                    }
+                }
+            });
         }
         
         function getNoteByFretNumber(stringNote, fretNumber) {
