@@ -186,7 +186,7 @@
                 }
             }
             
-            setDimensions(true, true, true, true);
+            setDimensions(true, true, true);
         }
         
         self.setNumFrets = function(numFrets) {
@@ -318,11 +318,13 @@
                     if($clickedNote.hasClass(clickedCssClass)) {
                         $clickedNote
                             .removeClass(clickedCssClass)
+                            .removeClass(hoverCssClass)
                             .on("mouseenter", noteMouseEnter)
                             .on("mouseleave", noteMouseLeave);
                     } else {
                         $clickedNote
                             .addClass(clickedCssClass)
+                            .removeClass(hoverCssClass)
                             .off("mouseenter", noteMouseEnter)
                             .off("mouseleave", noteMouseLeave); 
                     }
@@ -512,11 +514,11 @@
             }
         }
         
-        function noteMouseEnter() {
+        function noteMouseEnter(e) {
             $(this).addClass(hoverCssClass);
         }
         
-        function noteMouseLeave() {
+        function noteMouseLeave(e) {
             $(this).removeClass(hoverCssClass);
         }
 
