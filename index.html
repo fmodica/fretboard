@@ -30,7 +30,7 @@
     <div class="container">
         <div class="my-fretboard-js"></div>
         
-        <!-- <div class="my-fretboard-js space-theme"></div> -->
+        <div class="my-fretboard-js space-theme"></div>
         
         <button class="toggle-chord-mode">Toggle chord mode</button>
         <button class="set-clicked-notes">Set clicked notes</button>
@@ -102,15 +102,29 @@
                     },
                     fretNumber: 3
                 }],
+                dimensionsFunc = function() {
+                    // "this" will be the settings object
+                    var settings = this,
+                        winWidth = $(window).width(),
+                        width = winWidth >= 1200 ? 1100 : 950;
+            
+                    return {
+                        // half the width per fret, times number of strings
+                        height: ((width / (this.numFrets + 1)) / 2) * this.tuning.length,
+                        width: width
+                    };
+                },
                 options = {
                     allNoteLetters: ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"],
                     tuning: tuning,
                     numFrets: numFrets,
                     isChordMode: isChordMode,
                     noteClickingDisabled: isDisabled,
-                    
-                    
-                    
+                    dimensionsFunc: dimensionsFunc,
+                    animationSpeed: 500, // ms
+
+
+                    /* old settings from the svg fretboard */
                     tuningClickingDisabled: false,
                     fretsToDrawOneCircleOn: [3, 5, 7, 9, 12],
                     showTuningTriangles: true,

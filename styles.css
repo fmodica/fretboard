@@ -35,25 +35,45 @@
 	position: absolute;
 	cursor: pointer;
     z-index: 10;
-
-    /* Need to animate this */
-	opacity: 0;
-	
+    
+    /* These will be animated */
+    opacity: 0;
+    transition: opacity .15s linear;
+    -moz-transition: opacity .15s linear;
+    -webkit-transition: opacity .15s linear;
+    -ms-transition: opacity.15s linear;
+    -o-transition: opacity .15s linear;
+    
 	background: white;
-    -webkit-transition: background-color 200ms linear;
-    -moz-transition: background-color 200ms linear;
-    -o-transition: background-color 200ms linear;
-    -ms-transition: background-color 200ms linear;
-    transition: background-color 200ms linear;
+	
+    /*-webkit-transition: background .15s linear;
+    -moz-transition: background .15s linear;
+    -o-transition: background .15s linear;
+    -ms-transition: background .15s linear;
+    transition: background .15s linear;*/
+
 }
 
 .fretboard-container .note.hover {
     opacity: 1;
+    
+    transition: opacity .15s linear;
+    -moz-transition: opacity .15s linear;
+    -webkit-transition: opacity .15s linear;
+    -ms-transition: background .15s linear;
+    -o-transition: opacity .15s linear;
 }
 
 .fretboard-container .note.clicked {
     background: blue;
+    border: 1px solid white;
     opacity: 1;
+    /*
+    -webkit-transition: background .15s linear;
+    -moz-transition: background .15s linear;
+    -o-transition: background .15s linear;
+    -ms-transition: background .15s linear;
+    transition: background .15s linear;*/
 }
 
 .fretboard-container .letter {
@@ -73,11 +93,6 @@
     user-select: none;
     
 	color: black;
-    -webkit-transition: color 200ms linear;
-    -moz-transition: color 200ms linear;
-    -o-transition: color 200ms linear;
-    -ms-transition: color 200ms linear;
-    transition: color 200ms linear;
 }
 
 .fretboard-container .note.clicked .letter {
@@ -91,7 +106,7 @@
 }
 
 .fretboard-container .fret-line.first {
-    width: 20px;
+    width: 12px;
 }
 
 .fretboard-container .fret-line.last {
@@ -124,10 +139,10 @@
 /* Space */
 .fretboard-container.space-theme .body {
     background: url(http://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/NGC_4414_%28NASA-med%29.jpg/582px-NGC_4414_%28NASA-med%29.jpg);
+    background-color: black;
     background-repeat: no-repeat;
     background-size: contain;
     border: 1px solid white;
-    background-color: black;
     background-position: center;
 }
 

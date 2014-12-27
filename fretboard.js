@@ -47,15 +47,10 @@
             // is over to do it (even if we can we tell when a transition has started
             // we don't know its final value)
             DEFAULT_DIMENSIONS_FUNC = function() {
-                var settings = this,
-                    winWidth = $(window).width(),
-                    width = winWidth >= 1200 ? 1100 : 950
-                
                 return {
-                    // half the width per fret, times number of strings
-                    height: ((width / (this.numFrets + 1)) / 2) * this.tuning.length,
-                    width: width
-                };
+                    width: 1200,
+                    height: 220
+                }
             },
             defaults = {
                 allNoteLetters: DEFAULT_NOTE_LETTERS,
@@ -63,7 +58,8 @@
                 numFrets: 15,
                 isChordMode: true,
                 noteClickingDisabled: false,
-                dimensionsFunc: DEFAULT_DIMENSIONS_FUNC
+                dimensionsFunc: DEFAULT_DIMENSIONS_FUNC,
+                animationSpeed: 500
             },
             settings = {},
             $fretboardBody;
@@ -90,7 +86,7 @@
                 .addClass(fretboardContainerCssClass)    
                 .append($fretboardBody);
             
-            setDimensions(false, false, false);
+            setDimensions(false, false, false, false, false);
             
             // Animate the fretboard dimensions on resize, but only 
             // on the last resize after X milliseconds
@@ -98,7 +94,7 @@
 				clearTimeout(timer);
 		
 				timer = setTimeout(function() {
-                    setDimensions(true, true, true);
+                    setDimensions(true, true, true, false, true);
                 }, 50);
 			});
         }
@@ -186,15 +182,13 @@
                 }
             }
             
-            setDimensions(true, true, true);
+            setDimensions(true, true, true, false, true);
         }
         
         self.setNumFrets = function(numFrets) {
             var clickedNotes = self.getClickedNotes();
             
             settings.numFrets = numFrets;
-            
-            
         }
         
         self.setClickedNotes = function(notesToClick) {
@@ -323,8 +317,8 @@
                             .on("mouseleave", noteMouseLeave);
                     } else {
                         $clickedNote
+                            .addClass(hoverCssClass)
                             .addClass(clickedCssClass)
-                            .removeClass(hoverCssClass)
                             .off("mouseenter", noteMouseEnter)
                             .off("mouseleave", noteMouseLeave); 
                     }
@@ -366,7 +360,7 @@
         }
         
         // Absolutely position all of the inner elements, and animate their positioning if requested
-        function setDimensions(animateBodyBool, animateNotesBool, animateFretLinesBool, animateStringContainersBool) {
+        function setDimensions(animateBodyBool, animateNotesBool, animateFretLinesBool, animateStringContainersBool, animateStringNotesBool) {
             var numFrets = settings.numFrets,
                 numStrings = settings.tuning.length,
                 dimensions = settings.dimensionsFunc(),
@@ -377,13 +371,13 @@
             
             animateFretboardBody(fretboardBodyWidth, fretboardBodyHeight, animateBodyBool);
             animateFretLines(fretWidth, fretboardBodyHeight, animateFretLinesBool);
-            animateStringContainers(fretWidth, fretHeight, animateStringContainersBool);
+            animateStringContainers(fretWidth, fretHeight, animateStringContainersBool, animateStringNotesBool);
             
             $element.trigger("dimensionsSet");
         }
         
         function animateFretboardBody(fretboardBodyWidth, fretboardBodyHeight, animate) {
-            var numStrings = settings.numStrings,
+            var numStrings = settings.tuning.length,
                 numFrets = settings.numFrets,
                 fretboardBodyRightPosition,
                 fretboardContainerRightPosition;
@@ -397,7 +391,7 @@
                     height: fretboardBodyHeight,
                     width: fretboardBodyWidth
                 }, { 
-                    duration: animate ? 500 : 0, 
+                    duration: animate ? settings.animationSpeed : 0, 
                     queue: false, 
                     complete: function() {
                         fretboardBodyRightPosition = $fretboardBody.offset().left + $fretboardBody.outerWidth();
@@ -434,13 +428,13 @@
                         left: fretLeftVal + fretWidth - ($fretLine.outerWidth() / 2),
                         height: fretHeight
                     }, { 
-                        duration: animate ? 500 : 0, 
+                        duration: animate ? settings.animationSpeed : 0, 
                         queue: false 
                     });
             });
         }
         
-        function animateStringContainers(fretWidth, fretHeight, animate) {
+        function animateStringContainers(fretWidth, fretHeight, animateContainer, animateNotes) {
             var $stringContainers = $element.find(stringContainerSelector),
                 numStrings = settings.numStrings;
             
@@ -484,7 +478,7 @@
                             left: noteLeftVal,
                             top: noteTopVal
                         }, { 
-                            duration: animate ? 500 : 0, 
+                            duration: animateNotes ? settings.animationSpeed : 0, 
                             queue: false 
                         });
                     });
@@ -492,8 +486,8 @@
                     // Set the string position across the note, taking into account the string's thickness
                     $string.animate({
                         top: noteTopVal + (noteHeight / 2)  - ($string.outerHeight() / 2)
-                    }, { 
-                        duration: animate ? 500 : 0, 
+                    }, {
+                        duration: animateContainer ? settings.animationSpeed : 0, 
                         queue: false 
                     });
                 });
