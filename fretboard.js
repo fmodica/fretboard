@@ -69,7 +69,7 @@
             $element.addClass(fretboardContainerCssClass);
             $element.append($fretboardBody);
             
-            setDimensions(true, true, true, true);
+            setDimensions(false, false, false, false);
             
             // Track browser resizing so we only recalculate positions on the 
             // last resize after X milliseconds
