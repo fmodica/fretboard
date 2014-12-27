@@ -41,12 +41,29 @@
                 "letter": "E",
                 "octave": 3
             }],
+            // Because we want to animate things inside the body
+            // while animating the body (otherwise we have to query
+            // the new body width/height, or at best wait until a css transition
+            // is over to do it (even if we can we tell when a transition has started
+            // we don't know its final value)
+            DEFAULT_DIMENSIONS_FUNC = function() {
+                var settings = this,
+                    winWidth = $(window).width(),
+                    width = winWidth >= 1200 ? 1100 : 950
+                
+                return {
+                    // half the width per fret, times number of strings
+                    height: ((width / (this.numFrets + 1)) / 2) * this.tuning.length,
+                    width: width
+                };
+            },
             defaults = {
                 allNoteLetters: DEFAULT_NOTE_LETTERS,
                 tuning: DEFAULT_TUNING,
                 numFrets: 15,
                 isChordMode: true,
                 noteClickingDisabled: false,
+                dimensionsFunc: DEFAULT_DIMENSIONS_FUNC
             },
             settings = {};
             
@@ -77,7 +94,7 @@
 				clearTimeout(timer);
 		
 				timer = setTimeout(function() {
-                    setDimensions(false, true, true, true);
+                    setDimensions(true, true, true, true);
                 }, 50);
 			});
         }
@@ -167,7 +184,7 @@
                 }
             }
             
-            setDimensions(false, true, true, true);
+            setDimensions(true, true, true, true);
         }
         
         self.setNumFrets = function(numFrets) {
@@ -350,8 +367,9 @@
             var numFrets = settings.numFrets,
                 numStrings = settings.tuning.length,
                 $fretboardBody = $element.find(bodySelector),
-                fretboardBodyHeight = $fretboardBody.height(),
-                fretboardBodyWidth = $fretboardBody.width(),
+                dimensions = settings.dimensionsFunc(),
+                fretboardBodyHeight = dimensions.height,
+                fretboardBodyWidth = dimensions.width,
                 $stringContainers = $element.find(stringContainerSelector),
                 $fretLines = $element.find(fretLineSelector),
                 fretboardBodyRightPosition,
@@ -369,11 +387,28 @@
             // number of strings/frets now.
             $fretLines.removeClass("first").removeClass("last");
             $stringContainers.removeClass("first").removeClass("last");
-            
-            fretboardBodyRightPosition = $fretboardBody.offset().left + $fretboardBody.outerWidth();
-            fretboardContainerRightPosition = $element.offset().left + $element.outerWidth();
             fretWidthInPixels = fretboardBodyWidth / (numFrets + 1);
             fretHeightInPixels = fretboardBodyHeight / numStrings;
+            
+            $fretboardBody.animate({
+                height: fretboardBodyHeight,
+                width: fretboardBodyWidth
+            }, { 
+                duration: animateBody ? 500 : 0, 
+                queue: false, 
+                complete: function() {
+                    fretboardBodyRightPosition = $fretboardBody.offset().left + $fretboardBody.outerWidth();
+                    fretboardContainerRightPosition = $element.offset().left + $element.outerWidth();
+                    /* If the body is bigger than the container put a scroll on the container.
+                       We don't always want overflow-x scroll to be there because the scroll 
+                       will show even when not needed and looks ugly. */
+                    if (fretboardBodyRightPosition >= fretboardContainerRightPosition) {
+                        $element.css("overflow-x", "scroll");
+                    } else {
+                        $element.css("overflow-x", "hidden");
+                    }
+                }
+            });
             
             $fretLines.each(function(fretNum, fretLineEl) {
                 var fretLeftVal = fretNum * fretWidthInPixels,
@@ -390,25 +425,6 @@
                     height: fretboardBodyHeight
                 },  { duration: animateFretLines ? 500 : 0, queue: false } );
             });
-            
-            /*
-            $fretboardBody
-                .css({
-                    height: 0
-                })
-                .animate({
-                    height: fretboardBodyHeight,
-                    width: fretboardBodyWidth
-                }, { 
-                    duration: animateBody ? 500 : 0, 
-                    queue: false, 
-                    complete: function() {
-                        $fretboardBody.css({
-                            height: "",
-                            width: ""
-                        });
-                    }
-                }); */
             
             $stringContainers.each(function(stringNum, stringContainerEl) {
                 var $stringContainer,
@@ -457,15 +473,6 @@
                 }, { duration: animateStrings ? 500 : 0, queue: false } );
             });
             
-            /* If the body is bigger than the container put a scroll on the container.
-               We don't always want overflow-x scroll to be there because the scroll 
-               will show even when not needed and looks ugly. */
-            if (fretboardBodyRightPosition >= fretboardContainerRightPosition) {
-                $element.css("overflow-x", "scroll");
-            } else {
-                $element.css("overflow-x", "hidden");
-            }
-           
             $element.trigger("dimensionsSet");
         }
         
