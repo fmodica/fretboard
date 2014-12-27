@@ -364,16 +364,15 @@
         }
         
         // Absolutely position all of the inner elements, and animate their positioning if requested
-        function setDimensions(animateBody, animateNotes, animateFretLines, animateStrings) {
+        function setDimensions(animateBodyBool, animateNotesBool, animateFretLinesBool, animateStringsBool) {
             var numFrets = settings.numFrets,
                 numStrings = settings.tuning.length,
                 dimensions = settings.dimensionsFunc(),
                 fretboardBodyHeight = dimensions.height,
                 fretboardBodyWidth = dimensions.width,
                 $stringContainers = $element.find(stringContainerSelector),
-                $fretLines = $element.find(fretLineSelector),
-                fretWidthInPixels,
-                fretHeightInPixels;
+                fretWidth,
+                fretHeight;
                 
             // Remove any classes that were added before since there might be a different
             // number of strings/frets now.
@@ -382,29 +381,15 @@
                 .addClass(bodyCssClass)
                 .addClass("strings-" + numStrings)
                 .addClass("frets-" + numFrets);
-            $fretLines.removeClass("first").removeClass("last");
+            
             $stringContainers.removeClass("first").removeClass("last");
             
-            animateFretboardBody(fretboardBodyWidth, fretboardBodyHeight, animateBody);
+            animateFretboardBody(fretboardBodyWidth, fretboardBodyHeight, animateBodyBool);
             
-            fretWidthInPixels = fretboardBodyWidth / (numFrets + 1);
-            fretHeightInPixels = fretboardBodyHeight / numStrings;
+            fretWidth = fretboardBodyWidth / (numFrets + 1);
+            fretHeight = fretboardBodyHeight / numStrings;
             
-            $fretLines.each(function(fretNum, fretLineEl) {
-                var fretLeftVal = fretNum * fretWidthInPixels,
-                    $fretLine = $(fretLineEl);
-                
-                if (fretNum === 0) {
-                    $fretLine.addClass("first");
-                } else if (fretNum === numFrets) {
-                    $fretLine.addClass("last");
-                }
-                
-                $fretLine.animate({
-                    left: fretLeftVal + fretWidthInPixels - ($fretLine.outerWidth() / 2),
-                    height: fretboardBodyHeight
-                },  { duration: animateFretLines ? 500 : 0, queue: false } );
-            });
+            animateFretLines(fretWidth, fretboardBodyHeight, animateFretLinesBool);
             
             $stringContainers.each(function(stringNum, stringContainerEl) {
                 var $stringContainer,
@@ -435,22 +420,22 @@
                     noteWidth = $note.outerWidth();
                     noteHeight = $note.outerHeight();
                     
-                    fretLeftVal = fretNum * fretWidthInPixels;
-                    fretTopVal = stringNum * fretHeightInPixels;
-                    noteLeftVal = fretLeftVal + ((fretWidthInPixels / 2) - (noteWidth / 2));
-                    noteTopVal = fretTopVal + ((fretHeightInPixels / 2)  - (noteHeight / 2));
+                    fretLeftVal = fretNum * fretWidth;
+                    fretTopVal = stringNum * fretHeight;
+                    noteLeftVal = fretLeftVal + ((fretWidth / 2) - (noteWidth / 2));
+                    noteTopVal = fretTopVal + ((fretHeight / 2)  - (noteHeight / 2));
                     
                     // queue: false means run the animations together (not one after the other)
                     $note.animate({
                         left: noteLeftVal,
                         top: noteTopVal
-                    }, { duration: animateNotes ? 500 : 0, queue: false });
+                    }, { duration: animateNotesBool ? 500 : 0, queue: false });
                 });
                 
                 // Set the string position across the note, taking into account the string's thickness
                 $string.animate({
                     top: noteTopVal + (noteHeight / 2)  - ($string.outerHeight() / 2)
-                }, { duration: animateStrings ? 500 : 0, queue: false } );
+                }, { duration: animateStringsBool ? 500 : 0, queue: false } );
             });
             
             $element.trigger("dimensionsSet");
@@ -478,6 +463,33 @@
                         $element.css("overflow-x", "hidden");
                     }
                 }
+            });
+        }
+        
+        function animateFretLines(fretWidth, fretHeight, animate) { 
+            var $fretLines = $element.find(fretLineSelector),
+                numFrets = settings.numFrets;
+            
+            $fretLines.removeClass("first").removeClass("last");
+            
+            $fretLines.each(function(fretNum, fretLineEl) {
+                var fretLeftVal = fretNum * fretWidth,
+                    $fretLine = $(fretLineEl);
+                
+                // Not really the responsibility of this function
+                if (fretNum === 0) {
+                    $fretLine.addClass("first");
+                } else if (fretNum === numFrets) {
+                    $fretLine.addClass("last");
+                }
+                
+                $fretLine.animate({
+                    left: fretLeftVal + fretWidth - ($fretLine.outerWidth() / 2),
+                    height: fretHeight
+                }, { 
+                    duration: animate ? 500 : 0, 
+                    queue: false 
+                });
             });
         }
         
