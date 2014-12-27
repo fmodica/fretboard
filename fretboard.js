@@ -90,7 +90,7 @@
 		
 				timer = setTimeout(function() {
                     setDimensions(true, true, true, false, true);
-                }, 50);
+                }, 100);
 			});
         }
         
@@ -176,7 +176,7 @@
                 }
             }
             
-            setDimensions(true, true, true, true, true);
+            setDimensions(true, true, true, false, true);
         }
         
         self.setNumFrets = function(newNumFrets) {

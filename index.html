@@ -106,18 +106,21 @@
                 dimensionsFunc = function() {
                     // "this" will be the options object into which we place this function
                     var options = this,
+                        numStrings = this.tuning.length,
                         winWidth = $(window).width();
                         
-                        if (winWidth >= 900) {
-                            width = winWidth - 100;
+                        if (winWidth > 1000) {
+                            width = winWidth * 0.8;
+                            height = numStrings * 32;
                         } else {
                             width = 800;
+                            height = numStrings * 28;
                         }
             
                     return {
                         // half the width per fret, times number of strings
                         //((width / (this.numFrets + 1)) / 2) * this.tuning.length,
-                        height: width / 5, 
+                        height: height,
                         width: width
                     };
                 },
