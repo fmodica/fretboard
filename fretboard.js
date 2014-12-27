@@ -41,11 +41,6 @@
                 "letter": "E",
                 "octave": 3
             }],
-            // Because we want to animate things inside the body
-            // while animating the body (otherwise we have to query
-            // the new body width/height, or at best wait until a css transition
-            // is over to do it (even if we can we tell when a transition has started
-            // we don't know its final value)
             DEFAULT_DIMENSIONS_FUNC = function() {
                 return {
                     width: 1200,
@@ -181,7 +176,7 @@
                 }
             }
             
-            setDimensions(true, true, true, false, true);
+            setDimensions(true, true, true, true, true);
         }
         
         self.setNumFrets = function(newNumFrets) {
@@ -245,7 +240,8 @@
         }
         
         self.setClickedNotes = function(notesToClick) {
-            var notesToClickLength = notesToClick.length, 
+            var notesToClick = $.extend(true, [], notesToClick),
+                notesToClickLength = notesToClick.length, 
                 tuning = settings.tuning,
                 tuningLength = tuning.length,
                 i, 
@@ -546,7 +542,6 @@
                 });
         
         }
-        
         
         function getNoteByFretNumber(stringNote, fretNumber) {
             var fretOffset = settings.allNoteLetters.indexOf(stringNote.letter) + fretNumber,

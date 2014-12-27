@@ -57,7 +57,7 @@
                         octave: 4
                     }, {
                         letter: "B",
-                        octave: 4
+                        octave: 3
                     }, {
                         letter: "G",
                         octave: 3
@@ -66,7 +66,7 @@
                         octave: 3
                     }, {
                         letter: "A",
-                        octave: 3
+                        octave: 2
                     }, {
                         letter: "E",
                         octave: 2
@@ -81,7 +81,7 @@
                 },{
                     stringItsOn: {
                         letter: "B",
-                        octave: 4
+                        octave: 3
                     },
                     fretNumber: 5
                 }, {
@@ -99,19 +99,25 @@
                 }, {
                     stringItsOn: {
                         letter: "A",
-                        octave: 3
+                        octave: 2
                     },
                     fretNumber: 3
                 }],
                 dimensionsFunc = function() {
-                    // "this" will be the settings object
-                    var settings = this,
-                        winWidth = $(window).width(),
-                        width = winWidth >= 1200 ? 1100 : 950;
+                    // "this" will be the options object into which we place this function
+                    var options = this,
+                        winWidth = $(window).width();
+                        
+                        if (winWidth >= 900) {
+                            width = winWidth - 100;
+                        } else {
+                            width = 800;
+                        }
             
                     return {
                         // half the width per fret, times number of strings
-                        height: ((width / (this.numFrets + 1)) / 2) * this.tuning.length,
+                        //((width / (this.numFrets + 1)) / 2) * this.tuning.length,
+                        height: width / 5, 
                         width: width
                     };
                 },
@@ -166,6 +172,7 @@
             
             $(".remove-string").on("click", function() {
                 tuning.pop();
+                // tuning.pop();
                 
                 $fretboard.each(function() {
                     $(this).data('fretboard').setTuning(tuning);
@@ -178,11 +185,21 @@
                         letter: tuning[tuning.length - 1].letter,
                         octave: tuning[tuning.length - 1].octave - 1
                     });
+                    
+                    /*tuning.push({
+                        letter: tuning[tuning.length - 1].letter,
+                        octave: tuning[tuning.length - 1].octave - 1
+                    });*/
                 } else {
                     tuning.push({
                         letter: "E",
                         octave: 4
                     });
+                    
+                    /*tuning.push({
+                        letter: "B",
+                        octave: 3
+                    });*/
                 }
                 
                 $fretboard.each(function() {
@@ -192,6 +209,7 @@
             
             $(".remove-fret").on("click", function() {
                 numFrets--;
+                //numFrets--;
                 
                 $fretboard.each(function() {
                     $(this).data('fretboard').setNumFrets(numFrets);
@@ -199,7 +217,8 @@
             });
             
             $(".add-fret").on("click", function() {
-                numFrets++
+                numFrets++;
+                //numFrets++;
                 
                 $fretboard.each(function() {
                     $(this).data('fretboard').setNumFrets(numFrets);
