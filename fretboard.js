@@ -208,15 +208,12 @@
                 
                 // Add or remove absFretNumDifference frets
                 for (j = 0; j < absFretNumDifference; j++) {
-                    // If fretNumDifference were 0 this loop wouldn't be entered
-                    // because absFretNumDifference would also be 0. But just to be
-                    // clear, use > 0 and < 0
-                    
+                    // fretNumDifferene will never be 0 or this loop won't be entered
                     if (fretNumDifference > 0) {
                         // Remove fret
                         fretNum = oldNumFrets - j;
                         $stringContainer.find(noteSelector)[fretNum].remove();
-                        $fretLines[fretNum].remove();
+                        
                     } else if (fretNumDifference < 0) { 
                         // Add fret
                         fretNum = oldNumFrets + (j + 1);
@@ -230,8 +227,17 @@
                         });
                         
                         $stringContainer.append($note);
-                        $fretboardBody.append(getFretLineEl());
                     }
+                }
+            }
+            
+            // Fret lines go inside the body
+            for (j = 0; j < absFretNumDifference; j++) {
+                // fretNumDifferene will never be 0 or this loop won't be entered
+                if (fretNumDifference > 0) {
+                    $fretLines[fretNum].remove();
+                } else if (fretNumDifference < 0) {
+                    $fretboardBody.append(getFretLineEl());
                 }
             }
             
