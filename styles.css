@@ -37,7 +37,7 @@
     z-index: 10;
     
     /* These will be animated */
-    opacity: 0;
+    opacity: 1;
     transition: opacity .15s linear;
     -moz-transition: opacity .15s linear;
     -webkit-transition: opacity .15s linear;

@@ -119,10 +119,10 @@
             settings.noteClickingDisabled = isDisabled;
         }
         
-        self.setTuning = function(tuning) {
+        self.setTuning = function(newTuning) {
             var numFrets = settings.numFrets,
                 $stringContainers = $element.find(stringContainerSelector),
-                newTuning = $.extend(true, [], tuning),
+                newTuning = $.extend(true, [], newTuning),
                 newTuningLength = newTuning.length,
                 oldTuning = $.extend(true, [], settings.tuning),
                 oldTuningLength = oldTuning.length,
@@ -154,7 +154,7 @@
                         $newStringContainerNotes = $newStringContainer.find(noteSelector);
                         $existingStringContainerNotes = $($stringContainers[i]).find(noteSelector);
                         
-                        for (j = 0; j < numFrets; j++) {
+                        for (j = 0; j <= numFrets; j++) {
                             newNoteData = $($newStringContainerNotes[j]).data('noteData');
                             $existingNote = $($existingStringContainerNotes[j]);
                             
@@ -174,8 +174,7 @@
             }
             
             // Removal of strings
-            
-            if (tuningLengthDifference) {
+            if (tuningLengthDifference > 0) {
                 for (i = 0; i < tuningLengthDifference; i++) {
                     console.log("removing");
                     $($stringContainers[oldTuningLength - 1 - i]).remove();
@@ -185,10 +184,58 @@
             setDimensions(true, true, true, false, true);
         }
         
-        self.setNumFrets = function(numFrets) {
-            var clickedNotes = self.getClickedNotes();
+        self.setNumFrets = function(newNumFrets) {
+            var tuning = settings.tuning,
+                oldNumFrets = settings.numFrets,
+                numStrings = tuning.length,
+                fretNumDifference = oldNumFrets - newNumFrets,
+                absFretNumDifference = Math.abs(fretNumDifference),
+                $stringContainers = $element.find(stringContainerSelector),
+                $stringContainer,
+                $fretLines = $element.find(fretLineSelector),
+                noteData,
+                openNote,
+                $note,
+                i,
+                j,
+                fretNum;
+                
+            settings.numFrets = newNumFrets;
             
-            settings.numFrets = numFrets;
+            for (i = 0; i < numStrings; i++) {
+                $stringContainer = $($stringContainers[i]);
+                openNote = tuning[i];
+                
+                // Add or remove absFretNumDifference frets
+                for (j = 0; j < absFretNumDifference; j++) {
+                    // If fretNumDifference were 0 this loop wouldn't be entered
+                    // because absFretNumDifference would also be 0. But just to be
+                    // clear, use > 0 and < 0
+                    
+                    if (fretNumDifference > 0) {
+                        // Remove fret
+                        fretNum = oldNumFrets - j;
+                        $stringContainer.find(noteSelector)[fretNum].remove();
+                        $fretLines[fretNum].remove();
+                    } else if (fretNumDifference < 0) { 
+                        // Add fret
+                        fretNum = oldNumFrets + (j + 1);
+                        noteData = getNoteByFretNumber(openNote, fretNum);
+                        
+                        $note = getNoteEl({
+                            letter : noteData.letter,
+                            octave: noteData.octave,
+                            fretNumber: fretNum,
+                            stringItsOn: openNote
+                        });
+                        
+                        $stringContainer.append($note);
+                        $fretboardBody.append(getFretLineEl());
+                    }
+                }
+            }
+            
+            setDimensions(true, true, true, true, true);
         }
         
         self.setClickedNotes = function(notesToClick) {
@@ -257,7 +304,7 @@
             }
             
             for (i = 0; i <= numFrets; i++) {
-                $fretLine = getFretLine();
+                $fretLine = getFretLineEl();
                 $fretboardBody.append($fretLine);
             }
             
@@ -355,7 +402,7 @@
             return $("<div class='" + letterCssClass + "'>" + letter + "</div>");
         }
         
-        function getFretLine() {
+        function getFretLineEl() {
             return $("<div class='" + fretLineCssClass + "'></div>");
         }
         
@@ -436,7 +483,7 @@
         
         function animateStringContainers(fretWidth, fretHeight, animateContainer, animateNotes) {
             var $stringContainers = $element.find(stringContainerSelector),
-                numStrings = settings.numStrings;
+                numStrings = settings.tuning.length;
             
             $stringContainers.removeClass("first").removeClass("last")
                 .each(function(stringNum, stringContainerEl) {

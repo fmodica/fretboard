@@ -33,12 +33,13 @@
         <div class="my-fretboard-js space-theme"></div>
         
         <button class="toggle-chord-mode">Toggle chord mode</button>
-        <button class="set-clicked-notes">Set clicked notes</button>
-        <button class="get-clicked-notes">Get clicked notes</button>
+        <button class="set-clicked-notes">Set C maj7 chord</button>
+        <button class="get-clicked-notes">Get clicked notes (console)</button>
         <button class="note-clicking-disabled">Disable/enable note clicking</button>
         <button class="add-string">Add string</button>
         <button class="remove-string">Remove string</button>
-        <!--<button class="change-fret-num">Change Number of Frets</button>-->
+        <button class="remove-fret">Remove fret</button>
+        <button class="add-fret">Add fret</button>
     <!-- <button ng-click="unclick()">Unclick Frets</button>
     <button ng-click="addString()">Add String</button>
     <button ng-click="removeString()">Remove String</button>
@@ -189,12 +190,16 @@
                 });
             });
             
-            $(".change-fret-num").on("click", function() {
-                if (numFrets < 18) {
-                    numFrets++;
-                } else {
-                    numFrets--;
-                }
+            $(".remove-fret").on("click", function() {
+                numFrets--;
+                
+                $fretboard.each(function() {
+                    $(this).data('fretboard').setNumFrets(numFrets);
+                });
+            });
+            
+            $(".add-fret").on("click", function() {
+                numFrets++
                 
                 $fretboard.each(function() {
                     $(this).data('fretboard').setNumFrets(numFrets);
