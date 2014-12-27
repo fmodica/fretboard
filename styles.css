@@ -11,7 +11,14 @@
     background: wheat;
     border: 1px solid gray;
     width: 1100px;
-    height: 220px;
+    height: 240px;
+    margin: 0 auto;
+}
+
+.fretboard-container .body {
+    background: wheat;
+    border: 1px solid gray;
+    width: 1100px;
     margin: 0 auto;
 }
 
@@ -28,8 +35,8 @@
 .fretboard-container .note {
 	border-radius: 50%;
 	border: 1px solid black;
-	width: 32px;
-	height: 32px;
+	width: 34px;
+	height: 34px;
 	/* If we give this absolute positioning then we'll have to 
 	   calculate the horizontal centering (margin auto won't 
 	   work */
@@ -38,7 +45,7 @@
     z-index: 10;
 
     /* Need to animate this */
-	opacity: 1;
+	opacity: 0;
 	
 	background: white;
     -webkit-transition: background-color 200ms linear;
@@ -59,10 +66,10 @@
 
 .fretboard-container .letter {
     position: relative;
-    top: 10.5px;
+    top: 11px;
 	text-align: center;
-    font-size: 11px;
-    line-height: 11px;
+    font-size: 12px;
+    line-height: 12px;
     z-index: 0;
     
     /* Make text unselectable */
@@ -102,17 +109,18 @@
 @media (max-width: 1200px) {
     .fretboard-container .body {
         width: 900px;
+        height: 170px;
     }
     
     .fretboard-container .note {
-        width: 30px;
-        height: 30px;
+        width: 25px;
+        height: 25px;
     }
     
     .fretboard-container .letter {
-        top: 10px;
-        font-size: 10px;
-        line-height: 10px;
+        top: 8.75px;
+        font-size: 7.5px;
+        line-height: 7.5px;
     }
 }
 
