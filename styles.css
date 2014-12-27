@@ -124,8 +124,11 @@
 /* Space */
 .fretboard-container.space-theme .body {
     background: url(http://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/NGC_4414_%28NASA-med%29.jpg/582px-NGC_4414_%28NASA-med%29.jpg);
+    background-repeat: no-repeat;
     background-size: contain;
     border: 1px solid white;
+    background-color: black;
+    background-position: center;
 }
 
 .fretboard-container.space-theme .string {
