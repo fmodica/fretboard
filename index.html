@@ -106,7 +106,7 @@
                 dimensionsFunc = function() {
                     // "this" will be the options object into which we place this function
                     var options = this,
-                        numStrings = this.tuning.length,
+                        numStrings = options.tuning.length,
                         winWidth = $(window).width();
                         
                         if (winWidth > 1000) {

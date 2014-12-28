@@ -85,13 +85,13 @@
             
             // Animate the fretboard dimensions on resize, but only 
             // on the last resize after X milliseconds
-			$window.on("resize",function() {
-				clearTimeout(timer);
-		
-				timer = setTimeout(function() {
+            $window.on("resize",function() {
+                clearTimeout(timer);
+
+                timer = setTimeout(function() {
                     setDimensions(true, true, true, true, true);
                 }, 100);
-			});
+            });
         }
         
         self.setChordMode = function(isChordMode) {
@@ -522,7 +522,6 @@
                         noteLeftVal = fretLeftVal + ((fretWidth / 2) - (noteWidth / 2));
                         noteTopVal = fretTopVal + ((fretHeight / 2)  - (noteHeight / 2));
                         
-                        // queue: false means run the animations together (not one after the other)
                         $note.animate({
                             left: noteLeftVal,
                             top: noteTopVal
