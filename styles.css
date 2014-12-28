@@ -138,7 +138,7 @@
 
 /* Space */
 .fretboard-container.space-theme .body {
-    background: url(http://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/NGC_4414_%28NASA-med%29.jpg/582px-NGC_4414_%28NASA-med%29.jpg);
+    background: url("NGC_4414_(NASA-med).jpg");
     background-color: black;
     background-repeat: no-repeat;
     background-size: contain;
