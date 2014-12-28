@@ -58,7 +58,7 @@
             },
             settings = {},
             $fretboardBody;
-            
+            debugger;
         // Make a copy of the options that were passed in, just in case the 
         // user modifies that object. Then extend it with the defaults.
         $.extend(settings, defaults, $.extend(true, [], options));
@@ -89,7 +89,7 @@
 				clearTimeout(timer);
 		
 				timer = setTimeout(function() {
-                    setDimensions(true, true, true, false, true);
+                    setDimensions(true, true, true, true, true);
                 }, 100);
 			});
         }
@@ -176,7 +176,7 @@
                 }
             }
             
-            setDimensions(true, true, true, false, true);
+            setDimensions(true, true, true, false, false);
         }
         
         self.setNumFrets = function(newNumFrets) {
