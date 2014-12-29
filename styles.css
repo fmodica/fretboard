@@ -3,13 +3,12 @@
 }
 
 .fretboard-container {
-    /* By default the width and height of the .fretboard-body will animate to
-       the width/height of this. Override the width and height with
-       custom values using the dimensionsFunc property of the config
-       object. */
     overflow: hidden;
     width: 100%;
     height: 240px;
+    /* At a certain point it doesn't make sense for the fretboard
+       size to decrease, so we set a min-width. A scroll-bar will 
+       be displayed.*/
     min-width: 700px;
     margin: 0 auto;
 }

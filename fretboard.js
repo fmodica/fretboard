@@ -462,7 +462,6 @@
         
         // Absolutely position all of the inner elements, and animate their positioning if requested
         function setDimensions(animateBodyBool, animateNotesBool, animateFretLinesBool, animateStringContainersBool, animateStringNotesBool) {
-            debugger;
             var numFrets = settings.numFrets,
                 numStrings = settings.tuning.length,
                 defaultDimensions = DEFAULT_DIMENSIONS_FUNC($element, $fretboardBody),
