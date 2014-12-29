@@ -3,13 +3,13 @@
 }
 
 .fretboard-container {
-    /* By default the width and height of the .body will animate to
+    /* By default the width and height of the .fretboard-body will animate to
        the width/height of this. Override the width and height with
        custom values using the dimensionsFunc property of the config
        object. */
-    /*height: 240px;*/ 
     overflow: hidden;
     width: 100%;
+    height: 240px;
     min-width: 700px;
     margin: 0 auto;
 }
@@ -31,7 +31,7 @@
     }
 }
 
-.fretboard-container .body {
+.fretboard-container .fretboard-body {
     background: wheat;
     border: 1px solid gray;
     -webkit-box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
@@ -42,7 +42,6 @@
        container and won't take into account drop-shadow size,
        but will take into account margin */
     margin: 10px;
-    /* width and height calculations are in the JS */
 }
 
 .fretboard-container .string {
@@ -60,9 +59,6 @@
 	border: 1px solid black;
 	width: 28px;
 	height: 28px;
-	/* If we give this absolute positioning then we'll have to 
-	   calculate the horizontal centering (margin auto won't 
-	   work */
 	position: absolute;
 	cursor: pointer;
     z-index: 10;
@@ -82,7 +78,6 @@
     -o-transition: background .15s linear;
     -ms-transition: background .15s linear;
     transition: background .15s linear;*/
-
 }
 
 .fretboard-container .note.hover {
@@ -147,7 +142,7 @@
 /* Theme Examples */
 
 /* Space */
-.fretboard-container.space-theme .body {
+.fretboard-container.space-theme .fretboard-body {
     background: url("NGC_4414_(NASA-med).jpg");
     background-color: black;
     background-repeat: no-repeat;

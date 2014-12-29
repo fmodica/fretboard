@@ -5,7 +5,7 @@
         var self = this,
             $window = $(window),
             fretboardContainerCssClass = "fretboard-container",
-            bodyCssClass = "body",
+            bodyCssClass = "fretboard-body",
             bodySelector = "." + bodyCssClass,
             stringContainerCssClass = "string-container",
             stringContainerSelector = "." + stringContainerCssClass,
@@ -23,23 +23,23 @@
             // The value for C needs to be first
             DEFAULT_NOTE_LETTERS = ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"],
             DEFAULT_TUNING = [{
-                "letter": "E",
-                "octave": 5
+                letter: "E",
+                octave: 4
             }, {
-                "letter": "B",
-                "octave": 5
+                letter: "B",
+                octave: 3
             }, {
-                "letter": "G",
-                "octave": 4
+                letter: "G",
+                octave: 3
             }, {
-                "letter": "D",
-                "octave": 4
+                letter: "D",
+                octave: 3
             }, {
-                "letter": "A",
-                "octave": 4
+                letter: "A",
+                octave: 2
             }, {
-                "letter": "E",
-                "octave": 3
+                letter: "E",
+                octave: 2
             }],
             // Take up the container's height and width by default
             DEFAULT_DIMENSIONS_FUNC = function($fretboardContainer, $fretboardBody) {

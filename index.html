@@ -6,8 +6,6 @@
     <title>Test Fretboard Page</title>
     <meta name="viewport" content="initial-scale=1">
     <script src="./jquery-1.11.2.min.js"></script>
-    <!-- To animate background colors -->
-    <script src="./jquery.color-2.1.2.min.js"></script>
     <script src="./fretboard.js"></script>
     <link rel="stylesheet" type="text/css" href="./styles.css">
 </head>
@@ -125,18 +123,11 @@
                     isChordMode: isChordMode,
                     noteClickingDisabled: isDisabled,
                     dimensionsFunc: dimensionsFunc,
-                    animationSpeed: 500, // ms
-
-
-                    /* old settings from the svg fretboard */
-                    tuningClickingDisabled: false,
-                    fretsToDrawOneCircleOn: [3, 5, 7, 9, 12],
-                    showTuningTriangles: true,
-                    showTuningSquares: true
+                    animationSpeed: 500 // ms
                 },
                 $fretboard = $(".my-fretboard-js");
             
-            $fretboard.fretboard(options); 
+            $fretboard.fretboard(); 
             
             $(".toggle-chord-mode").on("click", function() {
                 isChordMode = !isChordMode;
