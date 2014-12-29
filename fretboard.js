@@ -41,10 +41,21 @@
                 "letter": "E",
                 "octave": 3
             }],
-            DEFAULT_DIMENSIONS_FUNC = function() {
+            DEFAULT_DIMENSIONS_FUNC = function($fretboardContainer, $fretboardBody) {
+                var winWidth = $window.width(),
+                    containerWidth = $fretboardContainer.width(),
+                    containerHeight = $fretboardContainer.height(),
+                    fretboardBodyWidthDiff = $fretboardBody.outerWidth(true) - $fretboardBody.width(),
+                    fretboardBodyHeightDiff = $fretboardBody.outerHeight(true) - $fretboardBody.height(),
+                    newBodyWidth,
+                    newBodyHeight;
+                    
+                newBodyWidth = containerWidth - fretboardBodyWidthDiff; 
+                newBodyHeight = containerHeight - fretboardBodyHeightDiff;
+                    
                 return {
-                    width: 1200,
-                    height: 220
+                    width: newBodyWidth,
+                    height: newBodyHeight
                 }
             },
             defaults = {
@@ -58,7 +69,7 @@
             },
             settings = {},
             $fretboardBody;
-            debugger;
+            
         // Make a copy of the options that were passed in, just in case the 
         // user modifies that object. Then extend it with the defaults.
         $.extend(settings, defaults, $.extend(true, [], options));
@@ -164,6 +175,15 @@
                 } else {
                     // Add new string
                     console.log("adding");
+                    
+                    // Make the string and notes come in from the bottom
+                    $newStringContainer
+                        .find(stringSelector + ", " + noteSelector)
+                        .css({
+                            top: $fretboardBody.height()
+                        });
+                        
+                    
                     $fretboardBody.append($newStringContainer);
                 }
             }
@@ -176,7 +196,7 @@
                 }
             }
             
-            setDimensions(true, true, true, false, false);
+            setDimensions(true, true, true, true, true);
         }
         
         self.setNumFrets = function(newNumFrets) {
@@ -219,7 +239,11 @@
                             octave: noteData.octave,
                             fretNumber: fretNum,
                             stringItsOn: openNote
-                        });
+                        })
+                        // Make it come in from the right
+                        .css({
+                            left: $fretboardBody.width()
+                        })
                         
                         $stringContainer.append($note);
                     }
@@ -228,11 +252,17 @@
             
             // Fret lines go inside the body
             for (j = 0; j < absFretNumDifference; j++) {
-                // fretNumDifferene will never be 0 or this loop won't be entered
+                // fretNumDifference will never be 0 or this loop won't be entered
                 if (fretNumDifference > 0) {
                     $fretLines[fretNum].remove();
                 } else if (fretNumDifference < 0) {
-                    $fretboardBody.append(getFretLineEl());
+                    // Make it come in from the right
+                    $fretboardBody.append(
+                        getFretLineEl()
+                        .css({
+                            left: $fretboardBody.width()
+                        })
+                    );
                 }
             }
             
@@ -284,6 +314,10 @@
                     }
                 }   
             }
+        }
+        
+        self.redraw = function() {
+            setDimensions(true, true, true, true, true);
         }
         
         function notesAreEqual(note1, note2) {
@@ -412,9 +446,10 @@
         function setDimensions(animateBodyBool, animateNotesBool, animateFretLinesBool, animateStringContainersBool, animateStringNotesBool) {
             var numFrets = settings.numFrets,
                 numStrings = settings.tuning.length,
-                dimensions = settings.dimensionsFunc(),
-                fretboardBodyHeight = dimensions.height,
-                fretboardBodyWidth = dimensions.width,
+                defaultDimensions = DEFAULT_DIMENSIONS_FUNC($element, $fretboardBody),
+                dimensions = settings.dimensionsFunc($element, $fretboardBody),
+                fretboardBodyHeight = dimensions.height || defaultDimensions.height,
+                fretboardBodyWidth = dimensions.width || defaultDimensions.width,
                 fretWidth = fretboardBodyWidth / (numFrets + 1),
                 fretHeight = fretboardBodyHeight / numStrings;
             
@@ -443,12 +478,13 @@
                     duration: animate ? settings.animationSpeed : 0, 
                     queue: false, 
                     complete: function() {
+                        // Don't put "true" in outerWidth
                         fretboardBodyRightPosition = $fretboardBody.offset().left + $fretboardBody.outerWidth();
                         fretboardContainerRightPosition = $element.offset().left + $element.outerWidth();
                         /* If the body is bigger than the container put a scroll on the container.
                            We don't always want overflow-x scroll to be there because the scroll 
                            will show even when not needed and looks ugly. */
-                        if (fretboardBodyRightPosition >= fretboardContainerRightPosition) {
+                        if (fretboardBodyRightPosition > fretboardContainerRightPosition) {
                             $element.css("overflow-x", "scroll");
                         } else {
                             $element.css("overflow-x", "hidden");
@@ -474,7 +510,7 @@
                     }
                     
                     $fretLine.animate({
-                        left: fretLeftVal + fretWidth - ($fretLine.outerWidth() / 2),
+                        left: fretLeftVal + fretWidth - ($fretLine.outerWidth(true) / 2),
                         height: fretHeight
                     }, { 
                         duration: animate ? settings.animationSpeed : 0, 
@@ -514,8 +550,8 @@
                     
                     $notes.each(function(fretNum, noteEl) {
                         $note = $(noteEl);
-                        noteWidth = $note.outerWidth();
-                        noteHeight = $note.outerHeight();
+                        noteWidth = $note.outerWidth(true);
+                        noteHeight = $note.outerHeight(true);
                         
                         fretLeftVal = fretNum * fretWidth;
                         fretTopVal = stringNum * fretHeight;

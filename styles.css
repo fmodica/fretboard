@@ -3,14 +3,41 @@
 }
 
 .fretboard-container {
-    /* A scroll get set on this element */
-    margin: 20px 0;
+    margin: 20px 5%;
+    /* By default the width and height of the .body will animate to
+       the width/height of this. Override the width and height with
+       custom values using the dimensionsFunc property of the config
+       object. */
+    /*height: 240px;*/ 
+}
+
+@media (max-width: 1000px) {
+    .fretboard-container {
+        width: 800px;
+    }
+    .fretboard-container .note {
+        width: 23px;
+        height: 23px;
+    }
+    
+    .fretboard-container .letter {
+        top: 8.5px;
+        font-size: 8px;
+        line-height: 8px;
+    }
 }
 
 .fretboard-container .body {
     background: wheat;
     border: 1px solid gray;
-    margin: 0 auto;
+    -webkit-box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
+    -moz-box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
+    box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
+    /* The margin should be as big as the box-shadow because the 
+       default JS functionality fits the body inside the 
+       container and won't take into account drop-shadow size,
+       but will take into account margin */
+    margin: 10px;
     /* width and height calculations are in the JS */
 }
 
@@ -110,31 +137,10 @@
 }
 
 .fretboard-container .fret-line.last {
-    display: none;
-}
-
-@media (max-width: 1000px) {
-    .fretboard-container .note {
-        width: 23px;
-        height: 23px;
-    }
-    
-    .fretboard-container .letter {
-        top: 8.5px;
-        font-size: 8px;
-        line-height: 8px;
-    }
+    width: 0;
 }
 
 /* Theme Examples */
-
-/* Box Shadow */
-.fretboard-container .body {
-    -webkit-box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
-    -moz-box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
-    box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
-    margin: 15px auto;
-}
 
 /* Space */
 .fretboard-container.space-theme .body {
