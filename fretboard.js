@@ -41,6 +41,7 @@
                 "letter": "E",
                 "octave": 3
             }],
+            // Take up the container's height and width by default
             DEFAULT_DIMENSIONS_FUNC = function($fretboardContainer, $fretboardBody) {
                 var winWidth = $window.width(),
                     containerWidth = $fretboardContainer.width(),
@@ -68,6 +69,7 @@
                 animationSpeed: 500
             },
             settings = {},
+            $fretboardScrollWrapper,
             $fretboardBody;
             
         // Make a copy of the options that were passed in, just in case the 
@@ -87,10 +89,12 @@
                 
             // Set the instance variable
             $fretboardBody = getFretboardBodyEl(); 
-             
+            $fretboardScrollWrapper = $("<div class='fretboard-scroll-wrapper'></div>");
+            
             $element
                 .addClass(fretboardContainerCssClass)    
-                .append($fretboardBody);
+                .append($fretboardBody)
+                .wrap($fretboardScrollWrapper);
             
             setDimensions(false, false, false, false, false);
             
@@ -481,14 +485,6 @@
                         // Don't put "true" in outerWidth
                         fretboardBodyRightPosition = $fretboardBody.offset().left + $fretboardBody.outerWidth();
                         fretboardContainerRightPosition = $element.offset().left + $element.outerWidth();
-                        /* If the body is bigger than the container put a scroll on the container.
-                           We don't always want overflow-x scroll to be there because the scroll 
-                           will show even when not needed and looks ugly. */
-                        if (fretboardBodyRightPosition > fretboardContainerRightPosition) {
-                            $element.css("overflow-x", "scroll");
-                        } else {
-                            $element.css("overflow-x", "hidden");
-                        }
                     }
                 });
         }

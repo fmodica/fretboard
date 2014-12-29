@@ -3,15 +3,21 @@
 }
 
 .fretboard-container {
-    margin: 20px 5%;
     /* By default the width and height of the .body will animate to
        the width/height of this. Override the width and height with
        custom values using the dimensionsFunc property of the config
        object. */
     /*height: 240px;*/ 
+    overflow: hidden;
+    width: 100%;
+    margin: 0 auto;
 }
 
-@media (max-width: 1000px) {
+.fretboard-scroll-wrapper {
+    overflow: auto;
+}
+
+@media (max-width: 900px) {
     .fretboard-container {
         width: 800px;
     }
