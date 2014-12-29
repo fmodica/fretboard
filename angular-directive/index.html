@@ -155,6 +155,12 @@
             });
           }
           
+          $scope.removeString = function() {
+            // make a copy to change the reference 
+            $scope.config.tuning = $scope.config.tuning.slice(0);
+            $scope.config.tuning.pop();
+          }
+          
           $scope.addFret = function() {
             $scope.config.numFrets++;
           }
@@ -162,17 +168,11 @@
           $scope.removeFret = function() {
             $scope.config.numFrets--;
           }
-        }
-
-          $scope.removeString = function() {
-            // make a copy to change the reference 
-            $scope.config.tuning = $scope.config.tuning.slice(0);
-            $scope.config.tuning.pop();
-          }
-
+          
           $scope.unclick = function() {
             $scope.config.clickedNotes = [];
           }
+        }
       ]);
     </script>
     

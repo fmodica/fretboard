@@ -274,16 +274,17 @@
         }
         
         self.clearClickedNotes = function() {
-            debugger;
-            // This logic is in multiple places - possibly refactor
-            $element
-                .find(noteSelector + clickedSelector)
-                .removeClass(clickedCssClass)
-                .removeClass(hoverCssClass)
-                .on("mouseenter", noteMouseEnter)
-                .on("mouseleave", noteMouseLeave);
+            if (!settings.noteClickingDisabled) {
+                // This logic is in multiple places - possibly refactor
+                $element
+                    .find(noteSelector + clickedSelector)
+                    .removeClass(clickedCssClass)
+                    .removeClass(hoverCssClass)
+                    .on("mouseenter", noteMouseEnter)
+                    .on("mouseleave", noteMouseLeave);
+            }
                 
-            $element.trigger("notesCleared");
+            $element.trigger("notesClicked");
         }
         
         self.setClickedNotes = function(notesToClick) {
@@ -299,37 +300,35 @@
                 $stringContainer,
                 $note;
             
-            if (!notesToClick) {
-                return;
-            }
-            
-            // For each note that needs to be clicked check its stringItsOn
-            // property to see if it matches a note object in the tuning array.
-            // If it does, get the of the matched note in the tuning array and 
-            // get the find the corresponding $stringContainer and click its 
-            // note.
-            
-            for (i = 0; i < notesToClickLength; i++) {
-                noteToClick = notesToClick[i];
-                stringItsOn = noteToClick && noteToClick.stringItsOn;
+            if (notesToClick && !settings.noteClickingDisabled) {
+                // For each note that needs to be clicked check its stringItsOn
+                // property to see if it matches a note object in the tuning array.
+                // If it does, get the of the matched note in the tuning array and 
+                // get the find the corresponding $stringContainer and click its 
+                // note.
                 
-                if (!stringItsOn) {
-                    continue;
-                }
-                
-                for (j = 0; j < tuningLength; j++) {
-                    tuningNote = tuning[j];
+                for (i = 0; i < notesToClickLength; i++) {
+                    noteToClick = notesToClick[i];
+                    stringItsOn = noteToClick && noteToClick.stringItsOn;
                     
-                    if (notesAreEqual(tuningNote, stringItsOn)) {
-                        $stringContainer = $($element.find(stringContainerSelector)[j]);
-                        $note = $($stringContainer.find(noteSelector)[noteToClick.fretNumber]);
-                        
-                        if (!$note.hasClass(clickedCssClass)) {
-                            // Make it behave the same as if you hovered over and clicked it
-                            $note.trigger("mouseover").trigger("click");
-                        }
+                    if (!stringItsOn) {
+                        continue;
                     }
-                }   
+                    
+                    for (j = 0; j < tuningLength; j++) {
+                        tuningNote = tuning[j];
+                        
+                        if (notesAreEqual(tuningNote, stringItsOn)) {
+                            $stringContainer = $($element.find(stringContainerSelector)[j]);
+                            $note = $($stringContainer.find(noteSelector)[noteToClick.fretNumber]);
+                            
+                            if (!$note.hasClass(clickedCssClass)) {
+                                // Make it behave the same as if you hovered over and clicked it
+                                $note.trigger("mouseover").trigger("click");
+                            }
+                        }
+                    }   
+                }
             }
             
             $element.trigger("notesClicked");
@@ -407,51 +406,49 @@
                 .on("click", function() {
                     var $clickedNote = $(this);
                     
-                    if (settings.noteClickingDisabled) {
-                        return;
-                    }
-                    
-                    if($clickedNote.hasClass(clickedCssClass)) {
-                        $clickedNote
-                            .removeClass(clickedCssClass)
-                            .removeClass(hoverCssClass)
-                            .on("mouseenter", noteMouseEnter)
-                            .on("mouseleave", noteMouseLeave);
-                    } else {
-                        $clickedNote
-                            .addClass(hoverCssClass)
-                            .addClass(clickedCssClass)
-                            .off("mouseenter", noteMouseEnter)
-                            .off("mouseleave", noteMouseLeave); 
-                    }
-                    
-                    // If we're in chord mode then get rid of all of the
-                    // other clicked notes
-                    if (settings.isChordMode) {
-                        $clickedNote
-                            .closest(stringContainerSelector)
-                            .find(noteSelector + clickedSelector)
-                            .each(function() {
-                                var $otherNote = $(this);
-                                
-                                // Compare the actual DOM elements (the jQuery wrappers 
-                                // will have different references)
-                                if ($clickedNote[0] !== $otherNote[0]) {
-                                    $otherNote
-                                        .removeClass(clickedCssClass)
-                                        .removeClass(hoverCssClass)
-                                        .on("mouseenter", noteMouseEnter)
-                                        .on("mouseleave", noteMouseLeave);
-                                }
-                            });
-                            
+                    if (!settings.noteClickingDisabled) {
+                        if($clickedNote.hasClass(clickedCssClass)) {
+                            $clickedNote
+                                .removeClass(clickedCssClass)
+                                .removeClass(hoverCssClass)
+                                .on("mouseenter", noteMouseEnter)
+                                .on("mouseleave", noteMouseLeave);
+                        } else {
+                            $clickedNote
+                                .addClass(hoverCssClass)
+                                .addClass(clickedCssClass)
+                                .off("mouseenter", noteMouseEnter)
+                                .off("mouseleave", noteMouseLeave); 
+                        }
+                        
+                        // If we're in chord mode then get rid of all of the
+                        // other clicked notes
+                        if (settings.isChordMode) {
+                            $clickedNote
+                                .closest(stringContainerSelector)
+                                .find(noteSelector + clickedSelector)
+                                .each(function() {
+                                    var $otherNote = $(this);
+                                    
+                                    // Compare the actual DOM elements (the jQuery wrappers 
+                                    // will have different references)
+                                    if ($clickedNote[0] !== $otherNote[0]) {
+                                        $otherNote
+                                            .removeClass(clickedCssClass)
+                                            .removeClass(hoverCssClass)
+                                            .on("mouseenter", noteMouseEnter)
+                                            .on("mouseleave", noteMouseLeave);
+                                    }
+                                });  
+                        } 
                     }
                     
                     $element.trigger("notesClicked");
+                    
                 })
                 .append($letter)
                 .data('noteData', noteData);
-
+                
             return $note;
         }
         
@@ -465,6 +462,7 @@
         
         // Absolutely position all of the inner elements, and animate their positioning if requested
         function setDimensions(animateBodyBool, animateNotesBool, animateFretLinesBool, animateStringContainersBool, animateStringNotesBool) {
+            debugger;
             var numFrets = settings.numFrets,
                 numStrings = settings.tuning.length,
                 defaultDimensions = DEFAULT_DIMENSIONS_FUNC($element, $fretboardBody),
@@ -614,6 +612,7 @@
 
         function validate() {
             validateAllNoteLetters();
+            // validate tuning
         }
 
         function validateAllNoteLetters() {

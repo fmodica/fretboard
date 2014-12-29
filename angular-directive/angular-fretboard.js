@@ -53,8 +53,8 @@ app.directive("fretboard", ["$rootScope",
       ],
       // we create 2 inner directives so they can each have their own ngModel, which handles two-way data-binding
       // for only one thing 
-      template: '<div fretboard-tuning ng-model="config.tuning"></div>' +
-        '<div fretboard-clicked-notes ng-model="config.clickedNotes"></div>'
+      template: '<span fretboard-tuning ng-model="config.tuning"></span>' +
+        '<span fretboard-clicked-notes ng-model="config.clickedNotes"></span>'
     }
 
     function initialize(config, element, ctrl) {
