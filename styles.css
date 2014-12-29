@@ -10,6 +10,7 @@
     /*height: 240px;*/ 
     overflow: hidden;
     width: 100%;
+    min-width: 700px;
     margin: 0 auto;
 }
 
@@ -17,10 +18,7 @@
     overflow: auto;
 }
 
-@media (max-width: 900px) {
-    .fretboard-container {
-        width: 800px;
-    }
+@media (max-width: 1000px) {
     .fretboard-container .note {
         width: 23px;
         height: 23px;
