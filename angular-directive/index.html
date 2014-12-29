@@ -1,0 +1,195 @@
+<!doctype html>
+
+<html>
+
+<head>
+  <title>Test Fretboard Page</title>
+  <meta name="viewport" content="initial-scale=1">
+  <script src="../jquery-1.11.2.min.js"></script>
+  <script src="../fretboard.js"></script>
+  <script src="angular.js"></script>
+  <script src="safeApply.js"></script>
+  <script src="angular-fretboard.js"></script>
+  <link rel="stylesheet" type="text/css" href="../styles.css">
+</head>
+
+<body ng-app="myApp">
+    <style>
+    .container {
+        min-width: 280px;
+        max-width: 1600px;
+        min-height: 600px;
+        overflow-x: hidden;
+        background: lightgray;
+        padding: 20px 40px;
+    }
+    
+    @media (max-width: 800px) {
+        .container {
+            padding: 5px;
+        }
+    }
+    
+    button {
+        margin: 20px 2px;
+    }
+    </style>
+  <div class="container" ng-controller="MyController">
+    <script type="text/javascript">
+      var app = angular.module("myApp", ['angularFretboard']);
+
+      app.controller("MyController", ["$scope",
+        function($scope) {
+
+            var isChordMode = true,
+                isDisabled = false,
+                tuning = [{
+                        letter: "E",
+                        octave: 4
+                    }, {
+                        letter: "B",
+                        octave: 3
+                    }, {
+                        letter: "G",
+                        octave: 3
+                    }, {
+                        letter: "D",
+                        octave: 3
+                    }, {
+                        letter: "A",
+                        octave: 2
+                    }, {
+                        letter: "E",
+                        octave: 2
+                    }],
+                numFrets = 16,
+                clickedNotes = [{
+                    stringItsOn: {
+                        letter: "E",
+                        octave: 4
+                    },
+                    fretNumber: 3
+                },{
+                    stringItsOn: {
+                        letter: "B",
+                        octave: 3
+                    },
+                    fretNumber: 5
+                }, {
+                    stringItsOn: {
+                        letter: "G",
+                        octave: 3
+                    },
+                    fretNumber: 4
+                }, {
+                    stringItsOn: {
+                        letter: "D",
+                        octave: 3
+                    },
+                    fretNumber: 5
+                }, {
+                    stringItsOn: {
+                        letter: "A",
+                        octave: 2
+                    },
+                    fretNumber: 3
+                }],
+                dimensionsFunc = function($fretboardContainer, $fretboardBody) {
+                    // "this" will be the options object into which we place this function
+                    var options = this,
+                        numStrings = options.tuning.length;
+                        
+                    return {
+                        height: numStrings * 32
+                    };
+                },
+                options = {
+                    allNoteLetters: ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"],
+                    tuning: tuning,
+                    numFrets: numFrets,
+                    isChordMode: isChordMode,
+                    noteClickingDisabled: isDisabled,
+                    dimensionsFunc: dimensionsFunc,
+                    animationSpeed: 500 // ms
+                };
+                
+            $scope.config = {
+                allNoteLetters: ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"],
+                tuning: tuning,
+                numFrets: numFrets,
+                isChordMode: isChordMode,
+                noteClickingDisabled: isDisabled,
+                dimensionsFunc: dimensionsFunc,
+                animationSpeed: 500 // ms
+            };
+
+          // For testing - outputs the config during changes to tuning, clicked notes, etc.
+          $scope.$watch(function () {
+            return $scope.config
+          }, function (newVal, oldval) {
+            console.log($scope.config);
+          }, true);
+          
+          $scope.toggleChordMode = function() {
+                $scope.config.isChordMode = !$scope.config.isChordMode;
+          }
+          
+          $scope.setChord = function() {
+              $scope.config.clickedNotes = clickedNotes.slice(0);
+          }
+          
+          $scope.getClickedNotes = function() {
+              console.log($scope.config.clickedNotes);
+          }
+
+          $scope.toggleNoteClicking = function() {
+            $scope.config.noteClickingDisabled = !$scope.config.noteClickingDisabled;
+          }
+
+          $scope.addString = function() {
+            // make a copy to change the reference 
+            $scope.config.tuning = $scope.config.tuning.slice(0);
+            $scope.config.tuning.push({
+              noteLetter: "Gb/F#",
+              noteOctave: 2
+            });
+          }
+          
+          $scope.addFret = function() {
+            $scope.config.numFrets++;
+          }
+          
+          $scope.removeFret = function() {
+            $scope.config.numFrets--;
+          }
+        }
+
+          $scope.removeString = function() {
+            // make a copy to change the reference 
+            $scope.config.tuning = $scope.config.tuning.slice(0);
+            $scope.config.tuning.pop();
+          }
+
+          $scope.unclick = function() {
+            $scope.config.clickedNotes = [];
+          }
+      ]);
+    </script>
+    
+    <div fretboard fretboard-config='config'></div>
+
+    <button ng-click="toggleChordMode()">Toggle chord mode</button>
+    <button ng-click="setChord()">Set C maj7 chord</button>
+    <button ng-click="getClickedNotes()">Get clicked notes (console)</button>
+    <button ng-click="toggleNoteClicking()">Disable/enable note clicking</button>
+    <button ng-click="addString()">Add String</button>
+    <button ng-click="removeString()">Remove String</button>
+    <button ng-click="addFret()">Add fret</button>
+    <button ng-click="removeFret()">Remove fret</button>
+    <button ng-click="unclick()">Unclick Frets</button>
+
+    
+  </div>
+</body>
+
+</html>

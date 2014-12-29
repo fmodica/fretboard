@@ -273,6 +273,19 @@
             setDimensions(true, true, true, true, true);
         }
         
+        self.clearClickedNotes = function() {
+            debugger;
+            // This logic is in multiple places - possibly refactor
+            $element
+                .find(noteSelector + clickedSelector)
+                .removeClass(clickedCssClass)
+                .removeClass(hoverCssClass)
+                .on("mouseenter", noteMouseEnter)
+                .on("mouseleave", noteMouseLeave);
+                
+            $element.trigger("notesCleared");
+        }
+        
         self.setClickedNotes = function(notesToClick) {
             var notesToClick = $.extend(true, [], notesToClick),
                 notesToClickLength = notesToClick.length, 
@@ -318,6 +331,8 @@
                     }
                 }   
             }
+            
+            $element.trigger("notesClicked");
         }
         
         self.redraw = function() {
@@ -431,6 +446,8 @@
                             });
                             
                     }
+                    
+                    $element.trigger("notesClicked");
                 })
                 .append($letter)
                 .data('noteData', noteData);

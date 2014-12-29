@@ -41,16 +41,9 @@
         <button class="note-clicking-disabled">Disable/enable note clicking</button>
         <button class="add-string">Add string</button>
         <button class="remove-string">Remove string</button>
-        <button class="remove-fret">Remove fret</button>
         <button class="add-fret">Add fret</button>
-        <button class="redraw">Redraw</button>
-    <!-- <button ng-click="unclick()">Unclick Frets</button>
-    <button ng-click="addString()">Add String</button>
-    <button ng-click="removeString()">Remove String</button>
-    <button ng-click="toggleNoteClicking()">Toggle Note Clicking Allowed</button>
-    <button ng-click="toggleTuningClicking()">Toggle Tuning Arrows Allowed</button>
-    <button ng-click="toggleChordMode()">Toggle chord mode</button>
-    <button ng-click="getClickedNotes()">Get clicked notes (console)</button> -->
+        <button class="remove-fret">Remove fret</button>
+        <button class="unclick">Unclick frets</button>
     </div>
     <script type="text/javascript">
         (function($) {
@@ -157,15 +150,6 @@
                 });
             });
             
-            $(".remove-string").on("click", function() {
-                tuning.pop();
-                // tuning.pop();
-                
-                $fretboard.each(function() {
-                    $(this).data('fretboard').setTuning(tuning);
-                });
-            });
-            
             $(".add-string").on("click", function() {
                 if (tuning.length) {
                     tuning.push({
@@ -194,12 +178,12 @@
                 });
             });
             
-            $(".remove-fret").on("click", function() {
-                numFrets--;
-                //numFrets--;
+            $(".remove-string").on("click", function() {
+                tuning.pop();
+                // tuning.pop();
                 
                 $fretboard.each(function() {
-                    $(this).data('fretboard').setNumFrets(numFrets);
+                    $(this).data('fretboard').setTuning(tuning);
                 });
             });
             
@@ -212,9 +196,24 @@
                 });
             });
             
-            $(".redraw").on("click", function() {
+            /*$(".redraw").on("click", function() {
                 $fretboard.each(function() {
                     $(this).data('fretboard').redraw();
+                });
+            });*/
+            
+            $(".remove-fret").on("click", function() {
+                numFrets--;
+                //numFrets--;
+                
+                $fretboard.each(function() {
+                    $(this).data('fretboard').setNumFrets(numFrets);
+                });
+            });
+            
+            $(".unclick").on("click", function() {
+                $fretboard.each(function() {
+                    $(this).data('fretboard').clearClickedNotes();
                 });
             });
         })(jQuery);
