@@ -97,22 +97,20 @@ isChordMode: A boolean which when true means that only one note can be clicked o
 noteClickingDisabled: If this is true a user cannot click a note. This might be useful if you are taking information about the fretboard and sending it to the server and you don't want someone to be able to click during that time (kind of like disabling a form's inputs while the form is being submitted). The user can still hover over notes to see their letters (upon hovering a "hover" CSS class is added to the note, and the default CSS animates its opacity). TODO - a disabled CSS class should be added somewhere in the HTML when this is true so it can be reacted to in CSS (perhaps don't allow showing of the notes on hover either).
 
 
-dimensionsFunc: This function allows you to return an object with "height" and/or "width" properties which will determine the width/height of the fretboard-body if the default behavior (filling the space of the fretboard-container element) is not sufficient. This function will be passed the fretboard-body and fretboard-container as jQuery objects. 
+dimensionsFunc: This function allows you to return an object with "height" and/or "width" properties which will determine the height/width of the fretboard-body if the default behavior (filling the space of the fretboard-container element) is not sufficient. This function will be passed the fretboard-body and fretboard-container as jQuery objects. If your return object has a width property, remove the width from the fretboard-container in your CSS. I like to return an object with only a height property (as shown below), which is based on the number of strings on the fretboard. I keep the width defined in fretboard-container CSS, since it's usually less complex to define. 
+
 
 ```
 function($fretboardContainer, $fretboardBody) {
-    var settings = this,
-        numStrings = settings.tuning.length,
-        numFrets = settings.numFrets,
-        browserWidth = $(window).width();
+    // "this" will be the options object into which we place this function
+    var options = this,
+        numStrings = options.tuning.length;
         
     return {
-        width: // your width,
-        height: // your height
-    }
+        height: numStrings * 32
+    };
 }
 ```
-If your return object has a width property, remove the CSS width from the fretboard-container. I like to return an object with only a height property, which is based on the number of strings on the fretboard. I keep the width defined in fretboard-container CSS, since it's usually less complex to define. 
 
 
 animationSpeed: This determines how fast the fretboard body and all inner elements are animated. The default is 500 (ms).
