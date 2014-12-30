@@ -148,7 +148,7 @@ var isChordMode = false;
 fretboardInstance.setChordMode(isChordMode);
 ```
         
-Trigger note clicks. Here is an example of programatially clicking a Cmaj7 chord onto the fretboard:
+Trigger note clicks. Here is an example of programatically clicking a Cmaj7 chord onto the fretboard:
 
 ```
 var clickedNotes = [{
@@ -195,7 +195,7 @@ var clickedNotes = fretboardInstance.getClickedNotes();
 You may want to call this whenever a "notesClicked" event is triggered, to stay updated with what the user is doing.
 
 ```
-fretboardInstance.on("notesClicked", function() {
+$(".my-fretboard-js").on("notesClicked", function() {
     var clickedNotes = fretboardInstance.getClickedNotes();
 });
 ```
