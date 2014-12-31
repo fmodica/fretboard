@@ -1,6 +1,5 @@
-var app = angular.module("angularFretboard", ['Scope.safeApply']);
-
-app.directive("fretboard", ["$rootScope",
+angular.module("angularFretboard", ['Scope.safeApply'])
+.directive("fretboard", ["$rootScope",
   function($rootScope) {
     var fretboardsGeneratedCounter = 0;
 
@@ -70,11 +69,10 @@ app.directive("fretboard", ["$rootScope",
       return "fretboardjs-" + fretboardsGeneratedCounter;
     }
   }
-]);
-
+])
 // Do not give these inner directives isolate scope or they will won't be able
 // to access the config in the fretboard directive's isolate scope
-app.directive("fretboardTuning", ["$rootScope", "$parse",
+.directive("fretboardTuning", ["$rootScope", "$parse",
   function($rootScope, $parse) {
     var isFirst = true;
 
@@ -109,9 +107,8 @@ app.directive("fretboardTuning", ["$rootScope", "$parse",
       }
     }
   }
-]);
-
-app.directive("fretboardClickedNotes", ["$rootScope", "$parse",
+])
+.directive("fretboardClickedNotes", ["$rootScope", "$parse",
   function($rootScope, $parse) {
     return {
       restrict: "AE",
@@ -154,3 +151,4 @@ app.directive("fretboardClickedNotes", ["$rootScope", "$parse",
     }
   }
 ]);
+

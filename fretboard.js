@@ -274,17 +274,13 @@
         }
         
         self.clearClickedNotes = function() {
-            if (!settings.noteClickingDisabled) {
-                // This logic is in multiple places - possibly refactor
-                $element
-                    .find(noteSelector + clickedSelector)
-                    .removeClass(clickedCssClass)
-                    .removeClass(hoverCssClass)
-                    .on("mouseenter", noteMouseEnter)
-                    .on("mouseleave", noteMouseLeave);
-            }
-                
-            $element.trigger("notesClicked");
+            // DUPLICATE LOGIC - possibly refactor
+            $element
+                .find(noteSelector + clickedSelector)
+                .removeClass(clickedCssClass)
+                .removeClass(hoverCssClass)
+                .on("mouseenter", noteMouseEnter)
+                .on("mouseleave", noteMouseLeave);
         }
         
         self.setClickedNotes = function(notesToClick) {
@@ -300,7 +296,7 @@
                 $stringContainer,
                 $note;
             
-            if (notesToClick && !settings.noteClickingDisabled) {
+            if (notesToClick) {
                 // For each note that needs to be clicked check its stringItsOn
                 // property to see if it matches a note object in the tuning array.
                 // If it does, get the of the matched note in the tuning array and 
@@ -323,15 +319,18 @@
                             $note = $($stringContainer.find(noteSelector)[noteToClick.fretNumber]);
                             
                             if (!$note.hasClass(clickedCssClass)) {
-                                // Make it behave the same as if you hovered over and clicked it
-                                $note.trigger("mouseover").trigger("click");
+                                // Make it behave the same as if you hovered over and clicked it.
+                                // DUPLICATE LOGIC - possibly refactor
+                                $note
+                                    .addClass(hoverCssClass)
+                                    .addClass(clickedCssClass)
+                                    .off("mouseenter", noteMouseEnter)
+                                    .off("mouseleave", noteMouseLeave);
                             }
                         }
                     }   
                 }
             }
-            
-            $element.trigger("notesClicked");
         }
         
         self.redraw = function() {
