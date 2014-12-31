@@ -70,6 +70,7 @@
             },
             settings = {},
             $fretboardScrollWrapper,
+            $fretboardContainer = $element,
             $fretboardBody;
             
         // Make a copy of the options that were passed in, just in case the 
@@ -91,7 +92,7 @@
             $fretboardBody = getFretboardBodyEl(); 
             $fretboardScrollWrapper = $("<div class='fretboard-scroll-wrapper'></div>");
             
-            $element
+            $fretboardContainer
                 .addClass(fretboardContainerCssClass)    
                 .append($fretboardBody)
                 .wrap($fretboardScrollWrapper);
@@ -116,7 +117,7 @@
         self.getClickedNotes = function() {
             var clickedNotes = [];
             
-            $element
+            $fretboardContainer
                 .find(noteSelector + clickedSelector)
                 .each(function() {
                     clickedNotes.push($(this).data('noteData'));
@@ -131,7 +132,7 @@
         
         self.setTuning = function(newTuning) {
             var numFrets = settings.numFrets,
-                $stringContainers = $element.find(stringContainerSelector),
+                $stringContainers = $fretboardContainer.find(stringContainerSelector),
                 newTuning = $.extend(true, [], newTuning),
                 newTuningLength = newTuning.length,
                 oldTuning = $.extend(true, [], settings.tuning),
@@ -209,9 +210,9 @@
                 numStrings = tuning.length,
                 fretNumDifference = oldNumFrets - newNumFrets,
                 absFretNumDifference = Math.abs(fretNumDifference),
-                $stringContainers = $element.find(stringContainerSelector),
+                $stringContainers = $fretboardContainer.find(stringContainerSelector),
                 $stringContainer,
-                $fretLines = $element.find(fretLineSelector),
+                $fretLines = $fretboardContainer.find(fretLineSelector),
                 noteData,
                 openNote,
                 $note,
@@ -275,7 +276,7 @@
         
         self.clearClickedNotes = function() {
             // DUPLICATE LOGIC - possibly refactor
-            $element
+            $fretboardContainer
                 .find(noteSelector + clickedSelector)
                 .removeClass(clickedCssClass)
                 .removeClass(hoverCssClass)
@@ -315,7 +316,7 @@
                         tuningNote = tuning[j];
                         
                         if (notesAreEqual(tuningNote, stringItsOn)) {
-                            $stringContainer = $($element.find(stringContainerSelector)[j]);
+                            $stringContainer = $($fretboardContainer.find(stringContainerSelector)[j]);
                             $note = $($stringContainer.find(noteSelector)[noteToClick.fretNumber]);
                             
                             if (!$note.hasClass(clickedCssClass)) {
@@ -442,7 +443,7 @@
                         } 
                     }
                     
-                    $element.trigger("notesClicked");
+                    $fretboardContainer.trigger("notesClicked");
                     
                 })
                 .append($letter)
@@ -463,8 +464,8 @@
         function setDimensions(animateBodyBool, animateNotesBool, animateFretLinesBool, animateStringContainersBool, animateStringNotesBool) {
             var numFrets = settings.numFrets,
                 numStrings = settings.tuning.length,
-                defaultDimensions = DEFAULT_DIMENSIONS_FUNC($element, $fretboardBody),
-                dimensions = settings.dimensionsFunc($element, $fretboardBody),
+                defaultDimensions = DEFAULT_DIMENSIONS_FUNC($fretboardContainer, $fretboardBody),
+                dimensions = settings.dimensionsFunc($fretboardContainer, $fretboardBody),
                 fretboardBodyHeight = dimensions.height || defaultDimensions.height,
                 fretboardBodyWidth = dimensions.width || defaultDimensions.width,
                 fretWidth = fretboardBodyWidth / (numFrets + 1),
@@ -474,7 +475,7 @@
             animateFretLines(fretWidth, fretboardBodyHeight, animateFretLinesBool);
             animateStringContainers(fretWidth, fretHeight, animateStringContainersBool, animateStringNotesBool);
             
-            $element.trigger("dimensionsSet");
+            $fretboardContainer.trigger("dimensionsSet");
         }
         
         function animateFretboardBody(fretboardBodyWidth, fretboardBodyHeight, animate) {
@@ -497,13 +498,13 @@
                     complete: function() {
                         // Don't put "true" in outerWidth
                         fretboardBodyRightPosition = $fretboardBody.offset().left + $fretboardBody.outerWidth();
-                        fretboardContainerRightPosition = $element.offset().left + $element.outerWidth();
+                        fretboardContainerRightPosition = $fretboardContainer.offset().left + $fretboardContainer.outerWidth();
                     }
                 });
         }
         
         function animateFretLines(fretWidth, fretHeight, animate) { 
-            var $fretLines = $element.find(fretLineSelector),
+            var $fretLines = $fretboardContainer.find(fretLineSelector),
                 numFrets = settings.numFrets;
             
             $fretLines.removeClass("first").removeClass("last")
@@ -529,7 +530,7 @@
         }
         
         function animateStringContainers(fretWidth, fretHeight, animateContainer, animateNotes) {
-            var $stringContainers = $element.find(stringContainerSelector),
+            var $stringContainers = $fretboardContainer.find(stringContainerSelector),
                 numStrings = settings.tuning.length;
             
             $stringContainers.removeClass("first").removeClass("last")
@@ -588,14 +589,25 @@
         }
         
         function getNoteByFretNumber(stringNote, fretNumber) {
-            var fretOffset = settings.allNoteLetters.indexOf(stringNote.letter) + fretNumber,
-                numOctavesAboveString = Math.floor(fretOffset / 12);
+            var noteIndex = settings.allNoteLetters.indexOf(stringNote.letter) + fretNumber,
+                numOctavesAboveString = Math.floor(noteIndex / 12),
+                reducedNoteIndex;
                 
-                // Reduce the index by the correct amount to get it below 12
-                fretOffset = fretOffset - (12 * numOctavesAboveString);
+                // If noteIndex is <= 11, the note on this fret is in the same octave 
+                // as the string's note. After 11, the octave increments. We need to 
+                // know how many times the octave has incremented, which is 
+                // noteIndex / 12 floored, and use that to get noteIndex down 
+                // to something between 0 and 11. 
+                 
+                // Example: If our string has note F4, the letter F is at index 5. If 
+                // our fret number is 22 our noteIndex is 27, which means the octave has 
+                // incremented twice (once after 12, the other after 24) and we get that 
+                // number by doing 27 / 12 floored. So we must reduce 27 by two octaves 
+                // to get it below 12. Thus it becomes 27 - (12 * 2) = 3, which is note Eb.
+                reducedNoteIndex = noteIndex - (12 * numOctavesAboveString);
 
             return { 
-                letter: settings.allNoteLetters[fretOffset],
+                letter: settings.allNoteLetters[reducedNoteIndex],
                 octave: stringNote.octave + numOctavesAboveString
             }
         }
