@@ -50,31 +50,31 @@
             var isChordMode = true,
                 isDisabled = false,
                 eightStringTuning = [{
-                        letter: "E",
-                        octave: 4
-                    }, {
-                        letter: "B",
-                        octave: 3
-                    }, {
-                        letter: "G",
-                        octave: 3
-                    }, {
-                        letter: "D",
-                        octave: 3
-                    }, {
-                        letter: "A",
-                        octave: 2
-                    }, {
-                        letter: "E",
-                        octave: 2
-                    },{
-                        letter: "B",
-                        octave: 1
-                    },{
-                        letter: "F#/Gb",
-                        octave: 1
-                    }],
-                tuning = $.extend(true, [], eightStringTuning).slice(0,6);
+                    letter: "E",
+                    octave: 4
+                }, {
+                    letter: "B",
+                    octave: 3
+                }, {
+                    letter: "G",
+                    octave: 3
+                }, {
+                    letter: "D",
+                    octave: 3
+                }, {
+                    letter: "A",
+                    octave: 2
+                }, {
+                    letter: "E",
+                    octave: 2
+                }, {
+                    letter: "B",
+                    octave: 1
+                }, {
+                    letter: "F#/Gb",
+                    octave: 1
+                }],
+                tuning = $.extend(true, [], eightStringTuning).slice(0, 6),
                 numFrets = 16,
                 clickedNotes = [{
                     stringItsOn: {
@@ -82,7 +82,7 @@
                         octave: 4
                     },
                     fretNumber: 3
-                },{
+                }, {
                     stringItsOn: {
                         letter: "B",
                         octave: 3
@@ -111,7 +111,7 @@
                     // "this" will be the options object into which we place this function
                     var options = this,
                         numStrings = options.tuning.length;
-                        
+
                     return {
                         height: numStrings * 32
                     };
@@ -126,86 +126,86 @@
                     animationSpeed: 500 // ms
                 },
                 $fretboard = $(".my-fretboard-js");
-            
-            $fretboard.fretboard(options); 
-            
+
+            $fretboard.fretboard(options);
+
             $(".toggle-chord-mode").on("click", function() {
                 isChordMode = !isChordMode;
-                
+
                 $fretboard.each(function() {
                     $(this).data('fretboard').setChordMode(isChordMode);
                 });
             });
-            
+
             $(".set-clicked-notes").on("click", function() {
                 $fretboard.each(function() {
                     $(this).data('fretboard').setClickedNotes(clickedNotes);
                 });
             });
-            
+
             $(".get-clicked-notes").on("click", function() {
                 $fretboard.each(function() {
                     console.log($(this).data('fretboard').getClickedNotes());
                 });
             });
-            
+
             $(".note-clicking-disabled").on("click", function() {
                 isDisabled = !isDisabled;
-                
+
                 $fretboard.each(function() {
                     $(this).data('fretboard').setNoteClickingDisabled(isDisabled);
                 });
             });
-            
+
             $(".add-string").on("click", function() {
                 if (tuning.length < 8) {
                     tuning.push({
                         letter: eightStringTuning[tuning.length].letter,
                         octave: eightStringTuning[tuning.length].octave
                     });
-                
+
                     $fretboard.each(function() {
                         $(this).data('fretboard').setTuning(tuning);
                     });
                 }
             });
-            
+
             $(".remove-string").on("click", function() {
                 if (tuning.length > 4) {
                     tuning.pop();
-                    
+
                     $fretboard.each(function() {
                         $(this).data('fretboard').setTuning(tuning);
                     });
                 }
             });
-            
+
             $(".add-fret").on("click", function() {
                 if (numFrets < 24) {
                     numFrets++;
-                    
+
                     $fretboard.each(function() {
                         $(this).data('fretboard').setNumFrets(numFrets);
                     });
                 }
             });
-            
+
             $(".remove-fret").on("click", function() {
                 if (numFrets > 12) {
-                  numFrets--;
-                  
-                  $fretboard.each(function() {
-                      $(this).data('fretboard').setNumFrets(numFrets);
-                  });
+                    numFrets--;
+
+                    $fretboard.each(function() {
+                        $(this).data('fretboard').setNumFrets(numFrets);
+                    });
                 }
             });
-            
+
             /*$(".redraw").on("click", function() {
                 $fretboard.each(function() {
                     $(this).data('fretboard').redraw();
                 });
             });*/
-            
+
             $(".unclick").on("click", function() {
                 $fretboard.each(function() {
                     $(this).data('fretboard').clearClickedNotes();
@@ -214,5 +214,4 @@
         })(jQuery);
     </script>
 </body>
-
 </html>

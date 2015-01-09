@@ -39,155 +39,154 @@
       var app = angular.module("myApp", ['angularFretboard']);
 
       app.controller("MyController", ["$scope",
-        function($scope) {
+          function($scope) {
+              var isChordMode = true,
+                  isDisabled = false,
+                  eightStringTuning = [{
+                      letter: "E",
+                      octave: 4
+                  }, {
+                      letter: "B",
+                      octave: 3
+                  }, {
+                      letter: "G",
+                      octave: 3
+                  }, {
+                      letter: "D",
+                      octave: 3
+                  }, {
+                      letter: "A",
+                      octave: 2
+                  }, {
+                      letter: "E",
+                      octave: 2
+                  }, {
+                      letter: "B",
+                      octave: 1
+                  }, {
+                      letter: "F#/Gb",
+                      octave: 1
+                  }],
+                  tuning = $.extend(true, [], eightStringTuning).slice(0, 6),
+                  numFrets = 16,
+                  clickedNotes = [{
+                      stringItsOn: {
+                          letter: "E",
+                          octave: 4
+                      },
+                      fretNumber: 3
+                  }, {
+                      stringItsOn: {
+                          letter: "B",
+                          octave: 3
+                      },
+                      fretNumber: 5
+                  }, {
+                      stringItsOn: {
+                          letter: "G",
+                          octave: 3
+                      },
+                      fretNumber: 4
+                  }, {
+                      stringItsOn: {
+                          letter: "D",
+                          octave: 3
+                      },
+                      fretNumber: 5
+                  }, {
+                      stringItsOn: {
+                          letter: "A",
+                          octave: 2
+                      },
+                      fretNumber: 3
+                  }],
+                  dimensionsFunc = function($fretboardContainer, $fretboardBody) {
+                      // "this" will be the options object into which we place this function
+                      var options = this,
+                          numStrings = options.tuning.length;
 
-            var isChordMode = true,
-                isDisabled = false,
-                eightStringTuning = [{
-                        letter: "E",
-                        octave: 4
-                    }, {
-                        letter: "B",
-                        octave: 3
-                    }, {
-                        letter: "G",
-                        octave: 3
-                    }, {
-                        letter: "D",
-                        octave: 3
-                    }, {
-                        letter: "A",
-                        octave: 2
-                    }, {
-                        letter: "E",
-                        octave: 2
-                    },{
-                        letter: "B",
-                        octave: 1
-                    },{
-                        letter: "F#/Gb",
-                        octave: 1
-                    }],
-                tuning = $.extend(true, [], eightStringTuning).slice(0,6);
-                numFrets = 16,
-                clickedNotes = [{
-                    stringItsOn: {
-                        letter: "E",
-                        octave: 4
-                    },
-                    fretNumber: 3
-                },{
-                    stringItsOn: {
-                        letter: "B",
-                        octave: 3
-                    },
-                    fretNumber: 5
-                }, {
-                    stringItsOn: {
-                        letter: "G",
-                        octave: 3
-                    },
-                    fretNumber: 4
-                }, {
-                    stringItsOn: {
-                        letter: "D",
-                        octave: 3
-                    },
-                    fretNumber: 5
-                }, {
-                    stringItsOn: {
-                        letter: "A",
-                        octave: 2
-                    },
-                    fretNumber: 3
-                }],
-                dimensionsFunc = function($fretboardContainer, $fretboardBody) {
-                    // "this" will be the options object into which we place this function
-                    var options = this,
-                        numStrings = options.tuning.length;
-                        
-                    return {
-                        height: numStrings * 32
-                    };
-                },
-                options = {
-                    allNoteLetters: ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"],
-                    tuning: tuning,
-                    numFrets: numFrets,
-                    isChordMode: isChordMode,
-                    noteClickingDisabled: isDisabled,
-                    dimensionsFunc: dimensionsFunc,
-                    animationSpeed: 500 // ms
-                };
-                
-            $scope.config = {
-                allNoteLetters: ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"],
-                tuning: tuning,
-                numFrets: numFrets,
-                isChordMode: isChordMode,
-                noteClickingDisabled: isDisabled,
-                dimensionsFunc: dimensionsFunc,
-                animationSpeed: 500 // ms
-            };
+                      return {
+                          height: numStrings * 32
+                      };
+                  },
+                  options = {
+                      allNoteLetters: ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"],
+                      tuning: tuning,
+                      numFrets: numFrets,
+                      isChordMode: isChordMode,
+                      noteClickingDisabled: isDisabled,
+                      dimensionsFunc: dimensionsFunc,
+                      animationSpeed: 500 // ms
+                  };
 
-          // For testing - outputs the config during changes to tuning, clicked notes, etc.
-          $scope.$watch(function () {
-            return $scope.config
-          }, function (newVal, oldval) {
-            console.log($scope.config);
-          }, true);
-          
-          $scope.toggleChordMode = function() {
-                $scope.config.isChordMode = !$scope.config.isChordMode;
-          }
-          
-          $scope.setChord = function() {
-              $scope.config.clickedNotes = clickedNotes.slice(0);
-          }
-          
-          $scope.getClickedNotes = function() {
-              console.log($scope.config.clickedNotes);
-          }
+              $scope.config = {
+                  allNoteLetters: ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"],
+                  tuning: tuning,
+                  numFrets: numFrets,
+                  isChordMode: isChordMode,
+                  noteClickingDisabled: isDisabled,
+                  dimensionsFunc: dimensionsFunc,
+                  animationSpeed: 500 // ms
+              };
 
-          $scope.toggleNoteClicking = function() {
-              $scope.config.noteClickingDisabled = !$scope.config.noteClickingDisabled;
-          }
+              // For testing - outputs the config during changes to tuning, clicked notes, etc.
+              $scope.$watch(function() {
+                  return $scope.config
+              }, function(newVal, oldval) {
+                  console.log($scope.config);
+              }, true);
 
-          $scope.addString = function() {
-              // make a copy to change the reference 
-              if ($scope.config.tuning.length < 8) {
-                $scope.config.tuning = $scope.config.tuning.slice(0);
-                $scope.config.tuning.push({
-                    letter: eightStringTuning[$scope.config.tuning.length].letter,
-                    octave: eightStringTuning[$scope.config.tuning.length].octave
-                });
+              $scope.toggleChordMode = function() {
+                  $scope.config.isChordMode = !$scope.config.isChordMode;
+              }
+
+              $scope.setChord = function() {
+                  $scope.config.clickedNotes = clickedNotes.slice(0);
+              }
+
+              $scope.getClickedNotes = function() {
+                  console.log($scope.config.clickedNotes);
+              }
+
+              $scope.toggleNoteClicking = function() {
+                  $scope.config.noteClickingDisabled = !$scope.config.noteClickingDisabled;
+              }
+
+              $scope.addString = function() {
+                  // make a copy to change the reference 
+                  if ($scope.config.tuning.length < 8) {
+                      $scope.config.tuning = $scope.config.tuning.slice(0);
+                      $scope.config.tuning.push({
+                          letter: eightStringTuning[$scope.config.tuning.length].letter,
+                          octave: eightStringTuning[$scope.config.tuning.length].octave
+                      });
+                  }
+              }
+
+              $scope.removeString = function() {
+                  // make a copy to change the reference 
+                  if ($scope.config.tuning.length > 4) {
+                      $scope.config.tuning = $scope.config.tuning.slice(0);
+                      $scope.config.tuning.pop();
+                  }
+              }
+
+              $scope.addFret = function() {
+                  if ($scope.config.numFrets < 24) {
+                      $scope.config.numFrets++;
+                  }
+              }
+
+              $scope.removeFret = function() {
+                  if ($scope.config.numFrets > 12) {
+                      $scope.config.numFrets--;
+                  }
+              }
+
+              $scope.unclick = function() {
+                  $scope.config.clickedNotes = [];
               }
           }
-          
-          $scope.removeString = function() {
-            // make a copy to change the reference 
-            if ($scope.config.tuning.length > 4) {
-              $scope.config.tuning = $scope.config.tuning.slice(0);
-              $scope.config.tuning.pop();
-            }
-          }
-          
-          $scope.addFret = function() {
-              if ($scope.config.numFrets < 24) {
-                  $scope.config.numFrets++;
-              }
-          }
-          
-          $scope.removeFret = function() {
-              if ($scope.config.numFrets > 12) {
-                $scope.config.numFrets--;
-              }
-          }
-          
-          $scope.unclick = function() {
-            $scope.config.clickedNotes = [];
-          }
-        }
       ]);
     </script>
     
