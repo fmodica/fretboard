@@ -150,6 +150,8 @@
            
             settings.tuning = newTuning;
             
+            validateTuning();
+            
             // Modification/addition of strings
             for (i = 0; i < newTuningLength; i++) {
                 newTuningNote = newTuning[i];
@@ -464,12 +466,32 @@
         function setDimensions(animateBodyBool, animateNotesBool, animateFretLinesBool, animateStringContainersBool, animateStringNotesBool) {
             var numFrets = settings.numFrets,
                 numStrings = settings.tuning.length,
-                defaultDimensions = DEFAULT_DIMENSIONS_FUNC($fretboardContainer, $fretboardBody),
-                dimensions = settings.dimensionsFunc($fretboardContainer, $fretboardBody),
-                fretboardBodyHeight = dimensions.height || defaultDimensions.height,
-                fretboardBodyWidth = dimensions.width || defaultDimensions.width,
-                fretWidth = fretboardBodyWidth / (numFrets + 1),
-                fretHeight = fretboardBodyHeight / numStrings;
+                defaultDimensions, 
+                dimensions,
+                fretboardBodyHeight,
+                fretboardBodyWidth,
+                fretWidth,
+                fretHeight;
+            
+            // Add the CSS classes that state the number of strings and frets,
+            // and then get the height/width of the fretboard container because
+            // the new CSS classes might change the height/width.
+            $fretboardContainer
+              .removeClass(function (index, css) {
+                  return (css.match (/(^|\s)strings-\S+/g) || []).join(' ');
+              })
+              .removeClass(function (index, css) {
+                  return (css.match (/(^|\s)frets-\S+/g) || []).join(' ');
+              })
+              .addClass("strings-" + numStrings)
+              .addClass("frets-" + numFrets);
+            
+            defaultDimensions = DEFAULT_DIMENSIONS_FUNC($fretboardContainer, $fretboardBody);
+            dimensions = settings.dimensionsFunc($fretboardContainer, $fretboardBody);
+            fretboardBodyHeight = dimensions.height || defaultDimensions.height;
+            fretboardBodyWidth = dimensions.width || defaultDimensions.width;
+            fretWidth = fretboardBodyWidth / (numFrets + 1);
+            fretHeight = fretboardBodyHeight / numStrings;
             
             animateFretboardBody(fretboardBodyWidth, fretboardBodyHeight, animateBodyBool);
             animateFretLines(fretWidth, fretboardBodyHeight, animateFretLinesBool);
@@ -479,16 +501,11 @@
         }
         
         function animateFretboardBody(fretboardBodyWidth, fretboardBodyHeight, animate) {
-            var numStrings = settings.tuning.length,
-                numFrets = settings.numFrets,
-                fretboardBodyRightPosition,
+            var fretboardBodyRightPosition,
                 fretboardContainerRightPosition;
-                
+            
+            debugger;
             $fretboardBody
-                .removeClass()
-                .addClass(bodyCssClass)
-                .addClass("strings-" + numStrings)
-                .addClass("frets-" + numFrets)
                 .animate({
                     height: fretboardBodyHeight,
                     width: fretboardBodyWidth
@@ -622,12 +639,32 @@
 
         function validate() {
             validateAllNoteLetters();
-            // validate tuning
+            validateTuning();
         }
 
         function validateAllNoteLetters() {
-            if (settings.allNoteLetters.length !== 12) {
-                throw "allNoteLetters is not valid: " + settings.allNoteLetters;
+            var allNoteLetters = settings.allNoteLetters;
+            
+            if (allNoteLetters.length !== 12) {
+                throw "allNoteLetters is not valid because there must be exactly 12 letters in the array: " + allNoteLetters;
+            }
+        }
+        
+        function validateTuning() {
+            var tuning = settings.tuning,
+                tuningLength = tuning.length,
+                allNoteLetters = settings.allNoteLetters,
+                tuningNote,
+                tuningNoteLetter,
+                i;
+                
+            for (i = 0; i < tuningLength; i++) {
+                tuningNote = tuning[i];
+                tuningNoteLetter = tuningNote.letter;
+                
+                if (allNoteLetters.indexOf(tuningNoteLetter) === -1) {
+                    throw "tuning is not valid because the note letter \"" + tuningNoteLetter + "\" is not in the allNoteLetters array: " + allNoteLetters;
+                }
             }
         }
     };

@@ -32,7 +32,7 @@
     }
     </style>
     <div class="container">
-        <div class="my-fretboard-js" style="margin-bottom:40px"></div>
+        <div class="my-fretboard-js"></div>
         <div class="my-fretboard-js space-theme"></div>
         
         <button class="toggle-chord-mode">Toggle chord mode</button>
@@ -49,7 +49,7 @@
         (function($) {
             var isChordMode = true,
                 isDisabled = false,
-                tuning = [{
+                eightStringTuning = [{
                         letter: "E",
                         octave: 4
                     }, {
@@ -67,7 +67,14 @@
                     }, {
                         letter: "E",
                         octave: 2
+                    },{
+                        letter: "B",
+                        octave: 1
+                    },{
+                        letter: "F#/Gb",
+                        octave: 1
                     }],
+                tuning = $.extend(true, [], eightStringTuning).slice(0,6);
                 numFrets = 16,
                 clickedNotes = [{
                     stringItsOn: {
@@ -151,49 +158,46 @@
             });
             
             $(".add-string").on("click", function() {
-                if (tuning.length) {
+                if (tuning.length < 8) {
                     tuning.push({
-                        letter: tuning[tuning.length - 1].letter,
-                        octave: tuning[tuning.length - 1].octave - 1
+                        letter: eightStringTuning[tuning.length].letter,
+                        octave: eightStringTuning[tuning.length].octave
                     });
-                    
-                    /*tuning.push({
-                        letter: tuning[tuning.length - 1].letter,
-                        octave: tuning[tuning.length - 1].octave - 1
-                    });*/
-                } else {
-                    tuning.push({
-                        letter: "E",
-                        octave: 4
-                    });
-                    
-                    /*tuning.push({
-                        letter: "B",
-                        octave: 3
-                    });*/
-                }
                 
-                $fretboard.each(function() {
-                    $(this).data('fretboard').setTuning(tuning);
-                });
+                    $fretboard.each(function() {
+                        $(this).data('fretboard').setTuning(tuning);
+                    });
+                }
             });
             
             $(".remove-string").on("click", function() {
-                tuning.pop();
-                // tuning.pop();
-                
-                $fretboard.each(function() {
-                    $(this).data('fretboard').setTuning(tuning);
-                });
+                if (tuning.length > 4) {
+                    tuning.pop();
+                    
+                    $fretboard.each(function() {
+                        $(this).data('fretboard').setTuning(tuning);
+                    });
+                }
             });
             
             $(".add-fret").on("click", function() {
-                numFrets++;
-                //numFrets++;
-                
-                $fretboard.each(function() {
-                    $(this).data('fretboard').setNumFrets(numFrets);
-                });
+                if (numFrets < 24) {
+                    numFrets++;
+                    
+                    $fretboard.each(function() {
+                        $(this).data('fretboard').setNumFrets(numFrets);
+                    });
+                }
+            });
+            
+            $(".remove-fret").on("click", function() {
+                if (numFrets > 12) {
+                  numFrets--;
+                  
+                  $fretboard.each(function() {
+                      $(this).data('fretboard').setNumFrets(numFrets);
+                  });
+                }
             });
             
             /*$(".redraw").on("click", function() {
@@ -201,15 +205,6 @@
                     $(this).data('fretboard').redraw();
                 });
             });*/
-            
-            $(".remove-fret").on("click", function() {
-                numFrets--;
-                //numFrets--;
-                
-                $fretboard.each(function() {
-                    $(this).data('fretboard').setNumFrets(numFrets);
-                });
-            });
             
             $(".unclick").on("click", function() {
                 $fretboard.each(function() {

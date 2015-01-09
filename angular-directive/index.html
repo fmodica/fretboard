@@ -43,7 +43,7 @@
 
             var isChordMode = true,
                 isDisabled = false,
-                tuning = [{
+                eightStringTuning = [{
                         letter: "E",
                         octave: 4
                     }, {
@@ -61,7 +61,14 @@
                     }, {
                         letter: "E",
                         octave: 2
+                    },{
+                        letter: "B",
+                        octave: 1
+                    },{
+                        letter: "F#/Gb",
+                        octave: 1
                     }],
+                tuning = $.extend(true, [], eightStringTuning).slice(0,6);
                 numFrets = 16,
                 clickedNotes = [{
                     stringItsOn: {
@@ -143,30 +150,38 @@
           }
 
           $scope.toggleNoteClicking = function() {
-            $scope.config.noteClickingDisabled = !$scope.config.noteClickingDisabled;
+              $scope.config.noteClickingDisabled = !$scope.config.noteClickingDisabled;
           }
 
           $scope.addString = function() {
-            // make a copy to change the reference 
-            $scope.config.tuning = $scope.config.tuning.slice(0);
-            $scope.config.tuning.push({
-              noteLetter: "Gb/F#",
-              noteOctave: 2
-            });
+              // make a copy to change the reference 
+              if ($scope.config.tuning.length < 8) {
+                $scope.config.tuning = $scope.config.tuning.slice(0);
+                $scope.config.tuning.push({
+                    letter: eightStringTuning[$scope.config.tuning.length].letter,
+                    octave: eightStringTuning[$scope.config.tuning.length].octave
+                });
+              }
           }
           
           $scope.removeString = function() {
             // make a copy to change the reference 
-            $scope.config.tuning = $scope.config.tuning.slice(0);
-            $scope.config.tuning.pop();
+            if ($scope.config.tuning.length > 4) {
+              $scope.config.tuning = $scope.config.tuning.slice(0);
+              $scope.config.tuning.pop();
+            }
           }
           
           $scope.addFret = function() {
-            $scope.config.numFrets++;
+              if ($scope.config.numFrets < 24) {
+                  $scope.config.numFrets++;
+              }
           }
           
           $scope.removeFret = function() {
-            $scope.config.numFrets--;
+              if ($scope.config.numFrets > 12) {
+                $scope.config.numFrets--;
+              }
           }
           
           $scope.unclick = function() {
@@ -176,8 +191,9 @@
       ]);
     </script>
     
-    <div fretboard fretboard-config='config'></div>
-
+    <div class="my-fretboard-js" fretboard fretboard-config='config'></div>
+    <div class="my-fretboard-js space-theme" fretboard fretboard-config='config'></div>
+    
     <button ng-click="toggleChordMode()">Toggle chord mode</button>
     <button ng-click="setChord()">Set C maj7 chord</button>
     <button ng-click="getClickedNotes()">Get clicked notes (console)</button>
