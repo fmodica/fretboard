@@ -1,8 +1,19 @@
-# Responsive Fretboard
+# Responsive Fretboard (In progress)
 
-(In progress) A jQuery plugin for displaying a responsive, interactive, and configurable fretboard of any number of frets, strings, and tunings. I am also working on an AngularJS directive to wrap this (see below).
+A jQuery plugin for displaying a responsive, interactive, and configurable fretboard of any number of frets, strings, and tunings. I initially wrote it so I could capture user input (chords/scales) and display chords/scales via an API. I am also working on an AngularJS directive to wrap this (see below).
 
-First load the fretboard.js file into a script tag. Also load the styles.css file. 
+## Demo
+Check out my voice leading page, where I use the fretboard to get chords from the user and display chords of my own:
+
+http://frank-modica.com/Voiceleader
+
+Check out an example fretboard I made that has an astronomy theme:
+
+http://frank-modica.com/Sandbox
+
+##How to use it
+
+First load the fretboard.js file into a script tag in your HTML document. Also load the styles.css file. 
 
 Then initialize on your element:
 
@@ -14,22 +25,9 @@ This is enough to create the default fretboard.
 
 The majority of the fretboard's HTML elements (which represent strings, frets, notes, etc.) are absolutely positioned and animated in JavaScript. You can still configure quite a bit, however. 
 
-The fretboard itself has a CSS class of "fretboard-body" and you can set things like its background (maybe use a cool image!), border, box-shadow etc. However, if you want to set its height or width you must do so on its parent element, which has a CSS class of "fretboard-container". 
+The fretboard itself has a CSS class of "fretboard-body" and you can set things like its background (maybe use a cool image!), border, box-shadow etc. 
 
 ```
-/* Set height and width here. The ".fretboard-body" element
-   will expand to fill this space. */
-.fretboard-container {
-    overflow: hidden;
-    width: 100%;
-    height: 240px;
-    /* At a certain point it doesn't make sense for the fretboard
-       size to decrease, so we set a min-width. A scroll-bar will 
-       be displayed.
-    min-width: 700px; */
-    margin: 0 auto;
-}
-
 /* This is the fretboard itself. It will expand to fill the 
     space of the ".fretboard-container" element. */
 .fretboard-container .fretboard-body {
@@ -42,26 +40,15 @@ The fretboard itself has a CSS class of "fretboard-body" and you can set things 
 
 ```
 
-This is done so that the height/width of the fretboard-container can be queried when the window is resized or strings/frets are added, and the fretboard-body can be animated into that container, filling the space by default. Thus you can make this responsive by changing the height/width of ".fretboard-container" using media queries.
+You can also change how most of the other fretboard elements look directly with CSS (which is how the astronomy theme mentioned above was accomplished). 
 
-```
-@media (max-width: 1000px) {
-    .fretboard-container {
-        /* New height/width */
-    }
-}
-```
-
-If you want the height/width of the fretboard-body to be determined by a more complex function (perhaps based on the number of strings, frets, browser width, etc.) you can supply that function in the configuration object discussed below.
-
-### Configuration Object
+## Configuration Object
 
 allNoteLetters: An array of strings which represent how the note letters are displayed. There must be 12 items in this array. The lowest item should represent the note at which the octave number is incremented. The default array is:
 
 ```
 ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"]
 ```
-
 
 tuning: An array of note objects that represents the tuning, from high to low. Each note object has a "letter" and "octave" property. The default array represents Standard E Tuning:
 
@@ -87,34 +74,30 @@ tuning: An array of note objects that represents the tuning, from high to low. E
 }]
 ```
 
-
 numFrets: 15 by default
 
-
-isChordMode: A boolean which when true means that only one note can be clicked on a string at a time. It defaults to true. Technically what happens is a "clicked" CSS class gets added to a clicked note and that CSS class is removed from all other notes on that string. The default CSS sets a background color on the clicked note. Set it to false to allow clicking of scales onto the fretboard. 
-
+isChordMode: A boolean which when true means that only one note can be clicked on a string at a time. It defaults to true. Set it to false when you want to allow the user to click scales onto the fretboard. Technically what happens is a "clicked" CSS class gets added to a clicked note and that CSS class is removed from all other notes on that string. The default CSS sets a background color on the clicked note.
 
 noteClickingDisabled: If this is true a user cannot click a note. This might be useful if you are taking information about the fretboard and sending it to the server and you don't want someone to be able to click during that time (kind of like disabling a form's inputs while the form is being submitted). The user can still hover over notes to see their letters (upon hovering a "hover" CSS class is added to the note, and the default CSS animates its opacity). TODO - a disabled CSS class should be added somewhere in the HTML when this is true so it can be reacted to in CSS (perhaps don't allow showing of the notes on hover either).
 
+dimensionsFunc: The default function will make the ".fretboard-body" element grow via animation to meet the width and height of its container, which is the ".fretboard-container" element. Technically, this means you can simply set the ".fretboard-container" height/width in CSS, and that will often be sufficient for responsive behavior. But you can supply your own dimensionsFunc function if you want the height/width of the fretboard body to be a complex function of perhaps the number of strings, frets, etc.
 
-dimensionsFunc: This function allows you to return an object with "height" and/or "width" properties which will determine the height/width of the fretboard-body if the default behavior (filling the space of the fretboard-container element) is not sufficient. This function will be passed the fretboard-body and fretboard-container as jQuery objects. If your return object has a width property, remove the width from the fretboard-container in your CSS. I like to return an object with only a height property (as shown below), which is based on the number of strings on the fretboard. I keep the width defined in fretboard-container CSS, since it's usually less complex to define. 
-
+Here is an example dimensionsFunc override. You are passed the ".fretboard-container" and ".fretboard-body" as jQuery objects. You then return an object with height and/or width properties:
 
 ```
 function($fretboardContainer, $fretboardBody) {
-    // "this" will be the options object into which we place this function
+    // "this" will be the configuration object into which we place this function
     var options = this,
         numStrings = options.tuning.length;
         
     return {
         height: numStrings * 32
+        // Return a width property too if you want
     };
 }
 ```
 
-
 animationSpeed: This determines how fast the fretboard body and all inner elements are animated. The default is 500 (ms).
-
 
 Pass your configuration object in when initializing the fretboard:
 
@@ -249,5 +232,7 @@ fretboardInstance.clearClickedNotes();
 ```
 
 # AngularJS Responsive Fretboard Directive
-This directive provides two-way data-binding between options on the configuration object and the fretboard. (More details to come). See the angular-directive folder for an example of its use.
+This directive provides two-way data-binding between options on the configuration object and the fretboard. You place the configuration object on your scope and pass it into the directive. Then when you change the "tuning" array, "clickedNotes" array, numFrets property etc., the fretboard UI will change. Also, when users interact with the fretboard your "clickedNotes" array will automatically be updated. 
+
+(More details to come). See the angular-directive folder for an example of its use.
 
