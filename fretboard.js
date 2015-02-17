@@ -43,8 +43,7 @@
             }],
             // Take up the container's height and width by default
             DEFAULT_DIMENSIONS_FUNC = function($fretboardContainer, $fretboardBody) {
-                var winWidth = $window.width(),
-                    containerWidth = $fretboardContainer.width(),
+                var containerWidth = $fretboardContainer.width(),
                     containerHeight = $fretboardContainer.height(),
                     fretboardBodyWidthDiff = $fretboardBody.outerWidth(true) - $fretboardBody.width(),
                     fretboardBodyHeightDiff = $fretboardBody.outerHeight(true) - $fretboardBody.height(),
@@ -57,7 +56,7 @@
                 return {
                     width: newBodyWidth,
                     height: newBodyHeight
-                }
+                };
             },
             defaults = {
                 allNoteLetters: DEFAULT_NOTE_LETTERS,
@@ -84,9 +83,7 @@
         init();
 
         function init() {
-            var numStrings = settings.tuning.length,
-                numFrets = settings.numFrets,
-                timer;
+            var timer;
                 
             // Set the instance variable
             $fretboardBody = getFretboardBodyEl(); 
@@ -97,7 +94,7 @@
                 .append($fretboardBody)
                 .wrap($fretboardScrollWrapper);
             
-            setDimensions(false, false, false, false, false);
+            setDimensions(false, false, false, false);
             
             // Animate the fretboard dimensions on resize, but only 
             // on the last resize after X milliseconds
@@ -105,14 +102,14 @@
                 clearTimeout(timer);
 
                 timer = setTimeout(function() {
-                    setDimensions(true, true, true, true, true);
+                    setDimensions(true, true, true, true);
                 }, 100);
             });
         }
         
         self.setChordMode = function(isChordMode) {
             settings.isChordMode = isChordMode;
-        }
+        };
         
         self.getClickedNotes = function() {
             var clickedNotes = [];
@@ -124,11 +121,11 @@
                 });
                 
             return clickedNotes;
-        }
+        };
         
         self.setNoteClickingDisabled = function(isDisabled) {
             settings.noteClickingDisabled = isDisabled;
-        }
+        };
         
         self.setTuning = function(newTuning) {
             var numFrets = settings.numFrets,
@@ -203,8 +200,8 @@
                 }
             }
             
-            setDimensions(true, true, true, true, true);
-        }
+            setDimensions(true, true, true, true);
+        };
         
         self.setNumFrets = function(newNumFrets) {
             var tuning = settings.tuning,
@@ -250,7 +247,7 @@
                         // Make it come in from the right
                         .css({
                             left: $fretboardBody.width()
-                        })
+                        });
                         
                         $stringContainer.append($note);
                     }
@@ -273,8 +270,8 @@
                 }
             }
             
-            setDimensions(true, true, true, true, true);
-        }
+            setDimensions(true, true, true, true);
+        };
         
         self.clearClickedNotes = function() {
             // DUPLICATE LOGIC - possibly refactor
@@ -284,7 +281,7 @@
                 .removeClass(hoverCssClass)
                 .on("mouseenter", noteMouseEnter)
                 .on("mouseleave", noteMouseLeave);
-        }
+        };
         
         self.setClickedNotes = function(notesToClick) {
             var notesToClick = $.extend(true, [], notesToClick),
@@ -334,11 +331,11 @@
                     }   
                 }
             }
-        }
+        };
         
         self.redraw = function() {
-            setDimensions(true, true, true, true, true);
-        }
+            setDimensions(true, true, true, true);
+        };
         
         function notesAreEqual(note1, note2) {
             return note1.letter === note2.letter && note1.octave === note2.octave;
@@ -463,7 +460,7 @@
         }
         
         // Absolutely position all of the inner elements, and animate their positioning if requested
-        function setDimensions(animateBodyBool, animateNotesBool, animateFretLinesBool, animateStringContainersBool, animateStringNotesBool) {
+        function setDimensions(animateBodyBool, animateFretLinesBool, animateStringContainersBool, animateStringNotesBool) {
             var numFrets = settings.numFrets,
                 numStrings = settings.tuning.length,
                 defaultDimensions, 
@@ -501,22 +498,13 @@
         }
         
         function animateFretboardBody(fretboardBodyWidth, fretboardBodyHeight, animate) {
-            var fretboardBodyRightPosition,
-                fretboardContainerRightPosition;
-            
-            debugger;
             $fretboardBody
                 .animate({
                     height: fretboardBodyHeight,
                     width: fretboardBodyWidth
                 }, { 
                     duration: animate ? settings.animationSpeed : 0, 
-                    queue: false, 
-                    complete: function() {
-                        // Don't put "true" in outerWidth
-                        fretboardBodyRightPosition = $fretboardBody.offset().left + $fretboardBody.outerWidth();
-                        fretboardContainerRightPosition = $fretboardContainer.offset().left + $fretboardContainer.outerWidth();
-                    }
+                    queue: false
                 });
         }
         
@@ -561,8 +549,7 @@
                         fretLeftVal,
                         fretTopVal,
                         noteLeftVal,
-                        noteTopVal,
-                        $fretLine;
+                        noteTopVal;
                         
                     $stringContainer = $(stringContainerEl);
                     
@@ -626,7 +613,7 @@
             return { 
                 letter: settings.allNoteLetters[reducedNoteIndex],
                 octave: stringNote.octave + numOctavesAboveString
-            }
+            };
         }
         
         function noteMouseEnter(e) {
@@ -691,7 +678,9 @@ if (!Array.isArray) {
 
             // Return early if this element already has a plugin instance.
             // Otherwise, place a fretboard object on the element's data
-            if ($element.data('fretboard')) return;
+            if ($element.data('fretboard')) { 
+                return;
+            }
 
             fretboard = new Fretboard(options, $element);
 
