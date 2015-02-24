@@ -7,7 +7,7 @@ Check out my voice leading page, where I use the fretboard to get chords from th
 
 http://frank-modica.com/Voiceleader
 
-Check out an example fretboard I made that has an astronomy theme:
+Check out an example fretboard I made that has an astronomy theme (why would I do this? I don't know, I majored in astronomy. Whatever.)
 
 http://frank-modica.com/Sandbox
 
