@@ -130,6 +130,14 @@
     width: 0;
 }
 
+.fretboard-container .note-circle {
+    border-radius: 50%;
+    border: 1px solid black;
+    width: 6px;
+    height: 6px;
+    position: absolute;
+    background: black;
+}
 
 @media (max-width: 1024px) {
     .fretboard-container .note {

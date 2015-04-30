@@ -20,6 +20,8 @@
             hoverCssClass = "hover",
             clickedCssClass = "clicked",
             clickedSelector = "." + clickedCssClass,
+            noteCircleCssClass = "note-circle",
+            noteCircleCssSelector = "." + noteCircleCssClass,
             // The value for C needs to be first
             DEFAULT_NOTE_LETTERS = ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"],
             DEFAULT_TUNING = [{
@@ -58,6 +60,7 @@
                     height: newBodyHeight
                 };
             },
+            defaultNoteCircleList = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24],
             defaults = {
                 allNoteLetters: DEFAULT_NOTE_LETTERS,
                 tuning: DEFAULT_TUNING,
@@ -65,7 +68,8 @@
                 isChordMode: true,
                 noteClickingDisabled: false,
                 dimensionsFunc: DEFAULT_DIMENSIONS_FUNC,
-                animationSpeed: 500
+                animationSpeed: 500,
+                noteCircleList: defaultNoteCircleList
             },
             settings = {},
             $fretboardScrollWrapper,
@@ -75,9 +79,6 @@
         // Make a copy of the options that were passed in, just in case the 
         // user modifies that object. Then extend it with the defaults.
         $.extend(settings, defaults, $.extend(true, [], options));
-        
-        console.log("Settings: ");
-        console.log(settings);
 
         validate();
         init();
@@ -94,7 +95,7 @@
                 .append($fretboardBody)
                 .wrap($fretboardScrollWrapper);
             
-            setDimensions(false, false, false, false);
+            setDimensions(false, false, false, false, false);
             
             // Animate the fretboard dimensions on resize, but only 
             // on the last resize after X milliseconds
@@ -102,7 +103,7 @@
                 clearTimeout(timer);
 
                 timer = setTimeout(function() {
-                    setDimensions(true, true, true, true);
+                    setDimensions(true, true, true, true, true);
                 }, 100);
             });
         }
@@ -158,7 +159,6 @@
                 // If a string exists, alter it if the new open note is different than the old
                 if (i < oldTuningLength) {
                     if (!notesAreEqual(newTuningNote, oldTuningNote)) {
-                        console.log("altering");
                         // Create a new string but don't add it to the DOM. Just use its info
                         // to modify the string already in the DOM.
                         $newStringContainerNotes = $newStringContainer.find(noteSelector);
@@ -173,12 +173,9 @@
                                 .find(letterSelector)
                                 .text(newNoteData.letter);
                         } 
-                    } else {
-                        console.log("notes are the same");
                     }
                 } else {
                     // Add new string
-                    console.log("adding");
                     
                     // Make the string and notes come in from the bottom
                     $newStringContainer
@@ -195,12 +192,11 @@
             // Removal of strings
             if (tuningLengthDifference > 0) {
                 for (i = 0; i < tuningLengthDifference; i++) {
-                    console.log("removing");
                     $($stringContainers[oldTuningLength - 1 - i]).remove();
                 }
             }
             
-            setDimensions(true, true, true, true);
+            setDimensions(true, true, true, true, true);
         };
         
         self.setNumFrets = function(newNumFrets) {
@@ -210,8 +206,15 @@
                 fretNumDifference = oldNumFrets - newNumFrets,
                 absFretNumDifference = Math.abs(fretNumDifference),
                 $stringContainers = $fretboardContainer.find(stringContainerSelector),
-                $stringContainer,
                 $fretLines = $fretboardContainer.find(fretLineSelector),
+                $noteCircles = $fretboardContainer.find(noteCircleCssSelector),
+                fretboardBodyWidth = $fretboardBody.width(),
+                fretboardBodyHeight = $fretboardBody.height(),
+                $noteCircleHash = {},
+                noteCircleHash = {},
+                $noteCircle,
+                noteCircleHeight,
+                $stringContainer,
                 noteData,
                 openNote,
                 $note,
@@ -227,7 +230,7 @@
                 
                 // Add or remove absFretNumDifference frets
                 for (j = 0; j < absFretNumDifference; j++) {
-                    // fretNumDifferene will never be 0 or this loop won't be entered
+                    // fretNumDifference will never be 0 or this loop won't be entered
                     if (fretNumDifference > 0) {
                         // Remove fret
                         fretNum = oldNumFrets - j;
@@ -255,7 +258,7 @@
             }
             
             // Fret lines go inside the body
-            for (j = 0; j < absFretNumDifference; j++) {
+            for (i = 0; i < absFretNumDifference; i++) {
                 // fretNumDifference will never be 0 or this loop won't be entered
                 if (fretNumDifference > 0) {
                     $fretLines[fretNum].remove();
@@ -264,13 +267,50 @@
                     $fretboardBody.append(
                         getFretLineEl()
                         .css({
-                            left: $fretboardBody.width()
+                            left: fretboardBodyWidth
                         })
                     );
                 }
             }
+
+            $noteCircles.each(function(index, noteCircleEl) { 
+                $noteCircle = $(noteCircleEl); 
+                $noteCircleHash[$noteCircle.data("fretNumber")] = $noteCircle;
+            });
+
+            settings.noteCircleList.forEach(function(fretNum) {
+                noteCircleHash[fretNum] = true;
+            });
+
+            // Note circles
+            for (i = 0; i < absFretNumDifference; i++) {
+                if (fretNumDifference > 0) {
+                    fretNum = oldNumFrets - i;
+                    $noteCircle = $noteCircleHash[fretNum];
+
+                    if ($noteCircle) {
+                        $noteCircle.remove();
+                    }
+                } else if (fretNumDifference < 0) {
+                    fretNum = oldNumFrets + (i + 1);
+
+                    // Could speed this up with an object
+                    if (noteCircleHash[fretNum] === true) {
+                        $noteCircle = getNoteCircleEl(fretNum);
+                        // Append it first so it gets a height
+                        $fretboardBody.append($noteCircle);
+                        noteCircleHeight = $noteCircle.outerWidth(true);
+                        
+                        $noteCircle
+                            .css({
+                                left: fretboardBodyWidth,
+                                top: (fretboardBodyHeight / 2) - (noteCircleHeight / 2)
+                            });
+                    }
+                }
+            }
             
-            setDimensions(true, true, true, true);
+            setDimensions(true, true, true, true, true);
         };
         
         self.clearClickedNotes = function() {
@@ -334,7 +374,7 @@
         };
         
         self.redraw = function() {
-            setDimensions(true, true, true, true);
+            setDimensions(true, true, true, true, true);
         };
         
         function notesAreEqual(note1, note2) {
@@ -342,26 +382,38 @@
         }
         
         function getFretboardBodyEl() {
-            var numStrings = settings.tuning.length,
-                numFrets = settings.numFrets,
+            var noteCircleList = settings.noteCircleList,
                 $fretboardBody = $("<div class='" + bodyCssClass + "'></div>"),
                 $stringContainer,
                 $fretLine,
+                $noteCircle,
                 openNote,
                 i;
                 
-            for (i = 0; i < numStrings; i++) {
+            for (i = 0; i < settings.tuning.length; i++) {
                 openNote = settings.tuning[i];
                 $stringContainer = getStringContainerEl(openNote);
                 $fretboardBody.append($stringContainer);
             }
             
-            for (i = 0; i <= numFrets; i++) {
+            for (i = 0; i <= settings.numFrets; i++) {
                 $fretLine = getFretLineEl();
                 $fretboardBody.append($fretLine);
             }
             
+            for (i = 0; i < noteCircleList.length; i++) {
+                if (noteCircleList[i] <= settings.numFrets) {
+		    $noteCircle = getNoteCircleEl(noteCircleList[i]);
+		    $fretboardBody.append($noteCircle);
+                }
+            }
+            
             return $fretboardBody;
+        }
+        
+        function getNoteCircleEl(fretNum) {
+            return $("<div class='" + noteCircleCssClass + "'></div>")
+                .data('fretNumber', fretNum);
         }
         
         function getStringContainerEl(openNote) {
@@ -460,7 +512,7 @@
         }
         
         // Absolutely position all of the inner elements, and animate their positioning if requested
-        function setDimensions(animateBodyBool, animateFretLinesBool, animateStringContainersBool, animateStringNotesBool) {
+        function setDimensions(animateBodyBool, animateFretLinesBool, animateStringContainersBool, animateStringNotesBool, animateNoteCirclesBool) {
             var numFrets = settings.numFrets,
                 numStrings = settings.tuning.length,
                 defaultDimensions, 
@@ -493,6 +545,7 @@
             animateFretboardBody(fretboardBodyWidth, fretboardBodyHeight, animateBodyBool);
             animateFretLines(fretWidth, fretboardBodyHeight, animateFretLinesBool);
             animateStringContainers(fretWidth, fretHeight, animateStringContainersBool, animateStringNotesBool);
+            animateNoteCircles(fretboardBodyWidth, fretboardBodyHeight, fretWidth, animateNoteCirclesBool);
             
             $fretboardContainer.trigger("dimensionsSet");
         }
@@ -589,7 +642,29 @@
                         queue: false 
                     });
                 });
+        }
         
+        function animateNoteCircles(fretboardBodyWidth, fretboardBodyHeight, fretWidth, animate) {
+            var $noteCircles = $fretboardBody.find(noteCircleCssSelector);
+            
+            $noteCircles.each(function(index, noteCircleEl) {
+                var $noteCircle = $(noteCircleEl),
+                    noteCircleHeight = $noteCircle.outerHeight(true),
+                    noteCircleWidth = $noteCircle.outerWidth(true),
+                    fretNum = $noteCircle.data("fretNumber"),
+                    // Some duplication here with the note animation
+                    fretLeftVal = fretNum * fretWidth,
+                    noteCircleLeftVal = fretLeftVal + ((fretWidth / 2) - (noteCircleWidth / 2)),
+                    noteCircleTopVal = (fretboardBodyHeight / 2) - (noteCircleHeight / 2);
+                
+                    $noteCircle.animate({
+                        top: noteCircleTopVal,
+                        left: noteCircleLeftVal
+                    }, {
+                        duration: animate ? settings.animationSpeed : 0, 
+                        queue: false 
+                    });
+            });
         }
         
         function getNoteByFretNumber(stringNote, fretNumber) {

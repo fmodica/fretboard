@@ -100,7 +100,7 @@
                       },
                       fretNumber: 3
                   }],
-                  dimensionsFunc = function($fretboardContainer, $fretboardBody) {
+                  dimensionsFunc = function() {
                       // "this" will be the options object into which we place this function
                       var options = this,
                           numStrings = options.tuning.length;
@@ -109,6 +109,7 @@
                           height: numStrings * 32
                       };
                   },
+                  noteCircleList = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24],
                   options = {
                       allNoteLetters: ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"],
                       tuning: tuning,
@@ -116,7 +117,8 @@
                       isChordMode: isChordMode,
                       noteClickingDisabled: isDisabled,
                       dimensionsFunc: dimensionsFunc,
-                      animationSpeed: 500 // ms
+                      animationSpeed: 500, // ms
+                      noteCircleList: noteCircleList
                   };
 
               $scope.config = {
