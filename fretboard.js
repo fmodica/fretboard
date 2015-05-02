@@ -294,7 +294,6 @@
                 } else if (fretNumDifference < 0) {
                     fretNum = oldNumFrets + (i + 1);
 
-                    // Could speed this up with an object
                     if (noteCircleHash[fretNum] === true) {
                         $noteCircle = getNoteCircleEl(fretNum);
                         // Append it first so it gets a height
