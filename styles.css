@@ -32,6 +32,7 @@
        container and won't take into account drop-shadow size,
        but will take into account margin */
     margin: 10px;
+    box-sizing: content-box;
 }
 
 .fretboard-container .string {
