@@ -195,6 +195,9 @@
             }
 
             setDimensions(true, true, true, true, true);
+            
+            // The stringItsOn property of the notes may have changed, so alert the user
+            $fretboardContainer.trigger("notesClicked");
         };
 
         self.setNumFrets = function(newNumFrets) {
@@ -538,7 +541,6 @@
             fretboardBodyWidth = dimensions.width || defaultDimensions.width;
             fretWidth = fretboardBodyWidth / (numFrets + 1);
             fretHeight = fretboardBodyHeight / numStrings;
-            debugger;
             animateFretboardBody(fretboardBodyWidth, fretboardBodyHeight, animateBodyBool);
             animateFretLines(fretWidth, fretboardBodyHeight, animateFretLinesBool);
             animateStringContainers(fretWidth, fretHeight, animateStringContainersBool, animateStringNotesBool);
