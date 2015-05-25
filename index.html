@@ -36,7 +36,8 @@
         <!-- <div class="my-fretboard-js space-theme"></div> -->
         
         <button class="toggle-chord-mode btn btn-small">Toggle chord mode</button>
-        <button class="set-clicked-notes btn btn-small">Set C maj7 chord</button>
+        <button class="set-clicked-notes-maj7 btn btn-small">Set C maj7 chord</button>
+        <button class="set-clicked-notes-min7 btn btn-small">Set A min7 chord</button>
         <button class="get-clicked-notes btn btn-small">Get clicked notes (console)</button>
         <button class="note-clicking-disabled btn btn-small">Disable/enable note clicking</button>
         <button class="add-string btn btn-small">Add string</button>
@@ -85,81 +86,94 @@
                     letter: "E",
                     octave: 4
                 },
-                fretNumber: 3
+                fretNumber: 3,
+                cssClass: "red"
             }, {
                 stringItsOn: {
                     letter: "B",
                     octave: 3
                 },
-                fretNumber: 5
+                fretNumber: 5,
+                cssClass: "red"
             }, {
                 stringItsOn: {
                     letter: "G",
                     octave: 3
                 },
-                fretNumber: 4
+                fretNumber: 4,
+                cssClass: "red"
             }, {
                 stringItsOn: {
                     letter: "D",
                     octave: 3
                 },
-                fretNumber: 5
+                fretNumber: 5,
+                cssClass: "red"
             }, {
                 stringItsOn: {
                     letter: "A",
                     octave: 2
                 },
-                fretNumber: 3
+                fretNumber: 3,
+                cssClass: "red"
             }],
             aMin7Notes = [{
                 stringItsOn: {
                     letter: "B",
                     octave: 3
                 },
-                fretNumber: 5
+                fretNumber: 5,
+                cssClass: "green"
             }, {
                 stringItsOn: {
                     letter: "G",
                     octave: 3
                 },
-                fretNumber: 5
+                fretNumber: 5,
+                cssClass: "green"
             }, {
                 stringItsOn: {
                     letter: "D",
                     octave: 3
                 },
-                fretNumber: 5
+                fretNumber: 5,
+                cssClass: "green"
             }, {
                 stringItsOn: {
                     letter: "E",
                     octave: 2
                 },
-                fretNumber: 5
+                fretNumber: 5,
+                cssClass: "green"
             }],
             fMaj7Notes = [{
                 stringItsOn: {
                     letter: "B",
                     octave: 3
                 },
-                fretNumber: 1
+                fretNumber: 1,
+                cssClass: "yellow"
             }, {
                 stringItsOn: {
                     letter: "G",
                     octave: 3
                 },
-                fretNumber: 2
+                fretNumber: 2,
+                cssClass: "yellow"
             }, {
                 stringItsOn: {
                     letter: "D",
                     octave: 3
                 },
-                fretNumber: 2
+                fretNumber: 2,
+                cssClass: "yellow"
             }, {
                 stringItsOn: {
                     letter: "E",
                     octave: 2
                 },
-                fretNumber: 1
+                fretNumber: 1,
+                cssClass: "yellow"
             }],
             g7Notes = [{
                 stringItsOn: {
@@ -218,9 +232,21 @@
             });
         });
 
-        $(".set-clicked-notes").on("click", function () {
+        $(".set-clicked-notes-maj7").on("click", function () {
             $fretboard.each(function () {
-                $(this).data('fretboard').setClickedNotes(cMaj7Notes);
+                var fretboard = $(this).data('fretboard');
+                
+                fretboard.clearClickedNotes();
+                fretboard.setClickedNotes(cMaj7Notes);
+            });
+        });
+        
+        $(".set-clicked-notes-min7").on("click", function () {
+            $fretboard.each(function () {
+                var fretboard = $(this).data('fretboard');
+                
+                fretboard.clearClickedNotes();
+                fretboard.setClickedNotes(aMin7Notes);
             });
         });
 
@@ -299,23 +325,10 @@
  
             setTimeout(function () {
                 $fretboard.each(function () {
-                    $(this).data('fretboard').clearClickedNotes();
-                });
-
-                $fretboard.each(function () {
-                    $(this).data('fretboard').setClickedNotes(cMaj7Notes);
-                });
-            }, ms);
-
-            ms += delta;
-
-            setTimeout(function () {
-                $fretboard.each(function () {
-                    $(this).data('fretboard').clearClickedNotes();
-                });
-
-                $fretboard.each(function () {
-                    $(this).data('fretboard').setClickedNotes(aMin7Notes);
+                    var fretboard = $(this).data('fretboard');
+                    
+                    fretboard.clearClickedNotes();
+                    fretboard.setClickedNotes(cMaj7Notes);
                 });
             }, ms);
 
@@ -323,23 +336,10 @@
 
             setTimeout(function () {
                 $fretboard.each(function () {
-                    $(this).data('fretboard').clearClickedNotes();
-                });
-
-                $fretboard.each(function () {
-                    $(this).data('fretboard').setClickedNotes(fMaj7Notes);
-                });
-            }, ms);
-
-            ms += delta;
-
-            setTimeout(function () {
-                $fretboard.each(function () {
-                    $(this).data('fretboard').clearClickedNotes();
-                });
-
-                $fretboard.each(function () {
-                    $(this).data('fretboard').setClickedNotes(g7Notes);
+                    var fretboard = $(this).data('fretboard');
+                    
+                    fretboard.clearClickedNotes();
+                    fretboard.setClickedNotes(aMin7Notes);
                 });
             }, ms);
 
@@ -347,16 +347,40 @@
 
             setTimeout(function () {
                 $fretboard.each(function () {
-                    $(this).data('fretboard').clearClickedNotes();
+                    var fretboard = $(this).data('fretboard');
+                    
+                    fretboard.clearClickedNotes();
+                    fretboard.setClickedNotes(fMaj7Notes);
                 });
+            }, ms);
 
+            ms += delta;
+
+            setTimeout(function () {
                 $fretboard.each(function () {
-                    $(this).data('fretboard').setClickedNotes(cMaj7Notes);
+                    var fretboard = $(this).data('fretboard');
+                    
+                    fretboard.clearClickedNotes();
+                    fretboard.setClickedNotes(g7Notes);
+                });
+            }, ms);
+
+            ms += delta;
+
+            setTimeout(function () {
+                $fretboard.each(function () {
+                    var fretboard = $(this).data('fretboard');
+                    
+                    fretboard.clearClickedNotes();
+                    fretboard.setClickedNotes(cMaj7Notes);
                 });
             }, ms);
         });
 
         $(".show-scale-run").on("click", function () {
+            var ms = 0,
+                delta = 100;
+                
             $fretboard.each(function () {
                 $(this).data('fretboard').clearClickedNotes();
             });
@@ -371,7 +395,9 @@
                         fretNumber: 8
                     }]);
                 });
-            }, 0);
+            }, ms);
+            
+            ms += delta;
 
             setTimeout(function () {
                 $fretboard.each(function () {
@@ -383,7 +409,9 @@
                         fretNumber: 6
                     }]);
                 });
-            }, 100);
+            }, ms);
+            
+            ms += delta;
 
             setTimeout(function () {
                 $fretboard.each(function () {
@@ -395,7 +423,9 @@
                         fretNumber: 5
                     }]);
                 });
-            }, 200);
+            }, ms);
+            
+            ms += delta;
 
             setTimeout(function () {
                 $fretboard.each(function () {
@@ -407,7 +437,9 @@
                         fretNumber: 8
                     }]);
                 });
-            }, 300);
+            }, ms);
+            
+            ms += delta;
 
             setTimeout(function () {
                 $fretboard.each(function () {
@@ -419,7 +451,9 @@
                         fretNumber: 6
                     }]);
                 });
-            }, 400);
+            }, ms);
+            
+            ms += delta;
 
             setTimeout(function () {
                 $fretboard.each(function () {
@@ -431,7 +465,9 @@
                         fretNumber: 5
                     }]);
                 });
-            }, 500);
+            }, ms);
+            
+            ms += delta;
 
             setTimeout(function () {
                 $fretboard.each(function () {
@@ -443,7 +479,9 @@
                         fretNumber: 7
                     }]);
                 });
-            }, 600);
+            }, ms);
+            
+            ms += delta;
 
             setTimeout(function () {
                 $fretboard.each(function () {
@@ -455,7 +493,9 @@
                         fretNumber: 5
                     }]);
                 });
-            }, 700);
+            }, ms);
+            
+            ms += delta;
 
             setTimeout(function () {
                 $fretboard.each(function () {
@@ -467,7 +507,9 @@
                         fretNumber: 8
                     }]);
                 });
-            }, 800);
+            }, ms);
+            
+            ms += delta;
 
             setTimeout(function () {
                 $fretboard.each(function () {
@@ -479,7 +521,9 @@
                         fretNumber: 7
                     }]);
                 });
-            }, 900);
+            }, ms);
+            
+            ms += delta;
 
             setTimeout(function () {
                 $fretboard.each(function () {
@@ -491,7 +535,9 @@
                         fretNumber: 5
                     }]);
                 });
-            }, 1000);
+            }, ms);
+            
+            ms += delta;
 
             setTimeout(function () {
                 $fretboard.each(function () {
@@ -503,7 +549,9 @@
                         fretNumber: 8
                     }]);
                 });
-            }, 1100);
+            }, ms);
+            
+            ms += delta;
 
             setTimeout(function () {
                 $fretboard.each(function () {
@@ -515,7 +563,9 @@
                         fretNumber: 7
                     }]);
                 });
-            }, 1200);
+            }, ms);
+            
+            ms += delta;
 
             setTimeout(function () {
                 $fretboard.each(function () {
@@ -527,7 +577,7 @@
                         fretNumber: 5
                     }]);
                 });
-            }, 1300);
+            }, ms);
         });
 
         $(".show-arpeggio").on("click", function () {
@@ -536,11 +586,23 @@
 
             setTimeout(function () {
                 $fretboard.each(function () {
-                    $(this).data('fretboard').clearClickedNotes();
+                    var fretboard = $(this).data('fretboard');
+                    
+                    fretboard.clearClickedNotes();
+                    fretboard.setClickedNotes([{
+                        stringItsOn: {
+                            letter: "A",
+                            octave: 2
+                        },
+                        fretNumber: 1
+                    }]);
                 });
 
                 $fretboard.each(function () {
-                    $(this).data('fretboard').setClickedNotes([{
+                    var fretboard = $(this).data('fretboard');
+                    
+                    fretboard.clearClickedNotes();
+                    fretboard.setClickedNotes([{
                         stringItsOn: {
                             letter: "A",
                             octave: 2
@@ -554,11 +616,10 @@
 
             setTimeout(function () {
                 $fretboard.each(function () {
-                    $(this).data('fretboard').clearClickedNotes();
-                });
-
-                $fretboard.each(function () {
-                    $(this).data('fretboard').setClickedNotes([{
+                    var fretboard = $(this).data('fretboard');
+                    
+                    fretboard.clearClickedNotes();
+                    fretboard.setClickedNotes([{
                         stringItsOn: {
                             letter: "A",
                             octave: 2
@@ -572,11 +633,10 @@
 
             setTimeout(function () {
                 $fretboard.each(function () {
-                    $(this).data('fretboard').clearClickedNotes();
-                });
-
-                $fretboard.each(function () {
-                    $(this).data('fretboard').setClickedNotes([{
+                    var fretboard = $(this).data('fretboard');
+                    
+                    fretboard.clearClickedNotes();
+                    fretboard.setClickedNotes([{
                         stringItsOn: {
                             letter: "D",
                             octave: 3
@@ -590,11 +650,10 @@
 
             setTimeout(function () {
                 $fretboard.each(function () {
-                    $(this).data('fretboard').clearClickedNotes();
-                });
-
-                $fretboard.each(function () {
-                    $(this).data('fretboard').setClickedNotes([{
+                    var fretboard = $(this).data('fretboard');
+                    
+                    fretboard.clearClickedNotes();
+                    fretboard.setClickedNotes([{
                         stringItsOn: {
                             letter: "G",
                             octave: 3
@@ -608,11 +667,10 @@
 
             setTimeout(function () {
                 $fretboard.each(function () {
-                    $(this).data('fretboard').clearClickedNotes();
-                });
-
-                $fretboard.each(function () {
-                    $(this).data('fretboard').setClickedNotes([{
+                    var fretboard = $(this).data('fretboard');
+                    
+                    fretboard.clearClickedNotes();
+                    fretboard.setClickedNotes([{
                         stringItsOn: {
                             letter: "G",
                             octave: 3
@@ -626,11 +684,10 @@
 
             setTimeout(function () {
                 $fretboard.each(function () {
-                    $(this).data('fretboard').clearClickedNotes();
-                });
-
-                $fretboard.each(function () {
-                    $(this).data('fretboard').setClickedNotes([{
+                    var fretboard = $(this).data('fretboard');
+                    
+                    fretboard.clearClickedNotes();
+                    fretboard.setClickedNotes([{
                         stringItsOn: {
                             letter: "B",
                             octave: 3
@@ -644,11 +701,10 @@
 
             setTimeout(function () {
                 $fretboard.each(function () {
-                    $(this).data('fretboard').clearClickedNotes();
-                });
-
-                $fretboard.each(function () {
-                    $(this).data('fretboard').setClickedNotes([{
+                    var fretboard = $(this).data('fretboard');
+                    
+                    fretboard.clearClickedNotes();
+                    fretboard.setClickedNotes([{
                         stringItsOn: {
                             letter: "E",
                             octave: 4
@@ -662,11 +718,10 @@
 
             setTimeout(function () {
                 $fretboard.each(function () {
-                    $(this).data('fretboard').clearClickedNotes();
-                });
-
-                $fretboard.each(function () {
-                    $(this).data('fretboard').setClickedNotes([{
+                    var fretboard = $(this).data('fretboard');
+                    
+                    fretboard.clearClickedNotes();
+                    fretboard.setClickedNotes([{
                         stringItsOn: {
                             letter: "E",
                             octave: 4
@@ -680,11 +735,10 @@
 
             setTimeout(function () {
                 $fretboard.each(function () {
-                    $(this).data('fretboard').clearClickedNotes();
-                });
-
-                $fretboard.each(function () {
-                    $(this).data('fretboard').setClickedNotes([{
+                    var fretboard = $(this).data('fretboard');
+                    
+                    fretboard.clearClickedNotes();
+                    fretboard.setClickedNotes([{
                         stringItsOn: {
                             letter: "E",
                             octave: 4
@@ -698,11 +752,10 @@
 
             setTimeout(function () {
                 $fretboard.each(function () {
-                    $(this).data('fretboard').clearClickedNotes();
-                });
-
-                $fretboard.each(function () {
-                    $(this).data('fretboard').setClickedNotes([{
+                    var fretboard = $(this).data('fretboard');
+                    
+                    fretboard.clearClickedNotes();
+                    fretboard.setClickedNotes([{
                         stringItsOn: {
                             letter: "E",
                             octave: 4
@@ -716,11 +769,10 @@
 
             setTimeout(function () {
                 $fretboard.each(function () {
-                    $(this).data('fretboard').clearClickedNotes();
-                });
-
-                $fretboard.each(function () {
-                    $(this).data('fretboard').setClickedNotes([{
+                    var fretboard = $(this).data('fretboard');
+                    
+                    fretboard.clearClickedNotes();
+                    fretboard.setClickedNotes([{
                         stringItsOn: {
                             letter: "E",
                             octave: 4
@@ -734,11 +786,10 @@
 
             setTimeout(function () {
                 $fretboard.each(function () {
-                    $(this).data('fretboard').clearClickedNotes();
-                });
-
-                $fretboard.each(function () {
-                    $(this).data('fretboard').setClickedNotes([{
+                    var fretboard = $(this).data('fretboard');
+                    
+                    fretboard.clearClickedNotes();
+                    fretboard.setClickedNotes([{
                         stringItsOn: {
                             letter: "B",
                             octave: 3
@@ -752,11 +803,10 @@
 
             setTimeout(function () {
                 $fretboard.each(function () {
-                    $(this).data('fretboard').clearClickedNotes();
-                });
-
-                $fretboard.each(function () {
-                    $(this).data('fretboard').setClickedNotes([{
+                    var fretboard = $(this).data('fretboard');
+                    
+                    fretboard.clearClickedNotes();
+                    fretboard.setClickedNotes([{
                         stringItsOn: {
                             letter: "G",
                             octave: 3
@@ -770,11 +820,10 @@
 
             setTimeout(function () {
                 $fretboard.each(function () {
-                    $(this).data('fretboard').clearClickedNotes();
-                });
-
-                $fretboard.each(function () {
-                    $(this).data('fretboard').setClickedNotes([{
+                    var fretboard = $(this).data('fretboard');
+                    
+                    fretboard.clearClickedNotes();
+                    fretboard.setClickedNotes([{
                         stringItsOn: {
                             letter: "G",
                             octave: 3
@@ -788,11 +837,10 @@
 
             setTimeout(function () {
                 $fretboard.each(function () {
-                    $(this).data('fretboard').clearClickedNotes();
-                });
-
-                $fretboard.each(function () {
-                    $(this).data('fretboard').setClickedNotes([{
+                    var fretboard = $(this).data('fretboard');
+                    
+                    fretboard.clearClickedNotes();
+                    fretboard.setClickedNotes([{
                         stringItsOn: {
                             letter: "D",
                             octave: 3
@@ -806,11 +854,10 @@
 
             setTimeout(function () {
                 $fretboard.each(function () {
-                    $(this).data('fretboard').clearClickedNotes();
-                });
-
-                $fretboard.each(function () {
-                    $(this).data('fretboard').setClickedNotes([{
+                    var fretboard = $(this).data('fretboard');
+                    
+                    fretboard.clearClickedNotes();
+                    fretboard.setClickedNotes([{
                         stringItsOn: {
                             letter: "A",
                             octave: 2
@@ -824,11 +871,10 @@
 
             setTimeout(function () {
                 $fretboard.each(function () {
-                    $(this).data('fretboard').clearClickedNotes();
-                });
-
-                $fretboard.each(function () {
-                    $(this).data('fretboard').setClickedNotes([{
+                    var fretboard = $(this).data('fretboard');
+                    
+                    fretboard.clearClickedNotes();
+                    fretboard.setClickedNotes([{
                         stringItsOn: {
                             letter: "A",
                             octave: 2

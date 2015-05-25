@@ -325,9 +325,6 @@
 
         self.setClickedNotes = function(notesToClick) {
             var notesToClick = $.extend(true, [], notesToClick),
-                notesToClickLength = notesToClick.length,
-                tuning = settings.tuning,
-                tuningLength = tuning.length,
                 i,
                 j,
                 tuningNote,
@@ -343,7 +340,7 @@
                 // get the find the corresponding $stringContainer and click its 
                 // note.
 
-                for (i = 0; i < notesToClickLength; i++) {
+                for (i = 0; i < notesToClick.length; i++) {
                     noteToClick = notesToClick[i];
                     stringItsOn = noteToClick && noteToClick.stringItsOn;
 
@@ -351,23 +348,31 @@
                         continue;
                     }
 
-                    for (j = 0; j < tuningLength; j++) {
-                        tuningNote = tuning[j];
+                    for (j = 0; j < settings.tuning.length; j++) {
+                        tuningNote = settings.tuning[j];
 
-                        if (notesAreEqual(tuningNote, stringItsOn)) {
-                            $stringContainer = $($fretboardContainer.find(stringContainerSelector)[j]);
-                            $note = $($stringContainer.find(noteSelector)[noteToClick.fretNumber]);
-
-                            if (!$note.hasClass(clickedCssClass)) {
-                                // Make it behave the same as if you hovered over and clicked it.
-                                // DUPLICATE LOGIC - possibly refactor
-                                $note
-                                    .addClass(hoverCssClass)
-                                    .addClass(clickedCssClass)
-                                    .off("mouseenter", noteMouseEnter)
-                                    .off("mouseleave", noteMouseLeave);
-                            }
+                        if (!notesAreEqual(tuningNote, stringItsOn)) {
+                            continue;
                         }
+                        
+                        $stringContainer = $fretboardContainer.find(stringContainerSelector).eq(j);
+                        $note = $stringContainer.find(noteSelector).eq(noteToClick.fretNumber);
+
+                        if ($note.hasClass(clickedCssClass)) {
+                            return;
+                        }
+                        
+                        // Make it behave the same as if you hovered over and clicked it.
+                        // SOME DUPLICATE LOGIC - possibly refactor
+                        $note.removeClass();
+                        
+                        $note
+                            .addClass(noteCssClass)
+                            .addClass(hoverCssClass)
+                            .addClass(clickedCssClass)
+                            .addClass(noteToClick.cssClass)
+                            .off("mouseenter", noteMouseEnter)
+                            .off("mouseleave", noteMouseLeave);
                     }
                 }
             }
