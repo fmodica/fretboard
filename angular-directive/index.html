@@ -69,62 +69,71 @@
                   }],
                   tuning = $.extend(true, [], eightStringTuning).slice(0, 6),
                   numFrets = 16,
-                    cMaj7Notes = [{
-                        stringItsOn: {
-                            letter: "E",
-                            octave: 4
-                        },
-                        fretNumber: 3
-                    }, {
-                        stringItsOn: {
-                            letter: "B",
-                            octave: 3
-                        },
-                        fretNumber: 5
-                    }, {
-                        stringItsOn: {
-                            letter: "G",
-                            octave: 3
-                        },
-                        fretNumber: 4
-                    }, {
-                        stringItsOn: {
-                            letter: "D",
-                            octave: 3
-                        },
-                        fretNumber: 5
-                    }, {
-                        stringItsOn: {
-                            letter: "A",
-                            octave: 2
-                        },
-                        fretNumber: 3
-                    }],
-                    aMin7Notes = [{
-                        stringItsOn: {
-                            letter: "B",
-                            octave: 3
-                        },
-                        fretNumber: 5
-                    }, {
-                        stringItsOn: {
-                            letter: "G",
-                            octave: 3
-                        },
-                        fretNumber: 5
-                    }, {
-                        stringItsOn: {
-                            letter: "D",
-                            octave: 3
-                        },
-                        fretNumber: 5
-                    }, {
-                        stringItsOn: {
-                            letter: "E",
-                            octave: 2
-                        },
-                        fretNumber: 5
-                    }],
+                cMaj7Notes = [{
+                    stringItsOn: {
+                        letter: "E",
+                        octave: 4
+                    },
+                    fretNumber: 3,
+                    cssClass: "red"
+                }, {
+                    stringItsOn: {
+                        letter: "B",
+                        octave: 3
+                    },
+                    fretNumber: 5,
+                    cssClass: "red"
+                }, {
+                    stringItsOn: {
+                        letter: "G",
+                        octave: 3
+                    },
+                    fretNumber: 4,
+                    cssClass: "red"
+                }, {
+                    stringItsOn: {
+                        letter: "D",
+                        octave: 3
+                    },
+                    fretNumber: 5,
+                    cssClass: "red"
+                }, {
+                    stringItsOn: {
+                        letter: "A",
+                        octave: 2
+                    },
+                    fretNumber: 3,
+                    cssClass: "red"
+                }],
+                aMin7Notes = [{
+                    stringItsOn: {
+                        letter: "B",
+                        octave: 3
+                    },
+                    fretNumber: 5,
+                    cssClass: "green"
+                }, {
+                    stringItsOn: {
+                        letter: "G",
+                        octave: 3
+                    },
+                    fretNumber: 5,
+                    cssClass: "green"
+                }, {
+                    stringItsOn: {
+                        letter: "D",
+                        octave: 3
+                    },
+                    fretNumber: 5,
+                    cssClass: "green"
+                }, {
+                    stringItsOn: {
+                        letter: "E",
+                        octave: 2
+                    },
+                    fretNumber: 5,
+                    cssClass: "green"
+                }],
                   dimensionsFunc = function() {
                       // "this" will be the options object into which we place this function
                       var options = this,
