@@ -1,19 +1,19 @@
 # Responsive Fretboard (In progress)
 
-A jQuery plugin for displaying a responsive, interactive, configurable, (somewhat) stylable fretboard of any number of frets, strings, and tunings. I am also working on an AngularJS directive to wrap this (see below).
+A jQuery plugin for displaying a responsive, interactive, configurable, (somewhat) stylable fretboard of any number of frets, strings, and tunings. I also have this wrapped as an AngularJS directive.
 
-I initially wrote this so I could capture user input (chords/scales) and display chords/scales of my own. 
+I initially wrote this so I could capture user input (chords/scales) and display chords/scales of my own. I am developing features as I need them, but if you have a feature request feel free to contact me.
 
 
 
 ## Demo
-Check out an example fretboard I made that has an astronomy theme (why would I do this? I don't know, I majored in astronomy. Whatever.)
+Check out an example fretboard I made that is styled with an astronomy theme (why would I do this? I don't know, I majored in astronomy. Whatever.)
 
 
 http://frank-modica.com/Sandbox
 
 
-Check out my voice leading page, where I use the fretboard to get chords from the user and display chords of my own:
+Check out my voice leading page, where I use the fretboard to help users create progressions with good voice leading:
 
 
 http://frank-modica.com/Voiceleader
@@ -102,6 +102,10 @@ function($fretboardContainer, $fretboardBody) {
 
 animationSpeed: This determines how fast the fretboard body and all inner elements are animated. The default is 500 (ms).
 
+noteCircleList: An array of fret numbers where a circle is displayed to mark the fret. The default array is:
+
+```[3, 5, 7, 9, 12, 15, 17, 19, 21, 24]```
+
 Pass your configuration object in when initializing the fretboard:
 
 ```
@@ -110,7 +114,7 @@ $(".my-fretboard-js").fretboard({
 });
 ```
 
-See the index.html for an example of 2 fretboards. One is using the default CSS, and another has an astronomy theme.
+See the index.html for an example of 2 fretboards. One is using the default CSS, and another (commented out) has an astronomy theme.
 
 
 #API
@@ -134,7 +138,7 @@ var isChordMode = false;
 fretboardInstance.setChordMode(isChordMode);
 ```
         
-Trigger note clicks. Here is an example of programatically clicking a Cmaj7 chord onto the fretboard:
+Trigger note clicks. Here is an example of programatically clicking a Cmaj7 chord onto the fretboard with an optional CSS class if you want to control styling of different notes:
 
 ```
 var clickedNotes = [{
@@ -142,31 +146,36 @@ var clickedNotes = [{
             letter: "E",
             octave: 4
         },
-        fretNumber: 3
+        fretNumber: 3,
+        cssClass: "green"
     },{
         stringItsOn: {
             letter: "B",
             octave: 3
         },
-        fretNumber: 5
+        fretNumber: 5,
+        cssClass: "green"
     }, {
         stringItsOn: {
             letter: "G",
             octave: 3
         },
-        fretNumber: 4
+        fretNumber: 4,
+        cssClass: "green"
     }, {
         stringItsOn: {
             letter: "D",
             octave: 3
         },
-        fretNumber: 5
+        fretNumber: 5,
+        cssClass: "green"
     }, {
         stringItsOn: {
             letter: "A",
             octave: 2
         },
-        fretNumber: 3
+        fretNumber: 3,
+        cssClass: "green"
     }];
         
 fretboardInstance.setClickedNotes(clickedNotes);
