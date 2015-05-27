@@ -106,6 +106,12 @@
             });
         }
 
+        self.destroy = function() { 
+            $fretboardBody.remove();
+            $fretboardContainer.unwrap();
+            removeContainerCssClasses();
+        }
+
         self.setChordMode = function(isChordMode) {
             settings.isChordMode = isChordMode;
         };
@@ -198,6 +204,10 @@
             
             // The stringItsOn property of the notes may have changed, so alert the user
             $fretboardContainer.trigger("notesClicked");
+        };
+
+        self.getTuning = function() {
+            return settings.tuning;
         };
 
         self.setNumFrets = function(newNumFrets) {
@@ -311,6 +321,10 @@
             }
 
             setDimensions(true, true, true, true, true);
+        };
+
+        self.getNumFrets = function() {
+            return settings.numFrets;
         };
 
         self.clearClickedNotes = function() {
@@ -530,13 +544,11 @@
             // Add the CSS classes that state the number of strings and frets,
             // and then get the height/width of the fretboard container because
             // the new CSS classes might change the height/width.
+
+            removeContainerCssClasses();
+
             $fretboardContainer
-                .removeClass(function(index, css) {
-                    return (css.match(/(^|\s)strings-\S+/g) || []).join(' ');
-                })
-                .removeClass(function(index, css) {
-                    return (css.match(/(^|\s)frets-\S+/g) || []).join(' ');
-                })
+                .addClass(fretboardContainerCssClass)
                 .addClass("strings-" + numStrings)
                 .addClass("frets-" + numFrets);
 
@@ -552,6 +564,17 @@
             animateNoteCircles(fretboardBodyWidth, fretboardBodyHeight, fretWidth, animateNoteCirclesBool);
 
             $fretboardContainer.trigger("dimensionsSet");
+        }
+
+        function removeContainerCssClasses() {
+            $fretboardContainer
+                .removeClass(function(index, css) {
+                    return (css.match(/(^|\s)strings-\S+/g) || []).join(' ');
+                })
+                .removeClass(function(index, css) {
+                    return (css.match(/(^|\s)frets-\S+/g) || []).join(' ');
+                })
+                .removeClass(fretboardContainerCssClass);          
         }
 
         function animateFretboardBody(fretboardBodyWidth, fretboardBodyHeight, animate) {
