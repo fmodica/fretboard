@@ -36,6 +36,7 @@ describe("Fretboard", function() {
         var noteCircles = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24];
         var noteLetters = ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"];
         var animationSpeed = 500;
+        
         it("should have standard tuning", function() {
             expect(fretboardInstance.getTuning()).toEqual(standardTuning);
         });
@@ -64,7 +65,7 @@ describe("Fretboard", function() {
             expect(fretboardInstance.getAnimationSpeed()).toEqual(animationSpeed);
         });
 
-        it("should have the correct default height (fill its container)", function() {
+        it("should have the correct height (fill its container)", function() {
             var height = $fretboard.height();
 
             expect(fretboardInstance.getDimensions().height).toEqual(height);
