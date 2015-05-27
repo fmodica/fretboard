@@ -116,6 +116,22 @@
             settings.isChordMode = isChordMode;
         };
 
+        self.getChordMode = function() {
+            return settings.isChordMode;
+        };
+
+        self.getNoteCircles = function() {
+            return settings.noteCircleList;
+        };
+
+        self.getAllNoteLetters = function() {
+            return settings.allNoteLetters;
+        };
+
+        self.getAnimationSpeed = function() {
+            return settings.animationSpeed;
+        };
+
         self.getClickedNotes = function() {
             var clickedNotes = [];
 
@@ -130,6 +146,14 @@
 
         self.setNoteClickingDisabled = function(isDisabled) {
             settings.noteClickingDisabled = isDisabled;
+        };
+
+        self.getNoteClickingDisabled = function() {
+            return settings.noteClickingDisabled;
+        };
+
+        self.getDimensions = function() {
+            return settings.dimensionsFunc($fretboardContainer, $fretboardBody);
         };
 
         self.setTuning = function(newTuning) {
