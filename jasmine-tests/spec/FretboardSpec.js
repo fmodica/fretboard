@@ -59,7 +59,7 @@ describe("Fretboard", function() {
             expect(fretboardInstance.getTuning()).toEqual(standardTuning);
         });
 
-        it("should have " + numFrets + " frets", function() {
+        it("should have the right number of frets", function() {
             expect(fretboardInstance.getNumFrets()).toEqual(numFrets);
         });
 
@@ -79,14 +79,12 @@ describe("Fretboard", function() {
             expect(fretboardInstance.getNoteClickingDisabled()).toEqual(false);
         });
 
-        it("should have an animation speed of " + animationSpeed, function() {
+        it("should have the correct animation speed", function() {
             expect(fretboardInstance.getAnimationSpeed()).toEqual(animationSpeed);
         });
 
         it("should have the correct height (fill its container)", function() {
-            var height = $fretboard.height();
-
-            expect(fretboardInstance.getDimensions().height).toEqual(height);
+            expect(fretboardInstance.getDimensions().height).toEqual($fretboard.height());
         });
     });
 
