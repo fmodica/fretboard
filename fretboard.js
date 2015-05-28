@@ -382,7 +382,7 @@
                     noteToClick = notesToClick[i];
                     stringItsOn = noteToClick && noteToClick.stringItsOn;
 
-                    if (!stringItsOn) {
+                    if (noteToClick.fretNumber < 0 || noteToClick.fretNumber > settings.numFrets || !stringItsOn) {
                         continue;
                     }
 
