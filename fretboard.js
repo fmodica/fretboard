@@ -106,11 +106,31 @@
             });
         }
 
+        self.getAllNotes = function() {
+            var allNotes = [];
+
+            $fretboardContainer
+                .find(stringContainerSelector)
+                .each(function() {
+                    var notesOnString = [];
+
+                    $(this)
+                        .find(noteSelector)
+                        .each(function() {
+                            notesOnString.push($(this).data('noteData'));
+                        });
+
+                    allNotes.push(notesOnString);
+                });
+
+            return allNotes;
+        };
+
         self.destroy = function() { 
             $fretboardBody.remove();
             $fretboardContainer.unwrap();
             removeContainerCssClasses();
-        }
+        };
 
         self.setChordMode = function(isChordMode) {
             settings.isChordMode = isChordMode;
