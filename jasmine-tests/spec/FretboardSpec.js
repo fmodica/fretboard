@@ -14,7 +14,6 @@ describe("Fretboard", function() {
         setFixtures("<div class='my-fretboard-js'></div>");
         $fretboard = $(".my-fretboard-js");
         $fretboard.fretboard();
-        
         fretboardInstance = $fretboard.data('fretboard');
         numFrets = 15;
         noteCircles = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24];
@@ -48,6 +47,10 @@ describe("Fretboard", function() {
         }];
 
         standardTuning = $.extend(true, [], eightStringTuning).slice(0, 6);
+    });
+
+    afterEach(function() {
+        fretboardInstance.destroy();
     });
 
     describe("Default configuration", function() {
@@ -87,6 +90,7 @@ describe("Fretboard", function() {
     describe("Clicking notes", function() {
         var clickedNotes;
         var expectedClickedNotes;
+        var lowestClickedFret;
 
         beforeEach(function() {
             clickedNotes = [{
@@ -129,6 +133,9 @@ describe("Fretboard", function() {
 
             expectedClickedNotes = $.extend(true, [], clickedNotes);
 
+            // The notes come back from the plugin with some more information, 
+            // so add that to the comparison array so they match the original
+            // clicked notes.
             expectedClickedNotes[0].letter = "G";
             expectedClickedNotes[0].octave = 4;
             expectedClickedNotes[1].letter = "E";
@@ -141,6 +148,8 @@ describe("Fretboard", function() {
             expectedClickedNotes[4].octave = 3;
             expectedClickedNotes[5].letter = "G";
             expectedClickedNotes[5].octave = 2;
+
+            lowestClickedFret = 3;
         });
 
         it("should show the correct clicked notes when notes are clicked on each string and all of those notes exist on the fretboard", function() {
@@ -154,6 +163,15 @@ describe("Fretboard", function() {
             fretboardInstance.setClickedNotes(clickedNotes);
 
             expect(fretboardInstance.getClickedNotes()).toEqual(expectedClickedNotes.slice(0,1));
+        });
+
+
+        it("should show the correct clicked notes when notes are clicked on each string and some are out of the fret range", function() {
+            clickedNotes[0].fretNumber = -1;
+            clickedNotes[1].fretNumber = numFrets + 1;
+            fretboardInstance.setClickedNotes(clickedNotes);
+
+            expect(fretboardInstance.getClickedNotes()).toEqual(expectedClickedNotes.slice(2, expectedClickedNotes.length));
         });
 
         it("should show the correct clicked notes when notes are clicked on each string and the number of strings is decreased", function() {
@@ -170,16 +188,22 @@ describe("Fretboard", function() {
             expect(fretboardInstance.getClickedNotes()).toEqual(expectedClickedNotes);
         });
 
-        it("should show the correct clicked notes when notes are clicked on each string and some are out of the fret range", function() {
-            clickedNotes[0].fretNumber = -1;
-            clickedNotes[1].fretNumber = numFrets + 1;
+        it("should show the correct clicked notes when notes are clicked on each string and the number of frets is decreased", function() {
             fretboardInstance.setClickedNotes(clickedNotes);
+            fretboardInstance.setNumFrets(lowestClickedFret);
 
-            expect(fretboardInstance.getClickedNotes()).toEqual(expectedClickedNotes.slice(2, expectedClickedNotes.length));
+            expectedClickedNotes = expectedClickedNotes.filter(function(note) {
+                return note.fretNumber === lowestClickedFret;
+            });
+
+            expect(fretboardInstance.getClickedNotes()).toEqual(expectedClickedNotes);
         });
-    });
 
-    afterEach(function() {
-        fretboardInstance.destroy();
+        it("should show the correct clicked notes when notes are clicked on each string and the number of frets is increased", function() {
+            fretboardInstance.setClickedNotes(clickedNotes);
+            fretboardInstance.setNumFrets(numFrets + 1);
+
+            expect(fretboardInstance.getClickedNotes()).toEqual(expectedClickedNotes);
+        });
     });
 });
