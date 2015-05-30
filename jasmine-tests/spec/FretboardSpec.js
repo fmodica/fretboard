@@ -1,5 +1,11 @@
 "use strict";
 
+// TODO Pass in different config values
+// TODO Pass in bad config values
+// TODO change the tuning to have completely different letters (check the notes, and the clicked notes letter/octave and stringItsOn properties)
+// TODO Scale and chord mode tests
+// TODO Programmatic notes in chord mode should not remove other notes
+
 describe("Fretboard", function() {
     var $fretboard;
     var fretboardInstance;
@@ -9,6 +15,7 @@ describe("Fretboard", function() {
     var noteCircles;
     var noteLetters;
     var animationSpeed;
+    var checkCorrectNotesFunc;
 
     beforeEach(function() {
         setFixtures("<div class='my-fretboard-js'></div>");
@@ -19,7 +26,6 @@ describe("Fretboard", function() {
         noteCircles = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24];
         noteLetters = ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"];
         animationSpeed = 500;
-
         eightStringTuning = [{
             letter: "E",
             octave: 4
@@ -47,55 +53,17 @@ describe("Fretboard", function() {
         }];
 
         standardTuning = $.extend(true, [], eightStringTuning).slice(0, 6);
-    });
 
-    afterEach(function() {
-        fretboardInstance.destroy();
-    });
-
-    describe("Default configuration", function() {
-        it("should have standard tuning", function() {
-            expect(fretboardInstance.getTuning()).toEqual(standardTuning);
-        });
-
-        it("should have the right number of frets", function() {
-            expect(fretboardInstance.getNumFrets()).toEqual(numFrets);
-        });
-
-        it("should be in chord mode", function() {
-            expect(fretboardInstance.getChordMode()).toEqual(true);
-        });
-
-        it("should have the correct note circles", function() {
-            expect(fretboardInstance.getNoteCircles()).toEqual(noteCircles);
-        });
-
-        it("should have the correct list of possible note letters", function() {
-            expect(fretboardInstance.getAllNoteLetters()).toEqual(noteLetters);
-        });
-
-        it("should have note clicking enabled", function() {
-            expect(fretboardInstance.getNoteClickingDisabled()).toEqual(false);
-        });
-
-        it("should have the correct animation speed", function() {
-            expect(fretboardInstance.getAnimationSpeed()).toEqual(animationSpeed);
-        });
-
-        it("should have the correct height (fill its container)", function() {
-            expect(fretboardInstance.getDimensions().height).toEqual($fretboard.height());
-        });
-
-        it("should have no clicked notes", function() {
-            expect(fretboardInstance.getClickedNotes()).toEqual([]);
-        });
-
-        it("should have the correct notes", function() {
+        checkCorrectNotesFunc = function(tuning, numFrets) {
             var allNotes = fretboardInstance.getAllNotes();
+
+            expect(allNotes.length).toEqual(tuning.length);
 
             for (var i = 0; i < allNotes.length; i++) {
                 var currentString = allNotes[i];
-                var currentTuningNote = standardTuning[i];
+                var currentTuningNote = tuning[i];
+
+                expect(currentString.length).toEqual(numFrets + 1);
 
                 for (var j = 0; j < currentString.length; j++) {
                     var currentNote = currentString[j];
@@ -119,20 +87,92 @@ describe("Fretboard", function() {
                     }
                 }
             }
+        };
+    });
+
+    afterEach(function() {
+        fretboardInstance.destroy();
+    });
+
+    describe("Default configuration", function() {
+        it("should return standard tuning", function() {
+            expect(fretboardInstance.getTuning()).toEqual(standardTuning);
+        });
+
+        it("should return the correct number of frets", function() {
+            expect(fretboardInstance.getNumFrets()).toEqual(numFrets);
+        });
+
+        it("should return the correct chord mode", function() {
+            expect(fretboardInstance.getChordMode()).toEqual(true);
+        });
+
+        it("should return the correct circles", function() {
+            expect(fretboardInstance.getNoteCircles()).toEqual(noteCircles);
+        });
+
+        it("should return the correct list of possible note letters", function() {
+            expect(fretboardInstance.getAllNoteLetters()).toEqual(noteLetters);
+        });
+
+        it("should return the correct note-clicking-enabled value", function() {
+            expect(fretboardInstance.getNoteClickingDisabled()).toEqual(false);
+        });
+
+        it("should return the correct animation speed", function() {
+            expect(fretboardInstance.getAnimationSpeed()).toEqual(animationSpeed);
+        });
+
+        it("should return the correct height (fill its container)", function() {
+            expect(fretboardInstance.getDimensions().height).toEqual($fretboard.height());
+        });
+
+        it("should return no clicked notes", function() {
+            expect(fretboardInstance.getClickedNotes()).toEqual([]);
+        });
+
+        it("should return the correct notes", function() {
+            checkCorrectNotesFunc(standardTuning, numFrets);
         });
     });
 
     describe("Changing the fretboard's dimensions", function() {
-        it("should have the correct fret number when the fret number is increased", function() {
-            var increase = numFrets + 10;
-
+        it("should return the correct number of frets when the fret number is increased", function() {
+            var increase = numFrets + 12;
+            
             fretboardInstance.setNumFrets(increase);
 
             expect(fretboardInstance.getNumFrets()).toEqual(increase);
         });
+
+        it("should return the correct notes when the fret number is increased", function() {
+            var increase = numFrets + 12;
+            var allNotes = fretboardInstance.getAllNotes();
+
+            fretboardInstance.setNumFrets(increase);
+
+            checkCorrectNotesFunc(standardTuning, increase);
+        });
+
+        it("should return the correct number of frets when the fret number is decreased", function() {
+            var decrease = numFrets - 12;
+            
+            fretboardInstance.setNumFrets(decrease);
+
+            expect(fretboardInstance.getNumFrets()).toEqual(decrease);
+        });
+
+        it("should return the correct notes when the fret number is decreased", function() {
+            var decrease = numFrets - 12;
+            var allNotes = fretboardInstance.getAllNotes();
+
+            fretboardInstance.setNumFrets(decrease);
+
+            checkCorrectNotesFunc(standardTuning, decrease);
+        });
     });
 
-    describe("Clicking notes", function() {
+    describe("Clicking notes programatically", function() {
         var clickedNotes;
         var expectedClickedNotes;
         var lowestClickedFret;
@@ -197,20 +237,20 @@ describe("Fretboard", function() {
             lowestClickedFret = 3;
         });
 
-        it("should show the correct clicked notes when notes are clicked on each string and all of those notes exist on the fretboard", function() {
+        it("should return the correct clicked notes when notes are clicked on each string and all of those notes exist on the fretboard", function() {
             fretboardInstance.setClickedNotes(clickedNotes);
 
             expect(fretboardInstance.getClickedNotes()).toEqual(expectedClickedNotes);
         });
 
-        it("should show the correct clicked notes when notes are clicked on strings that don't exist", function() {
+        it("should return the correct clicked notes when some notes are clicked on strings that don't exist", function() {
             fretboardInstance.setTuning(standardTuning.slice(0,1));
             fretboardInstance.setClickedNotes(clickedNotes);
 
             expect(fretboardInstance.getClickedNotes()).toEqual(expectedClickedNotes.slice(0,1));
         });
 
-        it("should show the correct clicked notes when notes are clicked on each string and some are out of the fret range", function() {
+        it("should return the correct clicked notes when notes are clicked on each string and some are out of the fret range", function() {
             clickedNotes[0].fretNumber = -1;
             clickedNotes[1].fretNumber = numFrets + 1;
             fretboardInstance.setClickedNotes(clickedNotes);
@@ -218,21 +258,21 @@ describe("Fretboard", function() {
             expect(fretboardInstance.getClickedNotes()).toEqual(expectedClickedNotes.slice(2, expectedClickedNotes.length));
         });
 
-        it("should show the correct clicked notes when notes are clicked on each string and the number of strings is decreased", function() {
+        it("should return the correct clicked notes when notes are clicked on each string, all of those notes exist on the fretboard, and the number of strings is decreased", function() {
             fretboardInstance.setClickedNotes(clickedNotes);
             fretboardInstance.setTuning(standardTuning.slice(0,1));
 
             expect(fretboardInstance.getClickedNotes()).toEqual(expectedClickedNotes.slice(0,1));
         });
 
-        it("should show the correct clicked notes when notes are clicked on each string and the number of strings is increased", function() {
+        it("should return the correct clicked notes when notes are clicked on each string, all of those notes exist on the fretboard, and the number of strings is increased", function() {
             fretboardInstance.setClickedNotes(clickedNotes);
             fretboardInstance.setTuning(eightStringTuning);
 
             expect(fretboardInstance.getClickedNotes()).toEqual(expectedClickedNotes);
         });
 
-        it("should show the correct clicked notes when notes are clicked on each string and the number of frets is decreased", function() {
+        it("should return the correct clicked notes when notes are clicked on each string, all of those notes exist on the fretboard, and the number of frets is decreased", function() {
             fretboardInstance.setClickedNotes(clickedNotes);
             fretboardInstance.setNumFrets(lowestClickedFret);
 
@@ -243,7 +283,7 @@ describe("Fretboard", function() {
             expect(fretboardInstance.getClickedNotes()).toEqual(expectedClickedNotes);
         });
 
-        it("should show the correct clicked notes when notes are clicked on each string and the number of frets is increased", function() {
+        it("should return the correct clicked notes when notes are clicked on each string, all of those notes exist on the fretboard, and the number of frets is increased", function() {
             fretboardInstance.setClickedNotes(clickedNotes);
             fretboardInstance.setNumFrets(numFrets + 1);
 
