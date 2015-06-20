@@ -95,6 +95,11 @@ describe("Fretboard", function() {
     });
 
     describe("Default configuration", function() {
+        beforeEach(function() {
+            $fretboard.fretboard();
+            fretboardInstance = $fretboard.data('fretboard');
+        });
+
         it("should return standard tuning", function() {
             expect(fretboardInstance.getTuning()).toEqual(standardTuning);
         });
@@ -137,6 +142,11 @@ describe("Fretboard", function() {
     });
 
     describe("Changing the fretboard's dimensions", function() {
+        beforeEach(function() {
+            $fretboard.fretboard();
+            fretboardInstance = $fretboard.data('fretboard');
+        });
+
         it("should return the correct number of frets when the fret number is increased", function() {
             var increase = numFrets + 12;
             
@@ -178,6 +188,9 @@ describe("Fretboard", function() {
         var lowestClickedFret;
 
         beforeEach(function() {
+            $fretboard.fretboard();
+            fretboardInstance = $fretboard.data('fretboard');
+            
             clickedNotes = [{
                 stringItsOn: {
                     letter: "E",
@@ -219,8 +232,7 @@ describe("Fretboard", function() {
             expectedClickedNotes = $.extend(true, [], clickedNotes);
 
             // The notes come back from the plugin with some more information, 
-            // so add that to the comparison array so they match the original
-            // clicked notes.
+            // so add that to the comparison array so they match.
             expectedClickedNotes[0].letter = "G";
             expectedClickedNotes[0].octave = 4;
             expectedClickedNotes[1].letter = "E";

@@ -375,8 +375,8 @@
             // DUPLICATE LOGIC - possibly refactor
             $fretboardContainer
                 .find(noteSelector + clickedSelector)
-                .removeClass(clickedCssClass)
-                .removeClass(hoverCssClass)
+                .removeClass()
+                .addClass(noteCssClass)
                 .on("mouseenter", noteMouseEnter)
                 .on("mouseleave", noteMouseLeave);
         };
@@ -422,9 +422,9 @@
                         
                         // Make it behave the same as if you hovered over and clicked it.
                         // SOME DUPLICATE LOGIC - possibly refactor
-                        $note.removeClass();
-                        
+
                         $note
+                            .removeClass()
                             .addClass(noteCssClass)
                             .addClass(hoverCssClass)
                             .addClass(clickedCssClass)
@@ -523,12 +523,14 @@
                     if (!settings.noteClickingDisabled) {
                         if ($clickedNote.hasClass(clickedCssClass)) {
                             $clickedNote
-                                .removeClass(clickedCssClass)
-                                .removeClass(hoverCssClass)
+                                .removeClass()
+                                .addClass(noteCssClass)
                                 .on("mouseenter", noteMouseEnter)
                                 .on("mouseleave", noteMouseLeave);
                         } else {
                             $clickedNote
+                                .removeClass()
+                                .addClass(noteCssClass)
                                 .addClass(hoverCssClass)
                                 .addClass(clickedCssClass)
                                 .off("mouseenter", noteMouseEnter)
@@ -548,8 +550,8 @@
                                     // will have different references)
                                     if ($clickedNote[0] !== $otherNote[0]) {
                                         $otherNote
-                                            .removeClass(clickedCssClass)
-                                            .removeClass(hoverCssClass)
+                                            .removeClass()
+                                            .addClass(noteCssClass)
                                             .on("mouseenter", noteMouseEnter)
                                             .on("mouseleave", noteMouseLeave);
                                     }
@@ -610,6 +612,7 @@
             $fretboardContainer.trigger("dimensionsSet");
         }
 
+        // The user may have added some of their own classes so only remove the ones we know about.
         function removeContainerCssClasses() {
             $fretboardContainer
                 .removeClass(function(index, css) {
