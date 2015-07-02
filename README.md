@@ -7,12 +7,6 @@ I initially wrote this so I could capture user input (chords/scales) and display
 
 
 ## Demo
-Check out an example fretboard I made that is styled with an astronomy theme (why would I do this? I don't know, I majored in astronomy. Whatever.)
-
-
-http://frank-modica.com/Sandbox
-
-
 Check out my voice leading page, where I use the fretboard to help users create progressions with good voice leading:
 
 
