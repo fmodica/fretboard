@@ -126,7 +126,7 @@
             return allNotes;
         };
 
-        self.destroy = function() { 
+        self.destroy = function() {
             $fretboardBody.remove();
             $fretboardContainer.unwrap();
             removeContainerCssClasses();
@@ -194,6 +194,10 @@
                 i,
                 j;
 
+            if (!newTuning || !newTuning.length) {
+                return;
+            }
+
             settings.tuning = newTuning;
 
             validateTuning();
@@ -245,7 +249,7 @@
             }
 
             setDimensions(true, true, true, true, true);
-            
+
             // The stringItsOn property of the notes may have changed, so alert the user
             $fretboardContainer.trigger("notesClicked");
         };
@@ -412,14 +416,14 @@
                         if (!notesAreEqual(tuningNote, stringItsOn)) {
                             continue;
                         }
-                        
+
                         $stringContainer = $fretboardContainer.find(stringContainerSelector).eq(j);
                         $note = $stringContainer.find(noteSelector).eq(noteToClick.fretNumber);
 
                         if ($note.hasClass(clickedCssClass)) {
                             return;
                         }
-                        
+
                         // Make it behave the same as if you hovered over and clicked it.
                         // SOME DUPLICATE LOGIC - possibly refactor
 
@@ -560,7 +564,6 @@
                     }
 
                     $fretboardContainer.trigger("notesClicked");
-
                 })
                 .append($letter)
                 .data('noteData', noteData);
@@ -621,7 +624,7 @@
                 .removeClass(function(index, css) {
                     return (css.match(/(^|\s)frets-\S+/g) || []).join(' ');
                 })
-                .removeClass(fretboardContainerCssClass);          
+                .removeClass(fretboardContainerCssClass);
         }
 
         function animateFretboardBody(fretboardBodyWidth, fretboardBodyHeight, animate) {
@@ -827,9 +830,9 @@ if (!Array.isArray) {
 
             // Return early if this element already has a plugin instance.
             // Otherwise, place a fretboard object on the element's data
-            if ($element.data('fretboard')) { 
-                return;
-            }
+            // if ($element.data('fretboard')) {
+            //    return;
+            // }
 
             fretboard = new Fretboard(options, $element);
 
