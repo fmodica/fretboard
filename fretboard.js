@@ -679,7 +679,11 @@
                         fretLeftVal,
                         fretTopVal,
                         noteLeftVal,
-                        noteTopVal;
+                        noteTopVal,
+                        firstStringDistanceFromTop = fretHeight / 4,
+                        extraSpaceDueToFirstStringDistanceFromTop = fretHeight - (firstStringDistanceFromTop * 2),
+                        extraSpacePerStringDueToFirstStringDistanceFromTop = (extraSpaceDueToFirstStringDistanceFromTop) /  (numStrings - 1);
+
 
                     $stringContainer = $(stringContainerEl);
 
@@ -698,9 +702,9 @@
                         noteHeight = $note.outerHeight(true);
 
                         fretLeftVal = fretNum * fretWidth;
-                        fretTopVal = stringNum * fretHeight;
+                        fretTopVal = (stringNum * fretHeight) + firstStringDistanceFromTop + (stringNum * extraSpacePerStringDueToFirstStringDistanceFromTop);
                         noteLeftVal = fretLeftVal + ((fretWidth / 2) - (noteWidth / 2));
-                        noteTopVal = fretTopVal + ((fretHeight / 2) - (noteHeight / 2));
+                        noteTopVal = fretTopVal - (noteHeight / 2);
 
                         $note.animate({
                             left: noteLeftVal,
@@ -713,7 +717,7 @@
 
                     // Set the string position across the note, taking into account the string's thickness
                     $string.animate({
-                        top: noteTopVal + (noteHeight / 2) - ($string.outerHeight() / 2)
+                        top: fretTopVal - ($string.outerHeight(true) / 2)
                     }, {
                         duration: animateContainer ? settings.animationSpeed : 0,
                         queue: false
