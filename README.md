@@ -10,7 +10,7 @@ I initially wrote this so I could capture user input (chords/scales) and display
 Check out my voice leading page, where I use the fretboard to help users create progressions with good voice leading:
 
 
-http://frank-modica.com/Voiceleader
+http://frank-modica.com/#/voiceleader
 
 
 ##How to use it
