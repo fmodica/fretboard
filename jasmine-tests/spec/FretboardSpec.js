@@ -20,8 +20,6 @@ describe("Fretboard", function() {
     beforeEach(function() {
         setFixtures("<div class='my-fretboard-js'></div>");
         $fretboard = $(".my-fretboard-js");
-        $fretboard.fretboard();
-        fretboardInstance = $fretboard.data('fretboard');
         numFrets = 15;
         noteCircles = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24];
         noteLetters = ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"];
