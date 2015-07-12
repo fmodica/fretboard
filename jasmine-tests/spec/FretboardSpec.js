@@ -139,6 +139,33 @@ describe("Fretboard", function() {
         });
     });
 
+    describe("Custom configuration", function() {
+        it("should return the correct list of possible note letters when reversed", function() {
+            noteLetters.reverse();
+
+            $fretboard.fretboard({ allNoteLetters : noteLetters });
+            fretboardInstance = $fretboard.data('fretboard');
+
+            expect(fretboardInstance.getAllNoteLetters()).toEqual(noteLetters);
+        });
+
+        it("should throw an exception when there are more than 12 notes", function() {
+            noteLetters.push("X");
+
+            expect(function() {
+                $fretboard.fretboard({ allNoteLetters : noteLetters });
+            }).toThrow();
+        });
+
+        it("should throw an exception when there are 12 notes and one is not unique", function() {
+            noteLetters[11] = "C";
+
+            expect(function() {
+                $fretboard.fretboard({ allNoteLetters : noteLetters });
+            }).toThrow();
+        });
+    });
+
     describe("Changing the fretboard's dimensions", function() {
         beforeEach(function() {
             $fretboard.fretboard();

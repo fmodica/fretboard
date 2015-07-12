@@ -76,7 +76,7 @@
 
         // Make a copy of the options that were passed in, just in case the 
         // user modifies that object. Then extend it with the defaults.
-        $.extend(settings, defaults, $.extend(true, [], options));
+        $.extend(settings, defaults, $.extend(true, {}, options));
 
         validate();
         init();
@@ -791,6 +791,17 @@
             if (allNoteLetters.length !== 12) {
                 throw "allNoteLetters is not valid because there must be exactly 12 letters in the array: " + allNoteLetters;
             }
+
+            // Uniqueness
+            var hash = {};
+
+            allNoteLetters.forEach(function(noteLetter) {
+                hash[noteLetter] = noteLetter;
+            });
+
+            if (Object.keys(hash).length !== 12) {
+                throw "allNoteLetters is not valid because there must be 12 unique letters in the array: " + allNoteLetters;
+            }
         }
 
         function validateTuning() {
@@ -837,7 +848,6 @@ if (!Array.isArray) {
             // if ($element.data('fretboard')) {
             //    return;
             // }
-
             fretboard = new Fretboard(options, $element);
 
             $element.data('fretboard', fretboard);
