@@ -14,4 +14,4 @@ http://frank-modica.com/#/voiceleader
 
 ## More Details
 
-https://github.com/fmodica/responsive-fretboard.js/wiki/(1)-Getting-Started
+https://github.com/fmodica/responsive-fretboard.js/wiki
