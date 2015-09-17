@@ -164,6 +164,23 @@ describe("Fretboard", function() {
                 $fretboard.fretboard({ allNoteLetters : noteLetters });
             }).toThrow();
         });
+
+        it("should return the correct number of frets when numFrets is nonzero", function() {
+            numFrets = 24;
+
+            $fretboard.fretboard({ numFrets : numFrets });
+            fretboardInstance = $fretboard.data('fretboard');
+
+            expect(fretboardInstance.getNumFrets()).toEqual(numFrets);
+        });
+
+        it("should throw an exception when numFrets is 0", function() {
+            numFrets = 0;
+
+            expect(function() {
+                $fretboard.fretboard({ numFrets : numFrets });
+            }).toThrow();
+        });
     });
 
     describe("Changing the fretboard's dimensions", function() {

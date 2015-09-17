@@ -783,6 +783,7 @@
         function validate() {
             validateAllNoteLetters();
             validateTuning();
+            validateNumFrets();
         }
 
         function validateAllNoteLetters() {
@@ -819,6 +820,12 @@
                 if (allNoteLetters.indexOf(tuningNoteLetter) === -1) {
                     throw "tuning is not valid because the note letter \"" + tuningNoteLetter + "\" is not in the allNoteLetters array: " + allNoteLetters;
                 }
+            }
+        }
+
+        function validateNumFrets() {
+            if (settings.numFrets <= 0) {
+                throw "numFrets must be a positive number";
             }
         }
     };
