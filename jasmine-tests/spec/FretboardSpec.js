@@ -11,16 +11,15 @@ describe("Fretboard", function() {
     var fretboardInstance;
     var eightStringTuning;
     var standardTuning;
-    var numFrets;
     var noteCircles;
     var noteLetters;
     var animationSpeed;
     var checkCorrectNotesFunc;
+    var defaultNumFrets = 15;
 
     beforeEach(function() {
         setFixtures("<div class='my-fretboard-js'></div>");
         $fretboard = $(".my-fretboard-js");
-        numFrets = 15;
         noteCircles = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24];
         noteLetters = ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"];
         animationSpeed = 500;
@@ -103,7 +102,7 @@ describe("Fretboard", function() {
         });
 
         it("should return the correct number of frets", function() {
-            expect(fretboardInstance.getNumFrets()).toEqual(numFrets);
+            expect(fretboardInstance.getNumFrets()).toEqual(defaultNumFrets);
         });
 
         it("should return the correct chord mode", function() {
@@ -135,7 +134,7 @@ describe("Fretboard", function() {
         });
 
         it("should return the correct notes", function() {
-            checkCorrectNotesFunc(standardTuning, numFrets);
+            checkCorrectNotesFunc(standardTuning, defaultNumFrets);
         });
     });
 
@@ -166,7 +165,7 @@ describe("Fretboard", function() {
         });
 
         it("should return the correct number of frets when numFrets is nonzero", function() {
-            numFrets = 24;
+            var numFrets = 24;
 
             $fretboard.fretboard({ numFrets : numFrets });
             fretboardInstance = $fretboard.data('fretboard');
@@ -175,7 +174,7 @@ describe("Fretboard", function() {
         });
 
         it("should throw an exception when numFrets is 0", function() {
-            numFrets = 0;
+            var numFrets = 0;
 
             expect(function() {
                 $fretboard.fretboard({ numFrets : numFrets });
@@ -190,7 +189,7 @@ describe("Fretboard", function() {
         });
 
         it("should return the correct number of frets when the fret number is increased", function() {
-            var increase = numFrets + 12;
+            var increase = defaultNumFrets + 12;
             
             fretboardInstance.setNumFrets(increase);
 
@@ -198,7 +197,7 @@ describe("Fretboard", function() {
         });
 
         it("should return the correct notes when the fret number is increased", function() {
-            var increase = numFrets + 12;
+            var increase = defaultNumFrets + 12;
             var allNotes = fretboardInstance.getAllNotes();
 
             fretboardInstance.setNumFrets(increase);
@@ -207,7 +206,7 @@ describe("Fretboard", function() {
         });
 
         it("should return the correct number of frets when the fret number is decreased", function() {
-            var decrease = numFrets - 12;
+            var decrease = defaultNumFrets - 12;
             
             fretboardInstance.setNumFrets(decrease);
 
@@ -215,7 +214,7 @@ describe("Fretboard", function() {
         });
 
         it("should return the correct notes when the fret number is decreased", function() {
-            var decrease = numFrets - 12;
+            var decrease = defaultNumFrets - 12;
             var allNotes = fretboardInstance.getAllNotes();
 
             fretboardInstance.setNumFrets(decrease);
@@ -306,7 +305,7 @@ describe("Fretboard", function() {
 
         it("should return the correct clicked notes when notes are clicked on each string and some are out of the fret range", function() {
             clickedNotes[0].fretNumber = -1;
-            clickedNotes[1].fretNumber = numFrets + 1;
+            clickedNotes[1].fretNumber = defaultNumFrets + 1;
             fretboardInstance.setClickedNotes(clickedNotes);
 
             expect(fretboardInstance.getClickedNotes()).toEqual(expectedClickedNotes.slice(2, expectedClickedNotes.length));
@@ -339,7 +338,7 @@ describe("Fretboard", function() {
 
         it("should return the correct clicked notes when notes are clicked on each string, all of those notes exist on the fretboard, and the number of frets is increased", function() {
             fretboardInstance.setClickedNotes(clickedNotes);
-            fretboardInstance.setNumFrets(numFrets + 1);
+            fretboardInstance.setNumFrets(defaultNumFrets + 1);
 
             expect(fretboardInstance.getClickedNotes()).toEqual(expectedClickedNotes);
         });
