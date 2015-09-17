@@ -42,6 +42,7 @@
             function($scope) {
                 var isChordMode = true,
                     isDisabled = false,
+                    isIntervalMode = false,
                     eightStringTuning = [{
                         letter: "E",
                         octave: 4
@@ -144,6 +145,14 @@
                         };
                     },
                     noteCircleList = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24],
+                    noteMode = { 
+                        name: 'noteLetter',
+                        options: null
+                    },
+                    //noteMode = {
+                    //    name: 'noteInterval',
+                    //    options: { root: 'C', intervalList: ['1', 'b2', '2', 'b3', '3', '4', 'b5', '5', 'b6', '6','b7', '7'] }
+                    //},
                     options = {
                         allNoteLetters: ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"],
                         tuning: tuning,
@@ -152,7 +161,8 @@
                         noteClickingDisabled: isDisabled,
                         dimensionsFunc: dimensionsFunc,
                         animationSpeed: 500, // ms
-                        noteCircleList: noteCircleList
+                        noteCircleList: noteCircleList,
+                        noteMode: noteMode
                     };
 
                 $scope.config = options;
@@ -166,23 +176,23 @@
 
                 $scope.toggleChordMode = function() {
                     $scope.config.isChordMode = !$scope.config.isChordMode;
-                }
+                };
 
                 $scope.setMaj7Chord = function() {
                     $scope.config.clickedNotes = $.extend(true, [], cMaj7Notes);
-                }
+                };
 
                 $scope.setMin7Chord = function() {
                     $scope.config.clickedNotes = $.extend(true, [], aMin7Notes);
-                }
+                };
 
                 $scope.getClickedNotes = function() {
                     console.log($scope.config.clickedNotes);
-                }
+                };
 
                 $scope.toggleNoteClicking = function() {
                     $scope.config.noteClickingDisabled = !$scope.config.noteClickingDisabled;
-                }
+                };
 
                 $scope.addString = function() {
                     // make a copy to change the reference 
@@ -193,7 +203,7 @@
                             octave: eightStringTuning[$scope.config.tuning.length].octave
                         });
                     }
-                }
+                };
 
                 $scope.removeString = function() {
                     // make a copy to change the reference 
@@ -201,23 +211,43 @@
                         $scope.config.tuning = $.extend(true, [], $scope.config.tuning);
                         $scope.config.tuning.pop();
                     }
-                }
+                };
 
                 $scope.addFret = function() {
                     if ($scope.config.numFrets < 24) {
                         $scope.config.numFrets++;
                     }
-                }
+                };
 
                 $scope.removeFret = function() {
                     if ($scope.config.numFrets > 12) {
                         $scope.config.numFrets--;
                     }
-                }
+                };
 
                 $scope.unclick = function() {
                     $scope.config.clickedNotes = [];
-                }
+                };
+
+                $scope.toggleNoteMode = function() {
+                    var noteMode;
+
+                    isIntervalMode = !isIntervalMode;
+
+                    if (isIntervalMode) {
+                        noteMode = {
+                            name: 'noteInterval',
+                            options: { root: 'C', intervalList: ['1', 'b2', '2', 'b3', '3', '4', 'b5', '5', 'b6', '6','b7', '7'] }
+                        };
+                    } else {
+                        noteMode = {
+                            name: 'noteLetter',
+                            options: null
+                        };
+                    }
+
+                    $scope.config.noteMode = noteMode;
+                };
             }
         ]);
     </script>
@@ -235,7 +265,7 @@
     <button ng-click="addFret()">Add fret</button>
     <button ng-click="removeFret()">Remove fret</button>
     <button ng-click="unclick()">Unclick Frets</button>
-
+    <button ng-click="toggleNoteMode()">Toggle note mode</button>
 </div>
 </body>
 

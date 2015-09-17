@@ -45,15 +45,17 @@
         <button class="add-fret btn btn-small">Add fret</button>
         <button class="remove-fret btn btn-small">Remove fret</button>
         <button class="unclick btn btn-small">Unclick frets</button>
-        <button class="show-progression btn btn-small">Play Progression</button>
-        <button class="show-scale-run btn btn-small">Play Scale Run</button>
-        <button class="show-arpeggio btn btn-small">Play Arpeggio</button>
+        <button class="toggle-note-mode btn btn-small">Toggle note mode</button>
+        <button class="show-progression btn btn-small">Play progression</button>
+        <button class="show-scale-run btn btn-small">Play scale Run</button>
+        <button class="show-arpeggio btn btn-small">Play arpeggio</button>
     </div>
 
 <script type="text/javascript">
     (function ($) {
         var isChordMode = true,
             isDisabled = false,
+            isIntervalMode = false,
             eightStringTuning = [{
                 letter: "E",
                 octave: 4
@@ -210,6 +212,14 @@
                 };
             },
             noteCircleList = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24],
+            noteMode = { 
+                name: 'noteLetter',
+                options: null
+            },
+            //noteMode = {
+            //    name: 'noteInterval',
+            //    options: { root: 'C', intervalList: ['1', 'b2', '2', 'b3', '3', '4', 'b5', '5', 'b6', '6','b7', '7'] }
+            //},
             options = {
                 allNoteLetters: ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"],
                 tuning: tuning,
@@ -218,7 +228,8 @@
                 noteClickingDisabled: isDisabled,
                 dimensionsFunc: dimensionsFunc,
                 animationSpeed: 500, // ms
-                noteCircleList: noteCircleList
+                noteCircleList: noteCircleList,
+                noteMode: noteMode
             },
             $fretboard = $(".my-fretboard-js");
 
@@ -316,6 +327,28 @@
         $(".unclick").on("click", function () {
             $fretboard.each(function () {
                 $(this).data('fretboard').clearClickedNotes();
+            });
+        });
+
+        $(".toggle-note-mode").on("click", function() {
+            var noteMode;
+
+            isIntervalMode = !isIntervalMode;
+
+            if (isIntervalMode) {
+                noteMode = {
+                    name: 'noteInterval',
+                    options: { root: 'C', intervalList: ['1', 'b2', '2', 'b3', '3', '4', 'b5', '5', 'b6', '6','b7', '7'] }
+                };
+            } else {
+                noteMode = {
+                    name: 'noteLetter',
+                    options: null
+                };
+            }
+
+            $fretboard.each(function () {
+                $(this).data('fretboard').setNoteMode(noteMode);
             });
         });
 

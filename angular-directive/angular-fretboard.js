@@ -60,6 +60,16 @@ angular.module("angularFretboard", ['Scope.safeApply'])
 
                                     ctrl.jQueryFretboard.setNumFrets(newVal);
                                 });
+
+                                $scope.$watch(function() {
+                                    return $scope.config && $scope.config.noteMode;
+                                }, function(newVal, oldVal) {
+                                    if (angular.isUndefinedOrNull(newVal)) {
+                                        return;
+                                    }
+
+                                    ctrl.jQueryFretboard.setNoteMode(newVal);
+                                });
                             } else {
                                 destroy(ctrl);
                             }

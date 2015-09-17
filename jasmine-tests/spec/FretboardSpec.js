@@ -1,10 +1,12 @@
 "use strict";
 
-// TODO Pass in different config values
-// TODO Pass in bad config values
+// TODO Pass in different/bad config values
 // TODO change the tuning to have completely different letters (check the notes, and the clicked notes letter/octave and stringItsOn properties)
 // TODO Scale and chord mode tests
 // TODO Programmatic notes in chord mode should not remove other notes
+// TODO Note mode
+// TODO Change the tuning to the same tuning
+// Change the fret number to the same fret number
 
 describe("Fretboard", function() {
     var eightStringTuning = [{
@@ -35,6 +37,12 @@ describe("Fretboard", function() {
     var standardTuning = $.extend(true, [], eightStringTuning).slice(0, 6);
     var noteCircles = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24];
     var defaultNoteLetters = ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"];
+    var defaultNoteMode = { 
+        name : 'noteLetter',
+        options: null
+        // for name 'noteInterval' the options can be an object like
+        // { root: 'C', intervalList: ['1', 'b2', '2', 'b3', '3', '4', 'b5', '5', 'b6', '6','b7', '7'] }
+    };
     var checkCorrectNotesFunc = function(tuning, numFrets, noteLetters) {
         var allNotes = fretboardInstance.getAllNotes();
 
@@ -127,6 +135,10 @@ describe("Fretboard", function() {
 
         it("should return the correct notes for the whole fretboard", function() {
             checkCorrectNotesFunc(standardTuning, defaultNumFrets, defaultNoteLetters);
+        });
+
+        it("should return the correct note mode", function() {
+            expect(fretboardInstance.getNoteMode()).toEqual(defaultNoteMode);
         });
     });
 
@@ -292,7 +304,7 @@ describe("Fretboard", function() {
             expect(fretboardInstance.getClickedNotes()).toEqual(expectedClickedNotes);
         });
 
-        it("should return the correct clicked notes when some notes are clicked on strings that don't exist", function() {
+        it("should return the correct clicked notes when some notes are clicked on strings that don't exist", function () {
             fretboardInstance.setTuning(standardTuning.slice(0,1));
             fretboardInstance.setClickedNotes(clickedNotes);
 
