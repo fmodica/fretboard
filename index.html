@@ -202,10 +202,8 @@
                 },
                 fretNumber: 3
             }],
-            dimensionsFunc = function ($fretboardContainer, $fretboardBody) {
-                // "this" will be the options object into which we place this function
-                var options = this,
-                    numStrings = options.tuning.length;
+            dimensionsFunc = function ($fretboardContainer, $fretboardBody, settings) {
+                var numStrings = settings.tuning.length;
 
                 return {
                     height: numStrings * 32
