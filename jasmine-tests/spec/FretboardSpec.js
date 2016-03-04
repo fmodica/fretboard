@@ -233,6 +233,9 @@ describe("Fretboard", function () {
     describe("Clicking notes programatically", function () {
         var clickedNotes;
         var expectedClickedNotes;
+        var expectedIntervalInfo = {
+            root: defaultIntervalSettings.root
+        };
         var lowestClickedFret;
 
         beforeEach(function () {
@@ -283,16 +286,28 @@ describe("Fretboard", function () {
             // so add that to the comparison array so they match.
             expectedClickedNotes[0].letter = "G";
             expectedClickedNotes[0].octave = 4;
+            expectedClickedNotes[0].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
+            expectedClickedNotes[0].intervalInfo.interval = "5";
             expectedClickedNotes[1].letter = "E";
             expectedClickedNotes[1].octave = 4;
+            expectedClickedNotes[1].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
+            expectedClickedNotes[1].intervalInfo.interval = "3";
             expectedClickedNotes[2].letter = "B";
             expectedClickedNotes[2].octave = 3;
+            expectedClickedNotes[2].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
+            expectedClickedNotes[2].intervalInfo.interval = "7";
             expectedClickedNotes[3].letter = "G";
             expectedClickedNotes[3].octave = 3;
+            expectedClickedNotes[3].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
+            expectedClickedNotes[3].intervalInfo.interval = "5";
             expectedClickedNotes[4].letter = "C";
             expectedClickedNotes[4].octave = 3;
+            expectedClickedNotes[4].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
+            expectedClickedNotes[4].intervalInfo.interval = "1";
             expectedClickedNotes[5].letter = "G";
             expectedClickedNotes[5].octave = 2;
+            expectedClickedNotes[5].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
+            expectedClickedNotes[5].intervalInfo.interval = "5";
 
             lowestClickedFret = 3;
         });

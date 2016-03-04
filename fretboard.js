@@ -6,271 +6,235 @@
             model = {
                 allNotes: [],
                 clickedNotes: []
+                // The rest get copied from settings
             };
 
-        validate();
-        initializeNotes();
+        self.destroy = destroy;
+        self.getAllNotes = getAllNotes;
+        self.getChordMode = getChordMode;
+        self.setChordMode = setChordMode;
+        self.getAllNoteLetters = getAllNoteLetters;
+        self.getClickedNotes = getClickedNotes;
+        self.setClickedNotes = setClickedNotes;
+        self.getNoteClickingDisabled = getNoteClickingDisabled;
+        self.setNoteClickingDisabled = setNoteClickingDisabled;
+        self.getTuning = getTuning;
+        self.setTuning = setTuning;
+        self.getNumFrets = getNumFrets;
+        self.setNumFrets = setNumFrets;
+        self.clearClickedNotes = clearClickedNotes;
+        self.getIntervalSettings = getIntervalSettings;
+        self.setIntervalSettings = setIntervalSettings;
 
-        self.destroy = function () {
+        initializeModel(settings);
+
+        // API 
+        function destroy() {
             model = null;
-        };
+        }
 
-        self.getAllNotes = function () {
+        function getAllNotes() {
             return model.allNotes;
-        };
+        }
 
-        self.setChordMode = function (isChordMode) {
-            settings.isChordMode = isChordMode;
-        };
+        function getChordMode() {
+            return model.isChordMode;
+        }
 
-        self.getChordMode = function () {
-            return settings.isChordMode;
-        };
+        function setChordMode(isChordMode) {
+            model.isChordMode = isChordMode;
+        }
 
-        self.getAllNoteLetters = function () {
-            return settings.allNoteLetters;
-        };
+        function getAllNoteLetters() {
+            return model.allNoteLetters;
+        }
 
-        self.getClickedNotes = function () {
-            var clickedNotes = [],
-                notesOnString,
-                clickedFretsOnString,
-                //clickedNotesOnString,
-                i,
-                j;
+        function getClickedNotes() {
+            var clickedNotes = [];
 
-            for (i = 0; i < model.allNotes.length; i++) {
-                notesOnString = model.allNotes[i];
-                clickedFretsOnString = model.clickedNotes[i];
-                //clickedNotesOnString = [];
-
-                for (j = 0; j < clickedFretsOnString.length; j++) {
-                    //clickedNotesOnString.push(notesOnString[clickedFretsOnString[j]])
-                    clickedNotes.push(notesOnString[clickedFretsOnString[j]]);
+            for (var i = 0; i < model.allNotes.length; i++) {
+                for (var j = 0; j < model.clickedNotes[i].length; j++) {
+                    clickedNotes.push(model.allNotes[i][model.clickedNotes[i][j]]);
                 }
-
-                //clickedNotes.push(clickedNotesOnString);
             }
 
             return clickedNotes;
-        };
+        }
 
-        self.setNoteClickingDisabled = function (isDisabled) {
-            settings.noteClickingDisabled = isDisabled;
-        };
-
-        self.getNoteClickingDisabled = function () {
-            return settings.noteClickingDisabled;
-        };
-
-        self.setTuning = function (newTuning) {
-            var newTuning = $.extend(true, [], newTuning),
-                oldTuning = $.extend(true, [], settings.tuning),
-                tuningLengthDifference = oldTuning.length - newTuning.length,
-                newTuningNote,
-                oldTuningNote,
-                notesOnString,
-                i;
-
-            settings.tuning = newTuning;
-            validateTuning();
-
-            model.allNotes = [];
-
-            for (i = 0; i < newTuning.length; i++) {
-                newTuningNote = settings.tuning[i];
-                notesOnString = getNotesOnString(newTuningNote);
-                model.allNotes[i] = notesOnString;
-            }
-
-            if (tuningLengthDifference > 0) {
-                model.clickedNotes = model.clickedNotes.slice(0, newTuning.length);
-            } else if (tuningLengthDifference < 0) {
-                for (i = 0; i < Math.abs(tuningLengthDifference) ; i++) {
-                    model.clickedNotes.push([]);
-                }
-            }
-        };
-
-        self.getTuning = function () {
-            return settings.tuning;
-        };
-
-        self.setNumFrets = function (newNumFrets) {
-            var i,
-                openNote,
-                notesOnString;
-
-            settings.numFrets = newNumFrets;
-
-            validateNumFrets();
-
-            for (i = 0; i < settings.tuning.length; i++) {
-                openNote = settings.tuning[i];
-                notesOnString = getNotesOnString(openNote);
-                model.allNotes[i] = notesOnString;
-                model.clickedNotes[i] = model.clickedNotes[i].filter(function (fretNumber) {
-                    return fretNumber <= settings.numFrets;
-                });
-            }
-        };
-
-        self.getNumFrets = function () {
-            return settings.numFrets;
-        };
-
-        self.clearClickedNotes = function () {
-            var i;
-
-            model.clickedNotes = [];
-
-            for (i = 0; i < settings.tuning.length; i++) {
-                model.clickedNotes.push([]);
-            }
-        };
-
-        // Will be passed in with just fretNumber and stringItsOn.
-        // This method can probably be optimized to not use indexOf
-        // and other inefficient search techniques.
-        self.setClickedNotes = function (notesToClick, takeSettingsIntoAccount) {
-            var notesToClick = $.extend(true, [], notesToClick),
-                i,
-                j,
-                tuningNote,
-                noteToClick,
-                stringItsOn,
-                $stringContainer,
-                $note;
-
-            if (!notesToClick || (takeSettingsIntoAccount && settings.noteClickingDisabled)) {
+        // notesToClick = [{
+        //     stringItsOn: {
+        //         letter,
+        //         octave,
+        //     },
+        //     fretNumber
+        // }]
+        //
+        // takeSettingsIntoAccount means to check other settings that might affect
+        // which notes can be clicked, such as isChordMode, noteClickeDisabled, etc.
+        function setClickedNotes(notesToClick, takeSettingsIntoAccount) {
+            if (!notesToClick || (takeSettingsIntoAccount && model.noteClickingDisabled)) {
                 return;
             }
 
-            // For each note that needs to be clicked check its stringItsOn
-            // property to see if it matches a note object in the tuning array.
-            // If it does, get the index of the matched note in the tuning array
-            // and find the corresponding $stringContainer and click its 
-            // note.
-            for (i = 0; i < notesToClick.length; i++) {
-                noteToClick = notesToClick[i];
-                stringItsOn = noteToClick && noteToClick.stringItsOn;
+            var notesToClick = $.extend(true, [], notesToClick);
 
-                if (noteToClick.fretNumber < 0 || noteToClick.fretNumber > settings.numFrets || !stringItsOn) {
+            for (var i = 0; i < notesToClick.length; i++) {
+                if (notesToClick[i].fretNumber < 0 || notesToClick[i].fretNumber > model.numFrets || !notesToClick[i].stringItsOn) {
                     continue;
                 }
 
-                for (j = 0; j < settings.tuning.length; j++) {
-                    tuningNote = settings.tuning[j];
-
-                    if (!notesAreEqual(tuningNote, stringItsOn)) {
+                for (var j = 0; j < model.tuning.length; j++) {
+                    if (!notesAreEqual(model.tuning[j], notesToClick[i].stringItsOn)) {
                         continue;
                     }
 
-                    var clickedNotesOnString = model.clickedNotes[j];
-                    var index = clickedNotesOnString.indexOf(noteToClick.fretNumber);
+                    var indexOfClickedFret = model.clickedNotes[j].indexOf(notesToClick[i].fretNumber);
+                    var fretAlreadyClicked = indexOfClickedFret !== -1;
 
                     if (takeSettingsIntoAccount) {
-                        if (settings.isChordMode) {
-                            clickedNotesOnString.splice(0, clickedNotesOnString.length);
+                        if (model.isChordMode) {
+                            model.clickedNotes[j] = [];
 
-                            if (index === -1) {
-                                clickedNotesOnString.push(noteToClick.fretNumber);
+                            if (!fretAlreadyClicked) {
+                                model.clickedNotes[j].push(notesToClick[i].fretNumber);
                             }
                         } else {
-                            if (index === -1) {
-                                clickedNotesOnString.push(noteToClick.fretNumber)
+                            if (!fretAlreadyClicked) {
+                                model.clickedNotes[j].push(notesToClick[i].fretNumber)
                             } else {
-                                clickedNotesOnString.splice(index, 1);
+                                model.clickedNotes[j].splice(indexOfClickedFret, 1);
                             }
                         }
-
-                        continue;
-                    }
-
-                    // If note is found we're done. Otherwise add it.
-                    if (index === -1) {
-                        clickedNotesOnString.push(noteToClick.fretNumber);
-                    }
-                }
-            }
-        };
-
-        self.getNoteMode = function () {
-            return settings.noteMode;
-        };
-
-        self.getIntervalSettings = function () {
-            return settings.intervalSettings;
-        };
-
-        self.setNoteMode = function (noteMode) {
-            var notes,
-                note,
-                i,
-                j;
-
-            settings.noteMode = noteMode;
-
-            for (i = 0; i < model.allNotes.length; i++) {
-                notes = model.allNotes[i];
-
-                for (j = 0; j < notes.length; j++) {
-                    note = notes[j];
-
-                    if (settings.noteMode === 'interval') {
-                        note.intervalInfo = {
-                            interval: getIntervalByLetterAndRoot(note.letter, settings.intervalSettings.root),
-                            root: settings.intervalSettings.root
-                        }
                     } else {
-                        note.intervalInfo = null;
+                        if (!fretAlreadyClicked) {
+                            model.clickedNotes[j].push(notesToClick[i].fretNumber);
+                        }
                     }
                 }
             }
-        };
+        }
 
-        self.getNoteCircles = function () {
-            return settings.noteCircles;
-        };
+        function getNoteClickingDisabled() {
+            return model.noteClickingDisabled;
+        }
 
-        self.getAnimationSpeed = function () {
-            return settings.animationSpeed;
-        };
+        function setNoteClickingDisabled(isDisabled) {
+            model.noteClickingDisabled = isDisabled;
+        }
 
-        function initializeNotes() {
-            var openNote,
-                notesOnString,
-                i;
+        function getTuning() {
+            return model.tuning;
+        }
 
-            for (i = 0; i < settings.tuning.length; i++) {
-                openNote = settings.tuning[i];
-                notesOnString = getNotesOnString(openNote);
-                model.allNotes.push(notesOnString);
+        function setTuning(newTuning) {
+            var newTuning = $.extend(true, [], newTuning);
+            var oldTuning = $.extend(true, [], model.tuning);
+            var tuningLengthDifference = oldTuning.length - newTuning.length;
+
+            validateTuning(newTuning, model.allNoteLetters);
+            model.tuning = newTuning;
+
+            model.allNotes = [];
+
+            for (var i = 0; i < newTuning.length; i++) {
+                model.allNotes[i] = calculateNotesOnString(model.tuning[i]);
+            }
+
+            if (tuningLengthDifference > 0) {
+                model.clickedNotes = model.clickedNotes.slice(0, model.tuning.length);
+            } else if (tuningLengthDifference < 0) {
+                for (i = 0; i < (-1 * tuningLengthDifference) ; i++) {
+                    model.clickedNotes.push([]);
+                }
+            }
+        }
+
+        function getNumFrets() {
+            return model.numFrets;
+        }
+
+        function setNumFrets(newNumFrets) {
+            validateNumFrets(newNumFrets);
+            model.numFrets = newNumFrets;
+
+            for (var i = 0; i < model.tuning.length; i++) {
+                model.allNotes[i] = calculateNotesOnString(model.tuning[i]);
+                model.clickedNotes[i] = model.clickedNotes[i].filter(function (fretNumber) {
+                    return fretNumber <= model.numFrets;
+                });
+            }
+        }
+
+        function clearClickedNotes() {
+            model.clickedNotes = [];
+
+            for (var i = 0; i < model.tuning.length; i++) {
                 model.clickedNotes.push([]);
             }
-
         }
-        function getNotesOnString(openNote) {
-            var notes = [],
-                note,
-                i;
 
-            for (i = 0; i <= settings.numFrets; i++) {
-                note = getNoteByFretNumber(openNote, i);
-                notes.push({
-                    letter: note.letter,
-                    octave: note.octave,
-                    fretNumber: i,
-                    stringItsOn: openNote
-                });
+        function getIntervalSettings() {
+            return model.intervalSettings;
+        }
+
+        function setIntervalSettings(intervalSettings) {
+            // validateIntervalSettings
+            settings.intervalSettings = intervalSettings;
+
+            for (var i = 0; i < model.tuning.length; i++) {
+                model.allNotes[i] = calculateNotesOnString(model.tuning[i]);
+            }
+        }
+
+        // Utility functions
+
+        function initializeModel(settings) {
+            validateAllNoteLetters(settings.allNoteLetters);
+            model.allNoteLetters = settings.allNoteLetters;
+
+            validateTuning(settings.tuning, settings.allNoteLetters);
+            model.tuning = settings.tuning;
+
+            validateNumFrets(settings.numFrets);
+            model.numFrets = settings.numFrets;
+
+            model.isChordMode = settings.isChordMode;
+            model.noteClickingDisabled = settings.noteClickingDisabled;
+            model.intervalSettings = settings.intervalSettings;
+            model.onFretboardChange = settings.onFretboardChange;
+
+            for (var i = 0; i < model.tuning.length; i++) {
+                model.allNotes.push(calculateNotesOnString(model.tuning[i]));
+                model.clickedNotes.push([]);
+            }
+        }
+
+        function calculateNotesOnString(openNote) {
+            var notes = [];
+
+            for (var i = 0; i <= model.numFrets; i++) {
+                var note = getNoteByFretNumber(openNote, i);
+
+                note.fretNumber = i;
+                note.stringItsOn = openNote;
+                note.intervalInfo = getIntervalInfo(note.letter);
+
+                notes.push(note);
             }
 
             return notes;
         }
 
+        function getIntervalInfo(letter) {
+            return {
+                interval: getIntervalByLetterAndRoot(letter, model.intervalSettings.root),
+                root: settings.intervalSettings.root
+            };
+        }
+
         // Could be a generic getNoteXNotesAwayFrom function
         function getNoteByFretNumber(stringNote, fretNumber) {
-            var noteIndex = settings.allNoteLetters.indexOf(stringNote.letter) + fretNumber,
+            var noteIndex = model.allNoteLetters.indexOf(stringNote.letter) + fretNumber,
                 numOctavesAboveString = Math.floor(noteIndex / 12),
 
                 // If noteIndex is <= 11, the note on this fret is in the same octave 
@@ -287,45 +251,38 @@
                 reducedNoteIndex = noteIndex - (12 * numOctavesAboveString);
 
             return {
-                letter: settings.allNoteLetters[reducedNoteIndex],
+                letter: model.allNoteLetters[reducedNoteIndex],
                 octave: stringNote.octave + numOctavesAboveString
             };
         }
 
-        // Renderer should not know how to calculate intervals
         function getIntervalByLetterAndRoot(letter, root) {
-            var letterIndex = settings.allNoteLetters.indexOf(letter);
-            var rootIndex = settings.allNoteLetters.indexOf(root);
+            var letterIndex = model.allNoteLetters.indexOf(letter);
+            var rootIndex = model.allNoteLetters.indexOf(root);
 
             // Duplicate message logic here and in validation function
             if (letterIndex === -1) {
-                throw "note letter \"" + letter + "\" is not in the allNoteLetters array: " + settings.allNoteLetters;
+                throw "note letter \"" + letter + "\" is not in the allNoteLetters array: " + model.allNoteLetters;
             }
 
             if (rootIndex === -1) {
-                throw "note letter \"" + root + "\" is not in the allNoteLetters array: " + settings.allNoteLetters;
+                throw "note letter \"" + root + "\" is not in the allNoteLetters array: " + model.allNoteLetters;
             }
 
             var intervalIndex = letterIndex - rootIndex + (letterIndex >= rootIndex ? 0 : 12);
 
-            return settings.intervalSettings.intervals[intervalIndex];
+            return model.intervalSettings.intervals[intervalIndex];
         }
 
-        function validate() {
-            validateAllNoteLetters();
-            validateTuning();
-            validateNumFrets();
-        }
-
-        function validateAllNoteLetters() {
+        function validateAllNoteLetters(allNoteLetters) {
             var hash = {};
 
-            if (settings.allNoteLetters.length !== 12) {
-                throw "allNoteLetters is not valid because there must be exactly 12 letters in the array: " + settings.allNoteLetters;
+            if (allNoteLetters.length !== 12) {
+                throw "allNoteLetters is not valid because there must be exactly 12 letters in the array: " + allNoteLetters;
             }
 
             // Uniqueness
-            settings.allNoteLetters.forEach(function (noteLetter) {
+            allNoteLetters.forEach(function (noteLetter) {
                 hash[noteLetter] = noteLetter;
             });
 
@@ -334,27 +291,29 @@
             }
         }
 
-        function validateTuning() {
+        function validateTuning(tuning, allNoteLetters) {
             var tuningNoteLetter;
 
-            if (!settings.tuning.length) {
-                throw "tuning must have at least one note: " + settings.tuning;
+            if (!tuning.length) {
+                throw "tuning must have at least one note: " + tuning;
             }
 
-            for (var i = 0; i < settings.tuning.length; i++) {
-                tuningNoteLetter = settings.tuning[i].letter;
+            for (var i = 0; i < tuning.length; i++) {
+                tuningNoteLetter = tuning[i].letter;
 
-                if (settings.allNoteLetters.indexOf(tuningNoteLetter) === -1) {
+                if (allNoteLetters.indexOf(tuningNoteLetter) === -1) {
                     throw "tuning is not valid because the note letter \"" + tuningNoteLetter + "\" is not in the allNoteLetters array: " + allNoteLetters;
                 }
             }
         }
 
-        function validateNumFrets() {
-            if (settings.numFrets <= 0) {
-                throw "numFrets must be a positive number";
+        function validateNumFrets(numFrets) {
+            if (numFrets <= 0) {
+                throw "numFrets must be a positive number: " + numFrets;
             }
         }
+
+        // Need validateIntervalSettings
 
         function notesAreEqual(note1, note2) {
             return note1.letter === note2.letter && note1.octave === note2.octave;
@@ -417,14 +376,6 @@
             $fretboardBody.remove();
             $fretboardContainer.unwrap();
             removeContainerCssClasses();
-        };
-
-        self.setChordMode = function (isChordMode) {
-            settings.isChordMode = isChordMode;
-        };
-
-        self.setNoteClickingDisabled = function (isDisabled) {
-            settings.noteClickingDisabled = isDisabled;
         };
 
         self.setTuning = function (allNotes) {
@@ -551,7 +502,8 @@
                             letter: noteData.letter,
                             octave: noteData.octave,
                             fretIndex: fretNum,
-                            stringIndex: i
+                            stringIndex: i,
+                            intervalInfo: noteData.intervalInfo
                         })
                         // Make it come in from the right
                         .css({
@@ -688,28 +640,32 @@
             }
         };
 
-        // Should there be one method that takes allNotes and changes the fretboard?
-        self.setNoteText = function (allNotes) {
-            var $strings = $fretboardContainer.find(stringContainerSelector),
-                $notesOnString,
-                $letter,
-                notesOnString,
-                i,
-                j;
+        self.setNoteMode = function (noteMode) {
+            settings.noteMode = noteMode;
 
-            settings.allNotes = allNotes;
+            var $strings = $fretboardContainer.find(stringContainerSelector);
 
-            for (i = 0; i < settings.allNotes.length; i++) {
-                notesOnString = settings.allNotes[i];
-                $notesOnString = $strings.eq(i).find(noteSelector);
-
-                $notesOnString.each(function (j) {
-                    var note = notesOnString[j];
-                    var $letter = getNoteLetterEl((note.intervalInfo && note.intervalInfo.interval) || note.letter);
-
-                    $(this).find(letterSelector).replaceWith($letter);
-                });
+            for (var i = 0; i < settings.allNotes.length; i++) {
+                $strings.eq(i)
+                    .find(noteSelector)
+                    .each(function (j) {
+                        $(this)
+                            .find(letterSelector)
+                            .replaceWith(getNoteLetterEl(settings.allNotes[i][j]));
+                    });
             }
+        };
+
+        self.getNoteMode = function () {
+            return settings.noteMode;
+        };
+
+        self.getNoteCircles = function () {
+            return settings.noteCircles;
+        };
+
+        self.getAnimationSpeed = function () {
+            return settings.animationSpeed;
         };
 
         self.redraw = function () {
@@ -878,7 +834,9 @@
                 .data('fretNumber', fretNum);
         }
 
-        function getNoteLetterEl(text) {
+        function getNoteLetterEl(note) {
+            var text = settings.noteMode === 'interval' ? note.intervalInfo.interval : note.letter;
+
             return $("<div class='" + letterCssClass + "'>" + text + "</div>");
         }
 
@@ -887,7 +845,7 @@
                 .on("mouseenter", noteMouseEnter)
                 .on("mouseleave", noteMouseLeave)
                 .on("click", onNoteClick)
-                .append(getNoteLetterEl((note.intervalInfo && note.intervalInfo.interval) || note.letter))
+                .append(getNoteLetterEl(note))
                 .data(noteDataKey, note);
         }
 
@@ -905,7 +863,8 @@
                     letter: note.letter,
                     octave: note.octave,
                     fretIndex: i,
-                    stringIndex: stringIndex
+                    stringIndex: stringIndex,
+                    intervalInfo: note.intervalInfo
                 });
 
                 $stringContainer.append($note);
@@ -1038,9 +997,12 @@
             // user modifies that object. Then extend it with the defaults.
             $.extend(settings, defaults, $.extend(true, {}, options));
 
+            var dimensionsFunc;
+
             if (settings.dimensionsFunc !== defaultDimensionsFunc) {
                 var oldFunc = settings.dimensionsFunc;
-                var newFunc = function ($fretboardContainer, $fretboardBody, settings) {
+
+                dimensionsFunc = function ($fretboardContainer, $fretboardBody, settings) {
                     var dimensions = oldFunc($fretboardContainer, $fretboardBody, settings),
                         width = dimensions.width,
                         height = dimensions.height,
@@ -1053,16 +1015,36 @@
                         height: height || defaultHeight
                     };
                 };
-
-                settings.dimensionsFunc = newFunc;
+            } else {
+                dimensionsFunc = settings.dimensionsFunc;
             }
 
-            // Doesn't need all the settings
-            fretboardModel = new Fretboard(settings);
-            settings.allNotes = fretboardModel.getAllNotes();
-            // Doesn't need all the settings
+            var modelSettings = {
+                allNoteLetters: settings.allNoteLetters,
+                tuning: settings.tuning,
+                numFrets: settings.numFrets,
+                isChordMode: settings.isChordMode,
+                noteClickingDisabled: settings.noteClickingDisabled,
+                intervalSettings: settings.intervalSettings
+            };
 
-            renderer = new FretboardHtmlRenderer(settings, $element);
+            fretboardModel = new Fretboard(modelSettings);
+
+            var rendererSettings = {
+                // Even though this info exists in the settings that were passed in,
+                // the info may have been altered by the model.
+                allNotes: fretboardModel.getAllNotes(),
+                tuning: fretboardModel.getTuning(),
+                numFrets: fretboardModel.getNumFrets(),
+
+                // renderer should validate its own settings
+                noteCircles: settings.noteCircles,
+                animationSpeed: settings.animationSpeed,
+                dimensionsFunc: dimensionsFunc,
+                noteMode: settings.noteMode
+            };
+
+            renderer = new FretboardHtmlRenderer(rendererSettings, $element);
 
             api.destroy = function () {
                 fretboardModel.destroy();
@@ -1074,12 +1056,11 @@
             };
 
             api.getNoteCircles = function () {
-                return fretboardModel.getNoteCircles();
+                return renderer.getNoteCircles();
             };
 
             api.setChordMode = function (isChordMode) {
                 fretboardModel.setChordMode(isChordMode);
-                renderer.setChordMode(fretboardModel.getChordMode());
             };
 
             api.getChordMode = function () {
@@ -1091,7 +1072,7 @@
             };
 
             api.getAnimationSpeed = function () {
-                return fretboardModel.getAnimationSpeed();
+                return renderer.getAnimationSpeed();
             };
 
             api.getClickedNotes = function () {
@@ -1100,15 +1081,10 @@
 
             api.setNoteClickingDisabled = function (isDisabled) {
                 fretboardModel.setNoteClickingDisabled(isDisabled);
-                renderer.setNoteClickingDisabled(fretboardModel.getNoteClickingDisabled());
             };
 
             api.getNoteClickingDisabled = function () {
                 return fretboardModel.getNoteClickingDisabled();
-            };
-
-            api.getDimensions = function () {
-                return renderer.getDimensions();
             };
 
             api.setTuning = function (tuning) {
@@ -1144,20 +1120,20 @@
             };
 
             api.setNoteMode = function (noteMode) {
-                fretboardModel.setNoteMode(noteMode);
-                renderer.setNoteText(fretboardModel.getAllNotes());
-                settings.onFretboardChange();
+                renderer.setNoteMode(noteMode);
             };
 
             api.getNoteMode = function () {
-                return fretboardModel.getNoteMode();
+                return renderer.getNoteMode();
             };
 
             api.getIntervalSettings = function () {
                 return fretboardModel.getIntervalSettings();
             };
 
-            // Could do setIntervalSettings, setNoteLetters
+            api.setIntervalSettings = function (settings) {
+                fretboardModel.setIntervalSettings(settings);
+            };
 
             api.redraw = function () {
                 renderer.redraw();

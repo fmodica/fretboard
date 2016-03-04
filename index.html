@@ -29,25 +29,26 @@
     
     button {
         margin: 20px 2px;
+        cursor: pointer;
     }
     </style>
     <div class="container">
         <div class="my-fretboard-js"></div>
         <div class="my-fretboard-js space-theme"></div> 
         
-        <button class="toggle-chord-mode btn btn-small">Toggle chord mode</button>
         <button class="set-clicked-notes-maj7 btn btn-small">Set C maj7 chord</button>
         <button class="set-clicked-notes-min7 btn btn-small">Set A min7 chord</button>
         <button class="get-clicked-notes btn btn-small">Get clicked notes (console)</button>
+        <button class="unclick btn btn-small">Unclick notes</button>
         <button class="note-clicking-disabled btn btn-small">Disable/enable note clicking</button>
         <button class="add-string btn btn-small">Add string</button>
         <button class="remove-string btn btn-small">Remove string</button>
         <button class="add-fret btn btn-small">Add fret</button>
         <button class="remove-fret btn btn-small">Remove fret</button>
-        <button class="unclick btn btn-small">Unclick frets</button>
+        <button class="toggle-chord-mode btn btn-small">Toggle chord mode</button>
         <button class="toggle-note-mode btn btn-small">Toggle note mode</button>
         <button class="show-progression btn btn-small">Play progression</button>
-        <button class="show-scale-run btn btn-small">Play scale Run</button>
+        <button class="show-scale-run btn btn-small">Play scale run</button>
         <button class="show-arpeggio btn btn-small">Play arpeggio</button>
     </div>
 
@@ -55,7 +56,6 @@
     (function ($) {
         var isChordMode = true,
             isDisabled = false,
-            isIntervalMode = false,
             eightStringTuning = [{
                 letter: "E",
                 octave: 4
@@ -214,15 +214,17 @@
                 intervals: ['1', 'b2', '2', 'b3', '3', '4', 'b5', '5', 'b6', '6', 'b7', '7'],
                 root: "C"
             },
-            noteMode = 'letter',
+            noteMode = 'interval',
+            isIntervalMode = noteMode === 'interval',
             fretboardChangeFunc = function () {
                 
                 $fretboards.each(function () {
                     var fretboard = $(this).data('fretboard');
 
-                    console.log(fretboard.getAllNotes());
-                    console.log(fretboard.getTuning());
-                    console.log(fretboard.getClickedNotes());
+                    //console.log(fretboard.getAllNotes());
+                    //console.log(fretboard.getTuning());
+                    //console.log(fretboard.getClickedNotes());
+                    console.log("On fretboard change");
                 });
             },
             options = {
@@ -343,7 +345,7 @@
             isIntervalMode = !isIntervalMode;
 
             $fretboards.each(function () {
-                $(this).data('fretboard').setNoteMode(isIntervalMode ? 'interval' : 'note');
+                $(this).data('fretboard').setNoteMode(isIntervalMode ? 'interval' : 'letter');
             });
         });
 
