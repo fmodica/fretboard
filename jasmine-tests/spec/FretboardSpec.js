@@ -6,7 +6,7 @@
 // TODO Programmatic notes in chord mode should not remove other notes
 // TODO Note mode
 // TODO Change the tuning to the same tuning
-// Change the fret number to the same fret number
+// TODO Change the fret number to the same fret number
 
 describe("Fretboard", function () {
     var eightStringTuning = [{
@@ -134,6 +134,10 @@ describe("Fretboard", function () {
 
         it("should return the correct note mode", function () {
             expect(fretboardInstance.getNoteMode()).toEqual(defaultNoteMode);
+        });
+
+        it("should return the correct interval settings", function () {
+            expect(fretboardInstance.getIntervalSettings()).toEqual(defaultIntervalSettings);
         });
     });
 

@@ -199,6 +199,10 @@
             return settings.noteMode;
         };
 
+        self.getIntervalSettings = function () {
+            return settings.intervalSettings;
+        };
+
         self.setNoteMode = function (noteMode) {
             var notes,
                 note,
@@ -1147,6 +1151,10 @@
 
             api.getNoteMode = function () {
                 return fretboardModel.getNoteMode();
+            };
+
+            api.getIntervalSettings = function () {
+                return fretboardModel.getIntervalSettings();
             };
 
             // Could do setIntervalSettings, setNoteLetters
