@@ -33,7 +33,7 @@
     </style>
     <div class="container">
         <div class="my-fretboard-js"></div>
-        <!-- <div class="my-fretboard-js space-theme"></div> -->
+        <div class="my-fretboard-js space-theme"></div> 
         
         <button class="toggle-chord-mode btn btn-small">Toggle chord mode</button>
         <button class="set-clicked-notes-maj7 btn btn-small">Set C maj7 chord</button>
@@ -210,39 +210,48 @@
                 };
             },
             noteCircleList = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24],
-            noteMode = { 
-                name: 'noteLetter',
-                options: null
+            intervalSettings = {
+                intervals: ['1', 'b2', '2', 'b3', '3', '4', 'b5', '5', 'b6', '6', 'b7', '7'],
+                root: "C"
             },
-            //noteMode = {
-            //    name: 'noteInterval',
-            //    options: { root: 'C', intervalList: ['1', 'b2', '2', 'b3', '3', '4', 'b5', '5', 'b6', '6','b7', '7'] }
-            //},
+            noteMode = 'letter',
+            fretboardChangeFunc = function () {
+                
+                $fretboards.each(function () {
+                    var fretboard = $(this).data('fretboard');
+
+                    console.log(fretboard.getAllNotes());
+                    console.log(fretboard.getTuning());
+                    console.log(fretboard.getClickedNotes());
+                });
+            },
             options = {
                 allNoteLetters: ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"],
                 tuning: tuning,
                 numFrets: numFrets,
                 isChordMode: isChordMode,
                 noteClickingDisabled: isDisabled,
-                dimensionsFunc: dimensionsFunc,
+                noteMode: noteMode,
+                intervalSettings: intervalSettings,
                 animationSpeed: 500, // ms
+                dimensionsFunc: dimensionsFunc,
                 noteCircleList: noteCircleList,
-                noteMode: noteMode
+                onFretboardChange: fretboardChangeFunc
             },
-            $fretboard = $(".my-fretboard-js");
+            $fretboards = $(".my-fretboard-js");
 
-        $fretboard.fretboard(options);
+        $fretboards.fretboard(options);
 
         $(".toggle-chord-mode").on("click", function () {
             isChordMode = !isChordMode;
 
-            $fretboard.each(function () {
+            $fretboards.each(function () {
                 $(this).data('fretboard').setChordMode(isChordMode);
             });
         });
 
         $(".set-clicked-notes-maj7").on("click", function () {
-            $fretboard.each(function () {
+            $fretboards.each(function () {
                 var fretboard = $(this).data('fretboard');
                 
                 fretboard.clearClickedNotes();
@@ -251,7 +260,7 @@
         });
         
         $(".set-clicked-notes-min7").on("click", function () {
-            $fretboard.each(function () {
+            $fretboards.each(function () {
                 var fretboard = $(this).data('fretboard');
                 
                 fretboard.clearClickedNotes();
@@ -260,7 +269,7 @@
         });
 
         $(".get-clicked-notes").on("click", function () {
-            $fretboard.each(function () {
+            $fretboards.each(function () {
                 console.log($(this).data('fretboard').getClickedNotes());
             });
         });
@@ -268,7 +277,7 @@
         $(".note-clicking-disabled").on("click", function () {
             isDisabled = !isDisabled;
 
-            $fretboard.each(function () {
+            $fretboards.each(function () {
                 $(this).data('fretboard').setNoteClickingDisabled(isDisabled);
             });
         });
@@ -280,7 +289,7 @@
                     octave: eightStringTuning[tuning.length].octave
                 });
 
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     $(this).data('fretboard').setTuning(tuning);
                 });
             }
@@ -290,7 +299,7 @@
             if (tuning.length > 4) {
                 tuning.pop();
 
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     $(this).data('fretboard').setTuning(tuning);
                 });
             }
@@ -300,7 +309,7 @@
             if (numFrets < 24) {
                 numFrets++;
 
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     $(this).data('fretboard').setNumFrets(numFrets);
                 });
             }
@@ -310,20 +319,20 @@
             if (numFrets > 12) {
                 numFrets--;
 
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     $(this).data('fretboard').setNumFrets(numFrets);
                 });
             }
         });
 
         /*$(".redraw").on("click", function() {
-            $fretboard.each(function() {
+            $fretboards.each(function() {
                 $(this).data('fretboard').redraw();
             });
         });*/
 
         $(".unclick").on("click", function () {
-            $fretboard.each(function () {
+            $fretboards.each(function () {
                 $(this).data('fretboard').clearClickedNotes();
             });
         });
@@ -333,20 +342,8 @@
 
             isIntervalMode = !isIntervalMode;
 
-            if (isIntervalMode) {
-                noteMode = {
-                    name: 'noteInterval',
-                    options: { root: 'C', intervalList: ['1', 'b2', '2', 'b3', '3', '4', 'b5', '5', 'b6', '6','b7', '7'] }
-                };
-            } else {
-                noteMode = {
-                    name: 'noteLetter',
-                    options: null
-                };
-            }
-
-            $fretboard.each(function () {
-                $(this).data('fretboard').setNoteMode(noteMode);
+            $fretboards.each(function () {
+                $(this).data('fretboard').setNoteMode(isIntervalMode ? 'interval' : 'note');
             });
         });
 
@@ -355,7 +352,7 @@
                 delta = 1000;
  
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     var fretboard = $(this).data('fretboard');
                     
                     fretboard.clearClickedNotes();
@@ -366,7 +363,7 @@
             ms += delta;
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     var fretboard = $(this).data('fretboard');
                     
                     fretboard.clearClickedNotes();
@@ -377,7 +374,7 @@
             ms += delta;
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     var fretboard = $(this).data('fretboard');
                     
                     fretboard.clearClickedNotes();
@@ -388,7 +385,7 @@
             ms += delta;
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     var fretboard = $(this).data('fretboard');
                     
                     fretboard.clearClickedNotes();
@@ -399,7 +396,7 @@
             ms += delta;
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     var fretboard = $(this).data('fretboard');
                     
                     fretboard.clearClickedNotes();
@@ -412,12 +409,12 @@
             var ms = 0,
                 delta = 100;
                 
-            $fretboard.each(function () {
+            $fretboards.each(function () {
                 $(this).data('fretboard').clearClickedNotes();
             });
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     $(this).data('fretboard').setClickedNotes([{
                         stringItsOn: {
                             letter: "E",
@@ -431,7 +428,7 @@
             ms += delta;
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     $(this).data('fretboard').setClickedNotes([{
                         stringItsOn: {
                             letter: "E",
@@ -445,7 +442,7 @@
             ms += delta;
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     $(this).data('fretboard').setClickedNotes([{
                         stringItsOn: {
                             letter: "E",
@@ -459,7 +456,7 @@
             ms += delta;
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     $(this).data('fretboard').setClickedNotes([{
                         stringItsOn: {
                             letter: "B",
@@ -473,7 +470,7 @@
             ms += delta;
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     $(this).data('fretboard').setClickedNotes([{
                         stringItsOn: {
                             letter: "B",
@@ -487,7 +484,7 @@
             ms += delta;
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     $(this).data('fretboard').setClickedNotes([{
                         stringItsOn: {
                             letter: "B",
@@ -501,7 +498,7 @@
             ms += delta;
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     $(this).data('fretboard').setClickedNotes([{
                         stringItsOn: {
                             letter: "G",
@@ -515,7 +512,7 @@
             ms += delta;
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     $(this).data('fretboard').setClickedNotes([{
                         stringItsOn: {
                             letter: "G",
@@ -529,7 +526,7 @@
             ms += delta;
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     $(this).data('fretboard').setClickedNotes([{
                         stringItsOn: {
                             letter: "D",
@@ -543,7 +540,7 @@
             ms += delta;
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     $(this).data('fretboard').setClickedNotes([{
                         stringItsOn: {
                             letter: "D",
@@ -557,7 +554,7 @@
             ms += delta;
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     $(this).data('fretboard').setClickedNotes([{
                         stringItsOn: {
                             letter: "D",
@@ -571,7 +568,7 @@
             ms += delta;
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     $(this).data('fretboard').setClickedNotes([{
                         stringItsOn: {
                             letter: "A",
@@ -585,7 +582,7 @@
             ms += delta;
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     $(this).data('fretboard').setClickedNotes([{
                         stringItsOn: {
                             letter: "A",
@@ -599,7 +596,7 @@
             ms += delta;
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     $(this).data('fretboard').setClickedNotes([{
                         stringItsOn: {
                             letter: "A",
@@ -616,7 +613,7 @@
                 delta = 300;
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     var fretboard = $(this).data('fretboard');
                     
                     fretboard.clearClickedNotes();
@@ -629,7 +626,7 @@
                     }]);
                 });
 
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     var fretboard = $(this).data('fretboard');
                     
                     fretboard.clearClickedNotes();
@@ -646,7 +643,7 @@
             ms += delta;
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     var fretboard = $(this).data('fretboard');
                     
                     fretboard.clearClickedNotes();
@@ -663,7 +660,7 @@
             ms += delta;
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     var fretboard = $(this).data('fretboard');
                     
                     fretboard.clearClickedNotes();
@@ -680,7 +677,7 @@
             ms += delta;
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     var fretboard = $(this).data('fretboard');
                     
                     fretboard.clearClickedNotes();
@@ -697,7 +694,7 @@
             ms += delta;
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     var fretboard = $(this).data('fretboard');
                     
                     fretboard.clearClickedNotes();
@@ -714,7 +711,7 @@
             ms += delta;
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     var fretboard = $(this).data('fretboard');
                     
                     fretboard.clearClickedNotes();
@@ -731,7 +728,7 @@
             ms += delta;
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     var fretboard = $(this).data('fretboard');
                     
                     fretboard.clearClickedNotes();
@@ -748,7 +745,7 @@
             ms += delta;
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     var fretboard = $(this).data('fretboard');
                     
                     fretboard.clearClickedNotes();
@@ -765,7 +762,7 @@
             ms += delta;
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     var fretboard = $(this).data('fretboard');
                     
                     fretboard.clearClickedNotes();
@@ -782,7 +779,7 @@
             ms += delta;
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     var fretboard = $(this).data('fretboard');
                     
                     fretboard.clearClickedNotes();
@@ -799,7 +796,7 @@
             ms += delta;
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     var fretboard = $(this).data('fretboard');
                     
                     fretboard.clearClickedNotes();
@@ -816,7 +813,7 @@
             ms += delta;
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     var fretboard = $(this).data('fretboard');
                     
                     fretboard.clearClickedNotes();
@@ -833,7 +830,7 @@
             ms += delta;
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     var fretboard = $(this).data('fretboard');
                     
                     fretboard.clearClickedNotes();
@@ -850,7 +847,7 @@
             ms += delta;
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     var fretboard = $(this).data('fretboard');
                     
                     fretboard.clearClickedNotes();
@@ -867,7 +864,7 @@
             ms += delta;
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     var fretboard = $(this).data('fretboard');
                     
                     fretboard.clearClickedNotes();
@@ -884,7 +881,7 @@
             ms += delta;
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     var fretboard = $(this).data('fretboard');
                     
                     fretboard.clearClickedNotes();
@@ -901,7 +898,7 @@
             ms += delta;
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     var fretboard = $(this).data('fretboard');
                     
                     fretboard.clearClickedNotes();
@@ -918,7 +915,7 @@
             ms += delta;
 
             setTimeout(function () {
-                $fretboard.each(function () {
+                $fretboards.each(function () {
                     $(this).data('fretboard').clearClickedNotes();
                 });
             }, ms);
