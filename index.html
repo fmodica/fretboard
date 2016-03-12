@@ -36,8 +36,11 @@
         <div class="my-fretboard-js"></div>
         <div class="my-fretboard-js space-theme"></div> 
         
-        <button class="set-clicked-notes-maj7 btn btn-small">Set C maj7 chord</button>
-        <button class="set-clicked-notes-min7 btn btn-small">Set A min7 chord</button>
+        <button class="set-clicked-notes-maj7 btn btn-small">Click C maj7 chord</button>
+        <button class="set-clicked-notes-min7 btn btn-small">Click A min7 chord</button>
+        <button class="show-progression btn btn-small">Click progression notes</button>
+        <button class="show-scale-run btn btn-small">Click scale run notes</button>
+        <button class="show-arpeggio btn btn-small">Click arpeggio notes</button>
         <button class="get-clicked-notes btn btn-small">Get clicked notes (console)</button>
         <button class="unclick btn btn-small">Unclick notes</button>
         <button class="note-clicking-disabled btn btn-small">Disable/enable note clicking</button>
@@ -46,10 +49,8 @@
         <button class="add-fret btn btn-small">Add fret</button>
         <button class="remove-fret btn btn-small">Remove fret</button>
         <button class="toggle-chord-mode btn btn-small">Toggle chord mode</button>
-        <button class="toggle-note-mode btn btn-small">Toggle note mode</button>
-        <button class="show-progression btn btn-small">Play progression</button>
-        <button class="show-scale-run btn btn-small">Play scale run</button>
-        <button class="show-arpeggio btn btn-small">Play arpeggio</button>
+        <button class="toggle-note-mode btn btn-small">Toggle note mode (interval/letter)</button>
+        <button class="toggle-root-for-interval-mode btn btn-small">Change root for interval mode (C/E)</button>
     </div>
 
 <script type="text/javascript">
@@ -340,12 +341,18 @@
         });
 
         $(".toggle-note-mode").on("click", function() {
-            var noteMode;
-
             isIntervalMode = !isIntervalMode;
 
             $fretboards.each(function () {
                 $(this).data('fretboard').setNoteMode(isIntervalMode ? 'interval' : 'letter');
+            });
+        });
+
+        $(".toggle-root-for-interval-mode").on("click", function () {
+            intervalSettings.root = intervalSettings.root === "C" ? "G" : "C";
+
+            $fretboards.each(function () {
+                $(this).data('fretboard').setIntervalSettings(intervalSettings);
             });
         });
 

@@ -179,7 +179,7 @@
 
         function setIntervalSettings(intervalSettings) {
             // validateIntervalSettings
-            settings.intervalSettings = intervalSettings;
+            model.intervalSettings = $.extend(true, {}, intervalSettings);
 
             for (var i = 0; i < model.tuning.length; i++) {
                 model.allNotes[i] = calculateNotesOnString(model.tuning[i]);
@@ -228,7 +228,7 @@
         function getIntervalInfo(letter) {
             return {
                 interval: getIntervalByLetterAndRoot(letter, model.intervalSettings.root),
-                root: settings.intervalSettings.root
+                root: model.intervalSettings.root
             };
         }
 
@@ -379,14 +379,12 @@
         };
 
         self.setTuning = function (allNotes) {
-            var $stringContainers = $fretboardContainer.find(stringContainerSelector),
-                oldNotes = $.extend(true, [], settings.allNotes),
+            var oldNotes = $.extend(true, [], settings.allNotes),
                 newNotes = $.extend(true, [], allNotes),
                 newNumFrets = newNotes[0].length - 1,
                 tuningLengthDifference = oldNotes.length - newNotes.length,
                 $newStringContainer,
                 newTuningNote,
-                oldTuningNote,
                 notesOnString,
                 i;
 
@@ -396,19 +394,17 @@
             // into a generic function that alters the fretboard
             //settings.numFrets = newNumFrets;
 
+            var $stringContainers = $fretboardContainer.find(stringContainerSelector);
+
             // Modification/addition of strings
             for (i = 0; i < settings.allNotes.length; i++) {
                 notesOnString = newNotes[i];
                 newTuningNote = notesOnString[0];
                 settings.tuning.push(newTuningNote);
 
-                // If a string exists, alter it if the new open note is different than the old
+                // If a string exists, alter it
                 if (i < oldNotes.length) {
-                    oldTuningNote = oldNotes[i][0];
-
-                    if (!notesAreEqual(newTuningNote, oldTuningNote)) {
-                        alterString(i, notesOnString);
-                    }
+                    alterString($stringContainers.eq(i), i, notesOnString);
                 } else {
                     $newStringContainer = getStringContainerEl(notesOnString, i);
                     $newStringContainer
@@ -421,6 +417,7 @@
                 }
             }
 
+
             // String removal
             for (i = 0; i < tuningLengthDifference; i++) {
                 $stringContainers.eq(oldNotes.length - 1 - i).remove();
@@ -432,23 +429,21 @@
             //$fretboardContainer.trigger("notesClicked");
         };
 
-        function alterString(stringNum, notesOnString) {
-            var $newStringContainer = getStringContainerEl(notesOnString, stringNum),
-                $newStringContainerNotes = $newStringContainer.find(noteSelector),
-                $existingStringContainerNotes = $stringContainers.eq(stringNum).find(noteSelector),
-                $existingNote,
-                i,
-                newNoteData;
+        function alterString($stringContainer, stringNum, notesOnString) {
+            var $existingStringContainerNotes = $stringContainer
+                .find(noteSelector);
+            var $newStringContainerNotes = getStringContainerEl(notesOnString, stringNum)
+                .find(noteSelector);
 
-            for (i = 0; i <= settings.numFrets; i++) {
-                // Use the info on the new string to modify the old string
-                newNoteData = $newStringContainerNotes.eq(i).data(noteDataKey);
-                $existingNote = $existingStringContainerNotes.eq(i);
+            for (var i = 0; i <= settings.numFrets; i++) {
+                // Use the info on the new string's notes to modify the old string's notes
+                var $newNote = $newStringContainerNotes.eq(i);
 
-                $existingNote
-                    .data(noteDataKey, newNoteData)
+                $existingStringContainerNotes
+                    .eq(i)
+                    .data(noteDataKey, $newNote.data(noteDataKey))
                     .find(letterSelector)
-                    .text(newNoteData.letter);
+                    .replaceWith($newNote.find(letterSelector));
             }
         }
 
@@ -1132,7 +1127,9 @@
             };
 
             api.setIntervalSettings = function (settings) {
+                debugger;
                 fretboardModel.setIntervalSettings(settings);
+                renderer.setTuning(fretboardModel.getAllNotes());
             };
 
             api.redraw = function () {
