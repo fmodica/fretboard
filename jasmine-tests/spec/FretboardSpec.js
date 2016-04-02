@@ -7,7 +7,7 @@
 // TODO Note mode
 // TODO Change the tuning to the same tuning
 // TODO Change the fret number to the same fret number
-
+// TODO More detailed check of exception messages
 describe("Fretboard", function () {
     var eightStringTuning = [{
         letter: "E",
@@ -96,6 +96,11 @@ describe("Fretboard", function () {
             fretboardInstance = $fretboard.data('fretboard');
         });
 
+        // Configuration properties
+        it("should return the correct allNoteLetters", function () {
+            expect(fretboardInstance.getAllNoteLetters()).toEqual(defaultNoteLetters);
+        });
+
         it("should return standard tuning", function () {
             expect(fretboardInstance.getTuning()).toEqual(standardTuning);
         });
@@ -108,28 +113,8 @@ describe("Fretboard", function () {
             expect(fretboardInstance.getChordMode()).toEqual(true);
         });
 
-        it("should return the correct circles", function () {
-            expect(fretboardInstance.getNoteCircles()).toEqual(noteCircles);
-        });
-
-        it("should return the correct list of all possible note letters", function () {
-            expect(fretboardInstance.getAllNoteLetters()).toEqual(defaultNoteLetters);
-        });
-
         it("should return note-clicking-disabled false", function () {
             expect(fretboardInstance.getNoteClickingDisabled()).toEqual(false);
-        });
-
-        it("should return animation speed " + defaultAnimationSpeed, function () {
-            expect(fretboardInstance.getAnimationSpeed()).toEqual(defaultAnimationSpeed);
-        });
-
-        it("should return no clicked notes", function () {
-            expect(fretboardInstance.getClickedNotes()).toEqual([]);
-        });
-
-        it("should return the correct notes for the whole fretboard", function () {
-            checkCorrectNotesFunc(standardTuning, defaultNumFrets, defaultNoteLetters);
         });
 
         it("should return the correct note mode", function () {
@@ -139,53 +124,140 @@ describe("Fretboard", function () {
         it("should return the correct interval settings", function () {
             expect(fretboardInstance.getIntervalSettings()).toEqual(defaultIntervalSettings);
         });
+
+        it("should return animation speed " + defaultAnimationSpeed, function () {
+            expect(fretboardInstance.getAnimationSpeed()).toEqual(defaultAnimationSpeed);
+        });
+
+        it("should return the correct circles", function () {
+            expect(fretboardInstance.getNoteCircles()).toEqual(noteCircles);
+        });
+
+        // Additional
+        it("should return no clicked notes", function () {
+            expect(fretboardInstance.getClickedNotes()).toEqual([]);
+        });
+
+        it("should return the correct notes for the whole fretboard", function () {
+            checkCorrectNotesFunc(standardTuning, defaultNumFrets, defaultNoteLetters);
+        });
+
+        // Test dimensionsFunc and onClickedNotesChange?
     });
 
     describe("Custom configuration", function () {
-        it("should return the correct list of possible note letters when reversed", function () {
-            var noteLetters = $.extend(true, [], defaultNoteLetters).reverse();
-
-            $fretboard.fretboard({ allNoteLetters: noteLetters });
-            fretboardInstance = $fretboard.data('fretboard');
-
-            expect(fretboardInstance.getAllNoteLetters()).toEqual(noteLetters);
-        });
-
-        it("should throw an exception when there are more than 12 notes", function () {
-            var noteLetters = $.extend(true, [], defaultNoteLetters);
-
-            noteLetters.push("X");
-
+        it("should throw an exception when allNoteLetters is null", function () {
             expect(function () {
-                $fretboard.fretboard({ allNoteLetters: noteLetters });
+                $fretboard.fretboard({ allNoteLetters: null });
             }).toThrow();
         });
 
-        it("should throw an exception when there are 12 notes and one is not unique", function () {
-            var noteLetters = $.extend(true, [], defaultNoteLetters);
-
-            noteLetters[11] = "C";
-
+        it("should throw an exception when an item in allNoteLetters is null", function () {
+            var noteLettersWithNull = $.extend(true, [], defaultNoteLetters);
+            noteLettersWithNull[0] = null;
             expect(function () {
-                $fretboard.fretboard({ allNoteLetters: noteLetters });
+                $fretboard.fretboard({ allNoteLetters: noteLettersWithNull });
+            }).toThrow();
+        });
+
+        it("should throw an exception when allNoteLetters has more than 12 items", function () {
+            var noteLettersTooMany = $.extend(true, [], defaultNoteLetters);
+            noteLettersTooMany.push("X");
+            expect(function () {
+                $fretboard.fretboard({ allNoteLetters: noteLettersTooMany });
+            }).toThrow();
+        });
+
+        it("should throw an exception when allNoteLetters has less than 12 items", function () {
+            var noteLettersTooFew = $.extend(true, [], defaultNoteLetters);
+            noteLettersTooFew = noteLettersTooFew.slice(0,11);
+            expect(function () {
+                $fretboard.fretboard({ allNoteLetters: noteLettersTooFew });
+            }).toThrow();
+        });
+
+        it("should throw an exception when allNoteLetters is not unique", function () {
+            var nonUniqueNoteLetters = $.extend(true, [], defaultNoteLetters);
+            nonUniqueNoteLetters[11] = nonUniqueNoteLetters[0];
+            expect(function () {
+                $fretboard.fretboard({ allNoteLetters: nonUniqueNoteLetters });
+            }).toThrow();
+        });
+
+        it("should return the correct allNoteLetters when they are reversed", function () {
+            var reversedNoteLetters = $.extend(true, [], defaultNoteLetters).reverse();
+            $fretboard.fretboard({ allNoteLetters: reversedNoteLetters });
+            fretboardInstance = $fretboard.data('fretboard');
+            expect(fretboardInstance.getAllNoteLetters()).toEqual(reversedNoteLetters);
+        });
+
+        it("should throw an exception when tuning is null", function () {
+            expect(function () {
+                $fretboard.fretboard({ tuning: null });
+            }).toThrow();
+        });
+
+        it("should throw an exception when tuning is empty", function () {
+            expect(function () {
+                $fretboard.fretboard({ tuning: [] });
+            }).toThrow();
+        });
+
+        it("should throw an exception when tuning is not unique", function () {
+            var nonUniqueTuning = $.extend(true, [], standardTuning);
+            nonUniqueTuning[5] = nonUniqueTuning[0];
+            expect(function () {
+                $fretboard.fretboard({ tuning: nonUniqueTuning });
+            }).toThrow();
+        });
+
+        it("should throw an exception when an item in tuning is null", function () {
+            var tuningWithNull = $.extend(true, [], standardTuning);
+            tuningWithNull[0] = null;
+            expect(function () {
+                $fretboard.fretboard({ tuning: tuningWithNull });
+            }).toThrow();
+        });
+
+        it("should throw an exception when tuning contains a letter not in allNoteLetters", function () {
+            var tuningWithWrongLetter = $.extend(true, [], standardTuning);
+            tuningWithWrongLetter[0].letter = "C #";
+            expect(function () {
+                $fretboard.fretboard({ tuning: tuningWithWrongLetter });
+            }).toThrow();
+        });
+
+        it("should throw an exception when tuning contains an octave that is not a number", function () {
+            var tuningWithWrongOctave = $.extend(true, [], standardTuning);
+            tuningWithWrongOctave[0].octave = "X";
+            expect(function () {
+                $fretboard.fretboard({ tuning: tuningWithWrongOctave });
+            }).toThrow();
+        });
+
+        it("should throw an exception when numFrets is 0", function () {
+            expect(function () {
+                $fretboard.fretboard({ numFrets: 0 });
+            }).toThrow();
+        });
+
+        it("should throw an exception when numFrets is less than 0", function () {
+            expect(function () {
+                $fretboard.fretboard({ numFrets: -24 });
+            }).toThrow();
+        });
+
+        it("should throw an exception when numFrets is not a number", function () {
+            expect(function () {
+                $fretboard.fretboard({ numFrets: "X" });
             }).toThrow();
         });
 
         it("should return the correct number of frets when numFrets is nonzero", function () {
             var numFrets = 24;
-
             $fretboard.fretboard({ numFrets: numFrets });
             fretboardInstance = $fretboard.data('fretboard');
-
             expect(fretboardInstance.getNumFrets()).toEqual(numFrets);
-        });
-
-        it("should throw an exception when numFrets is 0", function () {
-            var numFrets = 0;
-
-            expect(function () {
-                $fretboard.fretboard({ numFrets: numFrets });
-            }).toThrow();
         });
     });
 

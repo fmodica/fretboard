@@ -5,8 +5,14 @@
         var self = this,
             model = {
                 allNotes: [],
-                clickedNotes: []
+                clickedNotes: [],
                 // The rest get copied from settings
+                allNoteLetters: null,
+                tuning: null,
+                numFrets: null,
+                isChordMode: null,
+                noteClickingDisabled: null,
+                intervalSettings: null
             };
 
         self.destroy = destroy;
@@ -70,7 +76,7 @@
         // }]
         //
         // takeSettingsIntoAccount means to check other settings that might affect
-        // which notes can be clicked, such as isChordMode, noteClickeDisabled, etc.
+        // which notes can be clicked, such as isChordMode, noteClickingDisabled, etc.
         function setClickedNotes(notesToClick, takeSettingsIntoAccount) {
             if (!notesToClick || (takeSettingsIntoAccount && model.noteClickingDisabled)) {
                 return;
@@ -187,7 +193,6 @@
         }
 
         // Utility functions
-
         function initializeModel(settings) {
             validateAllNoteLetters(settings.allNoteLetters);
             model.allNoteLetters = settings.allNoteLetters;
@@ -201,7 +206,6 @@
             model.isChordMode = settings.isChordMode;
             model.noteClickingDisabled = settings.noteClickingDisabled;
             model.intervalSettings = settings.intervalSettings;
-            model.onClickedNotesChange = settings.onClickedNotesChange;
 
             for (var i = 0; i < model.tuning.length; i++) {
                 model.allNotes.push(calculateNotesOnString(model.tuning[i]));
@@ -275,16 +279,24 @@
         }
 
         function validateAllNoteLetters(allNoteLetters) {
-            var hash = {};
+            if (!allNoteLetters) {
+                throw "allNoteLetters does not exist: " + allNoteLetters;
+            }
 
             if (allNoteLetters.length !== 12) {
                 throw "allNoteLetters is not valid because there must be exactly 12 letters in the array: " + allNoteLetters;
             }
 
-            // Uniqueness
-            allNoteLetters.forEach(function (noteLetter) {
-                hash[noteLetter] = noteLetter;
-            });
+            // 12 unique letters
+            var hash = {};
+
+            for (var i = 0; i < allNoteLetters.length; i++) {
+                if (!allNoteLetters[i]) {
+                    throw "allNoteLetters is not valid because one note did not exist: " + allNoteLetters;
+                }
+
+                hash[allNoteLetters[i]] = true;
+            }
 
             if (Object.keys(hash).length !== 12) {
                 throw "allNoteLetters is not valid because there must be 12 unique letters in the array: " + allNoteLetters;
@@ -292,18 +304,34 @@
         }
 
         function validateTuning(tuning, allNoteLetters) {
-            var tuningNoteLetter;
+            if (!tuning) {
+                throw "tuning does not exist: " + tuning;
+            }
 
             if (!tuning.length) {
                 throw "tuning must have at least one note: " + tuning;
             }
 
-            for (var i = 0; i < tuning.length; i++) {
-                tuningNoteLetter = tuning[i].letter;
+            var hash = {};
 
-                if (allNoteLetters.indexOf(tuningNoteLetter) === -1) {
-                    throw "tuning is not valid because the note letter \"" + tuningNoteLetter + "\" is not in the allNoteLetters array: " + allNoteLetters;
+            for (var i = 0; i < tuning.length; i++) {
+                // Check for octave integer 
+
+                if (!tuning[i]) {
+                    throw "tuning is not valid because one note did not exist: " + tuning;
                 }
+
+                if (allNoteLetters.indexOf(tuning[i].letter) === -1) {
+                    throw "tuning is not valid because the note letter: \"" + tuning[i].letter + "\" is not in the allNoteLetters array: " + allNoteLetters;
+                }
+
+                var key = tuning[i].letter + tuning[i].octave;
+
+                if (hash[key]) {
+                    throw "tuning is not valid because each note must be unique: " + tuning;
+                }
+
+                hash[key] = true;
             }
         }
 
@@ -830,6 +858,7 @@
         }
 
         function getNoteLetterEl(note) {
+            // Need to validate noteMode earlier up
             var text = settings.noteMode === 'interval' ? note.intervalInfo.interval : note.letter;
 
             return $("<div class='" + letterCssClass + "'>" + text + "</div>");
@@ -981,18 +1010,17 @@
                     noteMode: defaultNoteMode,
                     intervalSettings: defaultIntervalSettings,
                     animationSpeed: 500, // ms
-                    dimensionsFunc: defaultDimensionsFunc,
                     noteCircles: defaultNoteCircles,
+                    dimensionsFunc: defaultDimensionsFunc,
                     onClickedNotesChange: function () { }
                 },
                 fretboardModel,
-                renderer;
+                renderer,
+                dimensionsFunc;
 
             // Make a copy of the options that were passed in, just in case the 
             // user modifies that object. Then extend it with the defaults.
             $.extend(settings, defaults, $.extend(true, {}, options));
-
-            var dimensionsFunc;
 
             if (settings.dimensionsFunc !== defaultDimensionsFunc) {
                 var oldFunc = settings.dimensionsFunc;

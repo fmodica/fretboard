@@ -215,10 +215,9 @@
                 intervals: ['1', 'b2', '2', 'b3', '3', '4', 'b5', '5', 'b6', '6', 'b7', '7'],
                 root: "C"
             },
-            noteMode = 'interval',
+            noteMode = 'letter' // or 'interval',
             isIntervalMode = noteMode === 'interval',
             clickedNotesChangedFunc = function () {
-                
                 $fretboards.each(function () {
                     var fretboard = $(this).data('fretboard');
 
@@ -237,8 +236,8 @@
                 noteMode: noteMode,
                 intervalSettings: intervalSettings,
                 animationSpeed: 500, // ms
-                dimensionsFunc: dimensionsFunc,
                 noteCircleList: noteCircleList,
+                dimensionsFunc: dimensionsFunc,
                 onClickedNotesChange: clickedNotesChangedFunc
             },
             $fretboards = $(".my-fretboard-js");
