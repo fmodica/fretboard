@@ -34,23 +34,23 @@
     </style>
     <div class="container">
         <div class="my-fretboard-js"></div>
-        <div class="my-fretboard-js space-theme"></div> 
+        <!--<div class="my-fretboard-js space-theme"></div>-->
         
-        <button class="set-clicked-notes-maj7 btn btn-small">Click C maj7 chord</button>
-        <button class="set-clicked-notes-min7 btn btn-small">Click A min7 chord</button>
-        <button class="show-progression btn btn-small">Click progression notes</button>
-        <button class="show-scale-run btn btn-small">Click scale run notes</button>
-        <button class="show-arpeggio btn btn-small">Click arpeggio notes</button>
-        <button class="get-clicked-notes btn btn-small">Get clicked notes (console)</button>
-        <button class="unclick btn btn-small">Unclick notes</button>
-        <button class="note-clicking-disabled btn btn-small">Disable/enable note clicking</button>
-        <button class="add-string btn btn-small">Add string</button>
-        <button class="remove-string btn btn-small">Remove string</button>
-        <button class="add-fret btn btn-small">Add fret</button>
-        <button class="remove-fret btn btn-small">Remove fret</button>
-        <button class="toggle-chord-mode btn btn-small">Toggle chord mode</button>
-        <button class="toggle-note-mode btn btn-small">Toggle note mode (interval/letter)</button>
-        <button class="toggle-root-for-interval-mode btn btn-small">Change root for interval mode (C/E)</button>
+        <button class="set-clicked-notes-maj7">Click C maj7 chord</button>
+        <button class="set-clicked-notes-min7">Click A min7 chord</button>
+        <button class="show-progression">Click progression notes</button>
+        <button class="show-scale-run">Click scale run notes</button>
+        <button class="show-arpeggio">Click arpeggio notes</button>
+        <button class="get-clicked-notes">Get clicked notes (console)</button>
+        <button class="unclick">Unclick notes</button>
+        <button class="note-clicking-disabled">Disable/enable note clicking</button>
+        <button class="add-string">Add string</button>
+        <button class="remove-string">Remove string</button>
+        <button class="add-fret">Add fret</button>
+        <button class="remove-fret">Remove fret</button>
+        <button class="toggle-chord-mode">Toggle chord mode</button>
+        <button class="toggle-note-mode">Toggle note mode (interval/letter)</button>
+        <button class="toggle-root-for-interval-mode">Change root for interval mode (C/E)</button>
     </div>
 
 <script type="text/javascript">
@@ -217,16 +217,11 @@
             },
             noteMode = 'letter' // or 'interval',
             isIntervalMode = noteMode === 'interval',
-            clickedNotesChangedFunc = function () {
-                $fretboards.each(function () {
-                    var fretboard = $(this).data('fretboard');
-
-                    //console.log(fretboard.getAllNotes());
-                    //console.log(fretboard.getTuning());
-                    //console.log(fretboard.getClickedNotes());
-                    console.log("On fretboard change");
-                });
-            },
+            clickedNotesChangedFuncs = [function () {
+                console.log("On clicked notes change 1");
+            }, function () {
+                console.log("On clicked notes change 2");
+            }],
             options = {
                 allNoteLetters: ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"],
                 tuning: tuning,
@@ -238,7 +233,7 @@
                 animationSpeed: 500, // ms
                 noteCircleList: noteCircleList,
                 dimensionsFunc: dimensionsFunc,
-                onClickedNotesChange: clickedNotesChangedFunc
+                onClickedNotesChange: clickedNotesChangedFuncs
             },
             $fretboards = $(".my-fretboard-js");
 

@@ -927,7 +927,7 @@
                 .addClass(fretboardContainerCssClass)
                 .addClass("strings-" + settings.tuning.length)
                 .addClass("frets-" + settings.numFrets);
-
+            
             dimensions = settings.dimensionsFunc($fretboardContainer, $fretboardBody, settings);
             fretboardBodyHeight = dimensions.height;
             fretboardBodyWidth = dimensions.width;
@@ -1012,7 +1012,7 @@
                     animationSpeed: 500, // ms
                     noteCircles: defaultNoteCircles,
                     dimensionsFunc: defaultDimensionsFunc,
-                    onClickedNotesChange: function () { }
+                    onClickedNotesChange: []
                 },
                 fretboardModel,
                 renderer,
@@ -1113,7 +1113,7 @@
             api.setTuning = function (tuning) {
                 fretboardModel.setTuning(tuning);
                 renderer.setTuning(fretboardModel.getAllNotes());
-                settings.onClickedNotesChange();
+                executeOnClickedNotesCallbacks();
             };
 
             api.getTuning = function () {
@@ -1123,7 +1123,7 @@
             api.setNumFrets = function (numFrets) {
                 fretboardModel.setNumFrets(numFrets);
                 renderer.setNumFrets(fretboardModel.getAllNotes());
-                settings.onClickedNotesChange();
+                executeOnClickedNotesCallbacks();
             };
 
             api.getNumFrets = function () {
@@ -1133,13 +1133,13 @@
             api.clearClickedNotes = function () {
                 fretboardModel.clearClickedNotes();
                 renderer.clearClickedNotes();
-                settings.onClickedNotesChange();
+                executeOnClickedNotesCallbacks();
             };
 
             api.setClickedNotes = function (clickedNotes) {
                 fretboardModel.setClickedNotes(clickedNotes);
                 renderer.setClickedNotes(fretboardModel.getClickedNotes());
-                settings.onClickedNotesChange();
+                executeOnClickedNotesCallbacks();
             };
 
             api.setNoteMode = function (noteMode) {
@@ -1163,6 +1163,14 @@
                 renderer.redraw();
             };
 
+            api.addNotesClickedListener = function(callback) {
+                if (!callback) {
+                    return;
+                }
+                
+                settings.onClickedNotesChange.push(callback);
+            };
+
             $element.on("noteClicked", function (e, noteData) {
                 var allNotes = fretboardModel.getAllNotes(),
                     note = allNotes[noteData.stringIndex][noteData.fretIndex];
@@ -1170,8 +1178,14 @@
                 fretboardModel.setClickedNotes([note], true);
                 renderer.clearClickedNotes();
                 renderer.setClickedNotes(fretboardModel.getClickedNotes());
-                settings.onClickedNotesChange();
+                executeOnClickedNotesCallbacks();
             });
+
+            function executeOnClickedNotesCallbacks() {
+                for (var i = 0; i < settings.onClickedNotesChange.length; i++) {
+                    settings.onClickedNotesChange[i]();
+                }
+            }
 
             // on noteClicked event, need to tell the model
             // whether it was called programatically or via event

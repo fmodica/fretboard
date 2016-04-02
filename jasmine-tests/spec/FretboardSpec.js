@@ -8,6 +8,7 @@
 // TODO Change the tuning to the same tuning
 // TODO Change the fret number to the same fret number
 // TODO More detailed check of exception messages
+// TODO try to add new notes clicked listener
 describe("Fretboard", function () {
     var eightStringTuning = [{
         letter: "E",
@@ -133,6 +134,8 @@ describe("Fretboard", function () {
             expect(fretboardInstance.getNoteCircles()).toEqual(noteCircles);
         });
 
+        // Test dimensionsFunc and onClickedNotesChange funcs?
+
         // Additional
         it("should return no clicked notes", function () {
             expect(fretboardInstance.getClickedNotes()).toEqual([]);
@@ -141,8 +144,6 @@ describe("Fretboard", function () {
         it("should return the correct notes for the whole fretboard", function () {
             checkCorrectNotesFunc(standardTuning, defaultNumFrets, defaultNoteLetters);
         });
-
-        // Test dimensionsFunc and onClickedNotesChange?
     });
 
     describe("Custom configuration", function () {

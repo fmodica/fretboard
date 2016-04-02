@@ -42,7 +42,6 @@
             function($scope) {
                 var isChordMode = true,
                     isDisabled = false,
-                    isIntervalMode = false,
                     eightStringTuning = [{
                         letter: "E",
                         octave: 4
@@ -135,7 +134,61 @@
                         fretNumber: 5,
                         cssClass: "green"
                     }],
-                    dimensionsFunc = function($fretboardContainer, $fretboardBody, settings) {
+                    fMaj7Notes = [{
+                        stringItsOn: {
+                            letter: "B",
+                            octave: 3
+                        },
+                        fretNumber: 1,
+                        cssClass: "yellow"
+                    }, {
+                        stringItsOn: {
+                            letter: "G",
+                            octave: 3
+                        },
+                        fretNumber: 2,
+                        cssClass: "yellow"
+                    }, {
+                        stringItsOn: {
+                            letter: "D",
+                            octave: 3
+                        },
+                        fretNumber: 2,
+                        cssClass: "yellow"
+                    }, {
+                        stringItsOn: {
+                            letter: "E",
+                            octave: 2
+                        },
+                        fretNumber: 1,
+                        cssClass: "yellow"
+                    }],
+                    g7Notes = [{
+                        stringItsOn: {
+                            letter: "B",
+                            octave: 3
+                        },
+                        fretNumber: 3
+                    }, {
+                        stringItsOn: {
+                            letter: "G",
+                            octave: 3
+                        },
+                        fretNumber: 4
+                    }, {
+                        stringItsOn: {
+                            letter: "D",
+                            octave: 3
+                        },
+                        fretNumber: 3
+                    }, {
+                        stringItsOn: {
+                            letter: "E",
+                            octave: 2
+                        },
+                        fretNumber: 3
+                    }],
+                    dimensionsFunc = function ($fretboardContainer, $fretboardBody, settings) {
                         var numStrings = settings.tuning.length;
 
                         return {
@@ -143,24 +196,29 @@
                         };
                     },
                     noteCircleList = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24],
-                    noteMode = { 
-                        name: 'noteLetter',
-                        options: null
+                    intervalSettings = {
+                        intervals: ['1', 'b2', '2', 'b3', '3', '4', 'b5', '5', 'b6', '6', 'b7', '7'],
+                        root: "C"
                     },
-                    //noteMode = {
-                    //    name: 'noteInterval',
-                    //    options: { root: 'C', intervalList: ['1', 'b2', '2', 'b3', '3', '4', 'b5', '5', 'b6', '6','b7', '7'] }
-                    //},
+                    noteMode = 'letter' // or 'interval',
+                    isIntervalMode = noteMode === 'interval',
+                    clickedNotesChangedFuncs = [function () {
+                        console.log("On clicked notes change 1");
+                    }, function () {
+                        console.log("On clicked notes change 2");
+                    }],
                     options = {
                         allNoteLetters: ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"],
                         tuning: tuning,
                         numFrets: numFrets,
                         isChordMode: isChordMode,
                         noteClickingDisabled: isDisabled,
-                        dimensionsFunc: dimensionsFunc,
+                        noteMode: noteMode,
+                        intervalSettings: intervalSettings,
                         animationSpeed: 500, // ms
                         noteCircleList: noteCircleList,
-                        noteMode: noteMode
+                        dimensionsFunc: dimensionsFunc,
+                        onClickedNotesChange: clickedNotesChangedFuncs
                     };
 
                 $scope.config = options;
@@ -228,42 +286,36 @@
                 };
 
                 $scope.toggleNoteMode = function() {
-                    var noteMode;
-
                     isIntervalMode = !isIntervalMode;
+                    $scope.config.noteMode = isIntervalMode ? 'interval' : 'letter';
+                };
 
-                    if (isIntervalMode) {
-                        noteMode = {
-                            name: 'noteInterval',
-                            options: { root: 'C', intervalList: ['1', 'b2', '2', 'b3', '3', '4', 'b5', '5', 'b6', '6','b7', '7'] }
-                        };
-                    } else {
-                        noteMode = {
-                            name: 'noteLetter',
-                            options: null
-                        };
-                    }
-
-                    $scope.config.noteMode = noteMode;
+                $scope.toggleIntervalSettings = function() {
+                    intervalSettings = $.extend(true, {}, intervalSettings);
+                    intervalSettings.root = intervalSettings.root === "C" ? "G" : "C";
+                    $scope.config.intervalSettings = intervalSettings;
                 };
             }
         ]);
     </script>
 
     <div class="my-fretboard-js" fretboard fretboard-config='config'></div>
-    <!-- <div class="my-fretboard-js space-theme" fretboard fretboard-config='config'></div> -->
 
-    <button ng-click="toggleChordMode()">Toggle chord mode</button>
     <button ng-click="setMaj7Chord()">Set C maj7 chord</button>
     <button ng-click="setMin7Chord()">Set C min7 chord</button>
+    <!-- show-progression placeholder -->
+    <!-- show-scale-run placeholder -->
+    <!-- show-arpeggio placeholder -->
     <button ng-click="getClickedNotes()">Get clicked notes (console)</button>
+    <button ng-click="unclick()">Unclick Notes</button>
     <button ng-click="toggleNoteClicking()">Disable/enable note clicking</button>
     <button ng-click="addString()">Add String</button>
     <button ng-click="removeString()">Remove String</button>
     <button ng-click="addFret()">Add fret</button>
     <button ng-click="removeFret()">Remove fret</button>
-    <button ng-click="unclick()">Unclick Frets</button>
-    <button ng-click="toggleNoteMode()">Toggle note mode</button>
+    <button ng-click="toggleChordMode()">Toggle chord mode</button>
+    <button ng-click="toggleNoteMode()">Toggle note mode (interval/letter)</button>
+    <button ng-click="toggleIntervalSettings()">Change root for interval mode (C/E)</button>
 </div>
 </body>
 
