@@ -201,7 +201,7 @@
             model.isChordMode = settings.isChordMode;
             model.noteClickingDisabled = settings.noteClickingDisabled;
             model.intervalSettings = settings.intervalSettings;
-            model.onFretboardChange = settings.onFretboardChange;
+            model.onClickedNotesChange = settings.onClickedNotesChange;
 
             for (var i = 0; i < model.tuning.length; i++) {
                 model.allNotes.push(calculateNotesOnString(model.tuning[i]));
@@ -983,7 +983,7 @@
                     animationSpeed: 500, // ms
                     dimensionsFunc: defaultDimensionsFunc,
                     noteCircles: defaultNoteCircles,
-                    onFretboardChange: function () { }
+                    onClickedNotesChange: function () { }
                 },
                 fretboardModel,
                 renderer;
@@ -1085,7 +1085,7 @@
             api.setTuning = function (tuning) {
                 fretboardModel.setTuning(tuning);
                 renderer.setTuning(fretboardModel.getAllNotes());
-                settings.onFretboardChange();
+                settings.onClickedNotesChange();
             };
 
             api.getTuning = function () {
@@ -1095,7 +1095,7 @@
             api.setNumFrets = function (numFrets) {
                 fretboardModel.setNumFrets(numFrets);
                 renderer.setNumFrets(fretboardModel.getAllNotes());
-                settings.onFretboardChange();
+                settings.onClickedNotesChange();
             };
 
             api.getNumFrets = function () {
@@ -1105,13 +1105,13 @@
             api.clearClickedNotes = function () {
                 fretboardModel.clearClickedNotes();
                 renderer.clearClickedNotes();
-                settings.onFretboardChange();
+                settings.onClickedNotesChange();
             };
 
             api.setClickedNotes = function (clickedNotes) {
                 fretboardModel.setClickedNotes(clickedNotes);
                 renderer.setClickedNotes(fretboardModel.getClickedNotes());
-                settings.onFretboardChange();
+                settings.onClickedNotesChange();
             };
 
             api.setNoteMode = function (noteMode) {
@@ -1127,7 +1127,6 @@
             };
 
             api.setIntervalSettings = function (settings) {
-                debugger;
                 fretboardModel.setIntervalSettings(settings);
                 renderer.setTuning(fretboardModel.getAllNotes());
             };
@@ -1143,7 +1142,7 @@
                 fretboardModel.setClickedNotes([note], true);
                 renderer.clearClickedNotes();
                 renderer.setClickedNotes(fretboardModel.getClickedNotes());
-                settings.onFretboardChange();
+                settings.onClickedNotesChange();
             });
 
             // on noteClicked event, need to tell the model

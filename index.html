@@ -217,7 +217,7 @@
             },
             noteMode = 'interval',
             isIntervalMode = noteMode === 'interval',
-            fretboardChangeFunc = function () {
+            clickedNotesChangedFunc = function () {
                 
                 $fretboards.each(function () {
                     var fretboard = $(this).data('fretboard');
@@ -239,7 +239,7 @@
                 animationSpeed: 500, // ms
                 dimensionsFunc: dimensionsFunc,
                 noteCircleList: noteCircleList,
-                onFretboardChange: fretboardChangeFunc
+                onClickedNotesChange: clickedNotesChangedFunc
             },
             $fretboards = $(".my-fretboard-js");
 
