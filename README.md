@@ -7,11 +7,26 @@ I initially wrote this so I could capture user input (chords/scales) and display
 
 
 ## Demo
-Check out my voice leading page, where I use the fretboard to help users create progressions with good voice leading:
+
+Check out the "index.html" files in the project for examples.
+
+You can also check out my voice leading page, where I use the fretboard to help users create progressions with good voice leading:
 
 
 http://frank-modica.com/#/voiceleader
 
-## More Details
+## Details
 
-https://github.com/fmodica/responsive-fretboard.js/wiki
+First load the fretboard.js file into a script tag in your HTML document (along with jQuery). Also load the styles.css file. 
+
+Then initialize on your element:
+
+```
+$(".my-fretboard-js").fretboard();
+```
+
+This is enough to create the default fretboard. 
+
+Learn more:
+
+https://github.com/fmodica/responsive-fretboard.js/wiki/Configuration-and-API

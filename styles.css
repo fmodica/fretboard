@@ -169,7 +169,7 @@
 
 /* Space */
 .fretboard-container.space-theme .fretboard-body {
-    background: url("NGC_4414_(NASA-med).jpg");
+    background: url("content/NGC_4414_(NASA-med).jpg");
     background-color: black;
     background-repeat: no-repeat;
     background-size: contain;
