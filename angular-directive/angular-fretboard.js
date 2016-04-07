@@ -45,7 +45,6 @@ angular.module("angularFretboard", ['Scope.safeApply'])
                     '<span fretboard-tuning ng-model="config.tuning"></span>' +
                     '<span fretboard-num-frets ng-model="config.numFrets"></span>' +
                     '<span fretboard-is-chord-mode ng-model="config.isChordMode"></span>' +
-                    // change this to noteClickingIsDisabled
                     '<span fretboard-note-clicking-is-disabled ng-model="config.noteClickingDisabled"></span>' +
                     '<span fretboard-note-mode ng-model="config.noteMode"></span>' +
                     '<span fretboard-interval-settings ng-model="config.intervalSettings"></span>'
@@ -101,11 +100,6 @@ angular.module("angularFretboard", ['Scope.safeApply'])
                             var clickedNotes = ngModelCtrl.$viewValue;
                             fretboardCtrl.jQueryFretboard.clearClickedNotes();
                             fretboardCtrl.jQueryFretboard.setClickedNotes(clickedNotes);
-
-                            // Update the controller in case it doesn't change to be the exact model provided
-                            $rootScope.$safeApply(function() {
-                                ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboard.getClickedNotes());
-                            });
                         };
                     });
                 }
@@ -131,11 +125,6 @@ angular.module("angularFretboard", ['Scope.safeApply'])
 
                         ngModelCtrl.$render = function() {
                             fretboardCtrl.jQueryFretboard.setTuning(ngModelCtrl.$viewValue);
-
-                            // Update the controller in case it doesn't change to be the exact model provided
-                            $rootScope.$safeApply(function() {
-                                ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboard.getTuning());
-                            });
                         };
                     });
                 }
@@ -161,11 +150,6 @@ angular.module("angularFretboard", ['Scope.safeApply'])
 
                         ngModelCtrl.$render = function() {
                             fretboardCtrl.jQueryFretboard.setNumFrets(ngModelCtrl.$viewValue);
-
-                            // Update the controller in case it doesn't change to be the exact model provided
-                            $rootScope.$safeApply(function() {
-                                ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboard.getNumFrets());
-                            });
                         };
                     });
                 }
@@ -191,11 +175,6 @@ angular.module("angularFretboard", ['Scope.safeApply'])
 
                         ngModelCtrl.$render = function() {
                             fretboardCtrl.jQueryFretboard.setChordMode(ngModelCtrl.$viewValue);
-
-                            // Update the controller in case it doesn't change to be the exact model provided
-                            $rootScope.$safeApply(function() {
-                                ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboard.getChordMode());
-                            });
                         };
                     });
                 }
@@ -221,11 +200,6 @@ angular.module("angularFretboard", ['Scope.safeApply'])
 
                         ngModelCtrl.$render = function() {
                             fretboardCtrl.jQueryFretboard.setNoteClickingDisabled(ngModelCtrl.$viewValue);
-
-                            // Update the controller in case it doesn't change to be the exact model provided
-                            $rootScope.$safeApply(function() {
-                                ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboard.getNoteClickingDisabled());
-                            });
                         };
                     });
                 }
@@ -251,11 +225,6 @@ angular.module("angularFretboard", ['Scope.safeApply'])
 
                         ngModelCtrl.$render = function() {
                             fretboardCtrl.jQueryFretboard.setNoteMode(ngModelCtrl.$viewValue);
-
-                            // Update the controller in case it doesn't change to be the exact model provided
-                            $rootScope.$safeApply(function() {
-                                ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboard.getNoteMode());
-                            });
                         };
                     });
                 }
@@ -281,11 +250,6 @@ angular.module("angularFretboard", ['Scope.safeApply'])
 
                         ngModelCtrl.$render = function() {
                             fretboardCtrl.jQueryFretboard.setIntervalSettings(ngModelCtrl.$viewValue);
-
-                            // Update the controller in case it doesn't change to be the exact model provided
-                            $rootScope.$safeApply(function() {
-                                ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboard.getIntervalSettings());
-                            });
                         };
                     });
                 }

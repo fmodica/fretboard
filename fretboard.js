@@ -1133,13 +1133,11 @@
             api.clearClickedNotes = function() {
                 fretboardModel.clearClickedNotes();
                 renderer.clearClickedNotes();
-                executeOnClickedNotesCallbacks();
             };
 
             api.setClickedNotes = function(clickedNotes) {
                 fretboardModel.setClickedNotes(clickedNotes);
                 renderer.setClickedNotes(fretboardModel.getClickedNotes());
-                executeOnClickedNotesCallbacks();
             };
 
             api.setNoteMode = function(noteMode) {
