@@ -86,13 +86,17 @@
 
             for (var i = 0; i < notesToClick.length; i++) {
                 if (notesToClick[i].fretNumber < 0 || notesToClick[i].fretNumber > model.numFrets || !notesToClick[i].stringItsOn) {
-                    continue;
+                    throw "Cannot click note: " + notesToClick[i];
                 }
+
+                var stringFound = false;
 
                 for (var j = 0; j < model.tuning.length; j++) {
                     if (!notesAreEqual(model.tuning[j], notesToClick[i].stringItsOn)) {
                         continue;
                     }
+
+                    stringFound = true;
 
                     var indexOfClickedFret = model.clickedNotes[j].indexOf(notesToClick[i].fretNumber);
                     var fretAlreadyClicked = indexOfClickedFret !== -1;
@@ -116,6 +120,10 @@
                             model.clickedNotes[j].push(notesToClick[i].fretNumber);
                         }
                     }
+                }
+
+                if (!stringFound) {
+                    throw "Tried to click note " + notesToClick[i] + " but could not find string " + notesToClick[i].stringItsOn;
                 }
             }
         }

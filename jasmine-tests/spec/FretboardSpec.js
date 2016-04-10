@@ -171,7 +171,7 @@ describe("Fretboard", function () {
 
         it("should throw an exception when allNoteLetters has less than 12 items", function () {
             var noteLettersTooFew = $.extend(true, [], defaultNoteLetters);
-            noteLettersTooFew = noteLettersTooFew.slice(0,11);
+            noteLettersTooFew = noteLettersTooFew.slice(0, 11);
             expect(function () {
                 $fretboard.fretboard({ allNoteLetters: noteLettersTooFew });
             }).toThrow();
@@ -391,19 +391,19 @@ describe("Fretboard", function () {
             expect(fretboardInstance.getClickedNotes()).toEqual(expectedClickedNotes);
         });
 
-        it("should return the correct clicked notes when some notes are clicked on strings that don't exist", function () {
+        it("should throw an exception when some notes are clicked on strings that don't exist", function () {
             fretboardInstance.setTuning(standardTuning.slice(0, 1));
-            fretboardInstance.setClickedNotes(clickedNotes);
-
-            expect(fretboardInstance.getClickedNotes()).toEqual(expectedClickedNotes.slice(0, 1));
+            expect(function () {
+                fretboardInstance.setClickedNotes(clickedNotes);
+            }).toThrow();
         });
 
         it("should return the correct clicked notes when notes are clicked on each string and some are out of the fret range", function () {
             clickedNotes[0].fretNumber = -1;
             clickedNotes[1].fretNumber = defaultNumFrets + 1;
-            fretboardInstance.setClickedNotes(clickedNotes);
-
-            expect(fretboardInstance.getClickedNotes()).toEqual(expectedClickedNotes.slice(2, expectedClickedNotes.length));
+            expect(function () {
+                fretboardInstance.setClickedNotes(clickedNotes);
+            }).toThrow();
         });
 
         it("should return the correct clicked notes when notes are clicked on each string, all of those notes exist on the fretboard, and the number of strings is decreased", function () {

@@ -30,17 +30,13 @@ angular.module("angularFretboard", ['Scope.safeApply'])
                         }, function(newVal, oldVal) {
                             if (newVal) {
                                 initialize($scope.config, $element, ctrl);
-
-                                // If we ever do setIntervalSettings, setNoteLetters, etc. it could go here
                             } else {
                                 destroy(ctrl);
                             }
                         });
-
                     }
                 ],
-                // we create inner directives so they can each have their own ngModel, 
-                // which handles two-way data-binding for only one thing 
+                // The inner directives each have their own ngModel which handle two-way data-binding for only one thing 
                 template: '<span fretboard-clicked-notes ng-model="config.clickedNotes"></span>' +
                     '<span fretboard-tuning ng-model="config.tuning"></span>' +
                     '<span fretboard-num-frets ng-model="config.numFrets"></span>' +
@@ -94,12 +90,9 @@ angular.module("angularFretboard", ['Scope.safeApply'])
                             });
                         });
 
-                        ngModelCtrl.$render = function() {
-                            // Cache the clickedNotes becuase jqueryFretboard.clearClickedNotes() is going to 
-                            // change it to be an empty array.
-                            var clickedNotes = ngModelCtrl.$viewValue;
+                        ngModelCtrl.$render = function () {
                             fretboardCtrl.jQueryFretboard.clearClickedNotes();
-                            fretboardCtrl.jQueryFretboard.setClickedNotes(clickedNotes);
+                            fretboardCtrl.jQueryFretboard.setClickedNotes(ngModelCtrl.$viewValue);
                         };
                     });
                 }
