@@ -64,7 +64,7 @@
                 }
             }
 
-            return clickedNotes;
+            return $.extend(true, [], clickedNotes);
         }
 
         // notesToClick = [{
@@ -137,7 +137,7 @@
         }
 
         function getTuning() {
-            return model.tuning;
+            return $.extend(true, [], model.tuning);
         }
 
         function setTuning(newTuning) {
@@ -188,7 +188,7 @@
         }
 
         function getIntervalSettings() {
-            return model.intervalSettings;
+            return $.extend(true, {}, model.intervalSettings);
         }
 
         function setIntervalSettings(intervalSettings) {
@@ -671,6 +671,12 @@
             }
         };
 
+        self.getClickedNotes = function() {
+            // DUPLICATE LOGIC - possibly refactor
+            return $fretboardContainer
+                .find(noteSelector + clickedSelector);
+        };
+
         self.setNoteMode = function(noteMode) {
             settings.noteMode = noteMode;
 
@@ -908,10 +914,7 @@
         }
 
         function onNoteClick() {
-            var $clickedNote = $(this),
-                noteData = $clickedNote.data(noteDataKey);
-
-            $fretboardContainer.trigger("noteClicked", noteData);
+            $fretboardContainer.trigger("noteClicked", this);
         }
 
         function getFretLineEl() {
@@ -1144,8 +1147,14 @@
             };
 
             api.setClickedNotes = function(clickedNotes) {
+                var clickedNotesWithCssClasses = $.extend(true, [], clickedNotes);
                 fretboardModel.setClickedNotes(clickedNotes);
-                renderer.setClickedNotes(fretboardModel.getClickedNotes());
+                var newClickedNotes = fretboardModel.getClickedNotes();
+                var $clickedNotes = renderer.getClickedNotes();
+                var allNotes = fretboardModel.getAllNotes();
+                reattachCSSClassesFromDOM(allNotes, newClickedNotes, $clickedNotes);
+                reattachCSSClassesFromUser(newClickedNotes, clickedNotesWithCssClasses);
+                renderer.setClickedNotes(newClickedNotes);
             };
 
             api.setNoteMode = function(noteMode) {
@@ -1177,15 +1186,52 @@
                 settings.onClickedNotesChange.push(callback);
             };
 
-            $element.on("noteClicked", function(e, noteData) {
-                var allNotes = fretboardModel.getAllNotes(),
-                    note = allNotes[noteData.stringIndex][noteData.fretIndex];
-
-                fretboardModel.setClickedNotes([note], true);
+            $element.on("noteClicked", function(e, clickedNote) {
+                var $clickedNote = $(clickedNote);
+                var $clickedNotes = renderer.getClickedNotes();
+                var clickedNoteData = $clickedNote.data("noteData");
+                var allNotes = fretboardModel.getAllNotes();
+                var clickedNote = allNotes[clickedNoteData.stringIndex][clickedNoteData.fretIndex];
+                fretboardModel.setClickedNotes([clickedNote], true);
+                var newClickedNotes = fretboardModel.getClickedNotes();
+                reattachCSSClassesFromDOM(allNotes, newClickedNotes, $clickedNotes)
                 renderer.clearClickedNotes();
-                renderer.setClickedNotes(fretboardModel.getClickedNotes());
+                renderer.setClickedNotes(newClickedNotes);
                 executeOnClickedNotesCallbacks();
             });
+
+            $element.data('fretboard', api);
+
+            function reattachCSSClassesFromDOM(allNotes, newClickedNotes, $clickedNotes) {
+                for (var i = 0; i < newClickedNotes.length; i++) {
+                    for (var j = 0; j < $clickedNotes.length; j++) {
+                        var $oldNote = $clickedNotes.eq(j);
+                        var oldNoteData = $oldNote.data("noteData");
+                        var oldNote = allNotes[oldNoteData.stringIndex][oldNoteData.fretIndex];
+                         if (notesAreEqual(newClickedNotes[i].stringItsOn, oldNote.stringItsOn) && 
+                            newClickedNotes[i].fretNumber === oldNote.fretNumber) {
+                            var cssClasses = $oldNote.attr("class");
+                            newClickedNotes[i].cssClass = cssClasses;
+
+                            break;
+                        }
+                    }
+                }
+            }
+
+            function reattachCSSClassesFromUser(newClickedNotes, clickedNotesWithCssClasses) {
+                for (var i = 0; i < newClickedNotes.length; i++) {
+                    for (var j = 0; j < clickedNotesWithCssClasses.length; j++) {
+                        if (notesAreEqual(newClickedNotes[i].stringItsOn, clickedNotesWithCssClasses[j].stringItsOn) && 
+                            newClickedNotes[i].fretNumber === clickedNotesWithCssClasses[j].fretNumber) {
+                            newClickedNotes[i].cssClass = clickedNotesWithCssClasses[j].cssClass;
+
+                            break;
+                        }
+                    }
+                    
+                }
+            }
 
             function executeOnClickedNotesCallbacks() {
                 for (var i = 0; i < settings.onClickedNotesChange.length; i++) {
@@ -1193,11 +1239,10 @@
                 }
             }
 
-            // on noteClicked event, need to tell the model
-            // whether it was called programatically or via event
-            // (needs to know whether other notes disappear)
-
-            $element.data('fretboard', api);
         });
     };
+
+    function notesAreEqual(note1, note2) {
+        return note1.letter === note2.letter && note1.octave === note2.octave;
+    }
 })(jQuery);

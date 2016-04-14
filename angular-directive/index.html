@@ -317,9 +317,7 @@
     <button ng-click="toggleNoteMode()">Toggle note mode (interval/letter)</button>
     <button ng-click="toggleIntervalSettings()">Change root for interval mode (C/G)</button>
 
-    <div>
-        {{ config | json }}
-    </div>
+    <pre>{{ config | json }}</pre>
 </div>
 </body>
 
