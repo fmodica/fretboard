@@ -91,8 +91,11 @@ angular.module("angularFretboard", ['Scope.safeApply'])
                         });
 
                         ngModelCtrl.$render = function () {
+                            // Store the $viewValue because the call to clearClickedNotes 
+                            // will clear it out
+                            var clickedNotes = ngModelCtrl.$viewValue;
                             fretboardCtrl.jQueryFretboard.clearClickedNotes();
-                            fretboardCtrl.jQueryFretboard.setClickedNotes(ngModelCtrl.$viewValue);
+                            fretboardCtrl.jQueryFretboard.setClickedNotes(clickedNotes);
                         };
                     });
                 }

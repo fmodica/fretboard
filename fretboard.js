@@ -40,7 +40,7 @@
         }
 
         function getAllNotes() {
-            return model.allNotes;
+            return $.extend(true, [], model.allNotes);
         }
 
         function getChordMode() {
@@ -1144,6 +1144,7 @@
             api.clearClickedNotes = function() {
                 fretboardModel.clearClickedNotes();
                 renderer.clearClickedNotes();
+                executeOnClickedNotesCallbacks();
             };
 
             api.setClickedNotes = function(clickedNotes) {
@@ -1155,6 +1156,7 @@
                 reattachCSSClassesFromDOM(allNotes, newClickedNotes, $clickedNotes);
                 reattachCSSClassesFromUser(newClickedNotes, clickedNotesWithCssClasses);
                 renderer.setClickedNotes(newClickedNotes);
+                executeOnClickedNotesCallbacks();
             };
 
             api.setNoteMode = function(noteMode) {
@@ -1172,6 +1174,7 @@
             api.setIntervalSettings = function(settings) {
                 fretboardModel.setIntervalSettings(settings);
                 renderer.setTuning(fretboardModel.getAllNotes());
+                executeOnClickedNotesCallbacks();
             };
 
             api.redraw = function() {
