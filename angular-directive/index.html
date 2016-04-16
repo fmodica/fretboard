@@ -39,220 +39,220 @@
         var app = angular.module("myApp", ['angularFretboard']);
 
         app.controller("MyController", ["$scope",
-            function($scope) {
-                var isChordMode = true,
-                    isDisabled = false,
-                    eightStringTuning = [{
+            function ($scope) {
+                var isChordMode = true;
+                var isDisabled = false;
+                var eightStringTuning = [{
+                    letter: "E",
+                    octave: 4
+                }, {
+                    letter: "B",
+                    octave: 3
+                }, {
+                    letter: "G",
+                    octave: 3
+                }, {
+                    letter: "D",
+                    octave: 3
+                }, {
+                    letter: "A",
+                    octave: 2
+                }, {
+                    letter: "E",
+                    octave: 2
+                }, {
+                    letter: "B",
+                    octave: 1
+                }, {
+                    letter: "F#/Gb",
+                    octave: 1
+                }];
+                var standardTuning = $.extend(true, [], eightStringTuning).slice(0, 6);
+                var numFrets = 16;
+                var cMaj7Notes = [{
+                    stringItsOn: {
                         letter: "E",
                         octave: 4
-                    }, {
+                    },
+                    fretNumber: 3,
+                    cssClass: "red"
+                }, {
+                    stringItsOn: {
                         letter: "B",
                         octave: 3
-                    }, {
+                    },
+                    fretNumber: 5,
+                    cssClass: "red"
+                }, {
+                    stringItsOn: {
                         letter: "G",
                         octave: 3
-                    }, {
+                    },
+                    fretNumber: 4,
+                    cssClass: "red"
+                }, {
+                    stringItsOn: {
                         letter: "D",
                         octave: 3
-                    }, {
+                    },
+                    fretNumber: 5,
+                    cssClass: "red"
+                }, {
+                    stringItsOn: {
                         letter: "A",
                         octave: 2
-                    }, {
+                    },
+                    fretNumber: 3,
+                    cssClass: "red"
+                }];
+                var aMin7Notes = [{
+                    stringItsOn: {
+                        letter: "B",
+                        octave: 3
+                    },
+                    fretNumber: 5,
+                    cssClass: "green"
+                }, {
+                    stringItsOn: {
+                        letter: "G",
+                        octave: 3
+                    },
+                    fretNumber: 5,
+                    cssClass: "green"
+                }, {
+                    stringItsOn: {
+                        letter: "D",
+                        octave: 3
+                    },
+                    fretNumber: 5,
+                    cssClass: "green"
+                }, {
+                    stringItsOn: {
                         letter: "E",
                         octave: 2
-                    }, {
+                    },
+                    fretNumber: 5,
+                    cssClass: "green"
+                }];
+                var fMaj7Notes = [{
+                    stringItsOn: {
                         letter: "B",
-                        octave: 1
-                    }, {
-                        letter: "F#/Gb",
-                        octave: 1
-                    }],
-                    tuning = $.extend(true, [], eightStringTuning).slice(0, 6),
-                    numFrets = 16,
-                    cMaj7Notes = [{
-                        stringItsOn: {
-                            letter: "E",
-                            octave: 4
-                        },
-                        fretNumber: 3,
-                        cssClass: "red"
-                    }, {
-                        stringItsOn: {
-                            letter: "B",
-                            octave: 3
-                        },
-                        fretNumber: 5,
-                        cssClass: "red"
-                    }, {
-                        stringItsOn: {
-                            letter: "G",
-                            octave: 3
-                        },
-                        fretNumber: 4,
-                        cssClass: "red"
-                    }, {
-                        stringItsOn: {
-                            letter: "D",
-                            octave: 3
-                        },
-                        fretNumber: 5,
-                        cssClass: "red"
-                    }, {
-                        stringItsOn: {
-                            letter: "A",
-                            octave: 2
-                        },
-                        fretNumber: 3,
-                        cssClass: "red"
-                    }],
-                    aMin7Notes = [{
-                        stringItsOn: {
-                            letter: "B",
-                            octave: 3
-                        },
-                        fretNumber: 5,
-                        cssClass: "green"
-                    }, {
-                        stringItsOn: {
-                            letter: "G",
-                            octave: 3
-                        },
-                        fretNumber: 5,
-                        cssClass: "green"
-                    }, {
-                        stringItsOn: {
-                            letter: "D",
-                            octave: 3
-                        },
-                        fretNumber: 5,
-                        cssClass: "green"
-                    }, {
-                        stringItsOn: {
-                            letter: "E",
-                            octave: 2
-                        },
-                        fretNumber: 5,
-                        cssClass: "green"
-                    }],
-                    fMaj7Notes = [{
-                        stringItsOn: {
-                            letter: "B",
-                            octave: 3
-                        },
-                        fretNumber: 1,
-                        cssClass: "yellow"
-                    }, {
-                        stringItsOn: {
-                            letter: "G",
-                            octave: 3
-                        },
-                        fretNumber: 2,
-                        cssClass: "yellow"
-                    }, {
-                        stringItsOn: {
-                            letter: "D",
-                            octave: 3
-                        },
-                        fretNumber: 2,
-                        cssClass: "yellow"
-                    }, {
-                        stringItsOn: {
-                            letter: "E",
-                            octave: 2
-                        },
-                        fretNumber: 1,
-                        cssClass: "yellow"
-                    }],
-                    g7Notes = [{
-                        stringItsOn: {
-                            letter: "B",
-                            octave: 3
-                        },
-                        fretNumber: 3
-                    }, {
-                        stringItsOn: {
-                            letter: "G",
-                            octave: 3
-                        },
-                        fretNumber: 4
-                    }, {
-                        stringItsOn: {
-                            letter: "D",
-                            octave: 3
-                        },
-                        fretNumber: 3
-                    }, {
-                        stringItsOn: {
-                            letter: "E",
-                            octave: 2
-                        },
-                        fretNumber: 3
-                    }],
-                    dimensionsFunc = function ($fretboardContainer, $fretboardBody, settings) {
-                        var numStrings = settings.tuning.length;
+                        octave: 3
+                    },
+                    fretNumber: 1,
+                    cssClass: "yellow"
+                }, {
+                    stringItsOn: {
+                        letter: "G",
+                        octave: 3
+                    },
+                    fretNumber: 2,
+                    cssClass: "yellow"
+                }, {
+                    stringItsOn: {
+                        letter: "D",
+                        octave: 3
+                    },
+                    fretNumber: 2,
+                    cssClass: "yellow"
+                }, {
+                    stringItsOn: {
+                        letter: "E",
+                        octave: 2
+                    },
+                    fretNumber: 1,
+                    cssClass: "yellow"
+                }];
+                var g7Notes = [{
+                    stringItsOn: {
+                        letter: "B",
+                        octave: 3
+                    },
+                    fretNumber: 3
+                }, {
+                    stringItsOn: {
+                        letter: "G",
+                        octave: 3
+                    },
+                    fretNumber: 4
+                }, {
+                    stringItsOn: {
+                        letter: "D",
+                        octave: 3
+                    },
+                    fretNumber: 3
+                }, {
+                    stringItsOn: {
+                        letter: "E",
+                        octave: 2
+                    },
+                    fretNumber: 3
+                }];
+                var dimensionsFunc = function ($fretboardContainer, $fretboardBody, settings) {
+                    var numStrings = settings.tuning.length;
 
-                        return {
-                            height: numStrings * 32
-                        };
-                    },
-                    noteCircleList = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24],
-                    intervalSettings = {
-                        intervals: ['1', 'b2', '2', 'b3', '3', '4', 'b5', '5', 'b6', '6', 'b7', '7'],
-                        root: "C"
-                    },
-                    noteMode = 'letter' // or 'interval',
-                    isIntervalMode = noteMode === 'interval',
-                    clickedNotesChangedFuncs = [function () {
-                        console.log("On clicked notes change 1");
-                    }, function () {
-                        console.log("On clicked notes change 2");
-                    }],
-                    options = {
-                        tuning: tuning,
-                        numFrets: numFrets,
-                        isChordMode: isChordMode,
-                        noteClickingDisabled: isDisabled,
-                        allNoteLetters: ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"],
-                        noteMode: noteMode,
-                        intervalSettings: intervalSettings,
-                        animationSpeed: 500, // ms
-                        noteCircleList: noteCircleList,
-                        dimensionsFunc: dimensionsFunc,
-                        onClickedNotesChange: clickedNotesChangedFuncs
+                    return {
+                        height: numStrings * 32
                     };
+                };
+                var noteCircleList = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24];
+                var intervalSettings = {
+                    intervals: ['1', 'b2', '2', 'b3', '3', '4', 'b5', '5', 'b6', '6', 'b7', '7'],
+                    root: "C"
+                };
+                var noteMode = 'letter'; // or 'interval',
+                var isIntervalMode = noteMode === 'interval';
+                var clickedNotesChangedFuncs = [function () {
+                    console.log("On clicked notes change 1");
+                }, function () {
+                    console.log("On clicked notes change 2");
+                }];
+                var options = {
+                    tuning: standardTuning,
+                    numFrets: numFrets,
+                    isChordMode: isChordMode,
+                    noteClickingDisabled: isDisabled,
+                    allNoteLetters: ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"],
+                    noteMode: noteMode,
+                    intervalSettings: intervalSettings,
+                    animationSpeed: 400, // ms
+                    noteCircleList: noteCircleList,
+                    dimensionsFunc: dimensionsFunc,
+                    onClickedNotesChange: clickedNotesChangedFuncs
+                };
 
                 $scope.config = options;
 
                 // For testing - outputs the config during changes to tuning, clicked notes, etc.
-                $scope.$watch(function() {
+                $scope.$watch(function () {
                     return $scope.config
-                }, function(newVal, oldval) {
+                }, function (newVal, oldval) {
                     console.log($scope.config);
                 }, true);
 
-                $scope.toggleChordMode = function() {
+                $scope.toggleChordMode = function () {
                     $scope.config.isChordMode = !$scope.config.isChordMode;
                 };
 
-                $scope.setMaj7Chord = function() {
+                $scope.setMaj7Chord = function () {
                     $scope.config.clickedNotes = $.extend(true, [], cMaj7Notes);
                 };
 
-                $scope.setMin7Chord = function() {
+                $scope.setMin7Chord = function () {
                     $scope.config.clickedNotes = $.extend(true, [], aMin7Notes);
                 };
 
-                $scope.getClickedNotes = function() {
+                $scope.getClickedNotes = function () {
                     console.log($scope.config.clickedNotes);
                 };
 
-                $scope.toggleNoteClicking = function() {
+                $scope.toggleNoteClicking = function () {
                     $scope.config.noteClickingDisabled = !$scope.config.noteClickingDisabled;
                 };
 
-                $scope.addString = function() {
+                $scope.addString = function () {
                     // make a copy to change the reference 
-                    if ($scope.config.tuning.length < 8) {
+                    if ($scope.config.tuning.length < eightStringTuning.length) {
                         $scope.config.tuning = $.extend(true, [], $scope.config.tuning);
                         $scope.config.tuning.push({
                             letter: eightStringTuning[$scope.config.tuning.length].letter,
@@ -261,7 +261,7 @@
                     }
                 };
 
-                $scope.removeString = function() {
+                $scope.removeString = function () {
                     // make a copy to change the reference 
                     if ($scope.config.tuning.length > 4) {
                         $scope.config.tuning = $.extend(true, [], $scope.config.tuning);
@@ -269,28 +269,38 @@
                     }
                 };
 
-                $scope.addFret = function() {
+                $scope.changeToStandardTuning = function () {
+                    // make a copy to change the reference 
+                    $scope.config.tuning = $.extend(true, [], standardTuning);
+                };
+
+                $scope.changeToEightStringTuning = function () {
+                    // make a copy to change the reference 
+                    $scope.config.tuning = $.extend(true, [], eightStringTuning);
+                };
+
+                $scope.addFret = function () {
                     if ($scope.config.numFrets < 24) {
                         $scope.config.numFrets++;
                     }
                 };
 
-                $scope.removeFret = function() {
+                $scope.removeFret = function () {
                     if ($scope.config.numFrets > 12) {
                         $scope.config.numFrets--;
                     }
                 };
 
-                $scope.unclick = function() {
+                $scope.unclick = function () {
                     $scope.config.clickedNotes = [];
                 };
 
-                $scope.toggleNoteMode = function() {
+                $scope.toggleNoteMode = function () {
                     isIntervalMode = !isIntervalMode;
                     $scope.config.noteMode = isIntervalMode ? 'interval' : 'letter';
                 };
 
-                $scope.toggleIntervalSettings = function() {
+                $scope.toggleIntervalSettings = function () {
                     intervalSettings = $.extend(true, {}, intervalSettings);
                     intervalSettings.root = intervalSettings.root === "C" ? "G" : "C";
                     $scope.config.intervalSettings = intervalSettings;
@@ -311,6 +321,8 @@
     <button ng-click="toggleNoteClicking()">Disable/enable note clicking</button>
     <button ng-click="addString()">Add String</button>
     <button ng-click="removeString()">Remove String</button>
+    <button ng-click="changeToEightStringTuning()">Change to 8-string tuning</button>
+    <button ng-click="changeToStandardTuning()">Change to standard tuning</button>
     <button ng-click="addFret()">Add fret</button>
     <button ng-click="removeFret()">Remove fret</button>
     <button ng-click="toggleChordMode()">Toggle chord mode</button>

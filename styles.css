@@ -2,17 +2,16 @@
     position: relative;
 }
 
-/* The width/heights can go here in the CSS, or be calculated in JS  
-   which will override these values */
 .fretboard-container {
     overflow: hidden;
+     /* If width is calculated in the JS leave it out here */
     width: 100%;
     /* At a certain point it doesn't make sense for the fretboard
        size to decrease, so we set a min-width. A scroll-bar will 
        be displayed.*/
     min-width: 700px;
-    /* Height is calculated in the JS, so leave it out here */
-    /*height: 210px;*/
+    /* If height is calculated in the JS leave it out here */
+    /* height: 210px; */
     margin: 0 auto;
 }
 

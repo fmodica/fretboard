@@ -1,6 +1,8 @@
-# Responsive Fretboard (In progress)
+# Responsive Fretboard
 
-A jQuery plugin for displaying a responsive, interactive, configurable, stylable fretboard of any number of frets, strings, and tunings. I also have this wrapped as an AngularJS directive.
+A jQuery plugin for displaying a responsive, interactive, configurable, stylable fretboard of any number of frets, strings, and tunings. 
+
+I also have this wrapped as an AngularJS directive.
 
 I initially wrote this so I could capture user input (chords/scales) and display chords/scales of my own. I am developing features as I need them, but if you have a feature request feel free to contact me.
 
@@ -8,10 +10,11 @@ I initially wrote this so I could capture user input (chords/scales) and display
 
 ## Demo
 
-Check out the "index.html" files in the project for examples.
+http://frank-modica.com/static/fretboarddemo/index.html
+
+Or check out the "index.html" files in the project for examples.
 
 You can also check out my voice leading page, where I use the fretboard to help users create progressions with good voice leading:
-
 
 http://frank-modica.com/#/voiceleader
 
