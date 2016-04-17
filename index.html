@@ -238,7 +238,7 @@
                 onClickedNotesChange: clickedNotesChangedFuncs
             };
             var $fretboards = $(".my-fretboard-js");
-            var currentTuning = standardTuning;
+            var currentTuning = $.extend(true, [], standardTuning);
 
             $fretboards.fretboard(options);
 
