@@ -10,13 +10,13 @@ I initially wrote this so I could capture user input (chords/scales) and display
 
 ## Demo
 
-http://frank-modica.com/static/fretboarddemo/index.html
+<a href="http://frank-modica.com/static/fretboarddemo/index.html" target="_blank">Demo Fretboard</a>
 
 Or check out the "index.html" files in the project for examples.
 
 You can also check out my voice leading page, where I use the fretboard to help users create progressions with good voice leading:
 
-http://frank-modica.com/#/voiceleader
+<a target="_blank" href="http://frank-modica.com/#/voiceleader">Guitar Voiceleading Helper</a>
 
 ## Details
 
@@ -30,6 +30,4 @@ $(".my-fretboard-js").fretboard();
 
 This is enough to create the default fretboard. 
 
-Learn more:
-
-https://github.com/fmodica/responsive-fretboard.js/wiki/Configuration-and-API
+<a target="_blank" href="https://github.com/fmodica/responsive-fretboard.js/wiki/Configuration-and-API">Learn about the Fretboard API</a>

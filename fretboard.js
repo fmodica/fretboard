@@ -1,8 +1,25 @@
-(function () {
+(function ($) {
     "use strict";
 
     window.Fretboard = function (settings) {
         var self = this;
+        self.destroy = destroy;
+        self.getAllNotes = getAllNotes;
+        self.getChordMode = getChordMode;
+        self.setChordMode = setChordMode;
+        self.getAllNoteLetters = getAllNoteLetters;
+        self.getClickedNotes = getClickedNotes;
+        self.setClickedNotes = setClickedNotes;
+        self.clearClickedNotes = clearClickedNotes;
+        self.getNoteClickingDisabled = getNoteClickingDisabled;
+        self.setNoteClickingDisabled = setNoteClickingDisabled;
+        self.getTuning = getTuning;
+        self.setTuning = setTuning;
+        self.getNumFrets = getNumFrets;
+        self.setNumFrets = setNumFrets;
+        self.getIntervalSettings = getIntervalSettings;
+        self.setIntervalSettings = setIntervalSettings;
+
         var model = {
             allNotes: [],
             clickedNotes: [],
@@ -14,23 +31,6 @@
             noteClickingDisabled: null,
             intervalSettings: null
         };
-
-        self.destroy = destroy;
-        self.getAllNotes = getAllNotes;
-        self.getChordMode = getChordMode;
-        self.setChordMode = setChordMode;
-        self.getAllNoteLetters = getAllNoteLetters;
-        self.getClickedNotes = getClickedNotes;
-        self.setClickedNotes = setClickedNotes;
-        self.getNoteClickingDisabled = getNoteClickingDisabled;
-        self.setNoteClickingDisabled = setNoteClickingDisabled;
-        self.getTuning = getTuning;
-        self.setTuning = setTuning;
-        self.getNumFrets = getNumFrets;
-        self.setNumFrets = setNumFrets;
-        self.clearClickedNotes = clearClickedNotes;
-        self.getIntervalSettings = getIntervalSettings;
-        self.setIntervalSettings = setIntervalSettings;
 
         initializeModel(settings);
 
@@ -127,6 +127,14 @@
             }
         }
 
+        function clearClickedNotes() {
+            model.clickedNotes = [];
+
+            for (var i = 0; i < model.tuning.length; i++) {
+                model.clickedNotes.push([]);
+            }
+        }
+
         function getNoteClickingDisabled() {
             return model.noteClickingDisabled;
         }
@@ -175,14 +183,6 @@
                 model.clickedNotes[i] = model.clickedNotes[i].filter(function (fretNumber) {
                     return fretNumber <= model.numFrets;
                 });
-            }
-        }
-
-        function clearClickedNotes() {
-            model.clickedNotes = [];
-
-            for (var i = 0; i < model.tuning.length; i++) {
-                model.clickedNotes.push([]);
             }
         }
 
@@ -248,16 +248,16 @@
             var noteIndex = model.allNoteLetters.indexOf(stringNote.letter) + fretNumber,
                 numOctavesAboveString = Math.floor(noteIndex / 12),
 
-                // If noteIndex is <= 11, the note on this fret is in the same octave 
-                // as the string's note. After 11, the octave increments. We need to 
-                // know how many times the octave has incremented, which is 
-                // noteIndex / 12 floored, and use that to get noteIndex down 
-                // to something between 0 and 11. 
+                // If noteIndex is <= 11, the note on this fret is in the same octave
+                // as the string's note. After 11, the octave increments. We need to
+                // know how many times the octave has incremented, which is
+                // noteIndex / 12 floored, and use that to get noteIndex down
+                // to something between 0 and 11.
 
-                // Example: If our string has note F4, the letter F is at index 5. If 
-                // our fret number is 22 our noteIndex is 27, which means the octave has 
-                // incremented twice (once after 12, the other after 24) and we get that 
-                // number by doing 27 / 12 floored. So we must reduce 27 by two octaves 
+                // Example: If our string has note F4, the letter F is at index 5. If
+                // our fret number is 22 our noteIndex is 27, which means the octave has
+                // incremented twice (once after 12, the other after 24) and we get that
+                // number by doing 27 / 12 floored. So we must reduce 27 by two octaves
                 // to get it below 12. Thus it becomes 27 - (12 * 2) = 3, which is note Eb.
                 reducedNoteIndex = noteIndex - (12 * numOctavesAboveString);
 
@@ -322,8 +322,7 @@
             var hash = {};
 
             for (var i = 0; i < tuning.length; i++) {
-                // Check for octave integer 
-
+                // Check for octave integer
                 if (!tuning[i]) {
                     throw "tuning is not valid because one note did not exist: " + tuning;
                 }
@@ -354,266 +353,84 @@
             return note1.letter === note2.letter && note1.octave === note2.octave;
         }
     };
-})();
+})(jQuery);
 
 (function ($) {
     "use strict";
 
     window.FretboardHtmlRenderer = function (settings, $element) {
-        var self = this,
-            $window = $(window),
-            settings = $.extend(true, {}, settings),
-            fretboardContainerCssClass = "fretboard-container",
-            bodyCssClass = "fretboard-body",
-            stringContainerCssClass = "string-container",
-            stringContainerSelector = "." + stringContainerCssClass,
-            noteCssClass = "note",
-            noteSelector = "." + noteCssClass,
-            letterCssClass = "letter",
-            letterSelector = "." + letterCssClass,
-            stringCssClass = "string",
-            stringSelector = "." + stringCssClass,
-            fretLineCssClass = "fret-line",
-            fretLineSelector = "." + fretLineCssClass,
-            hoverCssClass = "hover",
-            clickedCssClass = "clicked",
-            clickedSelector = "." + clickedCssClass,
-            noteCircleCssClass = "note-circle",
-            noteCircleCssSelector = "." + noteCircleCssClass,
-            firstCssClass = "first",
-            lastCssClass = "last",
-            noteDataKey = "noteData",
-            $fretboardContainer = $element,
-            $fretboardScrollWrapper,
-            $fretboardBody,
-            timer;
+        var self = this;
+        self.destroy = destroy;
+        self.alterFretboard = alterFretboard;
+        self.getClickedNotes = getClickedNotes;
+        self.setClickedNotes = setClickedNotes;
+        self.clearClickedNotes = clearClickedNotes;
+        self.getNoteMode = getNoteMode;
+        self.setNoteMode = setNoteMode;
+        self.getNoteCircles = getNoteCircles;
+        // self.setNoteCircles = setNoteCircles; // implement
+        self.getAnimationSpeed = getAnimationSpeed;
+        // self.setAnimationSpeed = setAnimationSpeed; // implement
+        self.animate = setDimensions;
 
-        $fretboardBody = getFretboardBodyEl(settings.allNotes);
-        $fretboardScrollWrapper = getFretboardScrollWrapperEl();
+        var $window = $(window);
+        var settings = $.extend(true, {}, settings);
+        var fretboardContainerCssClass = "fretboard-container";
+        var bodyCssClass = "fretboard-body";
+        var stringContainerCssClass = "string-container";
+        var stringContainerSelector = "." + stringContainerCssClass;
+        var noteCssClass = "note";
+        var noteSelector = "." + noteCssClass;
+        var letterCssClass = "letter";
+        var letterSelector = "." + letterCssClass;
+        var stringCssClass = "string";
+        var stringSelector = "." + stringCssClass;
+        var fretLineCssClass = "fret-line";
+        var fretLineSelector = "." + fretLineCssClass;
+        var hoverCssClass = "hover";
+        var clickedCssClass = "clicked";
+        var clickedSelector = "." + clickedCssClass;
+        var noteCircleCssClass = "note-circle";
+        var noteCircleCssSelector = "." + noteCircleCssClass;
+        var firstCssClass = "first";
+        var lastCssClass = "last";
+        var noteDataKey = "noteData";
+        var $fretboardContainer = $element;
+        var $fretboardBody;
+        var timer;
+
+        $fretboardBody = getFretboardBodyEl();
         $fretboardContainer
             .addClass(fretboardContainerCssClass)
             .append($fretboardBody)
-            .wrap($fretboardScrollWrapper);
+            .wrap(getFretboardScrollWrapperEl());
+        alterFretboard(settings.allNotes);
+        setDimensions(false, false, false, false, false);
 
-        // Animate the fretboard dimensions on resize, but only 
+        // Animate the fretboard dimensions on resize, but only
         // on the last resize after X milliseconds
         $window.on("resize", function () {
             clearTimeout(timer);
-
             timer = setTimeout(function () {
                 setDimensions(true, true, true, true, true);
             }, 100);
         });
 
-        setDimensions(false, false, false, false, false);
-
-        self.destroy = function () {
+        function destroy() {
             $fretboardBody.remove();
             $fretboardContainer.unwrap();
             removeContainerCssClasses();
-        };
-
-        self.setTuning = function (allNotes) {
-            var oldNotes = $.extend(true, [], settings.allNotes),
-                newNotes = $.extend(true, [], allNotes),
-                newNumFrets = newNotes[0].length - 1,
-                tuningLengthDifference = oldNotes.length - newNotes.length,
-                $newStringContainer,
-                newTuningNote,
-                notesOnString,
-                i;
-
-            settings.allNotes = newNotes;
-            settings.tuning = [];
-            // Will need to set the number of frets if this function is converted
-            // into a generic function that alters the fretboard
-            //settings.numFrets = newNumFrets;
-
-            var $stringContainers = $fretboardContainer.find(stringContainerSelector);
-
-            // Modification/addition of strings
-            for (i = 0; i < settings.allNotes.length; i++) {
-                notesOnString = newNotes[i];
-                newTuningNote = notesOnString[0];
-                settings.tuning.push(newTuningNote);
-
-                // If a string exists, alter it
-                if (i < oldNotes.length) {
-                    alterString($stringContainers.eq(i), i, notesOnString);
-                } else {
-                    $newStringContainer = getStringContainerEl(notesOnString, i);
-                    $newStringContainer
-                        .find(stringSelector + ", " + noteSelector)
-                        .css({
-                            top: $fretboardBody.height()
-                        });
-
-                    $fretboardBody.append($newStringContainer);
-                }
-            }
-
-
-            // String removal
-            for (i = 0; i < tuningLengthDifference; i++) {
-                $stringContainers.eq(oldNotes.length - 1 - i).remove();
-            }
-
-            setDimensions(true, true, true, true, true);
-
-            // The stringItsOn property of the notes may have changed, so alert the user
-            //$fretboardContainer.trigger("notesClicked");
-        };
-
-        function alterString($stringContainer, stringNum, notesOnString) {
-            var $existingStringContainerNotes = $stringContainer
-                .find(noteSelector);
-            var $newStringContainerNotes = getStringContainerEl(notesOnString, stringNum)
-                .find(noteSelector);
-
-            for (var i = 0; i <= settings.numFrets; i++) {
-                // Use the info on the new string's notes to modify the old string's notes
-                var $newNote = $newStringContainerNotes.eq(i);
-
-                $existingStringContainerNotes
-                    .eq(i)
-                    .data(noteDataKey, $newNote.data(noteDataKey))
-                    .find(letterSelector)
-                    .replaceWith($newNote.find(letterSelector));
-            }
         }
 
-        self.setNumFrets = function (allNotes) {
-            var newNotes = $.extend(true, [], allNotes),
-                newNumFrets = newNotes[0].length - 1,
-                oldNotes = $.extend(true, [], settings.allNotes),
-                oldNumFrets = oldNotes[0].length - 1,
-                fretNumDifference = oldNumFrets - newNumFrets,
-                absFretNumDifference = Math.abs(fretNumDifference),
-                $stringContainers = $fretboardContainer.find(stringContainerSelector),
-                $fretLines = $fretboardContainer.find(fretLineSelector),
-                $noteCircles = $fretboardContainer.find(noteCircleCssSelector),
-                fretboardBodyWidth = $fretboardBody.width(),
-                fretboardBodyHeight = $fretboardBody.height(),
-                $noteCircleHash = {},
-                noteCircleHash = {},
-                $noteCircle,
-                noteCircleHeight,
-                $stringContainer,
-                noteData,
-                $note,
-                i,
-                j,
-                fretNum,
-                notesOnString;
-
-            settings.allNotes = newNotes;
-            settings.numFrets = newNumFrets;
-
-            for (i = 0; i < settings.allNotes.length; i++) {
-                $stringContainer = $stringContainers.eq(i);
-
-                // Add or remove absFretNumDifference frets
-                for (j = 0; j < absFretNumDifference; j++) {
-                    // fretNumDifference will never be 0 or this loop won't be entered
-                    if (fretNumDifference > 0) {
-                        fretNum = oldNumFrets - j;
-
-                        $stringContainer
-                            .find(noteSelector)
-                            .eq(fretNum)
-                            .remove();
-
-                    } else if (fretNumDifference < 0) {
-                        // Add fret
-                        fretNum = oldNumFrets + j;
-                        noteData = settings.allNotes[i][fretNum];
-
-                        $note = getNoteEl({
-                            letter: noteData.letter,
-                            octave: noteData.octave,
-                            fretIndex: fretNum,
-                            stringIndex: i,
-                            intervalInfo: noteData.intervalInfo
-                        })
-                            // Make it come in from the right
-                            .css({
-                                left: $fretboardBody.width()
-                            });
-
-                        $stringContainer.append($note);
-                    }
-                }
-            }
-
-            // Fret lines go inside the body
-            for (i = 0; i < absFretNumDifference; i++) {
-                // fretNumDifference will never be 0 or this loop won't be entered
-                if (fretNumDifference > 0) {
-                    $fretLines[fretNum].remove();
-                } else if (fretNumDifference < 0) {
-                    // Make it come in from the right
-                    $fretboardBody.append(
-                        getFretLineEl()
-                        .css({
-                            left: fretboardBodyWidth
-                        })
-                    );
-                }
-            }
-
-            $noteCircles.each(function (index, noteCircleEl) {
-                $noteCircle = $(noteCircleEl);
-                $noteCircleHash[$noteCircle.data("fretNumber")] = $noteCircle;
-            });
-
-            settings.noteCircles.forEach(function (fretNum) {
-                noteCircleHash[fretNum] = true;
-            });
-
-            // Note circles
-            for (i = 0; i < absFretNumDifference; i++) {
-                if (fretNumDifference > 0) {
-                    fretNum = oldNumFrets - i;
-                    $noteCircle = $noteCircleHash[fretNum];
-
-                    if ($noteCircle) {
-                        $noteCircle.remove();
-                    }
-                } else if (fretNumDifference < 0) {
-                    fretNum = oldNumFrets + (i + 1);
-
-                    if (noteCircleHash[fretNum] === true) {
-                        $noteCircle = getNoteCircleEl(fretNum);
-                        // Append it first so it gets a height
-                        $fretboardBody.append($noteCircle);
-                        noteCircleHeight = $noteCircle.outerWidth(true);
-
-                        $noteCircle
-                            .css({
-                                left: fretboardBodyWidth,
-                                top: (fretboardBodyHeight / 2) - (noteCircleHeight / 2)
-                            });
-                    }
-                }
-            }
-
-            setDimensions(true, true, true, true, true);
-        };
-
-        self.clearClickedNotes = function () {
+        function getClickedNotes() {
             // DUPLICATE LOGIC - possibly refactor
-            $fretboardContainer
-                .find(noteSelector + clickedSelector)
-                .removeClass()
-                .addClass(noteCssClass)
-                .on("mouseenter", noteMouseEnter)
-                .on("mouseleave", noteMouseLeave);
-        };
+            return $fretboardContainer.find(noteSelector + clickedSelector);
+        }
 
         // Will be passed in with just fretNumber and stringItsOn.
         // This method can probably be optimized to not use indexOf
         // and other inefficient search techniques.
-        self.setClickedNotes = function (notesToClick) {
+        function setClickedNotes(notesToClick) {
             var notesToClick = $.extend(true, [], notesToClick),
                 i,
                 j,
@@ -630,7 +447,7 @@
             // For each note that needs to be clicked check its stringItsOn
             // property to see if it matches a note object in the tuning array.
             // If it does, get the index of the matched note in the tuning array
-            // and find the corresponding $stringContainer and click its 
+            // and find the corresponding $stringContainer and click its
             // note.
             for (i = 0; i < notesToClick.length; i++) {
                 noteToClick = notesToClick[i];
@@ -667,67 +484,211 @@
                         .off("mouseleave", noteMouseLeave);
                 }
             }
-        };
+        }
 
-        self.getClickedNotes = function () {
+        function clearClickedNotes() {
             // DUPLICATE LOGIC - possibly refactor
-            return $fretboardContainer
-                .find(noteSelector + clickedSelector);
-        };
+            $fretboardContainer
+                .find(noteSelector + clickedSelector)
+                .removeClass()
+                .addClass(noteCssClass)
+                .on("mouseenter", noteMouseEnter)
+                .on("mouseleave", noteMouseLeave);
+        }
 
-        self.setNoteMode = function (noteMode) {
+        function getNoteMode() {
+            return settings.noteMode;
+        }
+
+        function setNoteMode(noteMode) {
             settings.noteMode = noteMode;
+            alterFretboard(settings.allNotes);
+        }
 
-            var $strings = $fretboardContainer.find(stringContainerSelector);
+        function getNoteCircles() {
+            return settings.noteCircles;
+        }
+
+        function getAnimationSpeed() {
+            return settings.animationSpeed;
+        }
+
+        function alterFretboard(allNotes) {
+            var oldNotes = $.extend(true, [], settings.allNotes);
+            var newNotes = $.extend(true, [], allNotes);
+            var oldNumFrets = oldNotes[0].length - 1;
+            var newNumFrets = newNotes[0].length - 1;
+            var fretboardBodyWidth = $fretboardBody.width();
+            var fretboardBodyHeight = $fretboardBody.height();
+
+            settings.allNotes = newNotes;
+            settings.numFrets = newNumFrets;
+            settings.tuning = [];
 
             for (var i = 0; i < settings.allNotes.length; i++) {
-                $strings.eq(i)
-                    .find(noteSelector)
-                    .each(function (j) {
-                        $(this)
-                            .find(letterSelector)
-                            .replaceWith(getNoteLetterEl(settings.allNotes[i][j]));
-                    });
-            }
-        };
-
-        self.getNoteMode = function () {
-            return settings.noteMode;
-        };
-
-        self.getNoteCircles = function () {
-            return settings.noteCircles;
-        };
-
-        self.getAnimationSpeed = function () {
-            return settings.animationSpeed;
-        };
-
-        function getFretboardBodyEl(notesOnFretboard) {
-            var $fretboardBody = $("<div class='" + bodyCssClass + "'></div>"),
-                $stringContainer,
-                $fretLine,
-                $noteCircle,
-                i;
-
-            for (i = 0; i < notesOnFretboard.length; i++) {
-                $stringContainer = getStringContainerEl(notesOnFretboard[i], i);
-                $fretboardBody.append($stringContainer);
+                settings.tuning.push(settings.allNotes[i][0]);
             }
 
-            for (i = 0; i <= settings.numFrets; i++) {
-                $fretLine = getFretLineEl();
-                $fretboardBody.append($fretLine);
-            }
+            alterStrings(oldNotes, newNotes, oldNumFrets, fretboardBodyHeight);
+            alterFretLines(oldNumFrets, fretboardBodyWidth);
+            alterNoteCircles(oldNumFrets, fretboardBodyWidth, fretboardBodyHeight);
+        }
 
-            for (i = 0; i < settings.noteCircles.length; i++) {
-                if (settings.noteCircles[i] <= settings.numFrets) {
-                    $noteCircle = getNoteCircleEl(settings.noteCircles[i]);
-                    $fretboardBody.append($noteCircle);
+        function alterStrings(oldNotes, newNotes, oldNumFrets, fretboardBodyHeight) {
+            var stringsToIterateOver = Math.max(oldNotes.length, newNotes.length);
+            var $stringContainers = $fretboardContainer.find(stringContainerSelector);
+            var fretsToIterateOver = Math.max(oldNumFrets, settings.numFrets);
+
+            for (var i = 0; i < stringsToIterateOver; i++) {
+                var $stringContainer = $stringContainers.eq(i);
+
+                // If a string should be there
+                if (i < settings.tuning.length) {
+                    // And a string is not there
+                    if (!$stringContainer.length) {
+                        // Add a string
+                        $stringContainer = getStringContainerEl();
+                        $stringContainer.append(getStringEl().css({
+                            top: fretboardBodyHeight
+                        }));
+                        $fretboardBody.append($stringContainer);
+                    }
+
+                    // Alter the string (create or edit notes)
+                    for (var j = 0; j <= fretsToIterateOver; j++) {
+                        var $note = $stringContainer
+                            .find(noteSelector)
+                            .eq(j);
+
+                        // If a note should be there
+                        if (j <= settings.numFrets) {
+                            var note = settings.allNotes[i][j];
+                            var noteData = {
+                                letter: note.letter,
+                                octave: note.octave,
+                                fretIndex: j,
+                                stringIndex: i,
+                                intervalInfo: note.intervalInfo
+                            };
+                            var $newNote = getNoteEl(noteData);
+
+                            // And a note is there
+                            if ($note.length) {
+                                // Edit the note
+                                var cssClasses = $note.attr("class");
+                                $newNote
+                                    .addClass(cssClasses)
+                                    .css({
+                                        top: $note.position().top,
+                                        left: $note.position().left,
+                                    });
+                                $note.replaceWith($newNote);
+                            } else {
+                                $stringContainer.append($newNote);
+                            }
+                        } else {
+                            // A note should not be there
+                            // If a note is there
+                            if ($note.length) {
+                                // Remove it
+                                $note.remove();
+                            }
+                        }
+                    }
+                } else {
+                    // A string should not be there
+                    // If a string is there
+                    if ($stringContainer.length) {
+                        // Remove it
+                        $stringContainer.remove();
+                    }
                 }
             }
+        }
 
-            return $fretboardBody;
+        function alterFretLines(oldNumFrets, fretboardBodyWidth) {
+            var fretsToIterateOver = Math.max(oldNumFrets, settings.numFrets);
+            var $fretLines = $fretboardContainer.find(fretLineSelector);
+
+            for (var i = 0; i <= fretsToIterateOver; i++) {
+                var $fretLine = $fretLines.eq(i);
+                // If a fret is there
+                if (i <= settings.numFrets) {
+                    // And a fret line is not there
+                    if (!$fretLine.length) {
+                        // Make it come in from the right
+                        $fretboardBody.append(
+                            getFretLineEl()
+                            .css({
+                                left: fretboardBodyWidth
+                            })
+                        );
+                    }
+                } else {
+                    // A fret is not there
+                    // If a fret line is there
+                    if ($fretLine.length) {
+                        // Remove it
+                        $fretLine.remove();
+                    }
+                }
+            }
+        }
+
+        function alterNoteCircles(oldNumFrets, fretboardBodyWidth, fretboardBodyHeight) {
+            var fretsToIterateOver = Math.max(oldNumFrets, settings.numFrets);
+            var $existingNoteCircles = $fretboardContainer.find(noteCircleCssSelector);
+            var $existingNoteCirclesHash = {};
+            var noteCirclesThatShouldExistHash = {};
+
+            for (var i = 0; i < $existingNoteCircles.length; i++) {
+                var $noteCircle = $existingNoteCircles.eq(i);
+                $existingNoteCirclesHash[$noteCircle.data("fretNumber")] = $noteCircle;
+            }
+
+            for (var i = 0; i < settings.noteCircles.length; i++) {
+                noteCirclesThatShouldExistHash[settings.noteCircles[i]] = true;
+            }
+
+            for (var i = 0; i <= fretsToIterateOver; i++) {
+                // If a fret is there
+                if (i <= settings.numFrets) {
+                    // If a note circle should be there
+                    if (noteCirclesThatShouldExistHash[i]) {
+                        // And it is not there
+                        if (!$existingNoteCirclesHash[i]) {
+                            // Create it
+                            var $noteCircle = getNoteCircleEl(i);
+                            // Append it first so it gets a height
+                            $fretboardBody.append($noteCircle);
+                            $noteCircle
+                                .css({
+                                    left: fretboardBodyWidth,
+                                    top: (fretboardBodyHeight / 2) - ($noteCircle.outerWidth(true) / 2)
+                                });
+                        }
+                    } else {
+                        // A note circle should not be there
+                        // If a note circle is there
+                        if ($existingNoteCirclesHash[i]) {
+                            // Remove it
+                            $existingNoteCirclesHash[i].remove();
+                        }
+                    }
+
+                } else {
+                    // A fret is not there
+                    // If a note circle is there
+                    if ($existingNoteCirclesHash[i]) {
+                        // Remove it
+                        $existingNoteCirclesHash[i].remove();
+                    }
+                }
+            }
+        }
+
+        function getFretboardBodyEl() {
+            return $fretboardBody = $("<div class='" + bodyCssClass + "'></div>");
         }
 
         // The user may have added some of their own classes so only remove the ones we know about.
@@ -872,39 +833,17 @@
             return $("<div class='" + letterCssClass + "'>" + text + "</div>");
         }
 
-        function getNoteEl(note) {
+        function getNoteEl(noteData) {
             return $("<div class='" + noteCssClass + "'></div>")
                 .on("mouseenter", noteMouseEnter)
                 .on("mouseleave", noteMouseLeave)
                 .on("click", onNoteClick)
-                .append(getNoteLetterEl(note))
-                .data(noteDataKey, note);
+                .append(getNoteLetterEl(noteData))
+                .data(noteDataKey, noteData);
         }
 
-        function getStringContainerEl(notesOnString, stringIndex) {
-            var $stringContainer = $("<div class='" + stringContainerCssClass + "'></div>"),
-                openNote = notesOnString[0],
-                $note,
-                note,
-                i;
-
-            for (i = 0; i < notesOnString.length; i++) {
-                note = notesOnString[i];
-
-                $note = getNoteEl({
-                    letter: note.letter,
-                    octave: note.octave,
-                    fretIndex: i,
-                    stringIndex: stringIndex,
-                    intervalInfo: note.intervalInfo
-                });
-
-                $stringContainer.append($note);
-            }
-
-            $stringContainer.append(getStringEl());
-
-            return $stringContainer;
+        function getStringContainerEl() {
+            return $("<div class='" + stringContainerCssClass + "'></div>");
         }
 
         function onNoteClick() {
@@ -951,13 +890,41 @@
     };
 })(jQuery);
 
-// The jQuery plugin
+// This is the jQuery plugin. It instantiates the fretboard model and
+// fretboard renderer and coordinates interactions between them. It
+// contains an API which the user can get:
+// var fretboardInstance = $(".my-fretboard-js").data('fretboard');
 (function ($) {
     "use strict";
 
     $.fn.fretboard = function (options) {
         return this.each(function () {
-            // Private variables
+            var api = {};
+            api.destroy = destroy;
+            api.getAllNotes = getAllNotes;
+            api.getChordMode = getChordMode;
+            api.setChordMode = setChordMode;
+            api.getAllNoteLetters = getAllNoteLetters;
+            api.getClickedNotes = getClickedNotes;
+            api.setClickedNotes = setClickedNotes;
+            api.clearClickedNotes = clearClickedNotes;
+            api.getNoteClickingDisabled = getNoteClickingDisabled;
+            api.setNoteClickingDisabled = setNoteClickingDisabled;
+            api.getTuning = getTuning;
+            api.setTuning = setTuning;
+            api.getNumFrets = getNumFrets;
+            api.setNumFrets = setNumFrets;
+            api.getIntervalSettings = getIntervalSettings;
+            api.setIntervalSettings = setIntervalSettings;
+            api.getNoteMode = getNoteMode;
+            api.setNoteMode = setNoteMode;
+            api.getNoteCircles = getNoteCircles;
+            // self.setNoteCircles = setNoteCircles; // implement
+            api.getAnimationSpeed = getAnimationSpeed;
+            // self.setAnimationSpeed = setAnimationSpeed; // implement
+            api.addNotesClickedListener = addNotesClickedListener;
+            // api.removeNotesClickedListener = removeNotesClickedListener; // implement
+
             var $element = $(this);
             // The value at which the octave is incremented needs to be first
             var defaultNoteLetters = ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"];
@@ -1013,10 +980,7 @@
                 dimensionsFunc: defaultDimensionsFunc,
                 onClickedNotesChange: []
             };
-            // The API object that a user interacts with. It also acts as 
-            // a "controller", coordinating between the model and renderer
-            var api = {};
-            // The settings which are the defaults extended with user options
+            // These settings will have the defaults extended with user options
             var settings = {};
             var fretboardModel;
             var fretboardRenderer;
@@ -1035,13 +999,14 @@
             fretboardModel = new Fretboard(modelSettings);
 
             var fretboardRendererSettings = {
-                // Even though this info exists in the settings that were passed in,
-                // we ask the model for it again in case it was altered
+                // Even though this info exists in the user settings that were passed in,
+                // we ask the model for it again to stick with the convention that the
+                // model is always asked for data in case it alters the data.
                 allNotes: fretboardModel.getAllNotes(),
                 tuning: fretboardModel.getTuning(),
                 numFrets: fretboardModel.getNumFrets(),
 
-                // renderer should validate its own settings
+                // TODO: the renderer should validate its own settings
                 noteCircles: settings.noteCircles,
                 animationSpeed: settings.animationSpeed,
                 dimensionsFunc: getAlteredDimensionsFunc(),
@@ -1050,58 +1015,8 @@
 
             fretboardRenderer = new FretboardHtmlRenderer(fretboardRendererSettings, $element);
 
-            api.destroy = destroy;
-            api.getAllNotes = getAllNotes;
-            api.getChordMode = getChordMode;
-            api.setChordMode = setChordMode;
-            api.getAllNoteLetters = getAllNoteLetters;
-            api.getClickedNotes = getClickedNotes;
-            api.setClickedNotes = setClickedNotes;
-            api.clearClickedNotes = clearClickedNotes;
-            api.getNoteClickingDisabled = getNoteClickingDisabled;
-            api.setNoteClickingDisabled = setNoteClickingDisabled;
-            api.getTuning = getTuning;
-            api.setTuning = setTuning;
-            api.getNumFrets = getNumFrets;
-            api.setNumFrets = setNumFrets;
-            api.getIntervalSettings = getIntervalSettings;
-            api.setIntervalSettings = setIntervalSettings;
-            api.getNoteMode = getNoteMode;
-            api.setNoteMode = setNoteMode;
-            api.getNoteCircles = getNoteCircles;
-            api.getAnimationSpeed = getAnimationSpeed;
-            api.addNotesClickedListener = addNotesClickedListener;
-
             $element.on("noteClicked", onUserNoteClick);
             $element.data('fretboard', api);
-
-            // Make a copy of the options that were passed in, just in case the 
-            // user modifies that object. Then use it to extend the defaults.
-            function extendDefaultsWithUserOptions() {
-                $.extend(settings, defaults, $.extend(true, {}, options));
-            }
-
-            function getAlteredDimensionsFunc() {
-                if (settings.dimensionsFunc !== defaultDimensionsFunc) {
-                    var oldFunc = settings.dimensionsFunc;
-
-                    return function ($fretboardContainer, $fretboardBody, settings) {
-                        var dimensions = oldFunc($fretboardContainer, $fretboardBody, settings),
-                            width = dimensions.width,
-                            height = dimensions.height,
-                            defaultDimensions = defaultDimensionsFunc($fretboardContainer, $fretboardBody, settings),
-                            defaultWidth = defaultDimensions.width,
-                            defaultHeight = defaultDimensions.height;
-
-                        return {
-                            width: width || defaultWidth,
-                            height: height || defaultHeight
-                        };
-                    };
-                }
-
-                return settings.dimensionsFunc;
-            }
 
             function destroy() {
                 fretboardModel.destroy();
@@ -1160,7 +1075,8 @@
 
             function setTuning(tuning) {
                 fretboardModel.setTuning(tuning);
-                fretboardRenderer.setTuning(fretboardModel.getAllNotes());
+                fretboardRenderer.alterFretboard(fretboardModel.getAllNotes());
+                fretboardRenderer.animate(true, true, true, true, true);
                 executeOnClickedNotesCallbacks();
             }
 
@@ -1170,7 +1086,8 @@
 
             function setNumFrets(numFrets) {
                 fretboardModel.setNumFrets(numFrets);
-                fretboardRenderer.setNumFrets(fretboardModel.getAllNotes());
+                fretboardRenderer.alterFretboard(fretboardModel.getAllNotes());
+                fretboardRenderer.animate(true, true, true, true, true);
                 executeOnClickedNotesCallbacks();
             }
 
@@ -1180,7 +1097,7 @@
 
             function setIntervalSettings(settings) {
                 fretboardModel.setIntervalSettings(settings);
-                fretboardRenderer.setTuning(fretboardModel.getAllNotes());
+                fretboardRenderer.alterFretboard(fretboardModel.getAllNotes());
                 executeOnClickedNotesCallbacks();
             }
 
@@ -1208,14 +1125,43 @@
                 settings.onClickedNotesChange.push(callback);
             }
 
+            // Makes a copy of the options that were passed in, just in case the
+            // user modifies that object. Then use it to extend the defaults.
+            function extendDefaultsWithUserOptions() {
+                $.extend(settings, defaults, $.extend(true, {}, options));
+            }
+
+            // Create a new function that returns whatever properties (width/height)
+            // the user-defined function does not return.
+            function getAlteredDimensionsFunc() {
+                if (settings.dimensionsFunc !== defaultDimensionsFunc) {
+                    var oldFunc = settings.dimensionsFunc;
+
+                    return function ($fretboardContainer, $fretboardBody, settings) {
+                        var dimensions = oldFunc($fretboardContainer, $fretboardBody, settings),
+                            width = dimensions.width,
+                            height = dimensions.height,
+                            defaultDimensions = defaultDimensionsFunc($fretboardContainer, $fretboardBody, settings),
+                            defaultWidth = defaultDimensions.width,
+                            defaultHeight = defaultDimensions.height;
+
+                        return {
+                            width: width || defaultWidth,
+                            height: height || defaultHeight
+                        };
+                    };
+                }
+
+                return settings.dimensionsFunc;
+            }
+
             function reattachCSSClassesFromDOM(allNotes, newClickedNotes, $clickedNotes) {
                 for (var i = 0; i < newClickedNotes.length; i++) {
                     for (var j = 0; j < $clickedNotes.length; j++) {
                         var $oldNote = $clickedNotes.eq(j);
                         var oldNoteData = $oldNote.data("noteData");
                         var oldNote = allNotes[oldNoteData.stringIndex][oldNoteData.fretIndex];
-                        if (notesAreEqual(newClickedNotes[i].stringItsOn, oldNote.stringItsOn) &&
-                           newClickedNotes[i].fretNumber === oldNote.fretNumber) {
+                        if (frettedNotesAreEqual(newClickedNotes[i], oldNote)) {
                             var cssClasses = $oldNote.attr("class");
                             newClickedNotes[i].cssClass = cssClasses;
 
@@ -1228,8 +1174,7 @@
             function reattachCSSClassesFromUser(newClickedNotes, clickedNotesWithCssClasses) {
                 for (var i = 0; i < newClickedNotes.length; i++) {
                     for (var j = 0; j < clickedNotesWithCssClasses.length; j++) {
-                        if (notesAreEqual(newClickedNotes[i].stringItsOn, clickedNotesWithCssClasses[j].stringItsOn) &&
-                            newClickedNotes[i].fretNumber === clickedNotesWithCssClasses[j].fretNumber) {
+                        if (frettedNotesAreEqual(newClickedNotes[i], clickedNotesWithCssClasses[j])) {
                             newClickedNotes[i].cssClass = clickedNotesWithCssClasses[j].cssClass;
 
                             break;
@@ -1246,14 +1191,21 @@
             }
 
             function onUserNoteClick(e, clickedNoteEl) {
+                // Ask the model what notes should be clicked after this event
+                // because things like chord-mode could mean other notes are
+                // removed in addition to this one being added.
                 var $clickedNote = $(clickedNoteEl);
-                var $clickedNotes = fretboardRenderer.getClickedNotes();
                 var clickedNoteData = $clickedNote.data("noteData");
                 var allNotes = fretboardModel.getAllNotes();
                 var clickedNote = allNotes[clickedNoteData.stringIndex][clickedNoteData.fretIndex];
                 fretboardModel.setClickedNotes([clickedNote], true);
                 var newClickedNotes = fretboardModel.getClickedNotes();
+
+                // The model will not know of CSS classes so we reattach the
+                // ones that were already there.
+                var $clickedNotes = fretboardRenderer.getClickedNotes();
                 reattachCSSClassesFromDOM(allNotes, newClickedNotes, $clickedNotes)
+
                 fretboardRenderer.clearClickedNotes();
                 fretboardRenderer.setClickedNotes(newClickedNotes);
                 executeOnClickedNotesCallbacks();
@@ -1263,5 +1215,9 @@
 
     function notesAreEqual(note1, note2) {
         return note1.letter === note2.letter && note1.octave === note2.octave;
+    }
+
+    function frettedNotesAreEqual(note1, note2) {
+        return notesAreEqual(note1.stringItsOn, note2.stringItsOn) && note1.fretNumber === note2.fretNumber;
     }
 })(jQuery);

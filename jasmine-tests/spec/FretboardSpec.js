@@ -78,7 +78,7 @@ describe("Fretboard", function () {
         }
     };
     var defaultNumFrets = 15;
-    var defaultAnimationSpeed = 500;
+    var defaultAnimationSpeed = 400;
     var $fretboard;
     var fretboardInstance;
 
