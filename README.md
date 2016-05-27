@@ -10,13 +10,11 @@ I initially wrote this so I could capture user input (chords/scales) and display
 
 ## Demo
 
-<a href="http://frank-modica.com/static/fretboarddemo/index.html" target="_blank">Demo Fretboard</a>
+Check out the <a href="http://frank-modica.com/static/fretboarddemo/index.html" target="_blank">demo fretboard</a>.
+
+You can also check out my <a target="_blank" href="http://frank-modica.com/#/voiceleader">Guitar Voiceleading Helper</a>, where I use the fretboard to help users create progressions with good voice leading.
 
 Or check out the "index.html" files in the project for examples.
-
-You can also check out my voice leading page, where I use the fretboard to help users create progressions with good voice leading:
-
-<a target="_blank" href="http://frank-modica.com/#/voiceleader">Guitar Voiceleading Helper</a>
 
 ## Details
 
@@ -30,4 +28,8 @@ $(".my-fretboard-js").fretboard();
 
 This is enough to create the default fretboard. 
 
-<a target="_blank" href="https://github.com/fmodica/responsive-fretboard.js/wiki/Configuration-and-API">Learn about the Fretboard API</a>
+Learn about <a target="_blank" href="https://github.com/fmodica/responsive-fretboard.js/wiki/Configuration-and-API">fretboard configuration and the API</a>
+
+## AngularJS Directive
+
+The jQuery plugin is also wrapped as an <a href="https://github.com/fmodica/responsive-fretboard.js/wiki/AngularJS-Directive">AngularJS directive</a>
