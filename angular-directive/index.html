@@ -15,24 +15,75 @@
 
 <body ng-app="myApp">
     <style>
-    .container {
-        min-width: 280px;
-        max-width: 1600px;
-        min-height: 600px;
-        overflow-x: hidden;
-        background: lightgray;
-        padding: 20px 40px;
-    }
-    
-    @media (max-width: 800px) {
         .container {
-            padding: 5px;
+            min-width: 280px;
+            max-width: 1600px;
+            min-height: 600px;
+            overflow-x: hidden;
+            background: lightgray;
+            padding: 20px 40px;
         }
-    }
-    
-    button {
-        margin: 20px 2px;
-    }
+        
+        button {
+            margin: 10px 2.5%;
+            cursor: pointer;
+            height: 80px;
+            width: 20%;
+            float: left;
+            padding: 10px;
+            font-size: 12px;
+            overflow: auto;
+        }
+
+        .disclaimer {
+            text-align: center;
+        }
+
+        .disclaimer-first {
+            margin-top: 30px;
+        }
+
+        .fretboard-container .note.clicked.green {
+            background: green;
+        }
+
+        .fretboard-container .note.clicked.red {
+            background: red;
+        }
+
+        .fretboard-container .note.clicked.yellow {
+            background: yellow;
+        }
+
+        .fretboard-container .note.clicked.orange {
+            background: orange;
+        }
+
+        .json {
+            width:100%;
+            clear:both;
+            padding-top: 10px;
+        }
+
+        .json p {
+            text-align: center;
+        }
+
+        @media (max-width: 800px) {
+            .container {
+                padding: 5px;
+            }
+        }
+
+        @media (max-width: 767px) {
+            button {
+                width: 95%;
+                height: 50px;
+                overflow: hidden;
+                margin: 2px 2.5%;
+                padding: 2px;
+            }
+        }
     </style>
 <div class="container" ng-controller="MyController">
     <script type="text/javascript">
@@ -224,11 +275,11 @@
                 $scope.config = options;
 
                 // For testing - outputs the config during changes to tuning, clicked notes, etc.
-                $scope.$watch(function () {
+                /*$scope.$watch(function () {
                     return $scope.config
                 }, function (newVal, oldval) {
                     console.log($scope.config);
-                }, true);
+                }, true);*/
 
                 $scope.toggleChordMode = function () {
                     $scope.config.isChordMode = !$scope.config.isChordMode;
@@ -311,8 +362,16 @@
 
     <div fretboard fretboard-config='config'></div>
 
+    <p class="disclaimer disclaimer-first">
+        Note that some of these operations may throw errors. This is intentional so you can view the errors in the console.
+    </p>
+
+    <p class="disclaimer">
+        For example, click the "Remove string" button and then "Click A min7 chord" button.
+    </p>
+
     <button ng-click="setMaj7Chord()">Set C maj7 chord</button>
-    <button ng-click="setMin7Chord()">Set C min7 chord</button>
+    <button ng-click="setMin7Chord()">Set A min7 chord</button>
     <!-- show-progression placeholder -->
     <!-- show-scale-run placeholder -->
     <!-- show-arpeggio placeholder -->
@@ -329,7 +388,11 @@
     <button ng-click="toggleNoteMode()">Toggle note mode (interval/letter)</button>
     <button ng-click="toggleIntervalSettings()">Change root for interval mode (C/G)</button>
 
-    <pre>{{ config | json }}</pre>
+
+    <div class="json">
+        <p>Config data-binding</p>
+        <pre>{{ config | json }}</pre>
+    </div>
 </div>
 </body>
 

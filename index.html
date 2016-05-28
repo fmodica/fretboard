@@ -20,27 +20,85 @@
             background: lightgray;
             padding: 20px 40px;
         }
-        
+
+        button {
+            margin: 10px 2.5%;
+            cursor: pointer;
+            height: 80px;
+            width: 20%;
+            float: left;
+            padding: 10px;
+            font-size: 12px;
+            overflow: auto;
+        }
+
+        .disclaimer {
+            text-align: center;
+        }
+
+        .disclaimer-first {
+            margin-top: 30px;
+        }
+
+        .fretboard-container .note.clicked.green {
+            background: green;
+        }
+
+        .fretboard-container .note.clicked.red {
+            background: red;
+        }
+
+        .fretboard-container .note.clicked.yellow {
+            background: yellow;
+        }
+
+        .fretboard-container .note.clicked.orange {
+            background: orange;
+        }
+
+        .json {
+            width: 100%;
+            clear: both;
+            padding-top: 10px;
+        }
+
+        .json p {
+            text-align: center;
+        }
+
         @media (max-width: 800px) {
             .container {
                 padding: 5px;
             }
         }
-        
-        button {
-            margin: 20px 2px;
-            cursor: pointer;
+
+        @media (max-width: 767px) {
+            button {
+                width: 95%;
+                height: 50px;
+                overflow: hidden;
+                margin: 2px 2.5%;
+                padding: 2px;
+            }
         }
     </style>
     <div class="container">
         <div class="my-fretboard-js"></div>
         <!--<div class="my-fretboard-js space-theme"></div>-->
 
+        <p class="disclaimer disclaimer-first">
+            Note that some of these operations may throw errors. This is intentional so you can view the errors in the console.
+        </p>
+
+        <p class="disclaimer">
+            For example, click the "Remove string" button and then "Click A min7 chord" button.
+        </p>
+
         <button class="set-clicked-notes-maj7">Click C maj7 chord</button>
         <button class="set-clicked-notes-min7">Click A min7 chord</button>
-        <button class="show-progression">Click progression notes</button>
-        <button class="show-scale-run">Click scale run notes</button>
-        <button class="show-arpeggio">Click arpeggio notes</button>
+        <button class="show-progression">Click I-vi-IV-V progression notes</button>
+        <button class="show-scale-run">Click D minor 7 scale notes</button>
+        <button class="show-arpeggio">Click A#/Bb maj7 arpeggio notes</button>
         <button class="get-clicked-notes">Get clicked notes (console)</button>
         <button class="unclick">Unclick notes</button>
         <button class="note-clicking-disabled">Disable/enable note clicking</button>
@@ -437,7 +495,7 @@
                                 octave: 4
                             },
                             fretNumber: 8,
-                            cssClass: "red"
+                            cssClass: "orange"
                         }]);
                     });
                 }, ms);
@@ -452,7 +510,7 @@
                                 octave: 4
                             },
                             fretNumber: 6,
-                            cssClass: "red"
+                            cssClass: "orange"
                         }]);
                     });
                 }, ms);
@@ -467,7 +525,7 @@
                                 octave: 4
                             },
                             fretNumber: 5,
-                            cssClass: "green"
+                            cssClass: "orange"
                         }]);
                     });
                 }, ms);
@@ -482,7 +540,7 @@
                                 octave: 3
                             },
                             fretNumber: 8,
-                            cssClass: "green"
+                            cssClass: "orange"
                         }]);
                     });
                 }, ms);
@@ -497,7 +555,7 @@
                                 octave: 3
                             },
                             fretNumber: 6,
-                            cssClass: "yellow"
+                            cssClass: "orange"
                         }]);
                     });
                 }, ms);
@@ -512,7 +570,7 @@
                                 octave: 3
                             },
                             fretNumber: 5,
-                            cssClass: "yellow"
+                            cssClass: "orange"
                         }]);
                     });
                 }, ms);
@@ -526,7 +584,8 @@
                                 letter: "G",
                                 octave: 3
                             },
-                            fretNumber: 7
+                            fretNumber: 7,
+                            cssClass: "orange"
                         }]);
                     });
                 }, ms);
@@ -540,7 +599,8 @@
                                 letter: "G",
                                 octave: 3
                             },
-                            fretNumber: 5
+                            fretNumber: 5,
+                            cssClass: "orange"
                         }]);
                     });
                 }, ms);
@@ -555,7 +615,7 @@
                                 octave: 3
                             },
                             fretNumber: 8,
-                            cssClass: "red"
+                            cssClass: "orange"
                         }]);
                     });
                 }, ms);
@@ -570,7 +630,7 @@
                                 octave: 3
                             },
                             fretNumber: 7,
-                            cssClass: "red"
+                            cssClass: "orange"
                         }]);
                     });
                 }, ms);
@@ -585,7 +645,7 @@
                                 octave: 3
                             },
                             fretNumber: 5,
-                            cssClass: "green"
+                            cssClass: "orange"
                         }]);
                     });
                 }, ms);
@@ -600,7 +660,7 @@
                                 octave: 2
                             },
                             fretNumber: 8,
-                            cssClass: "green"
+                            cssClass: "orange"
                         }]);
                     });
                 }, ms);
@@ -615,7 +675,7 @@
                                 octave: 2
                             },
                             fretNumber: 7,
-                            cssClass: "yellow"
+                            cssClass: "orange"
                         }]);
                     });
                 }, ms);
@@ -630,7 +690,7 @@
                                 octave: 2
                             },
                             fretNumber: 5,
-                            cssClass: "yellow"
+                            cssClass: "orange"
                         }]);
                     });
                 }, ms);

@@ -12,7 +12,7 @@ I initially wrote this so I could capture user input (chords/scales) and display
 
 Check out the <a href="http://frank-modica.com/static/fretboarddemo/index.html" target="_blank">demo fretboard</a>.
 
-You can also check out my <a target="_blank" href="http://frank-modica.com/#/voiceleader">Guitar Voiceleading Helper</a>, where I use the fretboard to help users create progressions with good voice leading.
+You can also check out my <a target="_blank" href="http://frank-modica.com/#/voiceleader/index">Guitar Voiceleading Helper</a>, where I use the fretboard to help users create progressions with good voice leading.
 
 Or check out the "index.html" files in the project for examples.
 

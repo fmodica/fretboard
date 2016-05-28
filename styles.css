@@ -92,18 +92,6 @@
     transition: background .15s linear;*/
 }
 
-.fretboard-container .note.clicked.green {
-    background: green;
-}
-
-.fretboard-container .note.clicked.red {
-    background: red;
-}
-
-.fretboard-container .note.clicked.yellow {
-    background: yellow;
-}
-
 .fretboard-container .letter {
     position: relative;
 	text-align: center;    
@@ -195,5 +183,3 @@
 .fretboard-container.space-theme .note-circle {
     background: white;
 }
-
-
