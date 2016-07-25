@@ -278,7 +278,10 @@
             var noteMode = 'letter'; // or 'interval',
             var isIntervalMode = noteMode === 'interval';
             var clickedNotesChangedFuncs = [function () {
-                console.log("On clicked notes change 1");
+                console.log("On clicked notes change 1. Clicked notes are: ");
+                $fretboards.each(function () {
+                    console.log($(this).data('fretboard').getClickedNotes());
+                });
             }, function () {
                 console.log("On clicked notes change 2");
             }];

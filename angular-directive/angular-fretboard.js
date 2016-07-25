@@ -28,6 +28,14 @@
                     });
 
                     function initialize() {
+                        // The fretboardClickedNotes directive is responsible for updating the parent scope
+                        // with new clicked notes. If callbacks from the original config fire before the parent
+                        // scope is updated, then the clicked notes on the parent scope won't be up to date.
+                        // So we delete the callbacks from the config now and let the fretboardClickedNotes
+                        // directive create them later in the right order.
+                        ctrl.originalOnClickedNotesChange = $scope.config.onClickedNotesChange;
+                        delete $scope.config.onClickedNotesChange;
+
                         $element.attr("id", getUniqueDomIdForFretboard()).fretboard($scope.config);
                         ctrl.jQueryFretboard = $element.data('fretboard');
                     }
@@ -62,11 +70,18 @@
                     var ngModelCtrl = ctrls[0],
                         fretboardCtrl = ctrls[1];
 
+                    // Set the callbacks in the correct order so the parent scope is always up to date.
                     fretboardCtrl.jQueryFretboard.addNotesClickedListener(function () {
                         $rootScope.$safeApply(function () {
                             ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboard.getClickedNotes());
                         });
                     });
+
+                    if (fretboardCtrl.originalOnClickedNotesChange) {
+                        for (var i = 0; i < fretboardCtrl.originalOnClickedNotesChange.length; i++) {
+                            fretboardCtrl.jQueryFretboard.addNotesClickedListener(fretboardCtrl.originalOnClickedNotesChange[i]);
+                        }
+                    }
 
                     ngModelCtrl.$render = function () {
                         if (isUndefinedOrNull(ngModelCtrl.$viewValue)) return;
