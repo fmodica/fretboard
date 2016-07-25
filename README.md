@@ -13,23 +13,42 @@ Check out the <a href="http://frank-modica.com/static/fretboarddemo/index.html" 
 
 You can also check out my <a target="_blank" href="http://frank-modica.com/#/voiceleader/index">Guitar Voiceleading Helper</a>, where I use the fretboard to help users create progressions with good voice leading.
 
-Or check out the code examples using the <a href="https://github.com/fmodica/responsive-fretboard.js/blob/master/index.html">jQuery plugin</a> or the <a href="https://github.com/fmodica/responsive-fretboard.js/blob/master/angular-directive/index.html">AngularJS directive</a>.
+## Setup
 
+Load your scripts:
 
-## Details
+```
+<script src="./jquery-1.11.2.min.js"></script>
+<script src="./fretboard.js"></script>
+<link rel="stylesheet" type="text/css" href="./styles.css">
+```
 
-First load the fretboard.js file into a script tag in your HTML document (along with jQuery). Also load the styles.css file. 
+Create an element to contain the fretboard:
 
-Then initialize on your element:
+```
+<div class="my-fretboard-js"></div>
+```
+
+Initialize:
 
 ```
 $(".my-fretboard-js").fretboard();
 ```
 
-This is enough to create the default fretboard. 
+This is enough to create a fretboard using the default configuration.
 
-Learn about <a target="_blank" href="https://github.com/fmodica/responsive-fretboard.js/wiki/Configuration-and-API">fretboard configuration and the API</a>
+Learn about <a target="_blank" href="https://github.com/fmodica/responsive-fretboard.js/wiki/Configuration-and-API">fretboard configuration and the API</a>.
 
 ## AngularJS Directive
 
-The jQuery plugin is also wrapped as an <a href="https://github.com/fmodica/responsive-fretboard.js/wiki/AngularJS-Directive">AngularJS directive</a>
+The jQuery plugin is also wrapped as an <a href="https://github.com/fmodica/responsive-fretboard.js/wiki/AngularJS-Directive">AngularJS directive</a>. Check out the <a href="http://frank-modica.com/static/fretboarddemo/angular-directive/index.html">demo</a>.
+
+## Code Examples
+
+<a href="https://github.com/fmodica/responsive-fretboard.js/blob/master/index.html">jQuery plugin (basic, using the default config)</a>
+
+<a href="https://github.com/fmodica/responsive-fretboard.js/blob/master/index-with-full-config.html">jQuery plugin (using all config options + API)</a>
+
+<a href="https://github.com/fmodica/responsive-fretboard.js/blob/master/angular-directive/index.html">AngularJS directive (basic, using the default config)</a>
+
+<a href="https://github.com/fmodica/responsive-fretboard.js/blob/master/angular-directive/index-with-full-config.html">AngularJS directive (using all config options + API)</a>
