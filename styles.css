@@ -154,32 +154,31 @@
 
 /* Theme Examples */
 
-/* Space */
-.fretboard-container.space-theme .fretboard-body {
-    background: url("content/NGC_4414_(NASA-med).jpg");
+/* Dark */
+.fretboard-container.dark-theme .fretboard-body {
     background-color: black;
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center;
 }
 
-.fretboard-container.space-theme .string {
+.fretboard-container.dark-theme .string {
     background: white;
 }
 
-.fretboard-container.space-theme .note.clicked {
+.fretboard-container.dark-theme .note.clicked {
     background: green;
     border: 1px solid white;
 }
 
-.fretboard-container.space-theme .note {
+.fretboard-container.dark-theme .note {
     border: 1px solid green;
 }
 
-.fretboard-container.space-theme .fret-line {
+.fretboard-container.dark-theme .fret-line {
     background: white;
 }
 
-.fretboard-container.space-theme .note-circle {
+.fretboard-container.dark-theme .note-circle {
     background: white;
 }
