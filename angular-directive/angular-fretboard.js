@@ -79,7 +79,13 @@
 
                     if (fretboardCtrl.originalOnClickedNotesChange) {
                         for (var i = 0; i < fretboardCtrl.originalOnClickedNotesChange.length; i++) {
-                            fretboardCtrl.jQueryFretboard.addNotesClickedListener(fretboardCtrl.originalOnClickedNotesChange[i]);
+                            (function (i) {
+                                fretboardCtrl.jQueryFretboard.addNotesClickedListener(function () {
+                                    $rootScope.$safeApply(function () {
+                                        fretboardCtrl.originalOnClickedNotesChange[i]();
+                                    });
+                                });
+                            })(i);
                         }
                     }
 
