@@ -354,7 +354,7 @@
 
             for (var i = 0; i < allNoteLetters.length; i++) {
                 if (!allNoteLetters[i]) {
-                    throw new Error("Letter " + allNoteLetters[i] + " in All Note Letters array " + objectToString(allNoteLetters) + " does not exist" );
+                    throw new Error("Letter " + allNoteLetters[i] + " in All Note Letters array " + objectToString(allNoteLetters) + " does not exist");
                 }
 
                 hash[allNoteLetters[i]] = true;
@@ -379,13 +379,16 @@
             for (var i = 0; i < tuning.length; i++) {
                 validateNote(tuning[i], allNoteLetters);
 
-                var key = objectToString(tuning[i]);
-
-                if (hash[key]) {
-                    throw new Error("Each note in the tuning must be unique: " + objectToString(tuning));
-                }
+                var key = objectToString({
+                    letter: tuning[i].letter,
+                    octave: tuning[i].octave
+                });
 
                 hash[key] = true;
+            }
+
+            if (Object.keys(hash).length !== tuning.length) {
+                throw new Error("Tuning must contain unique notes: " + objectToString(tuning));
             }
         }
 
@@ -1175,7 +1178,7 @@
                     noteMode: settings.noteMode
                 };
 
-                fretboardRenderer = new FretboardHtmlRenderer(fretboardRendererSettings, $element);  
+                fretboardRenderer = new FretboardHtmlRenderer(fretboardRendererSettings, $element);
             }
 
             function addNotesClickedListener(callback) {
