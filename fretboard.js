@@ -170,7 +170,7 @@
         }
 
         function setIntervalSettings(intervalSettings) {
-            // validateIntervalSettings
+            validator.validateIntervalSettings(intervalSettings, model.allNoteLetters);
             model.intervalSettings = $.extend(true, {}, intervalSettings);
 
             for (var i = 0; i < model.tuning.length; i++) {
@@ -200,6 +200,7 @@
             model.numFrets = settings.numFrets;
             model.isChordMode = settings.isChordMode;
             model.noteClickingDisabled = settings.noteClickingDisabled;
+            validator.validateIntervalSettings(settings.intervalSettings, model.allNoteLetters);
             model.intervalSettings = settings.intervalSettings;
 
             for (var i = 0; i < model.tuning.length; i++) {
@@ -258,16 +259,6 @@
         function getIntervalByLetterAndRoot(letter, root) {
             var letterIndex = model.allNoteLetters.indexOf(letter);
             var rootIndex = model.allNoteLetters.indexOf(root);
-
-            // Need to validate intervalSettings in validator
-            if (letterIndex === -1) {
-                throw "note letter \"" + letter + "\" is not in the allNoteLetters array: " + model.allNoteLetters;
-            }
-
-            if (rootIndex === -1) {
-                throw "note letter \"" + root + "\" is not in the allNoteLetters array: " + model.allNoteLetters;
-            }
-
             var intervalIndex = letterIndex - rootIndex + (letterIndex >= rootIndex ? 0 : 12);
 
             return model.intervalSettings.intervals[intervalIndex];
@@ -290,7 +281,7 @@
         self.validateAllNoteLetters = validateAllNoteLetters;
         self.validateTuning = validateTuning;
         self.validateNumFrets = validateNumFrets;
-        // Need validateIntervalSettings
+        self.validateIntervalSettings = validateIntervalSettings;
 
         function validateNote(note, allNoteLetters) {
             if (!note) {
@@ -389,6 +380,30 @@
 
             if (Object.keys(hash).length !== tuning.length) {
                 throw new Error("Tuning must contain unique notes: " + objectToString(tuning));
+            }
+        }
+
+        function validateIntervalSettings(intervalSettings, allNoteLetters) {
+            if (!intervalSettings) {
+                throw new Error("Interval settings do not exist: " + objectToString(intervalSettings));
+            }
+
+            if (allNoteLetters.indexOf(intervalSettings.root) === -1) {
+                throw new Error("Interval settings root " + objectToString(intervalSettings) + " is not in the All Note Letters array " + objectToString(allNoteLetters));
+            }
+
+            if (!intervalSettings.intervals) {
+                throw new Error("Interval settings intervals do not exist: " + objectToString(intervalSettings));
+            }
+            
+            var hash = {};
+
+            for (var i = 0; i < intervalSettings.intervals.length; i++) {
+                hash[intervalSettings.intervals[i]] = true;
+            }
+
+            if (Object.keys(hash).length !== 12) {
+                throw new Error("There must be 12 unique intervals in the Interval settings intervals array: " + objectToString(intervalSettings));
             }
         }
 
