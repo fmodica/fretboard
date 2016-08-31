@@ -43,36 +43,33 @@ describe("Fretboard", function () {
         root: defaultNoteLetters[0]
     };
     var defaultNoteMode = 'letter'; // or 'interval'
-    var checkCorrectNotesFunc = function (tuning, numFrets, noteLetters) {
-        var allNotes = fretboardInstance.getAllNotes();
+    // It would be best to create each note by hand for verification, but this should do for now.
+    var verifyAllNotesOnFretboard = function (notesToVerify, tuning, numFrets, noteLetters) {
+        expect(notesToVerify.length).toEqual(tuning.length);
 
-        expect(allNotes.length).toEqual(tuning.length);
-
-        for (var i = 0; i < allNotes.length; i++) {
-            var currentString = allNotes[i];
+        for (var i = 0; i < notesToVerify.length; i++) {
+            var currentString = notesToVerify[i];
             var currentTuningNote = tuning[i];
 
             expect(currentString.length).toEqual(numFrets + 1);
 
             for (var j = 0; j < currentString.length; j++) {
                 var currentNote = currentString[j];
-                var currentNoteLetterIndex = noteLetters.indexOf(currentNote.letter);
+                 var currentNoteLetterIndex = noteLetters.indexOf(currentNote.letter);
 
-                expect(currentNoteLetterIndex).not.toEqual(-1);
                 expect(currentNote.fretNumber).toEqual(j);
                 expect(currentNote.stringItsOn).toEqual(currentTuningNote);
 
                 if (j === 0) {
                     expect(currentNote.letter).toEqual(currentTuningNote.letter);
                     expect(currentNote.octave).toEqual(currentTuningNote.octave);
+                    expect(currentNoteLetterIndex).not.toEqual(-1);
                 } else {
                     var lastNote = currentString[j - 1];
                     var lastNoteIndex = noteLetters.indexOf(lastNote.letter);
-                    var expectedLastNoteIndex = (currentNoteLetterIndex === 0 ? 11 : currentNoteLetterIndex - 1);
-                    var expectedLastNoteOctave = (currentNoteLetterIndex === 0 ? currentNote.octave - 1 : currentNote.octave);
 
-                    expect(lastNoteIndex).toEqual(expectedLastNoteIndex);
-                    expect(lastNote.octave).toEqual(expectedLastNoteOctave);
+                    expect(currentNoteLetterIndex).toEqual(lastNoteIndex === 11 ? 0 : lastNoteIndex + 1);
+                    expect(currentNote.octave).toEqual(lastNoteIndex === 11 ? lastNote.octave + 1 : lastNote.octave);
                 }
             }
         }
@@ -141,8 +138,8 @@ describe("Fretboard", function () {
             expect(fretboardInstance.getClickedNotes()).toEqual([]);
         });
 
-        it("should return the correct notes for the whole fretboard", function () {
-            checkCorrectNotesFunc(standardTuning, defaultNumFrets, defaultNoteLetters);
+        it("should return the correct notes for the whole fretboard: ", function () {
+            verifyAllNotesOnFretboard(fretboardInstance.getAllNotes(), standardTuning, defaultNumFrets, defaultNoteLetters);
         });
     });
 
@@ -282,7 +279,7 @@ describe("Fretboard", function () {
 
             fretboardInstance.setNumFrets(increase);
 
-            checkCorrectNotesFunc(standardTuning, increase, defaultNoteLetters);
+            verifyAllNotesOnFretboard(fretboardInstance.getAllNotes(), standardTuning, increase, defaultNoteLetters);
         });
 
         it("should return the correct number of frets when the fret number is decreased", function () {
@@ -299,7 +296,7 @@ describe("Fretboard", function () {
 
             fretboardInstance.setNumFrets(decrease);
 
-            checkCorrectNotesFunc(standardTuning, decrease, defaultNoteLetters);
+            verifyAllNotesOnFretboard(fretboardInstance.getAllNotes(), standardTuning, decrease, defaultNoteLetters);
         });
     });
 
@@ -398,7 +395,7 @@ describe("Fretboard", function () {
             }).toThrow();
         });
 
-        it("should return the correct clicked notes when notes are clicked on each string and some are out of the fret range", function () {
+        it("should throw an exception when notes are clicked on each string and some are out of the fret range", function () {
             clickedNotes[0].fretNumber = -1;
             clickedNotes[1].fretNumber = defaultNumFrets + 1;
             expect(function () {
