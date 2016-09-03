@@ -120,6 +120,7 @@
     background: black;
     width: 1px;
     position: absolute;
+    height: 100%;
 }
 
 .fretboard-container .fret-line.first {
