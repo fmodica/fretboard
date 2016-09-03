@@ -37,13 +37,13 @@
                         delete $scope.config.onClickedNotesChange;
 
                         $element.attr("id", getUniqueDomIdForFretboard()).fretboard($scope.config);
-                        ctrl.jQueryFretboard = $element.data('fretboard');
+                        ctrl.jQueryFretboardApi = $element.data('api');
                     }
 
                     function destroy() {
-                        if (ctrl.jQueryFretboard) {
-                            ctrl.jQueryFretboard.destroy();
-                            ctrl.jQueryFretboard = null;
+                        if (ctrl.jQueryFretboardApi) {
+                            ctrl.jQueryFretboardApi.destroy();
+                            ctrl.jQueryFretboardApi = null;
                         }
                     }
 
@@ -71,16 +71,16 @@
                         fretboardCtrl = ctrls[1];
 
                     // Set the callbacks in the correct order so the parent scope is always up to date.
-                    fretboardCtrl.jQueryFretboard.addNotesClickedListener(function () {
+                    fretboardCtrl.jQueryFretboardApi.addNotesClickedListener(function () {
                         $rootScope.$safeApply(function () {
-                            ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboard.getClickedNotes());
+                            ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getClickedNotes());
                         });
                     });
 
                     if (fretboardCtrl.originalOnClickedNotesChange) {
                         for (var i = 0; i < fretboardCtrl.originalOnClickedNotesChange.length; i++) {
                             (function (i) {
-                                fretboardCtrl.jQueryFretboard.addNotesClickedListener(function () {
+                                fretboardCtrl.jQueryFretboardApi.addNotesClickedListener(function () {
                                     $rootScope.$safeApply(function () {
                                         fretboardCtrl.originalOnClickedNotesChange[i]();
                                     });
@@ -94,8 +94,8 @@
 
                         // Store the $viewValue because the call to clearClickedNotes will clear it out
                         var clickedNotes = ngModelCtrl.$viewValue;
-                        fretboardCtrl.jQueryFretboard.clearClickedNotes();
-                        fretboardCtrl.jQueryFretboard.setClickedNotes(clickedNotes);
+                        fretboardCtrl.jQueryFretboardApi.clearClickedNotes();
+                        fretboardCtrl.jQueryFretboardApi.setClickedNotes(clickedNotes);
                     };
                 }
             }
@@ -111,7 +111,7 @@
                     ngModelCtrl.$render = function () {
                         if (isUndefinedOrNull(ngModelCtrl.$viewValue)) return;
 
-                        fretboardCtrl.jQueryFretboard.setTuning(ngModelCtrl.$viewValue);
+                        fretboardCtrl.jQueryFretboardApi.setTuning(ngModelCtrl.$viewValue);
                     };
                 }
             }
@@ -127,7 +127,7 @@
                     ngModelCtrl.$render = function () {
                         if (isUndefinedOrNull(ngModelCtrl.$viewValue)) return;
 
-                        fretboardCtrl.jQueryFretboard.setNumFrets(ngModelCtrl.$viewValue);
+                        fretboardCtrl.jQueryFretboardApi.setNumFrets(ngModelCtrl.$viewValue);
                     };
                 }
             }
@@ -143,7 +143,7 @@
                     ngModelCtrl.$render = function () {
                         if (isUndefinedOrNull(ngModelCtrl.$viewValue)) return;
 
-                        fretboardCtrl.jQueryFretboard.setChordMode(ngModelCtrl.$viewValue);
+                        fretboardCtrl.jQueryFretboardApi.setChordMode(ngModelCtrl.$viewValue);
                     };
                 }
             }
@@ -159,7 +159,7 @@
                     ngModelCtrl.$render = function () {
                         if (isUndefinedOrNull(ngModelCtrl.$viewValue)) return;
 
-                        fretboardCtrl.jQueryFretboard.setNoteClickingDisabled(ngModelCtrl.$viewValue);
+                        fretboardCtrl.jQueryFretboardApi.setNoteClickingDisabled(ngModelCtrl.$viewValue);
                     };
                 }
             }
@@ -175,7 +175,7 @@
                     ngModelCtrl.$render = function () {
                         if (isUndefinedOrNull(ngModelCtrl.$viewValue)) return;
 
-                        fretboardCtrl.jQueryFretboard.setNoteMode(ngModelCtrl.$viewValue);
+                        fretboardCtrl.jQueryFretboardApi.setNoteMode(ngModelCtrl.$viewValue);
                     };
                 }
             }
@@ -191,7 +191,7 @@
                     ngModelCtrl.$render = function () {
                         if (isUndefinedOrNull(ngModelCtrl.$viewValue)) return;
 
-                        fretboardCtrl.jQueryFretboard.setIntervalSettings(ngModelCtrl.$viewValue);
+                        fretboardCtrl.jQueryFretboardApi.setIntervalSettings(ngModelCtrl.$viewValue);
                     };
                 }
             }

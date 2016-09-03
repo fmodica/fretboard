@@ -1047,7 +1047,7 @@
 // This is the jQuery plugin. It instantiates the fretboard model and
 // fretboard renderer and coordinates interactions between them. It
 // contains an API which the user can get:
-// var fretboardInstance = $(".my-fretboard-js").data('fretboard');
+// var api = $(".my-fretboard-js").data('api');
 (function($) {
     "use strict";
 
@@ -1144,7 +1144,7 @@
             createFretboardRenderer();
 
             $element.on("noteClicked", onUserNoteClick);
-            $element.data('fretboard', api);
+            $element.data('api', api);
 
             function destroy() {
                 fretboardModel.destroy();
