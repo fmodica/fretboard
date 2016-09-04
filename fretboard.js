@@ -1,7 +1,7 @@
-(function($) {
+(function ($) {
     "use strict";
 
-    window.FretboardModel = function(settings) {
+    window.FretboardModel = function (settings) {
         var self = this;
         self.destroy = destroy;
         self.getAllNotes = getAllNotes;
@@ -143,7 +143,7 @@
             if (model.tuning.length <= oldTuning.length) {
                 model.clickedNotes = model.clickedNotes.slice(0, model.tuning.length);
             } else {
-                for (var i = 0; i < (model.tuning.length - oldTuning.length); i++) {
+                for (var i = 0; i < (model.tuning.length - oldTuning.length) ; i++) {
                     model.clickedNotes.push([]);
                 }
             }
@@ -159,7 +159,7 @@
 
             for (var i = 0; i < model.tuning.length; i++) {
                 model.allNotes[i] = calculateNotesOnString(model.tuning[i]);
-                model.clickedNotes[i] = model.clickedNotes[i].filter(function(fretNumber) {
+                model.clickedNotes[i] = model.clickedNotes[i].filter(function (fretNumber) {
                     return fretNumber <= model.numFrets;
                 });
             }
@@ -270,10 +270,10 @@
     };
 })(jQuery);
 
-(function() {
+(function () {
     "use strict";
 
-    window.FretboardValidator = function() {
+    window.FretboardValidator = function () {
         var self = this;
 
         self.validateNote = validateNote;
@@ -408,7 +408,7 @@
         }
 
         function isNumeric(n) {
-            return !isNaN(parseFloat(n)) && isFinite(n);
+            return typeof (n) === "number" && !isNaN(n) && isFinite(n);
         }
 
         function notesAreEqual(note1, note2) {
@@ -421,10 +421,10 @@
     };
 })();
 
-(function($) {
+(function ($) {
     "use strict";
 
-    window.FretboardHtmlRenderer = function(settings, $element) {
+    window.FretboardHtmlRenderer = function (settings, $element) {
         var self = this;
         self.destroy = destroy;
         self.alterFretboard = alterFretboard;
@@ -578,9 +578,9 @@
         function setupRedrawOnResize() {
             // Animate the fretboard dimensions on resize, but only
             // on the last resize after X milliseconds
-            $window.on("resize", function() {
+            $window.on("resize", function () {
                 clearTimeout(timer);
-                timer = setTimeout(function() {
+                timer = setTimeout(function () {
                     setDimensions(true, true, true, true, true);
                 }, 100);
             });
@@ -793,10 +793,10 @@
         // The user may have added some of their own classes so only remove the ones we know about.
         function removeContainerCssClasses() {
             $fretboardContainer
-                .removeClass(function(index, css) {
+                .removeClass(function (index, css) {
                     return (css.match(/(^|\s)strings-\S+/g) || []).join(' ');
                 })
-                .removeClass(function(index, css) {
+                .removeClass(function (index, css) {
                     return (css.match(/(^|\s)frets-\S+/g) || []).join(' ');
                 })
                 .removeClass(fretboardContainerCssClass);
@@ -817,7 +817,7 @@
             var $fretLines = $fretboardContainer.find(fretLineSelector);
 
             $fretLines.removeClass(firstCssClass).removeClass(lastCssClass)
-                .each(function(fretNum, fretLineEl) {
+                .each(function (fretNum, fretLineEl) {
                     var fretLeftVal = fretNum * fretWidth,
                         $fretLine = $(fretLineEl);
 
@@ -842,7 +842,7 @@
             var fretHeight = (fretboardBodyHeight - firstStringDistanceFromTop * 2) / (model.tuning.length - 1);
 
             $stringContainers.removeClass(firstCssClass + " " + lastCssClass)
-                .each(function(stringNum, stringContainerEl) {
+                .each(function (stringNum, stringContainerEl) {
                     var $stringContainer = $(stringContainerEl),
                         $string = $stringContainer.find(stringSelector),
                         fretTopVal = firstStringDistanceFromTop + (stringNum * fretHeight);
@@ -866,7 +866,7 @@
         function animateNotes($stringContainer, fretTopVal, fretWidth, notesShouldBeAnimated) {
             $stringContainer
                 .find(noteSelector)
-                .each(function(fretNum, noteEl) {
+                .each(function (fretNum, noteEl) {
                     var $note = $(noteEl),
                         fretLeftVal = fretNum * fretWidth,
                         noteLeftVal = fretLeftVal + ((fretWidth / 2) - ($note.outerWidth(true) / 2)),
@@ -897,7 +897,7 @@
                 $existingNoteCirclesHash[fretNumber].push($noteCircle);
             }
 
-            Object.keys($existingNoteCirclesHash).forEach(function(fretNumber) {
+            Object.keys($existingNoteCirclesHash).forEach(function (fretNumber) {
                 var $noteCircles = $existingNoteCirclesHash[fretNumber];
 
                 if ($noteCircles.length === 2) {
@@ -1048,11 +1048,11 @@
 // fretboard renderer and coordinates interactions between them. It
 // contains an API which the user can get:
 // var api = $(".my-fretboard-js").data('api');
-(function($) {
+(function ($) {
     "use strict";
 
-    $.fn.fretboard = function(options) {
-        return this.each(function() {
+    $.fn.fretboard = function (options) {
+        return this.each(function () {
             var api = {};
             api.destroy = destroy;
             api.getAllNotes = getAllNotes;
@@ -1108,7 +1108,7 @@
             };
             var defaultNoteMode = 'letter'; // or 'interval'
             // Take up the container's height and width by default
-            var defaultDimensionsFunc = function($fretboardContainer, $fretboardBody, settings) {
+            var defaultDimensionsFunc = function ($fretboardContainer, $fretboardBody, settings) {
                 var containerWidth = $fretboardContainer.width(),
                     containerHeight = $fretboardContainer.height(),
                     fretboardBodyWidthDiff = $fretboardBody.outerWidth(true) - $fretboardBody.width(),
@@ -1297,7 +1297,7 @@
                 if (settings.dimensionsFunc !== defaultDimensionsFunc) {
                     var oldFunc = settings.dimensionsFunc;
 
-                    return function($fretboardContainer, $fretboardBody, settings) {
+                    return function ($fretboardContainer, $fretboardBody, settings) {
                         var dimensions = oldFunc($fretboardContainer, $fretboardBody, settings),
                             width = dimensions.width,
                             height = dimensions.height,
