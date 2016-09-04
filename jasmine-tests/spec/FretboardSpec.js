@@ -57,7 +57,7 @@ describe("Fretboard", function () {
                 var currentNote = currentString[j];
                  var currentNoteLetterIndex = noteLetters.indexOf(currentNote.letter);
 
-                expect(currentNote.fretNumber).toEqual(j);
+                expect(currentNote.fret).toEqual(j);
                 expect(currentNote.stringItsOn).toEqual(currentTuningNote);
 
                 if (j === 0) {
@@ -317,37 +317,37 @@ describe("Fretboard", function () {
                     letter: "E",
                     octave: 4
                 },
-                fretNumber: 3
+                fret: 3
             }, {
                 stringItsOn: {
                     letter: "B",
                     octave: 3
                 },
-                fretNumber: 5,
+                fret: 5,
             }, {
                 stringItsOn: {
                     letter: "G",
                     octave: 3
                 },
-                fretNumber: 4
+                fret: 4
             }, {
                 stringItsOn: {
                     letter: "D",
                     octave: 3
                 },
-                fretNumber: 5
+                fret: 5
             }, {
                 stringItsOn: {
                     letter: "A",
                     octave: 2
                 },
-                fretNumber: 3
+                fret: 3
             }, {
                 stringItsOn: {
                     letter: "E",
                     octave: 2
                 },
-                fretNumber: 3
+                fret: 3
             }];
 
             expectedClickedNotes = $.extend(true, [], clickedNotes);
@@ -396,8 +396,8 @@ describe("Fretboard", function () {
         });
 
         it("should throw an exception when notes are clicked on each string and some are out of the fret range", function () {
-            clickedNotes[0].fretNumber = -1;
-            clickedNotes[1].fretNumber = defaultNumFrets + 1;
+            clickedNotes[0].fret = -1;
+            clickedNotes[1].fret = defaultNumFrets + 1;
             expect(function () {
                 api.setClickedNotes(clickedNotes);
             }).toThrow();
@@ -422,7 +422,7 @@ describe("Fretboard", function () {
             api.setNumFrets(lowestClickedFret);
 
             expectedClickedNotes = expectedClickedNotes.filter(function (note) {
-                return note.fretNumber === lowestClickedFret;
+                return note.fret === lowestClickedFret;
             });
 
             expect(api.getClickedNotes()).toEqual(expectedClickedNotes);

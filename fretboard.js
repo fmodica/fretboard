@@ -83,7 +83,7 @@
         }
 
         function clickNoteOnString(note, stringIndex, takeSettingsIntoAccount) {
-            var indexOfClickedFret = model.clickedNotes[stringIndex].indexOf(note.fretNumber);
+            var indexOfClickedFret = model.clickedNotes[stringIndex].indexOf(note.fret);
             var fretAlreadyClicked = indexOfClickedFret !== -1;
 
             if (takeSettingsIntoAccount) {
@@ -91,18 +91,18 @@
                     model.clickedNotes[stringIndex] = [];
 
                     if (!fretAlreadyClicked) {
-                        model.clickedNotes[stringIndex].push(note.fretNumber);
+                        model.clickedNotes[stringIndex].push(note.fret);
                     }
                 } else {
                     if (!fretAlreadyClicked) {
-                        model.clickedNotes[stringIndex].push(note.fretNumber)
+                        model.clickedNotes[stringIndex].push(note.fret)
                     } else {
                         model.clickedNotes[stringIndex].splice(indexOfClickedFret, 1);
                     }
                 }
             } else {
                 if (!fretAlreadyClicked) {
-                    model.clickedNotes[stringIndex].push(note.fretNumber);
+                    model.clickedNotes[stringIndex].push(note.fret);
                 }
             }
         }
@@ -159,8 +159,8 @@
 
             for (var i = 0; i < model.tuning.length; i++) {
                 model.allNotes[i] = calculateNotesOnString(model.tuning[i]);
-                model.clickedNotes[i] = model.clickedNotes[i].filter(function (fretNumber) {
-                    return fretNumber <= model.numFrets;
+                model.clickedNotes[i] = model.clickedNotes[i].filter(function (fret) {
+                    return fret <= model.numFrets;
                 });
             }
         }
@@ -215,7 +215,7 @@
             for (var i = 0; i <= model.numFrets; i++) {
                 var note = getNoteByFretNumber(openNote, i);
 
-                note.fretNumber = i;
+                note.fret = i;
                 note.stringItsOn = openNote;
                 note.intervalInfo = getIntervalInfo(note.letter);
 
@@ -233,8 +233,8 @@
         }
 
         // Could be a generic getNoteXNotesAwayFrom function
-        function getNoteByFretNumber(stringNote, fretNumber) {
-            var noteIndex = model.allNoteLetters.indexOf(stringNote.letter) + fretNumber,
+        function getNoteByFretNumber(stringNote, fret) {
+            var noteIndex = model.allNoteLetters.indexOf(stringNote.letter) + fret,
                 numOctavesAboveString = Math.floor(noteIndex / 12),
 
                 // If noteIndex is <= 11, the note on this fret is in the same octave
@@ -297,17 +297,17 @@
             }
         }
 
-        // Fretted notes just have stringItsOn and fretNumber properties for now
+        // Fretted notes just have stringItsOn and fret properties for now
         function validateFrettedNote(note, tuning, numFrets) {
             if (!note) {
                 throw new Error("Note does not exist: " + objectToString(note));
             }
 
-            if (!isNumeric(note.fretNumber)) {
+            if (!isNumeric(note.fret)) {
                 throw new Error("Fret number is not a number: " + objectToString(note));
             }
 
-            if (note.fretNumber < 0 || note.fretNumber > numFrets) {
+            if (note.fret < 0 || note.fret > numFrets) {
                 throw new Error("Fret number is out of range: " + objectToString(note));
             }
 
@@ -478,7 +478,7 @@
             return $fretboardContainer.find(noteSelector + clickedSelector);
         }
 
-        // Will be passed in with just fretNumber and stringItsOn.
+        // Will be passed in with just fret and stringItsOn.
         // This method can probably be optimized to not use indexOf
         // and other inefficient search techniques.
         function setClickedNotes(notesToClick) {
@@ -504,7 +504,7 @@
                 noteToClick = notesToClick[i];
                 stringItsOn = noteToClick && noteToClick.stringItsOn;
 
-                if (noteToClick.fretNumber < 0 || noteToClick.fretNumber > model.numFrets || !stringItsOn) {
+                if (noteToClick.fret < 0 || noteToClick.fret > model.numFrets || !stringItsOn) {
                     continue;
                 }
 
@@ -521,7 +521,7 @@
 
                     $note = $stringContainer
                         .find(noteSelector)
-                        .eq(noteToClick.fretNumber);
+                        .eq(noteToClick.fret);
 
                     // Make it behave the same as if you hovered over and clicked it.
                     // SOME DUPLICATE LOGIC - possibly refactor
@@ -716,13 +716,13 @@
 
             for (var i = 0; i < $existingNoteCircles.length; i++) {
                 var $noteCircle = $existingNoteCircles.eq(i);
-                var fretNumber = $noteCircle.data("fretNumber");
+                var fret = $noteCircle.data("fret");
 
-                if (!$existingNoteCirclesHash[fretNumber]) {
-                    $existingNoteCirclesHash[fretNumber] = [];
+                if (!$existingNoteCirclesHash[fret]) {
+                    $existingNoteCirclesHash[fret] = [];
                 }
 
-                $existingNoteCirclesHash[fretNumber].push($noteCircle);
+                $existingNoteCirclesHash[fret].push($noteCircle);
             }
 
             for (var i = 0; i < model.noteCircles.length; i++) {
@@ -888,29 +888,29 @@
 
             for (var i = 0; i < $existingNoteCircles.length; i++) {
                 var $noteCircle = $existingNoteCircles.eq(i);
-                var fretNumber = $noteCircle.data("fretNumber");
+                var fret = $noteCircle.data("fret");
 
-                if (!$existingNoteCirclesHash[fretNumber]) {
-                    $existingNoteCirclesHash[fretNumber] = [];
+                if (!$existingNoteCirclesHash[fret]) {
+                    $existingNoteCirclesHash[fret] = [];
                 }
 
-                $existingNoteCirclesHash[fretNumber].push($noteCircle);
+                $existingNoteCirclesHash[fret].push($noteCircle);
             }
 
-            Object.keys($existingNoteCirclesHash).forEach(function (fretNumber) {
-                var $noteCircles = $existingNoteCirclesHash[fretNumber];
+            Object.keys($existingNoteCirclesHash).forEach(function (fret) {
+                var $noteCircles = $existingNoteCirclesHash[fret];
 
                 if ($noteCircles.length === 2) {
                     $noteCircles[0].animate({
                         top: getDoubleNoteCircleTopValue(fretboardBodyHeight, true) - ($noteCircle.outerHeight(true) / 2),
-                        left: (fretNumber * fretWidth) + ((fretWidth / 2) - ($noteCircle.outerWidth(true) / 2))
+                        left: (fret * fretWidth) + ((fretWidth / 2) - ($noteCircle.outerWidth(true) / 2))
                     }, {
                         duration: noteCirclesShouldBeAnimated ? model.animationSpeed : 0,
                         queue: false
                     });
                     $noteCircles[1].animate({
                         top: getDoubleNoteCircleTopValue(fretboardBodyHeight, false) - ($noteCircle.outerHeight(true) / 2),
-                        left: (fretNumber * fretWidth) + ((fretWidth / 2) - ($noteCircle.outerWidth(true) / 2))
+                        left: (fret * fretWidth) + ((fretWidth / 2) - ($noteCircle.outerWidth(true) / 2))
                     }, {
                         duration: noteCirclesShouldBeAnimated ? model.animationSpeed : 0,
                         queue: false
@@ -918,7 +918,7 @@
                 } else {
                     $noteCircles[0].animate({
                         top: getMiddleNoteCircleTopValue(fretboardBodyHeight) - ($noteCircle.outerHeight(true) / 2),
-                        left: (fretNumber * fretWidth) + ((fretWidth / 2) - ($noteCircle.outerWidth(true) / 2))
+                        left: (fret * fretWidth) + ((fretWidth / 2) - ($noteCircle.outerWidth(true) / 2))
                     }, {
                         duration: noteCirclesShouldBeAnimated ? model.animationSpeed : 0,
                         queue: false
@@ -945,7 +945,7 @@
 
         function getNoteCircleEl(fretNum) {
             return $("<div class='" + noteCircleCssClass + "'></div>")
-                .data('fretNumber', fretNum);
+                .data('fret', fretNum);
         }
 
         function getNoteLetterEl(note) {
@@ -1377,6 +1377,6 @@
     }
 
     function frettedNotesAreEqual(note1, note2) {
-        return notesAreEqual(note1.stringItsOn, note2.stringItsOn) && note1.fretNumber === note2.fretNumber;
+        return notesAreEqual(note1.stringItsOn, note2.stringItsOn) && note1.fret === note2.fret;
     }
 })(jQuery);
