@@ -110,6 +110,9 @@ if (!Object.keys) {
 
             for (var i = 0; i < frettedNotesToClick.length; i++) {
                 validator.validateFrettedNote(frettedNotesToClick[i], model.tuning, model.numFrets);
+            }
+
+            for (var i = 0; i < frettedNotesToClick.length; i++) {
                 clickNote(frettedNotesToClick[i], takeSettingsIntoAccount);
             }
         }
