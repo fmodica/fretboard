@@ -54,6 +54,7 @@
                 }],
                 // The inner directives each have their own ngModel which handle two-way data-binding for a single config property.
                 template:
+                    // Clicked notes comes first because the others could fire callbacks that overwrite clicked notes
                     '<span ng-if="config" fretboard-clicked-notes ng-model="config.clickedNotes"></span>' +
                     '<span ng-if="config" fretboard-tuning ng-model="config.tuning"></span>' +
                     '<span ng-if="config" fretboard-num-frets ng-model="config.numFrets"></span>' +

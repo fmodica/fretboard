@@ -54,10 +54,6 @@
             background: red;
         }
 
-        .fretboard-container .note.clicked.yellow {
-            background: yellow;
-        }
-
         .fretboard-container .note.clicked.orange {
             background: orange;
         }
@@ -93,30 +89,25 @@
         <!--<div class="my-fretboard-js dark-theme"></div>-->
 
         <p class="disclaimer disclaimer-first">
-            Below are some examples of things you can do with the fretboard. Note that some of these operations may throw errors. This is intentional so you can view the errors in the console.
+            Below are some examples of things you can do with the fretboard.
         </p>
 
-        <p class="disclaimer">
-            For example, click the "Remove string" button and then "Click A min7 chord" button.
-        </p>
-
-        <button class="set-clicked-notes-maj7">Click C maj7 chord</button>
-        <button class="set-clicked-notes-min7">Click A min7 chord</button>
-        <button class="show-progression">Click I-vi-IV-V progression notes</button>
-        <button class="show-scale-run">Click D minor 7 scale notes</button>
-        <button class="show-arpeggio">Click A#/Bb maj7 arpeggio notes</button>
+        <button class="set-clicked-notes-maj7">Click chord</button>
+        <button class="show-progression">Click progression</button>
+        <button class="show-scale-run">Click scale</button>
+        <button class="show-arpeggio">Click arpeggio</button>
         <button class="get-clicked-notes">Get clicked notes (console)</button>
         <button class="unclick">Unclick notes</button>
         <button class="note-clicking-disabled">Disable/enable note clicking</button>
         <button class="add-string">Add string</button>
         <button class="remove-string">Remove string</button>
-        <button class="change-to-eight-string-tuning">Change to 8-string tuning</button>
-        <button class="change-to-standard-tuning">Change to standard tuning</button>
+        <button class="change-to-eight-string-tuning">Set 8-string tuning</button>
+        <button class="change-to-standard-tuning">Set standard tuning</button>
         <button class="add-fret">Add fret</button>
         <button class="remove-fret">Remove fret</button>
         <button class="toggle-chord-mode">Toggle chord mode</button>
-        <button class="toggle-note-mode">Toggle note mode (interval/letter)</button>
-        <button class="toggle-root-for-interval-mode">Change root for interval mode (C/G)</button>
+        <button class="toggle-note-mode">Toggle note mode (intervals vs letters)</button>
+        <button class="toggle-root-for-interval-mode">Toggle root interval (C vs G)</button>
     </div>
 
     <script type="text/javascript">
@@ -221,28 +212,28 @@
                     octave: 3
                 },
                 fret: 1,
-                cssClass: "yellow"
+                cssClass: "orange"
             }, {
                 stringItsOn: {
                     letter: "G",
                     octave: 3
                 },
                 fret: 2,
-                cssClass: "yellow"
+                cssClass: "orange"
             }, {
                 stringItsOn: {
                     letter: "D",
                     octave: 3
                 },
                 fret: 2,
-                cssClass: "yellow"
+                cssClass: "orange"
             }, {
                 stringItsOn: {
                     letter: "E",
                     octave: 2
                 },
                 fret: 1,
-                cssClass: "yellow"
+                cssClass: "orange"
             }];
             var g7Notes = [{
                 stringItsOn: {
@@ -284,12 +275,12 @@
             var noteMode = 'letter'; // or 'interval',
             var isIntervalMode = noteMode === 'interval';
             var clickedNotesChangedFuncs = [function () {
-                console.log("On clicked notes change 1. Clicked notes are: ");
+                console.log("Clicked notes are: ");
                 $fretboards.each(function () {
                     console.log($(this).data('api').getClickedNotes());
                 });
             }, function () {
-                console.log("On clicked notes change 2");
+                console.log("Another clicked notes callback...");
             }];
             var options = {
                 tuning: standardTuning,
@@ -323,15 +314,6 @@
 
                     api.clearClickedNotes();
                     api.setClickedNotes(cMaj7Notes);
-                });
-            });
-
-            $(".set-clicked-notes-min7").on("click", function() {
-                $fretboards.each(function() {
-                    var api = $(this).data('api');
-
-                    api.clearClickedNotes();
-                    api.setClickedNotes(aMin7Notes);
                 });
             });
 
@@ -418,7 +400,13 @@
                 isIntervalMode = !isIntervalMode;
 
                 $fretboards.each(function() {
-                    $(this).data('api').setNoteMode(isIntervalMode ? 'interval' : 'letter');
+                    var api = $(this).data('api');
+
+                    api.setNoteMode(isIntervalMode ? 'interval' : 'letter');
+
+                    if (!api.getClickedNotes().length) {
+                        api.setClickedNotes(cMaj7Notes);
+                    }
                 });
             });
 
@@ -426,13 +414,22 @@
                 intervalSettings.root = intervalSettings.root === "C" ? "G" : "C";
 
                 $fretboards.each(function() {
-                    $(this).data('api').setIntervalSettings(intervalSettings);
+                    var api = $(this).data('api');
+
+                    isIntervalMode = true;
+
+                    api.setNoteMode('interval');
+                    api.setIntervalSettings(intervalSettings);
+                                        
+                    if (!api.getClickedNotes().length) {
+                        api.setClickedNotes(cMaj7Notes);
+                    }
                 });
             });
 
             $(".show-progression").on("click", function() {
                 var ms = 0,
-                    delta = 1000;
+                    delta = 500;
 
                 setTimeout(function() {
                     $fretboards.each(function() {
@@ -703,26 +700,17 @@
                         }]);
                     });
                 }, ms);
+
+                $fretboards.each(function() {
+                    $(this).data('api').clearClickedNotes();
+                });
             });
 
             $(".show-arpeggio").on("click", function() {
                 var ms = 0,
-                    delta = 300;
+                    delta = 250;
 
                 setTimeout(function() {
-                    $fretboards.each(function() {
-                        var api = $(this).data('api');
-
-                        api.clearClickedNotes();
-                        api.setClickedNotes([{
-                            stringItsOn: {
-                                letter: "A",
-                                octave: 2
-                            },
-                            fret: 1
-                        }]);
-                    });
-
                     $fretboards.each(function() {
                         var api = $(this).data('api');
 
@@ -783,23 +771,6 @@
                                 letter: "G",
                                 octave: 3
                             },
-                            fret: 2
-                        }]);
-                    });
-                }, ms);
-
-                ms += delta;
-
-                setTimeout(function() {
-                    $fretboards.each(function() {
-                        var api = $(this).data('api');
-
-                        api.clearClickedNotes();
-                        api.setClickedNotes([{
-                            stringItsOn: {
-                                letter: "G",
-                                octave: 3
-                            },
                             fret: 3
                         }]);
                     });
@@ -835,23 +806,6 @@
                                 octave: 4
                             },
                             fret: 1
-                        }]);
-                    });
-                }, ms);
-
-                ms += delta;
-
-                setTimeout(function() {
-                    $fretboards.each(function() {
-                        var api = $(this).data('api');
-
-                        api.clearClickedNotes();
-                        api.setClickedNotes([{
-                            stringItsOn: {
-                                letter: "E",
-                                octave: 4
-                            },
-                            fret: 5
                         }]);
                     });
                 }, ms);
@@ -885,23 +839,6 @@
                                 letter: "E",
                                 octave: 4
                             },
-                            fret: 5
-                        }]);
-                    });
-                }, ms);
-
-                ms += delta;
-
-                setTimeout(function() {
-                    $fretboards.each(function() {
-                        var api = $(this).data('api');
-
-                        api.clearClickedNotes();
-                        api.setClickedNotes([{
-                            stringItsOn: {
-                                letter: "E",
-                                octave: 4
-                            },
                             fret: 1
                         }]);
                     });
@@ -937,23 +874,6 @@
                                 octave: 3
                             },
                             fret: 3
-                        }]);
-                    });
-                }, ms);
-
-                ms += delta;
-
-                setTimeout(function() {
-                    $fretboards.each(function() {
-                        var api = $(this).data('api');
-
-                        api.clearClickedNotes();
-                        api.setClickedNotes([{
-                            stringItsOn: {
-                                letter: "G",
-                                octave: 3
-                            },
-                            fret: 2
                         }]);
                     });
                 }, ms);

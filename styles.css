@@ -55,19 +55,7 @@
     
     /* These will be animated */
     opacity: 0;
-    transition: opacity .15s linear;
-    -moz-transition: opacity .15s linear;
-    -webkit-transition: opacity .15s linear;
-    -ms-transition: opacity.15s linear;
-    -o-transition: opacity .15s linear;
-    
     background: white;
-	
-    /*-webkit-transition: background .15s linear;
-    -moz-transition: background .15s linear;
-    -o-transition: background .15s linear;
-    -ms-transition: background .15s linear;
-    transition: background .15s linear;*/
 }
 
 .fretboard-container .note.hover {
@@ -84,12 +72,6 @@
     background: blue;
     border: 1px solid white;
     opacity: 1;
-    /*
-    -webkit-transition: background .15s linear;
-    -moz-transition: background .15s linear;
-    -o-transition: background .15s linear;
-    -ms-transition: background .15s linear;
-    transition: background .15s linear;*/
 }
 
 .fretboard-container .letter {
@@ -158,9 +140,6 @@
 /* Dark */
 .fretboard-container.dark-theme .fretboard-body {
     background-color: black;
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-position: center;
 }
 
 .fretboard-container.dark-theme .string {
