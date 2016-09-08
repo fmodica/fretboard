@@ -1,43 +1,43 @@
 // From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
 if (!Object.keys) {
-  Object.keys = (function() {
-    'use strict';
-    var hasOwnProperty = Object.prototype.hasOwnProperty,
-        hasDontEnumBug = !({ toString: null }).propertyIsEnumerable('toString'),
-        dontEnums = [
-          'toString',
-          'toLocaleString',
-          'valueOf',
-          'hasOwnProperty',
-          'isPrototypeOf',
-          'propertyIsEnumerable',
-          'constructor'
-        ],
-        dontEnumsLength = dontEnums.length;
+    Object.keys = (function () {
+        'use strict';
+        var hasOwnProperty = Object.prototype.hasOwnProperty,
+            hasDontEnumBug = !({ toString: null }).propertyIsEnumerable('toString'),
+            dontEnums = [
+                'toString',
+                'toLocaleString',
+                'valueOf',
+                'hasOwnProperty',
+                'isPrototypeOf',
+                'propertyIsEnumerable',
+                'constructor'
+            ],
+            dontEnumsLength = dontEnums.length;
 
-    return function(obj) {
-      if (typeof obj !== 'object' && (typeof obj !== 'function' || obj === null)) {
-        throw new TypeError('Object.keys called on non-object');
-      }
+        return function (obj) {
+            if (typeof obj !== 'object' && (typeof obj !== 'function' || obj === null)) {
+                throw new TypeError('Object.keys called on non-object');
+            }
 
-      var result = [], prop, i;
+            var result = [], prop, i;
 
-      for (prop in obj) {
-        if (hasOwnProperty.call(obj, prop)) {
-          result.push(prop);
-        }
-      }
+            for (prop in obj) {
+                if (hasOwnProperty.call(obj, prop)) {
+                    result.push(prop);
+                }
+            }
 
-      if (hasDontEnumBug) {
-        for (i = 0; i < dontEnumsLength; i++) {
-          if (hasOwnProperty.call(obj, dontEnums[i])) {
-            result.push(dontEnums[i]);
-          }
-        }
-      }
-      return result;
-    };
-  }());
+            if (hasDontEnumBug) {
+                for (i = 0; i < dontEnumsLength; i++) {
+                    if (hasOwnProperty.call(obj, dontEnums[i])) {
+                        result.push(dontEnums[i]);
+                    }
+                }
+            }
+            return result;
+        };
+    } ());
 }
 
 (function ($) {
@@ -188,7 +188,7 @@ if (!Object.keys) {
             if (model.tuning.length <= oldTuning.length) {
                 model.clickedNotes = model.clickedNotes.slice(0, model.tuning.length);
             } else {
-                for (var i = 0; i < (model.tuning.length - oldTuning.length) ; i++) {
+                for (var i = 0; i < (model.tuning.length - oldTuning.length); i++) {
                     model.clickedNotes.push([]);
                 }
             }
@@ -737,9 +737,9 @@ if (!Object.keys) {
                         // Make it come in from the right
                         $fretboardBody.append(
                             getFretLineEl()
-                            .css({
-                                left: fretboardBodyWidth
-                            })
+                                .css({
+                                    left: fretboardBodyWidth
+                                })
                         );
                     }
                 } else {
@@ -848,14 +848,12 @@ if (!Object.keys) {
         }
 
         function animateFretboardBody(fretboardBodyWidth, fretboardBodyHeight, fretboardBodyShouldBeAnimated) {
-            $fretboardBody
-                .animate({
-                    height: fretboardBodyHeight,
-                    width: fretboardBodyWidth
-                }, {
-                    duration: fretboardBodyShouldBeAnimated ? model.animationSpeed : 0,
-                    queue: false
-                });
+            var position = {
+                height: fretboardBodyHeight,
+                width: fretboardBodyWidth
+            };
+
+            setPosition($fretboardBody, position, fretboardBodyShouldBeAnimated);
         }
 
         function animateFretLines(fretWidth, fretLinesShouldBeAnimated) {
@@ -872,12 +870,11 @@ if (!Object.keys) {
                         $fretLine.addClass(lastCssClass);
                     }
 
-                    $fretLine.animate({
+                    var position = {
                         left: fretLeftVal + fretWidth - ($fretLine.outerWidth(true) / 2)
-                    }, {
-                        duration: fretLinesShouldBeAnimated ? model.animationSpeed : 0,
-                        queue: false
-                    });
+                    };
+
+                    setPosition($fretLine, position, fretLinesShouldBeAnimated);
                 });
         }
 
@@ -891,19 +888,18 @@ if (!Object.keys) {
                     var $stringContainer = $(stringContainerEl),
                         $string = $stringContainer.find(stringSelector),
                         fretTopVal = firstStringDistanceFromTop + (stringNum * fretHeight);
+
                     if (stringNum === 0) {
                         $stringContainer.addClass(firstCssClass);
                     } else if (stringNum === model.tuning.length - 1) {
                         $stringContainer.addClass(lastCssClass);
                     }
 
-                    $string.animate({
+                    var position = {
                         top: fretTopVal - ($string.outerHeight(true) / 2)
-                    }, {
-                        duration: stringContainersShouldBeAnimated ? model.animationSpeed : 0,
-                        queue: false
-                    });
+                    }
 
+                    setPosition($string, position, stringContainersShouldBeAnimated);
                     animateNotes($stringContainer, fretTopVal, fretWidth, notesShouldBeAnimated)
                 });
         }
@@ -915,15 +911,13 @@ if (!Object.keys) {
                     var $note = $(noteEl),
                         fretLeftVal = fretNum * fretWidth,
                         noteLeftVal = fretLeftVal + ((fretWidth / 2) - ($note.outerWidth(true) / 2)),
-                        noteTopVal = fretTopVal - ($note.outerHeight(true) / 2);
+                        noteTopVal = fretTopVal - ($note.outerHeight(true) / 2),
+                        position = {
+                            left: noteLeftVal,
+                            top: noteTopVal
+                        };
 
-                    $note.animate({
-                        left: noteLeftVal,
-                        top: noteTopVal
-                    }, {
-                        duration: notesShouldBeAnimated ? model.animationSpeed : 0,
-                        queue: false
-                    });
+                    setPosition($note, position, notesShouldBeAnimated);
                 });
         }
 
@@ -946,28 +940,22 @@ if (!Object.keys) {
                 var $noteCircles = $existingNoteCirclesHash[fret];
 
                 if ($noteCircles.length === 2) {
-                    $noteCircles[0].animate({
-                        top: getDoubleNoteCircleTopValue(fretboardBodyHeight, true) - ($noteCircle.outerHeight(true) / 2),
-                        left: (fret * fretWidth) + ((fretWidth / 2) - ($noteCircle.outerWidth(true) / 2))
-                    }, {
-                        duration: noteCirclesShouldBeAnimated ? model.animationSpeed : 0,
-                        queue: false
-                    });
-                    $noteCircles[1].animate({
+                    var position = {
+                        top: getDoubleNoteCircleTopValue(fretboardBodyHeight, true) - ($noteCircles[0].outerHeight(true) / 2),
+                        left: (fret * fretWidth) + ((fretWidth / 2) - ($noteCircles[0].outerWidth(true) / 2))
+                    };
+                    setPosition($noteCircles[0], position, noteCirclesShouldBeAnimated);
+                    var position = {
                         top: getDoubleNoteCircleTopValue(fretboardBodyHeight, false) - ($noteCircle.outerHeight(true) / 2),
                         left: (fret * fretWidth) + ((fretWidth / 2) - ($noteCircle.outerWidth(true) / 2))
-                    }, {
-                        duration: noteCirclesShouldBeAnimated ? model.animationSpeed : 0,
-                        queue: false
-                    });
+                    };
+                    setPosition($noteCircles[1], position, noteCirclesShouldBeAnimated);
                 } else {
-                    $noteCircles[0].animate({
+                    var position = {
                         top: getMiddleNoteCircleTopValue(fretboardBodyHeight) - ($noteCircle.outerHeight(true) / 2),
                         left: (fret * fretWidth) + ((fretWidth / 2) - ($noteCircle.outerWidth(true) / 2))
-                    }, {
-                        duration: noteCirclesShouldBeAnimated ? model.animationSpeed : 0,
-                        queue: false
-                    });
+                    };
+                    setPosition($noteCircles[0], position, noteCirclesShouldBeAnimated);
                 }
             });
         }
@@ -1086,6 +1074,19 @@ if (!Object.keys) {
 
             return fretboardBodyHeight - getFretHeightFactorForNoteCircle() * getFretHeight(fretboardBodyHeight) - getFirstStringDistanceFromTop(fretboardBodyHeight);
         }
+
+        function setPosition($element, properties, shouldBeAnimated) {
+            var isVisible = $element.css("display") !== "none" && $element.css("opacity") > 0;
+
+            if (isVisible && shouldBeAnimated) {
+                $element.animate(properties, {
+                    duration: model.animationSpeed,
+                    queue: false
+                });
+            } else {
+                $element.css(properties);
+            }
+        }
     };
 })(jQuery);
 
@@ -1093,11 +1094,11 @@ if (!Object.keys) {
 // fretboard renderer and coordinates interactions between them. It
 // contains an API which the user can get:
 // var api = $(".my-fretboard-js").data('api');
-(function ($) {
+(function($) {
     "use strict";
 
-    $.fn.fretboard = function (options) {
-        return this.each(function () {
+    $.fn.fretboard = function(options) {
+        return this.each(function() {
             var api = {};
             api.destroy = destroy;
             api.getAllNotes = getAllNotes;
@@ -1127,25 +1128,27 @@ if (!Object.keys) {
             var $element = $(this);
             // The value at which the octave is incremented needs to be first
             var defaultNoteLetters = ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"];
-            var defaultTuning = [{
-                letter: "E",
-                octave: 4
-            }, {
-                letter: "B",
-                octave: 3
-            }, {
-                letter: "G",
-                octave: 3
-            }, {
-                letter: "D",
-                octave: 3
-            }, {
-                letter: "A",
-                octave: 2
-            }, {
-                letter: "E",
-                octave: 2
-            }];
+            var defaultTuning = [
+                {
+                    letter: "E",
+                    octave: 4
+                }, {
+                    letter: "B",
+                    octave: 3
+                }, {
+                    letter: "G",
+                    octave: 3
+                }, {
+                    letter: "D",
+                    octave: 3
+                }, {
+                    letter: "A",
+                    octave: 2
+                }, {
+                    letter: "E",
+                    octave: 2
+                }
+            ];
             var defaultNoteCircles = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24];
             var defaultIntervalSettings = {
                 intervals: ['1', 'b2', '2', 'b3', '3', '4', 'b5', '5', 'b6', '6', 'b7', '7'],
@@ -1153,7 +1156,7 @@ if (!Object.keys) {
             };
             var defaultNoteMode = 'letter'; // or 'interval'
             // Take up the container's height and width by default
-            var defaultDimensionsFunc = function ($fretboardContainer, $fretboardBody, settings) {
+            var defaultDimensionsFunc = function($fretboardContainer, $fretboardBody, settings) {
                 var containerWidth = $fretboardContainer.width(),
                     containerHeight = $fretboardContainer.height(),
                     fretboardBodyWidthDiff = $fretboardBody.outerWidth(true) - $fretboardBody.width(),
@@ -1342,7 +1345,7 @@ if (!Object.keys) {
                 if (settings.dimensionsFunc !== defaultDimensionsFunc) {
                     var oldFunc = settings.dimensionsFunc;
 
-                    return function ($fretboardContainer, $fretboardBody, settings) {
+                    return function($fretboardContainer, $fretboardBody, settings) {
                         var dimensions = oldFunc($fretboardContainer, $fretboardBody, settings),
                             width = dimensions.width,
                             height = dimensions.height,
