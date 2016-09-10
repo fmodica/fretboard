@@ -10,8 +10,9 @@
                 scope: {
                     config: "=fretboardConfig"
                 },
-                controller: ["$scope", "$element", "$attrs", function ($scope, $element, $attrs) {
+                controller: ["$scope", "$element", "$rootScope", function ($scope, $element, $rootScope) {
                     var ctrl = this;
+                    ctrl.innerDirectiveChanged = false;
 
                     $scope.$on('$destroy', function () {
                         destroy(ctrl);
@@ -54,64 +55,17 @@
                 }],
                 // The inner directives each have their own ngModel which handle two-way data-binding for a single config property.
                 template:
-                    // Clicked notes comes first because the others could fire callbacks that overwrite clicked notes
-                    '<span ng-if="config" fretboard-clicked-notes ng-model="config.clickedNotes"></span>' +
                     '<span ng-if="config" fretboard-tuning ng-model="config.tuning"></span>' +
                     '<span ng-if="config" fretboard-num-frets ng-model="config.numFrets"></span>' +
                     '<span ng-if="config" fretboard-is-chord-mode ng-model="config.isChordMode"></span>' +
                     '<span ng-if="config" fretboard-note-clicking-is-disabled ng-model="config.noteClickingDisabled"></span>' +
                     '<span ng-if="config" fretboard-note-mode ng-model="config.noteMode"></span>' +
-                    '<span ng-if="config" fretboard-interval-settings ng-model="config.intervalSettings"></span>' + 
-                    '<span ng-if="config" fretboard-all-note-letters ng-model="config.allNoteLetters"></span>' + 
-                    '<span ng-if="config" fretboard-animation-speed ng-model="config.animationSpeed"></span>' + 
-                    '<span ng-if="config" fretboard-note-circle-list ng-model="config.noteCircleList"></span>'
-                    
-            }
-        }])
-        .directive("fretboardClickedNotes", ["$rootScope", function ($rootScope) {
-            return {
-                restrict: "AE",
-                require: ["ngModel", "^fretboard"],
-                link: function (scope, element, attrs, ctrls) {
-                    var ngModelCtrl = ctrls[0],
-                        fretboardCtrl = ctrls[1],
-                        isFirst = true;
+                    '<span ng-if="config" fretboard-interval-settings ng-model="config.intervalSettings"></span>' +
+                    '<span ng-if="config" fretboard-all-note-letters ng-model="config.allNoteLetters"></span>' +
+                    '<span ng-if="config" fretboard-animation-speed ng-model="config.animationSpeed"></span>' +
+                    '<span ng-if="config" fretboard-note-circle-list ng-model="config.noteCircleList"></span>' +
+                    '<span ng-if="config" fretboard-clicked-notes ng-model="config.clickedNotes"></span>'
 
-                    // Set the callbacks in the correct order so the parent scope is always up to date.
-                    fretboardCtrl.jQueryFretboardApi.addNotesClickedListener(function () {
-                        $rootScope.$safeApply(function () {
-                            ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getClickedNotes());
-                        });
-                    });
-
-                    if (fretboardCtrl.originalOnClickedNotesChange) {
-                        for (var i = 0; i < fretboardCtrl.originalOnClickedNotesChange.length; i++) {
-                            (function (i) {
-                                fretboardCtrl.jQueryFretboardApi.addNotesClickedListener(function () {
-                                    $rootScope.$safeApply(function () {
-                                        fretboardCtrl.originalOnClickedNotesChange[i]();
-                                    });
-                                });
-                            })(i);
-                        }
-                    }
-
-                    ngModelCtrl.$render = function () {
-                        if (isUndefinedOrNull(ngModelCtrl.$viewValue)) {
-                            if (isFirst) {
-                                $rootScope.$safeApply(function () {
-                                    ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getClickedNotes());
-                                });
-                                isFirst = false;
-                            }
-                        } else {
-                            // Store the $viewValue because the call to clearClickedNotes will clear it out
-                            var clickedNotes = ngModelCtrl.$viewValue;
-                            fretboardCtrl.jQueryFretboardApi.clearClickedNotes();
-                            fretboardCtrl.jQueryFretboardApi.setClickedNotes(clickedNotes);
-                        }
-                    };
-                }
             }
         }])
         .directive("fretboardTuning", ["$rootScope", function ($rootScope) {
@@ -124,14 +78,13 @@
                         isFirst = true;
 
                     ngModelCtrl.$render = function () {
-                        if (isUndefinedOrNull(ngModelCtrl.$viewValue)) {
-                            if (isFirst) {
-                                $rootScope.$safeApply(function () {
-                                    ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getTuning());
-                                });
-                                isFirst = false;
-                            }
+                        if (isUndefinedOrNull(ngModelCtrl.$viewValue) && isFirst) {
+                            $rootScope.$safeApply(function () {
+                                ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getTuning());
+                            });
+                            isFirst = false;
                         } else {
+                            fretboardCtrl.innerDirectiveChanged = true;
                             fretboardCtrl.jQueryFretboardApi.setTuning(ngModelCtrl.$viewValue);
                         }
                     };
@@ -148,14 +101,13 @@
                         isFirst = true;
 
                     ngModelCtrl.$render = function () {
-                        if (isUndefinedOrNull(ngModelCtrl.$viewValue)) {
-                            if (isFirst) {
-                                $rootScope.$safeApply(function () {
-                                    ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getNumFrets());
-                                });
-                                isFirst = false;
-                            }
+                        if (isUndefinedOrNull(ngModelCtrl.$viewValue) && isFirst) {
+                            $rootScope.$safeApply(function () {
+                                ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getNumFrets());
+                            });
+                            isFirst = false;
                         } else {
+                            fretboardCtrl.innerDirectiveChanged = true;
                             fretboardCtrl.jQueryFretboardApi.setNumFrets(ngModelCtrl.$viewValue);
                         }
                     };
@@ -172,15 +124,14 @@
                         isFirst = true;
 
                     ngModelCtrl.$render = function () {
-                        if (isUndefinedOrNull(ngModelCtrl.$viewValue)) {
-                            if (isFirst) {
-                                $rootScope.$safeApply(function () {
-                                    ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getChordMode());
-                                });
-                                isFirst = false;
-                            }
+                        if (isUndefinedOrNull(ngModelCtrl.$viewValue) && isFirst) {
+                            $rootScope.$safeApply(function () {
+                                ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getChordMode());
+                            });
+                            isFirst = false;
                         } else {
                             fretboardCtrl.jQueryFretboardApi.setChordMode(ngModelCtrl.$viewValue);
+                            fretboardCtrl.innerDirectiveChanged = true;
                         }
                     };
                 }
@@ -196,15 +147,14 @@
                         isFirst = true;
 
                     ngModelCtrl.$render = function () {
-                        if (isUndefinedOrNull(ngModelCtrl.$viewValue)) {
-                            if (isFirst) {
-                                $rootScope.$safeApply(function () {
-                                    ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getNoteClickingDisabled());
-                                });
-                                isFirst = false;
-                            }
+                        if (isUndefinedOrNull(ngModelCtrl.$viewValue) && isFirst) {
+                            $rootScope.$safeApply(function () {
+                                ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getNoteClickingDisabled());
+                            });
+                            isFirst = false;
                         } else {
                             fretboardCtrl.jQueryFretboardApi.setNoteClickingDisabled(ngModelCtrl.$viewValue);
+                            fretboardCtrl.innerDirectiveChanged = true;
                         }
                     };
                 }
@@ -220,15 +170,14 @@
                         isFirst = true;
 
                     ngModelCtrl.$render = function () {
-                        if (isUndefinedOrNull(ngModelCtrl.$viewValue)) {
-                            if (isFirst) {
-                                $rootScope.$safeApply(function () {
-                                    ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getNoteMode());
-                                });
-                                isFirst = false;
-                            }
+                        if (isUndefinedOrNull(ngModelCtrl.$viewValue) && isFirst) {
+                            $rootScope.$safeApply(function () {
+                                ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getNoteMode());
+                            });
+                            isFirst = false;
                         } else {
                             fretboardCtrl.jQueryFretboardApi.setNoteMode(ngModelCtrl.$viewValue);
+                            fretboardCtrl.innerDirectiveChanged = true;
                         }
                     };
                 }
@@ -244,15 +193,14 @@
                         isFirst = true;
 
                     ngModelCtrl.$render = function () {
-                        if (isUndefinedOrNull(ngModelCtrl.$viewValue)) {
-                            if (isFirst) {
-                                $rootScope.$safeApply(function () {
-                                    ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getIntervalSettings());
-                                });
-                                isFirst = false;
-                            }
+                        if (isUndefinedOrNull(ngModelCtrl.$viewValue) && isFirst) {
+                            $rootScope.$safeApply(function () {
+                                ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getIntervalSettings());
+                            });
+                            isFirst = false;
                         } else {
                             fretboardCtrl.jQueryFretboardApi.setIntervalSettings(ngModelCtrl.$viewValue);
+                            fretboardCtrl.innerDirectiveChanged = true;
                         }
                     };
                 }
@@ -296,6 +244,58 @@
 
                     $rootScope.$safeApply(function () {
                         ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getNoteCircles());
+                    });
+                }
+            }
+        }])
+        .directive("fretboardClickedNotes", ["$rootScope", function ($rootScope) {
+            return {
+                restrict: "AE",
+                require: ["ngModel", "^fretboard"],
+                link: function (scope, element, attrs, ctrls) {
+                    var ngModelCtrl = ctrls[0],
+                        fretboardCtrl = ctrls[1],
+                        isFirst = true;
+
+                    // Set the callbacks in the correct order so the parent scope is always up to date.
+                    fretboardCtrl.jQueryFretboardApi.addNotesClickedListener(function () {
+                        $rootScope.$safeApply(function () {
+                            ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getClickedNotes());
+                        });
+                    });
+
+                    if (fretboardCtrl.originalOnClickedNotesChange) {
+                        for (var i = 0; i < fretboardCtrl.originalOnClickedNotesChange.length; i++) {
+                            (function (i) {
+                                fretboardCtrl.jQueryFretboardApi.addNotesClickedListener(function () {
+                                    $rootScope.$safeApply(function () {
+                                        fretboardCtrl.originalOnClickedNotesChange[i]();
+                                    });
+                                });
+                            })(i);
+                        }
+                    }
+
+                    ngModelCtrl.$render = function () {
+                        var clickedNotes = ngModelCtrl.$viewValue || [];
+                        fretboardCtrl.jQueryFretboardApi.clearClickedNotes();
+                        fretboardCtrl.jQueryFretboardApi.setClickedNotes(clickedNotes);
+                        // The jQuery plugin has more information about the notes (letter, intervalInfo)
+                        // so we push the clickedNotes that have more info onto the controller.
+                        $rootScope.$safeApply(function () {
+                            ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getClickedNotes());
+                        });
+                    };
+
+                    scope.$watch(function () {
+                        return fretboardCtrl.innerDirectiveChanged;
+                    }, function (newVal, oldVal) {
+                        if (newVal) {
+                            $rootScope.$safeApply(function () {
+                                ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getClickedNotes());
+                                fretboardCtrl.innerDirectiveChanged = false;
+                            });
+                        }
                     });
                 }
             }

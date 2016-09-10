@@ -268,6 +268,7 @@
                     intervalSettings.root = intervalSettings.root === "C" ? "G" : "C";
                     $scope.config.intervalSettings = intervalSettings;
                     $scope.config.noteMode = 'interval';
+                    isIntervalMode = true;
                     if (!$scope.config.clickedNotes.length) {
                         $scope.config.clickedNotes = $.extend(true, [], cMaj7Notes);
                     }
