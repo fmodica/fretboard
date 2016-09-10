@@ -16,9 +16,9 @@ Check out the <a href="http://frank-modica.com/static/fretboarddemo/index-with-f
 Load your scripts:
 
 ```
-<script src="./jquery-1.11.2.min.js"></script>
-<script src="./fretboard.js"></script>
-<link rel="stylesheet" type="text/css" href="./styles.css">
+<script src="./vendor/jquery-1.11.2.min.js"></script>
+<script src="./scripts/fretboard.js"></script>
+<link rel="stylesheet" type="text/css" href="./styles/styles.css">
 ```
 
 Create an element to contain the fretboard:
