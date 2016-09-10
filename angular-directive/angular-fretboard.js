@@ -1,7 +1,7 @@
 (function () {
     "use strict";
 
-    angular.module("angularFretboard", ['Scope.safeApply'])
+    angular.module("angularFretboard", [])
         .directive("fretboard", [function () {
             var fretboardsGeneratedCounter = 0;
 
@@ -10,7 +10,7 @@
                 scope: {
                     config: "=fretboardConfig"
                 },
-                controller: ["$scope", "$element", "$rootScope", function ($scope, $element, $rootScope) {
+                controller: ["$scope", "$element", function ($scope, $element) {
                     var ctrl = this;
                     ctrl.innerDirectiveChanged = false;
 
@@ -64,11 +64,12 @@
                     '<span ng-if="config" fretboard-all-note-letters ng-model="config.allNoteLetters"></span>' +
                     '<span ng-if="config" fretboard-animation-speed ng-model="config.animationSpeed"></span>' +
                     '<span ng-if="config" fretboard-note-circle-list ng-model="config.noteCircleList"></span>' +
+                    // Clicked note handlers come last so we can alter the fretboard and then update clicked notes.
                     '<span ng-if="config" fretboard-clicked-notes ng-model="config.clickedNotes"></span>'
 
             }
         }])
-        .directive("fretboardTuning", ["$rootScope", function ($rootScope) {
+        .directive("fretboardTuning", [function () {
             return {
                 restrict: "AE",
                 require: ["ngModel", "^fretboard"],
@@ -79,7 +80,7 @@
 
                     ngModelCtrl.$render = function () {
                         if (isUndefinedOrNull(ngModelCtrl.$viewValue) && isFirst) {
-                            $rootScope.$safeApply(function () {
+                            scope.$evalAsync(function () {
                                 ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getTuning());
                             });
                             isFirst = false;
@@ -91,7 +92,7 @@
                 }
             }
         }])
-        .directive("fretboardNumFrets", ["$rootScope", function ($rootScope) {
+        .directive("fretboardNumFrets", [function () {
             return {
                 restrict: "AE",
                 require: ["ngModel", "^fretboard"],
@@ -102,7 +103,7 @@
 
                     ngModelCtrl.$render = function () {
                         if (isUndefinedOrNull(ngModelCtrl.$viewValue) && isFirst) {
-                            $rootScope.$safeApply(function () {
+                            scope.$evalAsync(function () {
                                 ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getNumFrets());
                             });
                             isFirst = false;
@@ -114,7 +115,7 @@
                 }
             }
         }])
-        .directive("fretboardIsChordMode", ["$rootScope", function ($rootScope) {
+        .directive("fretboardIsChordMode", [function () {
             return {
                 restrict: "AE",
                 require: ["ngModel", "^fretboard"],
@@ -125,7 +126,7 @@
 
                     ngModelCtrl.$render = function () {
                         if (isUndefinedOrNull(ngModelCtrl.$viewValue) && isFirst) {
-                            $rootScope.$safeApply(function () {
+                            scope.$evalAsync(function () {
                                 ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getChordMode());
                             });
                             isFirst = false;
@@ -137,7 +138,7 @@
                 }
             }
         }])
-        .directive("fretboardNoteClickingIsDisabled", ["$rootScope", function ($rootScope) {
+        .directive("fretboardNoteClickingIsDisabled", [function () {
             return {
                 restrict: "AE",
                 require: ["ngModel", "^fretboard"],
@@ -148,7 +149,7 @@
 
                     ngModelCtrl.$render = function () {
                         if (isUndefinedOrNull(ngModelCtrl.$viewValue) && isFirst) {
-                            $rootScope.$safeApply(function () {
+                            scope.$evalAsync(function () {
                                 ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getNoteClickingDisabled());
                             });
                             isFirst = false;
@@ -160,7 +161,7 @@
                 }
             }
         }])
-        .directive("fretboardNoteMode", ["$rootScope", function ($rootScope) {
+        .directive("fretboardNoteMode", [function () {
             return {
                 restrict: "AE",
                 require: ["ngModel", "^fretboard"],
@@ -171,7 +172,7 @@
 
                     ngModelCtrl.$render = function () {
                         if (isUndefinedOrNull(ngModelCtrl.$viewValue) && isFirst) {
-                            $rootScope.$safeApply(function () {
+                            scope.$evalAsync(function () {
                                 ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getNoteMode());
                             });
                             isFirst = false;
@@ -183,7 +184,7 @@
                 }
             }
         }])
-        .directive("fretboardIntervalSettings", ["$rootScope", function ($rootScope) {
+        .directive("fretboardIntervalSettings", [function () {
             return {
                 restrict: "AE",
                 require: ["ngModel", "^fretboard"],
@@ -194,7 +195,7 @@
 
                     ngModelCtrl.$render = function () {
                         if (isUndefinedOrNull(ngModelCtrl.$viewValue) && isFirst) {
-                            $rootScope.$safeApply(function () {
+                            scope.$evalAsync(function () {
                                 ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getIntervalSettings());
                             });
                             isFirst = false;
@@ -206,7 +207,7 @@
                 }
             }
         }])
-        .directive("fretboardAllNoteLetters", ["$rootScope", function ($rootScope) {
+        .directive("fretboardAllNoteLetters", [function () {
             return {
                 restrict: "AE",
                 require: ["ngModel", "^fretboard"],
@@ -214,13 +215,13 @@
                     var ngModelCtrl = ctrls[0],
                         fretboardCtrl = ctrls[1];
 
-                    $rootScope.$safeApply(function () {
+                    scope.$evalAsync(function () {
                         ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getAllNoteLetters());
                     });
                 }
             }
         }])
-        .directive("fretboardAnimationSpeed", ["$rootScope", function ($rootScope) {
+        .directive("fretboardAnimationSpeed", [function () {
             return {
                 restrict: "AE",
                 require: ["ngModel", "^fretboard"],
@@ -228,13 +229,13 @@
                     var ngModelCtrl = ctrls[0],
                         fretboardCtrl = ctrls[1];
 
-                    $rootScope.$safeApply(function () {
+                    scope.$evalAsync(function () {
                         ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getAnimationSpeed());
                     });
                 }
             }
         }])
-        .directive("fretboardNoteCircleList", ["$rootScope", function ($rootScope) {
+        .directive("fretboardNoteCircleList", [function () {
             return {
                 restrict: "AE",
                 require: ["ngModel", "^fretboard"],
@@ -242,24 +243,23 @@
                     var ngModelCtrl = ctrls[0],
                         fretboardCtrl = ctrls[1];
 
-                    $rootScope.$safeApply(function () {
+                    scope.$evalAsync(function () {
                         ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getNoteCircles());
                     });
                 }
             }
         }])
-        .directive("fretboardClickedNotes", ["$rootScope", function ($rootScope) {
+        .directive("fretboardClickedNotes", [function () {
             return {
                 restrict: "AE",
                 require: ["ngModel", "^fretboard"],
                 link: function (scope, element, attrs, ctrls) {
                     var ngModelCtrl = ctrls[0],
-                        fretboardCtrl = ctrls[1],
-                        isFirst = true;
+                        fretboardCtrl = ctrls[1];
 
                     // Set the callbacks in the correct order so the parent scope is always up to date.
                     fretboardCtrl.jQueryFretboardApi.addNotesClickedListener(function () {
-                        $rootScope.$safeApply(function () {
+                        scope.$evalAsync(function () {
                             ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getClickedNotes());
                         });
                     });
@@ -268,7 +268,7 @@
                         for (var i = 0; i < fretboardCtrl.originalOnClickedNotesChange.length; i++) {
                             (function (i) {
                                 fretboardCtrl.jQueryFretboardApi.addNotesClickedListener(function () {
-                                    $rootScope.$safeApply(function () {
+                                    scope.$evalAsync(function () {
                                         fretboardCtrl.originalOnClickedNotesChange[i]();
                                     });
                                 });
@@ -282,7 +282,7 @@
                         fretboardCtrl.jQueryFretboardApi.setClickedNotes(clickedNotes);
                         // The jQuery plugin has more information about the notes (letter, intervalInfo)
                         // so we push the clickedNotes that have more info onto the controller.
-                        $rootScope.$safeApply(function () {
+                        scope.$evalAsync(function () {
                             ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getClickedNotes());
                         });
                     };
@@ -291,7 +291,7 @@
                         return fretboardCtrl.innerDirectiveChanged;
                     }, function (newVal, oldVal) {
                         if (newVal) {
-                            $rootScope.$safeApply(function () {
+                            scope.$evalAsync(function () {
                                 ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getClickedNotes());
                                 fretboardCtrl.innerDirectiveChanged = false;
                             });
