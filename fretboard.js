@@ -279,21 +279,21 @@ if (!Object.keys) {
 
         // Could be a generic getNoteXNotesAwayFrom function
         function getNoteByFretNumber(stringNote, fret) {
-            var noteIndex = model.allNoteLetters.indexOf(stringNote.letter) + fret,
-                numOctavesAboveString = Math.floor(noteIndex / 12),
+            var noteIndex = model.allNoteLetters.indexOf(stringNote.letter) + fret;
+            var numOctavesAboveString = Math.floor(noteIndex / 12);
 
-                // If noteIndex is <= 11, the note on this fret is in the same octave
-                // as the string's note. After 11, the octave increments. We need to
-                // know how many times the octave has incremented, which is
-                // noteIndex / 12 floored, and use that to get noteIndex down
-                // to something between 0 and 11.
+            // If noteIndex is <= 11, the note on this fret is in the same octave
+            // as the string's note. After 11, the octave increments. We need to
+            // know how many times the octave has incremented, which is
+            // noteIndex / 12 floored, and use that to get noteIndex down
+            // to something between 0 and 11.
 
-                // Example: If our string has note F4, the letter F is at index 5. If
-                // our fret number is 22 our noteIndex is 27, which means the octave has
-                // incremented twice (once after 12, the other after 24) and we get that
-                // number by doing 27 / 12 floored. So we must reduce 27 by two octaves
-                // to get it below 12. Thus it becomes 27 - (12 * 2) = 3, which is note Eb.
-                reducedNoteIndex = noteIndex - (12 * numOctavesAboveString);
+            // Example: If our string has note F4, the letter F is at index 5. If
+            // our fret number is 22 our noteIndex is 27, which means the octave has
+            // incremented twice (once after 12, the other after 24) and we get that
+            // number by doing 27 / 12 floored. So we must reduce 27 by two octaves
+            // to get it below 12. Thus it becomes 27 - (12 * 2) = 3, which is note Eb.
+            var reducedNoteIndex = noteIndex - (12 * numOctavesAboveString);
 
             return {
                 letter: model.allNoteLetters[reducedNoteIndex],
@@ -527,14 +527,7 @@ if (!Object.keys) {
         // This method can probably be optimized to not use indexOf
         // and other inefficient search techniques.
         function setClickedNotes(notesToClick) {
-            var notesToClick = $.extend(true, [], notesToClick),
-                i,
-                j,
-                tuningNote,
-                noteToClick,
-                stringItsOn,
-                $stringContainer,
-                $note;
+            var notesToClick = $.extend(true, [], notesToClick);
 
             if (!notesToClick) {
                 return;
@@ -545,26 +538,26 @@ if (!Object.keys) {
             // If it does, get the index of the matched note in the tuning array
             // and find the corresponding $stringContainer and click its
             // note.
-            for (i = 0; i < notesToClick.length; i++) {
-                noteToClick = notesToClick[i];
-                stringItsOn = noteToClick && noteToClick.stringItsOn;
+            for (var i = 0; i < notesToClick.length; i++) {
+                var noteToClick = notesToClick[i];
+                var stringItsOn = noteToClick && noteToClick.stringItsOn;
 
                 if (noteToClick.fret < 0 || noteToClick.fret > model.numFrets || !stringItsOn) {
                     continue;
                 }
 
-                for (j = 0; j < model.tuning.length; j++) {
-                    tuningNote = model.tuning[j];
+                for (var j = 0; j < model.tuning.length; j++) {
+                    var tuningNote = model.tuning[j];
 
                     if (!notesAreEqual(tuningNote, stringItsOn)) {
                         continue;
                     }
 
-                    $stringContainer = $fretboardContainer
+                    var $stringContainer = $fretboardContainer
                         .find(stringContainerSelector)
                         .eq(j);
 
-                    $note = $stringContainer
+                    var $note = $stringContainer
                         .find(noteSelector)
                         .eq(noteToClick.fret);
 
@@ -853,7 +846,7 @@ if (!Object.keys) {
                 width: fretboardBodyWidth
             };
 
-            setPosition($fretboardBody, position, fretboardBodyShouldBeAnimated);
+            animateProperties($fretboardBody, position, fretboardBodyShouldBeAnimated);
         }
 
         function animateFretLines(fretWidth, fretLinesShouldBeAnimated) {
@@ -874,7 +867,7 @@ if (!Object.keys) {
                         left: fretLeftVal + fretWidth - ($fretLine.outerWidth(true) / 2)
                     };
 
-                    setPosition($fretLine, position, fretLinesShouldBeAnimated);
+                    animateProperties($fretLine, position, fretLinesShouldBeAnimated);
                 });
         }
 
@@ -899,7 +892,7 @@ if (!Object.keys) {
                         top: fretTopVal - ($string.outerHeight(true) / 2)
                     }
 
-                    setPosition($string, position, stringContainersShouldBeAnimated);
+                    animateProperties($string, position, stringContainersShouldBeAnimated);
                     animateNotes($stringContainer, fretTopVal, fretWidth, notesShouldBeAnimated)
                 });
         }
@@ -917,7 +910,7 @@ if (!Object.keys) {
                             top: noteTopVal
                         };
 
-                    setPosition($note, position, notesShouldBeAnimated);
+                    animateProperties($note, position, notesShouldBeAnimated);
                 });
         }
 
@@ -944,18 +937,18 @@ if (!Object.keys) {
                         top: getDoubleNoteCircleTopValue(fretboardBodyHeight, true) - ($noteCircles[0].outerHeight(true) / 2),
                         left: (fret * fretWidth) + ((fretWidth / 2) - ($noteCircles[0].outerWidth(true) / 2))
                     };
-                    setPosition($noteCircles[0], position, noteCirclesShouldBeAnimated);
+                    animateProperties($noteCircles[0], position, noteCirclesShouldBeAnimated);
                     var position = {
                         top: getDoubleNoteCircleTopValue(fretboardBodyHeight, false) - ($noteCircle.outerHeight(true) / 2),
                         left: (fret * fretWidth) + ((fretWidth / 2) - ($noteCircle.outerWidth(true) / 2))
                     };
-                    setPosition($noteCircles[1], position, noteCirclesShouldBeAnimated);
+                    animateProperties($noteCircles[1], position, noteCirclesShouldBeAnimated);
                 } else {
                     var position = {
                         top: getMiddleNoteCircleTopValue(fretboardBodyHeight) - ($noteCircle.outerHeight(true) / 2),
                         left: (fret * fretWidth) + ((fretWidth / 2) - ($noteCircle.outerWidth(true) / 2))
                     };
-                    setPosition($noteCircles[0], position, noteCirclesShouldBeAnimated);
+                    animateProperties($noteCircles[0], position, noteCirclesShouldBeAnimated);
                 }
             });
         }
@@ -1011,11 +1004,6 @@ if (!Object.keys) {
 
         // Absolutely position all of the inner elements, and animate their positioning if requested
         function setDimensions(fretboardBodyShouldBeAnimated, fretLinesShouldBeAnimated, stringContainersShouldBeAnimated, notesShouldBeAnimated, noteCirclesShouldBeAnimated) {
-            var dimensions,
-                fretboardBodyHeight,
-                fretboardBodyWidth,
-                fretWidth;
-
             // Add the CSS classes that state the number of strings and frets,
             // and then get the height/width of the fretboard container because
             // the new CSS classes might change the height/width.
@@ -1026,10 +1014,10 @@ if (!Object.keys) {
                 .addClass("strings-" + model.tuning.length)
                 .addClass("frets-" + model.numFrets);
 
-            dimensions = model.dimensionsFunc($fretboardContainer, $fretboardBody, model);
-            fretboardBodyHeight = dimensions.height;
-            fretboardBodyWidth = dimensions.width;
-            fretWidth = fretboardBodyWidth / (model.numFrets + 1);
+            var dimensions = model.dimensionsFunc($fretboardContainer, $fretboardBody, model);
+            var fretboardBodyHeight = dimensions.height;
+            var fretboardBodyWidth = dimensions.width;
+            var fretWidth = fretboardBodyWidth / (model.numFrets + 1);
 
             animateFretboardBody(fretboardBodyWidth, fretboardBodyHeight, fretboardBodyShouldBeAnimated);
             animateFretLines(fretWidth, fretLinesShouldBeAnimated);
@@ -1075,7 +1063,7 @@ if (!Object.keys) {
             return fretboardBodyHeight - getFretHeightFactorForNoteCircle() * getFretHeight(fretboardBodyHeight) - getFirstStringDistanceFromTop(fretboardBodyHeight);
         }
 
-        function setPosition($element, properties, shouldBeAnimated) {
+        function animateProperties($element, properties, shouldBeAnimated) {
             var isVisible = $element.css("display") !== "none" && $element.css("opacity") > 0;
 
             if (isVisible && shouldBeAnimated) {
