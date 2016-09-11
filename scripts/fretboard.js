@@ -516,6 +516,7 @@ if (!Object.keys) {
             $fretboardBody.remove();
             $fretboardContainer.unwrap();
             removeContainerCssClasses();
+            $window.off("resize", resizeCallback);
         }
 
         function getClickedNotes() {
@@ -616,12 +617,15 @@ if (!Object.keys) {
         function setupRedrawOnResize() {
             // Animate the fretboard dimensions on resize, but only
             // on the last resize after X milliseconds
-            $window.on("resize", function () {
-                clearTimeout(timer);
-                timer = setTimeout(function () {
-                    setDimensions(true, true, true, true, true);
-                }, 100);
-            });
+            $window.on("resize", resizeCallback);
+        }
+
+        function resizeCallback() {
+            clearTimeout(timer);
+
+            timer = setTimeout(function () {
+                setDimensions(true, true, true, true, true);
+            }, 100);
         }
 
         function alterFretboard(allNotes) {
