@@ -290,17 +290,23 @@
                         if (!newVal) return;
 
                         scope.$evalAsync(function () {
+                            fretboardCtrl.innerDirectiveChanged = false;
                             // Set the callbacks in the correct order so the parent scope is always up to date.
                             // First the new clicked notes get pushed up.
                             ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getClickedNotes());
 
                             // Then the clicked note callbacks get invoked.
-                            if (fretboardCtrl.originalOnClickedNotesChange) {
-                                for (var i = 0; i < fretboardCtrl.originalOnClickedNotesChange.length; i++) {
-                                    fretboardCtrl.originalOnClickedNotesChange[i]();
-                                }
+                            if (!fretboardCtrl.originalOnClickedNotesChange) {
+                                return;
                             }
-                            fretboardCtrl.innerDirectiveChanged = false;
+
+                            for (var i = 0; i < fretboardCtrl.originalOnClickedNotesChange.length; i++) {
+                                if (!angular.isFunction(fretboardCtrl.originalOnClickedNotesChange[i])) {
+                                    continue;
+                                }
+
+                                fretboardCtrl.originalOnClickedNotesChange[i]();
+                            }
                         });
                     });
                 }
