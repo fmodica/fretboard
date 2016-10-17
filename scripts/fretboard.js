@@ -1026,11 +1026,16 @@ if (!Object.keys) {
                 if (onPreRender) {
                     onPreRender();
                 }
-                
+
                 var dimensions = model.dimensionsFunc($fretboardContainer, $fretboardBody, model);
                 var fretboardBodyHeight = dimensions.height;
                 var fretboardBodyWidth = dimensions.width;
                 var fretWidth = fretboardBodyWidth / (model.numFrets + 1);
+                
+                $fretboardContainer.css({ 
+                    height: dimensions.isDefaultHeight ? "" : "initial",
+                    width: dimensions.isDefaultWidth ? "" : "initial"
+                });
 
                 positionFretboardBody(fretboardBodyWidth, fretboardBodyHeight, fretboardBodyShouldBeAnimated);
                 positionFretLines(fretWidth, fretLinesShouldBeAnimated);
@@ -1315,7 +1320,7 @@ if (!Object.keys) {
                     // TODO: the renderer should validate its own settings
                     noteCircles: settings.noteCircles,
                     animationSpeed: settings.animationSpeed,
-                    dimensionsFunc: getAlteredDimensionsFunc(),
+                    dimensionsFunc: getAlteredDimensionsFunc(settings.dimensionsFunc),
                     noteMode: settings.noteMode
                 };
 
@@ -1338,26 +1343,22 @@ if (!Object.keys) {
 
             // Create a new function that returns whatever properties (width/height)
             // the user-defined function does not return.
-            function getAlteredDimensionsFunc() {
-                if (settings.dimensionsFunc !== defaultDimensionsFunc) {
-                    var oldFunc = settings.dimensionsFunc;
+            function getAlteredDimensionsFunc(oldFunc) {
+                return function ($fretboardContainer, $fretboardBody, settings) {
+                    var defaultDimensions = defaultDimensionsFunc($fretboardContainer, $fretboardBody, settings);
+                    var defaultWidth = defaultDimensions.width;
+                    var defaultHeight = defaultDimensions.height;
+                    var dimensions = oldFunc === defaultDimensionsFunc ? defaultDimensions : oldFunc($fretboardContainer, $fretboardBody, settings);
+                    var width = dimensions.width;
+                    var height = dimensions.height;
 
-                    return function ($fretboardContainer, $fretboardBody, settings) {
-                        var dimensions = oldFunc($fretboardContainer, $fretboardBody, settings),
-                            width = dimensions.width,
-                            height = dimensions.height,
-                            defaultDimensions = defaultDimensionsFunc($fretboardContainer, $fretboardBody, settings),
-                            defaultWidth = defaultDimensions.width,
-                            defaultHeight = defaultDimensions.height;
-
-                        return {
-                            width: width || defaultWidth,
-                            height: height || defaultHeight
-                        };
+                    return {
+                        isDefaultWidth: !width,
+                        width: width || defaultWidth,
+                        isDefaultHeight: !height,
+                        height: height || defaultHeight
                     };
-                }
-
-                return settings.dimensionsFunc;
+                };
             }
 
             function reattachCSSClassesFromDOM(allNotes, newClickedNotes, $clickedNotes) {
