@@ -80,8 +80,7 @@ describe("Fretboard", function () {
     var api;
 
     beforeEach(function () {
-        setFixtures("<div class='my-fretboard-js'></div>");
-        $fretboard = $(".my-fretboard-js");
+        $fretboard = $("<div class='my-fretboard-js'></div>");
     });
 
     afterEach(function () {
