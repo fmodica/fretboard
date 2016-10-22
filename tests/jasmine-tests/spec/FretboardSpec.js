@@ -55,7 +55,7 @@ describe("Fretboard", function () {
 
             for (var j = 0; j < currentString.length; j++) {
                 var currentNote = currentString[j];
-                 var currentNoteLetterIndex = noteLetters.indexOf(currentNote.letter);
+                var currentNoteLetterIndex = noteLetters.indexOf(currentNote.letter);
 
                 expect(currentNote.fret).toEqual(j);
                 expect(currentNote.stringItsOn).toEqual(currentTuningNote);
@@ -152,6 +152,7 @@ describe("Fretboard", function () {
         it("should throw an exception when an item in allNoteLetters is null", function () {
             var noteLettersWithNull = $.extend(true, [], defaultNoteLetters);
             noteLettersWithNull[0] = null;
+
             expect(function () {
                 $fretboard.fretboard({ allNoteLetters: noteLettersWithNull });
             }).toThrow();
@@ -160,6 +161,7 @@ describe("Fretboard", function () {
         it("should throw an exception when allNoteLetters has more than 12 items", function () {
             var noteLettersTooMany = $.extend(true, [], defaultNoteLetters);
             noteLettersTooMany.push("X");
+
             expect(function () {
                 $fretboard.fretboard({ allNoteLetters: noteLettersTooMany });
             }).toThrow();
@@ -168,6 +170,7 @@ describe("Fretboard", function () {
         it("should throw an exception when allNoteLetters has less than 12 items", function () {
             var noteLettersTooFew = $.extend(true, [], defaultNoteLetters);
             noteLettersTooFew = noteLettersTooFew.slice(0, 11);
+
             expect(function () {
                 $fretboard.fretboard({ allNoteLetters: noteLettersTooFew });
             }).toThrow();
@@ -176,6 +179,7 @@ describe("Fretboard", function () {
         it("should throw an exception when allNoteLetters is not unique", function () {
             var nonUniqueNoteLetters = $.extend(true, [], defaultNoteLetters);
             nonUniqueNoteLetters[11] = nonUniqueNoteLetters[0];
+
             expect(function () {
                 $fretboard.fretboard({ allNoteLetters: nonUniqueNoteLetters });
             }).toThrow();
@@ -185,6 +189,7 @@ describe("Fretboard", function () {
             var reversedNoteLetters = $.extend(true, [], defaultNoteLetters).reverse();
             $fretboard.fretboard({ allNoteLetters: reversedNoteLetters });
             api = $fretboard.data('api');
+
             expect(api.getAllNoteLetters()).toEqual(reversedNoteLetters);
         });
 
@@ -203,6 +208,7 @@ describe("Fretboard", function () {
         it("should throw an exception when tuning is not unique", function () {
             var nonUniqueTuning = $.extend(true, [], standardTuning);
             nonUniqueTuning[5] = nonUniqueTuning[0];
+
             expect(function () {
                 $fretboard.fretboard({ tuning: nonUniqueTuning });
             }).toThrow();
@@ -211,6 +217,7 @@ describe("Fretboard", function () {
         it("should throw an exception when an item in tuning is null", function () {
             var tuningWithNull = $.extend(true, [], standardTuning);
             tuningWithNull[0] = null;
+
             expect(function () {
                 $fretboard.fretboard({ tuning: tuningWithNull });
             }).toThrow();
@@ -219,6 +226,7 @@ describe("Fretboard", function () {
         it("should throw an exception when tuning contains a letter not in allNoteLetters", function () {
             var tuningWithWrongLetter = $.extend(true, [], standardTuning);
             tuningWithWrongLetter[0].letter = "C #";
+
             expect(function () {
                 $fretboard.fretboard({ tuning: tuningWithWrongLetter });
             }).toThrow();
@@ -227,6 +235,7 @@ describe("Fretboard", function () {
         it("should throw an exception when tuning contains an octave that is not a number", function () {
             var tuningWithWrongOctave = $.extend(true, [], standardTuning);
             tuningWithWrongOctave[0].octave = "X";
+
             expect(function () {
                 $fretboard.fretboard({ tuning: tuningWithWrongOctave });
             }).toThrow();
@@ -254,6 +263,7 @@ describe("Fretboard", function () {
             var numFrets = 24;
             $fretboard.fretboard({ numFrets: numFrets });
             api = $fretboard.data('api');
+
             expect(api.getNumFrets()).toEqual(numFrets);
         });
     });
@@ -387,8 +397,16 @@ describe("Fretboard", function () {
             expect(api.getClickedNotes()).toEqual(expectedClickedNotes);
         });
 
+        it("should return the correct clicked notes when notes are cleared", function () {
+            api.setClickedNotes(clickedNotes);
+            api.clearClickedNotes();
+
+            expect(api.getClickedNotes()).toEqual([]);
+        });
+
         it("should throw an exception when some notes are clicked on strings that don't exist", function () {
             api.setTuning(standardTuning.slice(0, 1));
+
             expect(function () {
                 api.setClickedNotes(clickedNotes);
             }).toThrow();
@@ -397,6 +415,7 @@ describe("Fretboard", function () {
         it("should throw an exception when notes are clicked on each string and some are out of the fret range", function () {
             clickedNotes[0].fret = -1;
             clickedNotes[1].fret = defaultNumFrets + 1;
+
             expect(function () {
                 api.setClickedNotes(clickedNotes);
             }).toThrow();
