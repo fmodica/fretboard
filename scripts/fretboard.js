@@ -23,23 +23,23 @@
     // From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
     if (!Object.keys) {
         Object.keys = (function () {
-            'use strict';
+            "use strict";
             var hasOwnProperty = Object.prototype.hasOwnProperty,
-                hasDontEnumBug = !({ toString: null }).propertyIsEnumerable('toString'),
+                hasDontEnumBug = !({ toString: null }).propertyIsEnumerable("toString"),
                 dontEnums = [
-                    'toString',
-                    'toLocaleString',
-                    'valueOf',
-                    'hasOwnProperty',
-                    'isPrototypeOf',
-                    'propertyIsEnumerable',
-                    'constructor'
+                    "toString",
+                    "toLocaleString",
+                    "valueOf",
+                    "hasOwnProperty",
+                    "isPrototypeOf",
+                    "propertyIsEnumerable",
+                    "constructor"
                 ],
                 dontEnumsLength = dontEnums.length;
 
             return function (obj) {
-                if (typeof obj !== 'object' && (typeof obj !== 'function' || obj === null)) {
-                    throw new TypeError('Object.keys called on non-object');
+                if (typeof obj !== "object" && (typeof obj !== "function" || obj === null)) {
+                    throw new TypeError("Object.keys called on non-object");
                 }
 
                 var result = [], prop, i;
@@ -928,10 +928,10 @@
         function removeContainerCssClasses() {
             $fretboardContainer
                 .removeClass(function (index, css) {
-                    return (css.match(/(^|\s)strings-\S+/g) || []).join(' ');
+                    return (css.match(/(^|\s)strings-\S+/g) || []).join(" ");
                 })
                 .removeClass(function (index, css) {
-                    return (css.match(/(^|\s)frets-\S+/g) || []).join(' ');
+                    return (css.match(/(^|\s)frets-\S+/g) || []).join(" ");
                 })
                 .removeClass(fretboardContainerCssClass);
         }
@@ -1067,12 +1067,12 @@
 
         function getNoteCircleEl(fretNum) {
             return $("<div class='" + noteCircleCssClass + "'></div>")
-                .data('fret', fretNum);
+                .data("fret", fretNum);
         }
 
         function getNoteLetterEl(note) {
             // Need to validate noteMode earlier up
-            var text = model.noteMode === 'interval' ? note.intervalInfo.interval : note.letter;
+            var text = model.noteMode === "interval" ? note.intervalInfo.interval : note.letter;
 
             return $("<div class='" + letterCssClass + "'>" + text + "</div>");
         }
@@ -1192,7 +1192,7 @@
 // This is the jQuery plugin. It instantiates the fretboard model and
 // fretboard renderer and coordinates interactions between them. It
 // contains an API which the user can get:
-// var api = $(".my-fretboard-js").data('api');
+// var api = $(".my-fretboard-js").data("api");
 (function ($) {
     "use strict";
 
@@ -1250,10 +1250,10 @@
             ];
             var defaultNoteCircles = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24];
             var defaultIntervalSettings = {
-                intervals: ['1', 'b2', '2', 'b3', '3', '4', 'b5', '5', 'b6', '6', 'b7', '7'],
+                intervals: ["1", "b2", "2", "b3", "3", "4", "b5", "5", "b6", "6", "b7", "7"],
                 root: defaultNoteLetters[0]
             };
-            var defaultNoteMode = 'letter'; // or 'interval'
+            var defaultNoteMode = "letter"; // or "interval"
             // Take up the container's height and width by default
             var defaultDimensionsFunc = function ($fretboardContainer, $fretboardBody, settings) {
                 var containerWidth = $fretboardContainer.width(),
@@ -1291,7 +1291,7 @@
             createFretboardRenderer();
 
             $element.on("noteClicked", onUserNoteClick);
-            $element.data('api', api);
+            $element.data("api", api);
 
             function destroy() {
                 fretboardModel.destroy();

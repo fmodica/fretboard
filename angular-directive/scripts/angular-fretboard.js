@@ -14,7 +14,7 @@
                     var ctrl = this;
                     ctrl.innerDirectiveChanged = false;
 
-                    $scope.$on('$destroy', function () {
+                    $scope.$on("$destroy", function () {
                         destroy(ctrl);
                     });
 
@@ -39,7 +39,7 @@
                         delete configCopy.onClickedNotesChange;
 
                         $element.attr("id", getUniqueDomIdForFretboard()).fretboard(configCopy);
-                        ctrl.jQueryFretboardApi = $element.data('api');
+                        ctrl.jQueryFretboardApi = $element.data("api");
                     }
 
                     function destroy() {
@@ -55,17 +55,17 @@
                 }],
                 // The inner directives each have their own ngModel which handle two-way data-binding for a single config property.
                 template:
-                '<span ng-if="config" fretboard-tuning ng-model="config.tuning"></span>' +
-                '<span ng-if="config" fretboard-num-frets ng-model="config.numFrets"></span>' +
-                '<span ng-if="config" fretboard-is-chord-mode ng-model="config.isChordMode"></span>' +
-                '<span ng-if="config" fretboard-note-clicking-is-disabled ng-model="config.noteClickingDisabled"></span>' +
-                '<span ng-if="config" fretboard-note-mode ng-model="config.noteMode"></span>' +
-                '<span ng-if="config" fretboard-interval-settings ng-model="config.intervalSettings"></span>' +
-                '<span ng-if="config" fretboard-all-note-letters ng-model="config.allNoteLetters"></span>' +
-                '<span ng-if="config" fretboard-animation-speed ng-model="config.animationSpeed"></span>' +
-                '<span ng-if="config" fretboard-note-circle-list ng-model="config.noteCircleList"></span>' +
+                "<span ng-if='config' fretboard-tuning ng-model='config.tuning'></span>" +
+                "<span ng-if='config' fretboard-num-frets ng-model='config.numFrets'></span>" +
+                "<span ng-if='config' fretboard-is-chord-mode ng-model='config.isChordMode'></span>" +
+                "<span ng-if='config' fretboard-note-clicking-is-disabled ng-model='config.noteClickingDisabled'></span>" +
+                "<span ng-if='config' fretboard-note-mode ng-model='config.noteMode'></span>" +
+                "<span ng-if='config' fretboard-interval-settings ng-model='config.intervalSettings'></span>" +
+                "<span ng-if='config' fretboard-all-note-letters ng-model='config.allNoteLetters'></span>" +
+                "<span ng-if='config' fretboard-animation-speed ng-model='config.animationSpeed'></span>" +
+                "<span ng-if='config' fretboard-note-circle-list ng-model='config.noteCircleList'></span>" +
                 // Clicked note handlers come last so we can alter the fretboard and then update clicked notes.
-                '<span ng-if="config" fretboard-clicked-notes ng-model="config.clickedNotes"></span>'
+                "<span ng-if='config' fretboard-clicked-notes ng-model='config.clickedNotes'></span>"
 
             }
         }])
