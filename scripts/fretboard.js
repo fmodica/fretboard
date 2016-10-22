@@ -1,7 +1,24 @@
 (function () {
     "use strict";
 
-    window.fretboard = {};
+    window.utilities = {
+        pushMany: pushMany,
+        createEmptyArrays: createEmptyArrays
+    }
+
+    function pushMany(arr, arrToAdd) {
+        Array.prototype.push.apply(arr, arrToAdd);
+    }
+
+    function createEmptyArrays(num) {
+        var arrs = [];
+
+        for (var i = 0; i < num; i++) {
+            arrs.push([]);
+        }
+
+        return arrs;
+    }
 
     // From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
     if (!Object.keys) {
@@ -49,6 +66,8 @@
 (function () {
     "use strict";
 
+    window.fretboard = {};
+
     function notesAreEqual(note1, note2) {
         return note1.letter === note2.letter && note1.octave === note2.octave;
     }
@@ -88,7 +107,7 @@
         var model = {};
         var validator = new fretboard.FretboardValidator();
 
-        initialize(settings);
+        initializeModel(settings);
 
         function destroy() {
             model = null;
@@ -114,73 +133,24 @@
             var clickedNotes = [];
 
             for (var i = 0; i < model.allNotes.length; i++) {
-                for (var j = 0; j < model.clickedNotes[i].length; j++) {
-                    clickedNotes.push(model.allNotes[i][model.clickedNotes[i][j]]);
-                }
+                utilities.pushMany(clickedNotes, getClickedNotesOnString(i));
             }
 
             return $.extend(true, [], clickedNotes);
         }
 
-        // takeSettingsIntoAccount means to check other settings that might affect
+        // asUser means to check other settings that might affect
         // which notes can be clicked, such as isChordMode, noteClickingDisabled, etc.
-        function setClickedNotes(frettedNotesToClick, takeSettingsIntoAccount) {
-            if (!frettedNotesToClick || (takeSettingsIntoAccount && model.noteClickingDisabled)) {
-                return;
-            }
+        function setClickedNotes(frettedNotesToClick, asUser) {
+            if (!frettedNotesToClick || (asUser && model.noteClickingDisabled)) return;
 
             frettedNotesToClick = $.extend(true, [], frettedNotesToClick);
-
-            for (var i = 0; i < frettedNotesToClick.length; i++) {
-                validator.validateFrettedNote(frettedNotesToClick[i], model.tuning, model.numFrets);
-            }
-
-            for (var i = 0; i < frettedNotesToClick.length; i++) {
-                clickNote(frettedNotesToClick[i], takeSettingsIntoAccount);
-            }
-        }
-
-        function clickNote(note, takeSettingsIntoAccount) {
-            for (var i = 0; i < model.tuning.length; i++) {
-                if (!fretboard.utilities.notesAreEqual(model.tuning[i], note.stringItsOn)) {
-                    continue;
-                }
-
-                clickNoteOnString(note, i, takeSettingsIntoAccount);
-            }
-        }
-
-        function clickNoteOnString(note, stringIndex, takeSettingsIntoAccount) {
-            var indexOfClickedFret = model.clickedNotes[stringIndex].indexOf(note.fret);
-            var fretAlreadyClicked = indexOfClickedFret !== -1;
-
-            if (takeSettingsIntoAccount) {
-                if (model.isChordMode) {
-                    model.clickedNotes[stringIndex] = [];
-
-                    if (!fretAlreadyClicked) {
-                        model.clickedNotes[stringIndex].push(note.fret);
-                    }
-                } else {
-                    if (!fretAlreadyClicked) {
-                        model.clickedNotes[stringIndex].push(note.fret)
-                    } else {
-                        model.clickedNotes[stringIndex].splice(indexOfClickedFret, 1);
-                    }
-                }
-            } else {
-                if (!fretAlreadyClicked) {
-                    model.clickedNotes[stringIndex].push(note.fret);
-                }
-            }
+            validateFrettedNotes(frettedNotesToClick);
+            clickFrettedNotes(frettedNotesToClick, asUser);
         }
 
         function clearClickedNotes() {
-            model.clickedNotes = [];
-
-            for (var i = 0; i < model.tuning.length; i++) {
-                model.clickedNotes.push([]);
-            }
+            model.clickedNotes = utilities.createEmptyArrays(model.tuning.length);
         }
 
         function getNoteClickingDisabled() {
@@ -202,19 +172,8 @@
             validator.validateTuning(newTuning, model.allNoteLetters);
             model.tuning = newTuning;
 
-            model.allNotes = [];
-
-            for (var i = 0; i < newTuning.length; i++) {
-                model.allNotes[i] = calculateNotesOnString(model.tuning[i]);
-            }
-
-            if (model.tuning.length <= oldTuning.length) {
-                model.clickedNotes = model.clickedNotes.slice(0, model.tuning.length);
-            } else {
-                for (var i = 0; i < (model.tuning.length - oldTuning.length); i++) {
-                    model.clickedNotes.push([]);
-                }
-            }
+            createAllNotes();
+            updateClickedNotesForTuning(oldTuning.length);
         }
 
         function getNumFrets() {
@@ -225,12 +184,8 @@
             validator.validateNumFrets(newNumFrets);
             model.numFrets = newNumFrets;
 
-            for (var i = 0; i < model.tuning.length; i++) {
-                model.allNotes[i] = calculateNotesOnString(model.tuning[i]);
-                model.clickedNotes[i] = model.clickedNotes[i].filter(function (fret) {
-                    return fret <= model.numFrets;
-                });
-            }
+            createAllNotes();
+            updateClickedNotesForNumFrets();
         }
 
         function getIntervalSettings() {
@@ -241,13 +196,10 @@
             validator.validateIntervalSettings(intervalSettings, model.allNoteLetters);
             model.intervalSettings = $.extend(true, {}, intervalSettings);
 
-            for (var i = 0; i < model.tuning.length; i++) {
-                model.allNotes[i] = calculateNotesOnString(model.tuning[i]);
-            }
+            createAllNotes();
         }
 
-        // Utility functions
-        function initialize(settings) {
+        function initializeModel(settings) {
             model = {
                 allNotes: [],
                 clickedNotes: [],
@@ -262,35 +214,64 @@
 
             validator.validateAllNoteLetters(settings.allNoteLetters);
             model.allNoteLetters = settings.allNoteLetters;
+
             validator.validateTuning(settings.tuning, settings.allNoteLetters);
             model.tuning = settings.tuning;
+
             validator.validateNumFrets(settings.numFrets);
             model.numFrets = settings.numFrets;
-            model.isChordMode = settings.isChordMode;
-            model.noteClickingDisabled = settings.noteClickingDisabled;
+
             validator.validateIntervalSettings(settings.intervalSettings, model.allNoteLetters);
             model.intervalSettings = settings.intervalSettings;
 
+            model.isChordMode = settings.isChordMode;
+            model.noteClickingDisabled = settings.noteClickingDisabled;
+
+            createAllNotes();
+            createClickedNotes();
+        }
+
+        function createAllNotes() {
+            model.allNotes = [];
+
             for (var i = 0; i < model.tuning.length; i++) {
-                model.allNotes.push(calculateNotesOnString(model.tuning[i]));
-                model.clickedNotes.push([]);
+                model.allNotes.push(createNotesOnString(model.tuning[i]));
             }
         }
 
-        function calculateNotesOnString(openNote) {
+        function createClickedNotes() {
+            model.clickedNotes = [];
+            utilities.pushMany(model.clickedNotes, utilities.createEmptyArrays(model.tuning.length));
+        }
+
+        function createNotesOnString(openNote) {
             var notes = [];
 
             for (var i = 0; i <= model.numFrets; i++) {
-                var note = getNoteByFretNumber(openNote, i);
-
-                note.fret = i;
-                note.stringItsOn = openNote;
-                note.intervalInfo = getIntervalInfo(note.letter);
-
-                notes.push(note);
+                notes.push(createNoteOnString(openNote, i));
             }
 
             return notes;
+        }
+
+        function createNoteOnString(openNote, fret) {
+            var note = getNoteByFretNumber(openNote, fret);
+
+            note.fret = fret;
+            note.stringItsOn = openNote;
+            note.intervalInfo = getIntervalInfo(note.letter);
+
+            return note;
+        }
+
+        function getClickedNotesOnString(stringIndex) {
+            var arr = [];
+
+            for (var i = 0; i < model.clickedNotes[stringIndex].length; i++) {
+                arr.push(model.allNotes[stringIndex][model.clickedNotes[stringIndex][i]]);
+            }
+
+            return arr;
         }
 
         function getIntervalInfo(letter) {
@@ -330,6 +311,93 @@
             var intervalIndex = letterIndex - rootIndex + (letterIndex >= rootIndex ? 0 : 12);
 
             return model.intervalSettings.intervals[intervalIndex];
+        }
+
+        function validateFrettedNotes(frettedNotes) {
+            for (var i = 0; i < frettedNotes.length; i++) {
+                validator.validateFrettedNote(frettedNotes[i], model.tuning, model.numFrets);
+            }
+        }
+
+        function clickFrettedNotes(frettedNotes, asUser) {
+            for (var i = 0; i < frettedNotes.length; i++) {
+                clickFrettedNote(frettedNotes[i], asUser);
+            }
+        }
+
+        function clickFrettedNote(frettedNote, asUser) {
+            for (var i = 0; i < model.tuning.length; i++) {
+                if (!fretboard.utilities.notesAreEqual(model.tuning[i], frettedNote.stringItsOn)) continue;
+
+                clickFretOnString(i, frettedNote.fret, asUser)
+            }
+        }
+
+        function clickFretOnString(stringIndex, fret, asUser) {
+            if (asUser) {
+                clickFrettedNoteAsUser(stringIndex, fret)
+            } else {
+                clickFrettedNoteAsAdmin(stringIndex, fret);
+            }
+        }
+
+        function clickFrettedNoteAsUser(stringIndex, fret) {
+            var indexOfClickedFret = getIndexOfClickedFret(stringIndex, fret);
+            var fretAlreadyClicked = indexOfClickedFret !== -1;
+
+            if (model.isChordMode) {
+                clickFrettedNoteAsUserInChordMode(stringIndex, fret, fretAlreadyClicked)
+            } else {
+                clickFrettedNoteAsUserInScaleMode(stringIndex, fret, fretAlreadyClicked, indexOfClickedFret);
+            }
+        }
+
+        function clickFrettedNoteAsAdmin(stringIndex, fret) {
+            if (getIndexOfClickedFret(stringIndex, fret) === -1) {
+                model.clickedNotes[stringIndex].push(fret);
+            }
+        }
+
+        function getIndexOfClickedFret(stringIndex, fret) {
+            return model.clickedNotes[stringIndex].indexOf(fret);
+        }
+
+        function clickFrettedNoteAsUserInChordMode(stringIndex, fret, fretAlreadyClicked) {
+            if (fretAlreadyClicked) {
+                model.clickedNotes[stringIndex] = [];
+            } else {
+                model.clickedNotes[stringIndex] = [fret];
+            }
+        }
+
+        function clickFrettedNoteAsUserInScaleMode(stringIndex, fret, fretAlreadyClicked, indexOfClickedFret) {
+            if (fretAlreadyClicked) {
+                model.clickedNotes[stringIndex].splice(indexOfClickedFret, 1);
+            } else {
+                model.clickedNotes[stringIndex].push(fret);
+            }
+        }
+
+        function updateClickedNotesForTuning(oldTuningLength) {
+            var numNewStrings = model.tuning.length - oldTuningLength;
+
+            if (numNewStrings < 0) {
+                model.clickedNotes = model.clickedNotes.slice(0, model.tuning.length);
+            } else {
+                utilities.pushMany(model.clickedNotes, utilities.createEmptyArrays(numNewStrings));
+            }
+        }
+
+        function updateClickedNotesForNumFrets() {
+            for (var i = 0; i < model.tuning.length; i++) {
+                filterClickedNotes(i);
+            }
+        }
+
+        function filterClickedNotes(stringIndex) {
+            model.clickedNotes[stringIndex] = model.clickedNotes[stringIndex].filter(function (fret) {
+                return fret <= model.numFrets;
+            });
         }
     };
 })(jQuery);
@@ -472,7 +540,7 @@
         }
 
         function isNumeric(n) {
-            return typeof (n) === "number" && !isNaN(n) && isFinite(n);
+            return typeof (n) === "number" && isFinite(n);
         }
 
         function objectToString(obj) {
