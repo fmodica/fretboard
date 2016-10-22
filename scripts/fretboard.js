@@ -1318,9 +1318,9 @@
                 return fretboardModel.getClickedNotes();
             }
 
-            function setClickedNotes(clickedNotes) {
+            function setClickedNotes(clickedNotes, asUser) {
                 var clickedNotesWithCssClasses = $.extend(true, [], clickedNotes);
-                fretboardModel.setClickedNotes(clickedNotes);
+                fretboardModel.setClickedNotes(clickedNotes, asUser);
                 var newClickedNotes = fretboardModel.getClickedNotes();
                 var $clickedNotes = fretboardRenderer.getClickedNotes();
                 var allNotes = fretboardModel.getAllNotes();
