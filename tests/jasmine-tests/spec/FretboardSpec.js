@@ -35,6 +35,28 @@ describe("Fretboard", function () {
         octave: 1
     }];
     var standardTuning = $.extend(true, [], eightStringTuning).slice(0, 6);
+    var standardATuning = [{
+        letter: "D",
+        octave: 4
+    }, {
+        letter: "A",
+        octave: 3
+    }, {
+        letter: "F",
+        octave: 3
+    }, {
+        letter: "C",
+        octave: 3
+    }, {
+        letter: "G",
+        octave: 2
+    }, {
+        letter: "D",
+        octave: 2
+    }, {
+        letter: "A",
+        octave: 1
+    }];
     var noteCircles = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24];
     var defaultNoteLetters = ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"];
     var defaultIntervalSettings = {
@@ -273,33 +295,26 @@ describe("Fretboard", function () {
             api = $fretboard.data("api");
         });
 
-        it("should return the correct number of frets when the fret number is increased", function () {
+        it("should return the correct tuning and notes when the tuning is changed", function () {
+            api.setTuning(standardATuning);
+
+            expect(api.getTuning()).toEqual(standardATuning);
+            verifyAllNotesOnFretboard(api.getAllNotes(), standardATuning, defaultNumFrets, defaultNoteLetters);
+        });
+
+        it("should return the correct number of frets and notes when the fret number is increased", function () {
             var increase = defaultNumFrets + 12;
             api.setNumFrets(increase);
 
             expect(api.getNumFrets()).toEqual(increase);
-        });
-
-        it("should return the correct notes when the fret number is increased", function () {
-            var increase = defaultNumFrets + 12;
-            var allNotes = api.getAllNotes();
-            api.setNumFrets(increase);
-
             verifyAllNotesOnFretboard(api.getAllNotes(), standardTuning, increase, defaultNoteLetters);
         });
 
-        it("should return the correct number of frets when the fret number is decreased", function () {
+        it("should return the correct number of frets and notes when the fret number is decreased", function () {
             var decrease = defaultNumFrets - 12;
             api.setNumFrets(decrease);
 
             expect(api.getNumFrets()).toEqual(decrease);
-        });
-
-        it("should return the correct notes when the fret number is decreased", function () {
-            var decrease = defaultNumFrets - 12;
-            var allNotes = api.getAllNotes();
-            api.setNumFrets(decrease);
-
             verifyAllNotesOnFretboard(api.getAllNotes(), standardTuning, decrease, defaultNoteLetters);
         });
     });
@@ -307,12 +322,13 @@ describe("Fretboard", function () {
     describe("Clicking notes programatically", function () {
         var clickedChord;
         var clickedScale;
+        var clickedChordForStandardATuning;
         var expectedClickedChord;
+        var expectedClickedChordForStandardATuning;
         var expectedClickedScale;
         var expectedIntervalInfo = {
-            root: defaultIntervalSettings.root
+            root: "C"
         };
-        var lowestClickedChordFret;
 
         beforeEach(function () {
             $fretboard.fretboard();
@@ -351,6 +367,44 @@ describe("Fretboard", function () {
             }, {
                 stringItsOn: {
                     letter: "E",
+                    octave: 2
+                },
+                fret: 3
+            }];
+
+            clickedChordForStandardATuning = [{
+                stringItsOn: {
+                    letter: "D",
+                    octave: 4
+                },
+                fret: 3
+            }, {
+                stringItsOn: {
+                    letter: "A",
+                    octave: 3
+                },
+                fret: 5,
+            }, {
+                stringItsOn: {
+                    letter: "F",
+                    octave: 3
+                },
+                fret: 4
+            }, {
+                stringItsOn: {
+                    letter: "C",
+                    octave: 3
+                },
+                fret: 5
+            }, {
+                stringItsOn: {
+                    letter: "G",
+                    octave: 2
+                },
+                fret: 3
+            }, {
+                stringItsOn: {
+                    letter: "D",
                     octave: 2
                 },
                 fret: 3
@@ -401,6 +455,7 @@ describe("Fretboard", function () {
             }];
 
             expectedClickedChord = $.extend(true, [], clickedChord);
+            expectedClickedChordForStandardATuning = $.extend(true, [], clickedChordForStandardATuning);
             expectedClickedScale = $.extend(true, [], clickedScale);
 
             // The notes come back from the plugin with some more information, 
@@ -430,7 +485,30 @@ describe("Fretboard", function () {
             expectedClickedChord[5].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
             expectedClickedChord[5].intervalInfo.interval = "5";
 
-            lowestClickedChordFret = 3;
+            expectedClickedChordForStandardATuning[0].letter = "F";
+            expectedClickedChordForStandardATuning[0].octave = 4;
+            expectedClickedChordForStandardATuning[0].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
+            expectedClickedChordForStandardATuning[0].intervalInfo.interval = "4";
+            expectedClickedChordForStandardATuning[1].letter = "D";
+            expectedClickedChordForStandardATuning[1].octave = 4;
+            expectedClickedChordForStandardATuning[1].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
+            expectedClickedChordForStandardATuning[1].intervalInfo.interval = "2";
+            expectedClickedChordForStandardATuning[2].letter = "A";
+            expectedClickedChordForStandardATuning[2].octave = 3;
+            expectedClickedChordForStandardATuning[2].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
+            expectedClickedChordForStandardATuning[2].intervalInfo.interval = "6";
+            expectedClickedChordForStandardATuning[3].letter = "F";
+            expectedClickedChordForStandardATuning[3].octave = 3;
+            expectedClickedChordForStandardATuning[3].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
+            expectedClickedChordForStandardATuning[3].intervalInfo.interval = "4";
+            expectedClickedChordForStandardATuning[4].letter = "A#/Bb";
+            expectedClickedChordForStandardATuning[4].octave = 2;
+            expectedClickedChordForStandardATuning[4].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
+            expectedClickedChordForStandardATuning[4].intervalInfo.interval = "b7";
+            expectedClickedChordForStandardATuning[5].letter = "F";
+            expectedClickedChordForStandardATuning[5].octave = 2;
+            expectedClickedChordForStandardATuning[5].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
+            expectedClickedChordForStandardATuning[5].intervalInfo.interval = "4";
 
             expectedClickedScale[0].letter = "G";
             expectedClickedScale[0].octave = 4;
@@ -462,20 +540,20 @@ describe("Fretboard", function () {
             expectedClickedScale[6].intervalInfo.interval = "1";
         });
 
-        it("should return the correct clicked notes when notes are clicked on each string and all of those notes exist on the fretboard", function () {
+        it("should return the correct clicked notes when notes are clicked and they all exist on the fretboard", function () {
             api.setClickedNotes(clickedChord);
 
             expect(api.getClickedNotes()).toEqual(expectedClickedChord);
         });
 
-        it("should return the correct clicked notes when notes are cleared", function () {
+        it("should return the correct clicked notes when cleared", function () {
             api.setClickedNotes(clickedChord);
             api.clearClickedNotes();
 
             expect(api.getClickedNotes()).toEqual([]);
         });
 
-        it("should throw an exception when some notes are clicked on strings that don't exist", function () {
+        it("should throw an exception when notes are clicked on strings that don't exist", function () {
             api.setTuning(standardTuning.slice(0, 1));
 
             expect(function () {
@@ -483,7 +561,7 @@ describe("Fretboard", function () {
             }).toThrow();
         });
 
-        it("should throw an exception when notes are clicked on each string and some are out of the fret range", function () {
+        it("should throw an exception when clicked notes are out of the fret range", function () {
             clickedChord[0].fret = -1;
             clickedChord[1].fret = defaultNumFrets + 1;
 
@@ -492,35 +570,42 @@ describe("Fretboard", function () {
             }).toThrow();
         });
 
-        it("should return the correct clicked notes when notes are clicked on each string, all of those notes exist on the fretboard, and the number of strings is decreased", function () {
+        it("should return the correct clicked notes when notes are clicked and the number of strings is decreased", function () {
             api.setClickedNotes(clickedChord);
             api.setTuning(standardTuning.slice(0, 1));
 
             expect(api.getClickedNotes()).toEqual(expectedClickedChord.slice(0, 1));
         });
 
-        it("should return the correct clicked notes when notes are clicked on each string, all of those notes exist on the fretboard, and the number of strings is increased", function () {
+        it("should return the correct clicked notes when notes are clicked and the number of strings is increased", function () {
             api.setClickedNotes(clickedChord);
             api.setTuning(eightStringTuning);
 
             expect(api.getClickedNotes()).toEqual(expectedClickedChord);
         });
 
-        it("should return the correct clicked notes when notes are clicked on each string, all of those notes exist on the fretboard, and the number of frets is decreased", function () {
+        it("should return the correct clicked notes when notes are clicked and the number of frets is decreased", function () {
             api.setClickedNotes(clickedChord);
-            api.setNumFrets(lowestClickedChordFret);
+            api.setNumFrets(3);
             expectedClickedChord = expectedClickedChord.filter(function (note) {
-                return note.fret === lowestClickedChordFret;
+                return note.fret === 3;
             });
 
             expect(api.getClickedNotes()).toEqual(expectedClickedChord);
         });
 
-        it("should return the correct clicked notes when notes are clicked on each string, all of those notes exist on the fretboard, and the number of frets is increased", function () {
+        it("should return the correct clicked notes when notes are clicked and the number of frets is increased", function () {
             api.setClickedNotes(clickedChord);
             api.setNumFrets(defaultNumFrets + 1);
 
             expect(api.getClickedNotes()).toEqual(expectedClickedChord);
+        });
+
+        it("should return the correct clicked notes when notes are clicked and each note of the tuning is changed", function () {
+            api.setClickedNotes(clickedChord);
+            api.setTuning(standardATuning);
+            
+            expect(api.getClickedNotes()).toEqual(expectedClickedChordForStandardATuning);
         });
 
         it("should return the correct clicked notes when chord mode is true and notes are clicked as a user", function () {
