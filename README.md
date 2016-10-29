@@ -13,12 +13,13 @@ Check out the <a href="http://frank-modica.com/static/fretboarddemo/index-with-f
 
 ## Setup
 
-Load your scripts:
+Load your scripts and styles:
 
 ```
-<script src="./vendor/jquery-1.11.2.min.js"></script>
-<script src="./scripts/fretboard.js"></script>
-<link rel="stylesheet" type="text/css" href="./styles/styles.css">
+<script src="./jquery-1.11.2.min.js"></script>
+<script src="./fretboard.js"></script>
+
+<link rel="stylesheet" type="text/css" href="./styles.css">
 ```
 
 Create an element to contain the fretboard:
@@ -43,17 +44,17 @@ The jQuery plugin is also wrapped as an <a href="https://github.com/fmodica/fret
 
 ## Code Examples
 
-<a href="https://github.com/fmodica/fretboard.js/blob/master/index.html">jQuery plugin (basic, using the default config)</a>
+<a href="https://github.com/fmodica/fretboard/blob/master/jquery-plugin/index.html">jQuery plugin (basic, using the default config)</a>
 
-<a href="https://github.com/fmodica/fretboard.js/blob/master/index-with-full-config.html">jQuery plugin (using all config options + API)</a>
+<a href="https://github.com/fmodica/fretboard/blob/master/jquery-plugin/index-with-full-config.html">jQuery plugin (using all config options + API)</a>
 
-<a href="https://github.com/fmodica/fretboard.js/blob/master/angular-directive/index.html">AngularJS directive (basic, using the default config)</a>
+<a href="https://github.com/fmodica/fretboard/blob/master/angular-directive/index.html">AngularJS directive (basic, using the default config)</a>
 
-<a href="https://github.com/fmodica/fretboard.js/blob/master/angular-directive/index-with-full-config.html">AngularJS directive (using all config options + API)</a>
+<a href="https://github.com/fmodica/fretboard/blob/master/angular-directive/index-with-full-config.html">AngularJS directive (using all config options + API)</a>
 
 ## Extra
 
 You can also check out my <a target="_blank" href="http://frank-modica.com/#/voiceleader/index">Guitar Voiceleading Helper</a>, where I use the fretboard to help users create progressions with good voice leading.
 
 ## Tests
-Tests for the jQuery plugin are <a href="https://github.com/fmodica/fretboard/blob/master/tests/jasmine-tests/spec/FretboardSpec.js">here</a>. I am working on tests for the AngularJS directive.
+Tests for the jQuery plugin are <a href="https://github.com/fmodica/fretboard/tree/master/jquery-plugin/tests">here</a>. I am working on tests for the AngularJS directive.

@@ -5,9 +5,9 @@
 <head>
     <title>Test Fretboard Page</title>
     <meta name="viewport" content="initial-scale=1">
-    <script src="./vendor/jquery-1.11.2.min.js"></script>
-    <script src="./scripts/fretboard.js"></script>
-    <link rel="stylesheet" type="text/css" href="./styles/styles.css">
+    <script src="../common/jquery-1.11.2.min.js"></script>
+    <script src="../common/fretboard.js"></script>
+    <link rel="stylesheet" type="text/css" href="../common/styles.css">
 </head>
 
 <body>
@@ -20,7 +20,7 @@
             background: lightgray;
             padding: 20px 40px;
         }
-
+        
         button {
             margin: 10px 2.5%;
             cursor: pointer;
@@ -31,43 +31,43 @@
             font-size: 12px;
             overflow: auto;
         }
-
+        
         .disclaimer {
             text-align: center;
         }
-
+        
         .disclaimer-first {
             margin-top: 30px;
         }
-
+        
         .fretboard-container .note.clicked.green {
             background: green;
         }
-
+        
         .fretboard-container .note.clicked.red {
             background: red;
         }
-
+        
         .fretboard-container .note.clicked.orange {
             background: orange;
         }
-
+        
         .json {
             width: 100%;
             clear: both;
             padding-top: 10px;
         }
-
+        
         .json p {
             text-align: center;
         }
-
+        
         @media (max-width: 800px) {
             .container {
                 padding: 5px;
             }
         }
-
+        
         @media (max-width: 767px) {
             button {
                 width: 95%;
@@ -254,7 +254,7 @@
                 },
                 fret: 3
             }];
-            var dimensionsFunc = function ($fretboardContainer, $fretboardBody, settings) {
+            var dimensionsFunc = function($fretboardContainer, $fretboardBody, settings) {
                 var numStrings = settings.tuning.length;
 
                 return {
@@ -268,12 +268,12 @@
             };
             var noteMode = 'letter'; // or 'interval',
             var isIntervalMode = noteMode === 'interval';
-            var clickedNotesChangedFuncs = [function () {
+            var clickedNotesChangedFuncs = [function() {
                 console.log("Clicked notes are: ");
-                $fretboards.each(function () {
+                $fretboards.each(function() {
                     console.log($(this).data('api').getClickedNotes());
                 });
-            }, function () {
+            }, function() {
                 console.log("Another clicked notes callback...");
             }];
             var options = {
@@ -348,18 +348,18 @@
                 }
             });
 
-            $(".change-to-eight-string-tuning").on("click", function () {
+            $(".change-to-eight-string-tuning").on("click", function() {
                 currentTuning = $.extend(true, [], eightStringTuning);
 
-                $fretboards.each(function () {
+                $fretboards.each(function() {
                     $(this).data('api').setTuning(currentTuning);
                 });
             });
 
-            $(".change-to-standard-tuning").on("click", function () {
+            $(".change-to-standard-tuning").on("click", function() {
                 currentTuning = $.extend(true, [], standardTuning);
 
-                $fretboards.each(function () {
+                $fretboards.each(function() {
                     $(this).data('api').setTuning(currentTuning);
                 });
             });
@@ -414,7 +414,7 @@
 
                     api.setNoteMode('interval');
                     api.setIntervalSettings(intervalSettings);
-                                        
+
                     if (!api.getClickedNotes().length) {
                         api.setClickedNotes(cMaj7Notes);
                     }

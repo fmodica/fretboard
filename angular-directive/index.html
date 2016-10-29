@@ -3,13 +3,14 @@
 <html>
 
 <head>
-  <title>Test Fretboard Page</title>
-  <meta name="viewport" content="initial-scale=1">
-  <script src="../vendor/jquery-1.11.2.min.js"></script>
-  <script src="../scripts/fretboard.js"></script>
-  <script src="./vendor/angular.js"></script>
-  <script src="./scripts/angular-fretboard.js"></script>
-  <link rel="stylesheet" type="text/css" href="../styles/styles.css">
+    <title>Test Fretboard Page</title>
+    <meta name="viewport" content="initial-scale=1">
+    <script src="../common/jquery-1.11.2.min.js"></script>
+    <script src="../common/fretboard.js"></script>
+    <script src="./angular.js"></script>
+    <script src="./angular-fretboard.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="../common/styles.css">
 </head>
 
 <body ng-app="myApp">
@@ -29,24 +30,24 @@
             }
         }
     </style>
-<div class="container" ng-controller="MyController">
-    <script type="text/javascript">
-        var app = angular.module("myApp", ['angularFretboard']);
+    <div class="container" ng-controller="MyController">
+        <script type="text/javascript">
+            var app = angular.module("myApp", ['angularFretboard']);
 
-        app.controller("MyController", ["$scope",
-            function ($scope) {
-                $scope.config = {};
-            }
-        ]);
-    </script>
+            app.controller("MyController", ["$scope",
+                function($scope) {
+                    $scope.config = {};
+                }
+            ]);
+        </script>
 
-    <div fretboard fretboard-config='config'></div>
+        <div fretboard fretboard-config='config'></div>
 
-    <div class="json">
-        <p>Config data-binding</p>
-        <pre>{{ config | json }}</pre>
+        <div class="json">
+            <p>Config data-binding</p>
+            <pre>{{ config | json }}</pre>
+        </div>
     </div>
-</div>
 </body>
 
 </html>
