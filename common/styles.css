@@ -76,7 +76,7 @@
     opacity: 1;
 }
 
-.fretboard-container .letter {
+.fretboard-container .note-display {
     position: relative;
 	text-align: center;    
     z-index: 0;
@@ -96,8 +96,15 @@
     color: black;
 }
 
-.fretboard-container .note.clicked .letter {
+.fretboard-container .note.clicked .note-display {
     color: white;
+}
+
+.fretboard-container .fret-line-container,
+.fretboard-container .note-circle-container {
+    position: absolute;
+    height: 100%;
+    width: 100%;
 }
 
 .fretboard-container .fret-line {
@@ -130,7 +137,7 @@
         height: 24px;
     }
     
-    .fretboard-container .letter {
+    .fretboard-container .note-display {
         top: 8.5px;
         font-size: 7.5px;
         line-height: 7.5px;
