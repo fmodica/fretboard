@@ -544,9 +544,9 @@
 
             createTuning();
 
-            $syncStringContainers(oldNumStrings, oldNumFrets, fretboardBodyHeight);
-            $syncFretLines(oldNumFrets, fretboardBodyWidth);
-            $syncNoteCircles(oldNumFrets, fretboardBodyWidth, fretboardBodyHeight);
+            $syncStringContainers($getStringContainerContainer(), $getStringContainers(), oldNumStrings, oldNumFrets, fretboardBodyHeight);
+            $syncFretLines($getFretLineContainer(), $getFretLines(), oldNumFrets, fretboardBodyWidth);
+            $syncNoteCircles($getNoteCircleContainer(), $getNoteCircles(), oldNumFrets, fretboardBodyWidth, fretboardBodyHeight);
         }
 
         function $getClickedNotes() {
@@ -557,7 +557,7 @@
             frettedNotes = $.extend(true, [], frettedNotes);
 
             for (var i = 0; i < frettedNotes.length; i++) {
-                $clickNote(frettedNotes[i]);
+                $clickNote($getStringContainers(), frettedNotes[i]);
             }
         }
 
@@ -645,18 +645,18 @@
             $fretboardBody.show();
         }
 
-        function $clickNote(frettedNote) {
+        function $clickNote($stringContainers, frettedNote) {
             for (var i = 0; i < model.tuning.length; i++) {
                 if (!fretboard.utilities.notesAreEqual(model.tuning[i], frettedNote.stringItsOn)) continue;
 
-                $clickFretOnString(i, frettedNote.fret, frettedNote.cssClass);
+                $clickFretOnString($stringContainers.eq(i), frettedNote.fret, frettedNote.cssClass);
 
                 return;
             }
         }
 
-        function $clickFretOnString(stringIndex, fret, customCssClass) {
-            $getNote(stringIndex, fret)
+        function $clickFretOnString($stringContainer, fret, customCssClass) {
+            $getNote($stringContainer, fret)
                 .removeClass() // Remove any custom css
                 .addClass(noteCssClass)
                 .addClass(hoverCssClass)
@@ -666,12 +666,10 @@
                 .off("mouseleave", $noteMouseLeave);
         }
 
-        function $getNotes(stringIndex) {
-            return $getStringContainer(stringIndex).find(noteSelector);
-        }
-
-        function $getNote(stringIndex, fret) {
-            return $getNotes(stringIndex).eq(fret);
+        function $getNote($stringContainer, fret) {
+            return $stringContainer
+                .find(noteSelector)
+                .eq(fret);
         }
 
         function $setupRedrawOnResize() {
@@ -693,56 +691,57 @@
         }
 
         function $getStringContainers() {
-            return $getStringContainerContainer().find(stringContainerSelector)
+            return $fretboardContainer.find(stringContainerSelector);
         }
 
-        function $getStringContainer(stringIndex) {
-            return $getStringContainers().eq(stringIndex);
-        }
-
-        function $syncStringContainers(numOldNotes, oldNumFrets, fretboardBodyHeight) {
+        function $syncStringContainers($stringContainerContainer, $stringContainers, numOldNotes, oldNumFrets, fretboardBodyHeight) {
             var maxStrings = Math.max(numOldNotes, model.allNotes.length);
             var maxFrets = Math.max(oldNumFrets, model.numFrets);
 
             for (var i = 0; i < maxStrings; i++) {
-                $syncStringContainer(i, maxFrets, fretboardBodyHeight);
+                $syncStringContainer($stringContainerContainer, $stringContainers, i, maxFrets, fretboardBodyHeight);
             }
         }
 
-        function $syncStringContainer(stringIndex, frets, fretboardBodyHeight) {
+        function $syncStringContainer($stringContainerContainer, $stringContainers, stringIndex, frets, fretboardBodyHeight) {
             if (stringIndex < model.tuning.length) {
-                $addOrEditStringContainer(stringIndex, frets, fretboardBodyHeight);
+                $addOrEditStringContainer($stringContainerContainer, $stringContainers, stringIndex, frets, fretboardBodyHeight);
             } else {
-                $getStringContainer(stringIndex).remove();
+                $stringContainers.eq(stringIndex).remove();
             }
         }
 
-        function $addOrEditStringContainer(stringIndex, frets, fretboardBodyHeight) {
-            if (!$getStringContainer(stringIndex).length) {
+        function $addOrEditStringContainer($stringContainerContainer, $stringContainers, stringIndex, frets, fretboardBodyHeight) {
+            var $stringContainer = null;
+
+            if (!$stringContainers.eq(stringIndex).length) {
                 var $string = $createString();
                 $setPosition($string, { top: fretboardBodyHeight }, false);
-                var $stringContainer = $createStringContainer().append($string);
-                $getStringContainerContainer().append($stringContainer);
-            }
 
-            $syncNotes(stringIndex, frets);
-        }
-
-        function $syncNotes(stringIndex, frets) {
-            for (var i = 0; i <= frets; i++) {
-                $syncNote(stringIndex, i);
-            }
-        }
-
-        function $syncNote(stringIndex, fret) {
-            if (fret <= model.numFrets) {
-                $addOrEditNote(stringIndex, fret);
+                $stringContainer = $createStringContainer().append($string);
+                $stringContainerContainer.append($stringContainer);
             } else {
-                $getNote(stringIndex, fret).remove();
+                $stringContainer = $stringContainers.eq(stringIndex);
+            }
+
+            $syncNotes($stringContainer, stringIndex, frets);
+        }
+
+        function $syncNotes($stringContainer, stringIndex, frets) {
+            for (var i = 0; i <= frets; i++) {
+                $syncNote($stringContainer, stringIndex, i);
             }
         }
 
-        function $addOrEditNote(stringIndex, fret) {
+        function $syncNote($stringContainer, stringIndex, fret) {
+            if (fret <= model.numFrets) {
+                $addOrEditNote($stringContainer, stringIndex, fret);
+            } else {
+                $getNote($stringContainer, fret).remove();
+            }
+        }
+
+        function $addOrEditNote($stringContainer, stringIndex, fret) {
             var note = model.allNotes[stringIndex][fret];
             var newNoteData = {
                 letter: note.letter,
@@ -752,12 +751,12 @@
                 intervalInfo: note.intervalInfo,
                 noteMode: model.noteMode
             };
-            var $note = $getNote(stringIndex, fret);
+            var $note = $getNote($stringContainer, fret);
 
             if ($note.length) {
                 $editNote($note, newNoteData);
             } else {
-                $getStringContainer(stringIndex).append($createNote(newNoteData, true));
+                $stringContainer.append($createNote(newNoteData, true));
             }
         }
 
@@ -778,36 +777,36 @@
         }
 
         function $getFretLines() {
-            return $getFretLineContainer().find(fretLineSelector);
+            return $fretboardContainer.find(fretLineSelector);
         }
 
         function $getFretLine(fret) {
             return $getFretLines().eq(fret);
         }
 
-        function $syncFretLines(oldNumFrets, fretboardBodyWidth) {
+        function $syncFretLines($fretLineContainer, $fretLines, oldNumFrets, fretboardBodyWidth) {
             var fretsToIterateOver = Math.max(oldNumFrets, model.numFrets);
 
             for (var i = 0; i <= fretsToIterateOver; i++) {
-                $syncFretLine(i, fretboardBodyWidth);
+                $syncFretLine($fretLineContainer, $fretLines, i, fretboardBodyWidth);
             }
         }
 
-        function $syncFretLine(fret, fretboardBodyWidth) {
+        function $syncFretLine($fretLineContainer, $fretLines, fret, fretboardBodyWidth) {
             if (fret <= model.numFrets) {
-                $addOrEditFretLine(fret, fretboardBodyWidth);
+                $addOrEditFretLine($fretLineContainer, $fretLines, fret, fretboardBodyWidth);
             } else {
-                $getFretLine(fret).remove();
+                $fretLines.eq(fret).remove();
             }
         }
 
-        function $addOrEditFretLine(fret, fretboardBodyWidth) {
-            if ($getFretLine(fret).length) return;
+        function $addOrEditFretLine($fretLineContainer, $fretLines, fret, fretboardBodyWidth) {
+            if ($fretLines.eq(fret).length) return;
 
             var $fretLine = $createFretLine();
 
             $setPosition($fretLine, { left: fretboardBodyWidth }, false);
-            $getFretLineContainer().append($fretLine);
+            $fretLineContainer.append($fretLine);
         }
 
         function $getNoteCircleContainer() {
@@ -815,10 +814,10 @@
         }
 
         function $getNoteCircles() {
-            return $getNoteCircleContainer().find(noteCircleCssSelector);
+            return $fretboardContainer.find(noteCircleCssSelector);
         }
 
-        function $syncNoteCircles(oldNumFrets, fretboardBodyWidth, fretboardBodyHeight) {
+        function $syncNoteCircles($noteCircleContainer, $noteCircles, oldNumFrets, fretboardBodyWidth, fretboardBodyHeight) {
             var fretsToIterateOver = Math.max(oldNumFrets, model.numFrets);
             // We will be iterating over each fret to add/remove note circles.
             // A hash will allow us to easily map a fret number to note circles.
@@ -826,43 +825,43 @@
             var noteCirclesThatShouldExistHash = getNoteCirclesThatShouldExistHash();
 
             for (var i = 0; i <= fretsToIterateOver; i++) {
-                $syncNoteCircle(i, noteCirclesHash, noteCirclesThatShouldExistHash, fretboardBodyWidth, fretboardBodyHeight);
+                $syncNoteCircle($noteCircleContainer, i, noteCirclesHash, noteCirclesThatShouldExistHash, fretboardBodyWidth, fretboardBodyHeight);
             }
         }
 
-        function $syncNoteCircle(fret, noteCirclesHash, noteCirclesThatShouldExistHash, fretboardBodyWidth, fretboardBodyHeight) {
+        function $syncNoteCircle($noteCircleContainer, fret, noteCirclesHash, noteCirclesThatShouldExistHash, fretboardBodyWidth, fretboardBodyHeight) {
             if (fret <= model.numFrets) {
-                $updateNoteCircleOnExistingFret(fret, noteCirclesHash, noteCirclesThatShouldExistHash, fretboardBodyWidth, fretboardBodyHeight);
+                $updateNoteCircleOnExistingFret($noteCircleContainer, fret, noteCirclesHash, noteCirclesThatShouldExistHash, fretboardBodyWidth, fretboardBodyHeight);
             } else {
                 $removeNoteCircles(fret, noteCirclesHash);
             }
         }
 
-        function $updateNoteCircleOnExistingFret(fret, noteCirclesHash, noteCirclesThatShouldExistHash, fretboardBodyWidth, fretboardBodyHeight) {
+        function $updateNoteCircleOnExistingFret($noteCircleContainer, fret, noteCirclesHash, noteCirclesThatShouldExistHash, fretboardBodyWidth, fretboardBodyHeight) {
             if (noteCirclesThatShouldExistHash[fret]) {
-                $addNoteCircles(fret, noteCirclesHash, fretboardBodyWidth, fretboardBodyHeight);
+                $addNoteCircles($noteCircleContainer, fret, noteCirclesHash, fretboardBodyWidth, fretboardBodyHeight);
             } else {
                 $removeNoteCircles(fret, noteCirclesHash);
             }
         }
 
-        function $addNoteCircles(fret, noteCirclesHash, fretboardBodyWidth, fretboardBodyHeight) {
+        function $addNoteCircles($noteCircleContainer, fret, noteCirclesHash, fretboardBodyWidth, fretboardBodyHeight) {
             if (noteCirclesHash[fret]) return;
 
             if (needsDoubleNoteCircle(fret)) {
-                $appendNoteCircle(fret, fretboardBodyWidth, fretboardBodyHeight, "top");
-                $appendNoteCircle(fret, fretboardBodyWidth, fretboardBodyHeight, "bottom");
+                $appendNoteCircle($noteCircleContainer, fret, fretboardBodyWidth, fretboardBodyHeight, "top");
+                $appendNoteCircle($noteCircleContainer, fret, fretboardBodyWidth, fretboardBodyHeight, "bottom");
             } else {
-                $appendNoteCircle(fret, fretboardBodyWidth, fretboardBodyHeight);
+                $appendNoteCircle($noteCircleContainer, fret, fretboardBodyWidth, fretboardBodyHeight);
             }
         }
 
-        function $appendNoteCircle(fret, fretboardBodyWidth, fretboardBodyHeight, type) {
+        function $appendNoteCircle($noteCircleContainer, fret, fretboardBodyWidth, fretboardBodyHeight, type) {
             var $noteCircle = $createNoteCircle(fret);
             var position = { left: fretboardBodyWidth };
 
             // Append first so it gets a height
-            $getNoteCircleContainer().append($noteCircle);
+            $noteCircleContainer.append($noteCircle);
 
             if (type === "top") {
                 position.top = getDoubleNoteCircleTopValue(fretboardBodyHeight, true) - ($noteCircle.outerHeight(true) / 2);
