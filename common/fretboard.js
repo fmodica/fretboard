@@ -7,7 +7,7 @@
 (function ($) {
     "use strict";
 
-    window.fretboard.FretboardModel = function (settings) {
+    window.fretboard.FretboardModel = function (settings, validator) {
         var self = this;
         self.destroy = destroy;
         self.getAllNotes = getAllNotes;
@@ -27,7 +27,6 @@
         self.setIntervalSettings = setIntervalSettings;
 
         var model = {};
-        var validator = new fretboard.FretboardValidator();
 
         initializeModel(settings);
 
@@ -338,6 +337,7 @@
         self.validateTuning = validateTuning;
         self.validateNumFrets = validateNumFrets;
         self.validateIntervalSettings = validateIntervalSettings;
+        self.validateNoteMode = validateNoteMode;
 
         function validateNote(note, allNoteLetters) {
             if (!note) {
@@ -463,6 +463,12 @@
             }
         }
 
+        function validateNoteMode(noteMode) {
+            if (!(noteMode === "letter" || noteMode === "interval")) {
+                throw new Error("Note mode must be \"letter\" or \"interval\", but it is : " + objectToString(noteMode));
+            }
+        }
+
         function isNumeric(n) {
             return typeof (n) === "number" && isFinite(n);
         }
@@ -476,7 +482,7 @@
 (function ($) {
     "use strict";
 
-    window.fretboard.FretboardHtmlRenderer = function (settings, $element) {
+    window.fretboard.FretboardHtmlRenderer = function (settings, $element, validator) {
         var self = this;
         self.destroy = destroy;
         self.syncFretboard = $syncFretboard;
@@ -574,6 +580,7 @@
         }
 
         function $setNoteMode(noteMode) {
+            validator.validateNoteMode(noteMode);
             model.noteMode = noteMode;
             $syncFretboard(model.allNotes);
         }
@@ -624,6 +631,8 @@
         }
 
         function $createFretboard() {
+            validator.validateNoteMode(model.noteMode);
+
             $fretboardBody = $createFretboardBody()
                 .hide()
                 .append($createStringContainerContainer())
@@ -1289,6 +1298,7 @@
             };
             // These settings will have the defaults extended with user options
             var settings = {};
+            var validator = new fretboard.FretboardValidator();
             var fretboardModel;
             var fretboardRenderer;
 
@@ -1337,6 +1347,10 @@
                 reattachCssFromNewClickedNotes(clickedNotes, clickedNotesWithCssClasses);
 
                 fretboardRenderer.setClickedNotes(clickedNotes);
+
+                if (asUser) {
+                    executeOnClickedNotesCallbacks();
+                }
             }
 
             function clearClickedNotes() {
@@ -1407,7 +1421,7 @@
                     intervalSettings: settings.intervalSettings
                 };
 
-                fretboardModel = new fretboard.FretboardModel(modelSettings);
+                fretboardModel = new fretboard.FretboardModel(modelSettings, validator);
             }
 
             function createFretboardRenderer() {
@@ -1426,7 +1440,7 @@
                     noteMode: settings.noteMode
                 };
 
-                fretboardRenderer = new fretboard.FretboardHtmlRenderer(fretboardRendererSettings, $element);
+                fretboardRenderer = new fretboard.FretboardHtmlRenderer(fretboardRendererSettings, $element, validator);
             }
 
             function addNotesClickedListener(callback) {
