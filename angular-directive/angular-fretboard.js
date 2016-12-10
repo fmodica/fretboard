@@ -30,9 +30,7 @@
                     }
                     isFirst = false;
                 } else {
-                    scope.$evalAsync(function () {
-                        fretboardCtrl.clickedNotesModelNeedsUpdate = true;
-                    });
+                    fretboardCtrl.updateClickedNotes();
                     renderFn(ngModelCtrl.$viewValue);
                 }
             };
@@ -61,12 +59,11 @@
             "<span ng-if='config' all-note-letters ng-model='config.allNoteLetters'></span>" +
             "<span ng-if='config' animation-speed ng-model='config.animationSpeed'></span>" +
             "<span ng-if='config' note-circle-list ng-model='config.noteCircleList'></span>" +
-            "<span ng-if='config' clicked-notes ng-model='config.clickedNotes'></span>"
+            "<span ng-if='config' clicked-notes ng-model='config.clickedNotes' ng-change='invokeFns(onClickedNotesChange)'></span>"
         }
 
         function fretboardController($scope, $element) {
             var ctrl = this;
-            ctrl.clickedNotesModelNeedsUpdate = false;
 
             $scope.$on("$destroy", function () {
                 destroy(ctrl);
@@ -83,12 +80,14 @@
             });
 
             function initialize() {
-                // When a user clicks a note, we need to ensure that the clicked notes on the parent 
-                // scope are updated before the clicked note callbacks are invoked. So we delete the 
-                // clicked note callbacks from the config here so the plugin cannot invoke them. We 
-                // hand the callbacks to the clickedNotes directive, which will first update 
-                // the clicked notes on the parent scope and then invoke the callbacks.
-                ctrl.onClickedNotesChange = $scope.config.onClickedNotesChange;
+                // When a user clicks a note, we need to ensure that the clicked notes
+                // on the parent scope are updated before the clicked note callbacks 
+                // are invoked. So we delete the clicked note callbacks from the 
+                // config here so the plugin cannot invoke them. We use ng-model on 
+                // the clicked-notes directive to invoke the callbacks when the 
+                // clicked notes have been updated.
+                $scope.onClickedNotesChange = $scope.config.onClickedNotesChange;
+                $scope.invokeFns = invokeFns;
 
                 var configCopy = angular.copy($scope.config);
                 delete configCopy.onClickedNotesChange;
@@ -101,6 +100,16 @@
                 if (ctrl.jQueryFretboardApi) {
                     ctrl.jQueryFretboardApi.destroy();
                     ctrl.jQueryFretboardApi = null;
+                }
+            }
+
+            function invokeFns(fns) {
+                if (!fns) return;
+
+                for (var i = 0; i < fns.length; i++) {
+                    if (!angular.isFunction(fns[i])) continue;
+
+                    fns[i]();
                 }
             }
         }
@@ -276,46 +285,20 @@
             var ngModelCtrl = ctrls[0];
             var fretboardCtrl = ctrls[1];
 
-            fretboardCtrl.jQueryFretboardApi.addNotesClickedListener(function () {
-                scope.$evalAsync(function () {
-                    fretboardCtrl.clickedNotesModelNeedsUpdate = true;
-                });
-            });
+            fretboardCtrl.jQueryFretboardApi.addNotesClickedListener(updateModel);
+            fretboardCtrl.updateClickedNotes = updateModel;
 
             ngModelCtrl.$render = function () {
                 var clickedNotes = ngModelCtrl.$viewValue || [];
-
                 fretboardCtrl.jQueryFretboardApi.clearClickedNotes();
                 fretboardCtrl.jQueryFretboardApi.setClickedNotes(clickedNotes);
-
-                scope.$evalAsync(function () {
-                    fretboardCtrl.clickedNotesModelNeedsUpdate = true;
-                });
+                updateModel();
             };
 
-            scope.$watch(function () {
-                return fretboardCtrl.clickedNotesModelNeedsUpdate;
-            }, function (newVal, oldVal) {
-                if (!newVal) return;
-
+            function updateModel() {
                 scope.$evalAsync(function () {
-                    fretboardCtrl.clickedNotesModelNeedsUpdate = false;
-                    // Set the callbacks in the correct order so the parent scope is always up to date.
-                    // First the new clicked notes get pushed up.
                     ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getClickedNotes());
-                    // Then we invoke the callbacks.
-                    invokeFns(fretboardCtrl.onClickedNotesChange);
                 });
-            });
-        }
-
-        function invokeFns(fns) {
-            if (!fns) return;
-
-            for (var i = 0; i < fns.length; i++) {
-                if (!angular.isFunction(fns[i])) continue;
-
-                fns[i]();
             }
         }
     }
