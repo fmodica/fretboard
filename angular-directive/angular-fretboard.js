@@ -53,7 +53,7 @@
             "<span ng-if='config' tuning ng-model='config.tuning'></span>" +
             "<span ng-if='config' num-frets ng-model='config.numFrets'></span>" +
             "<span ng-if='config' is-chord-mode ng-model='config.isChordMode'></span>" +
-            "<span ng-if='config' note-clicking-is-disabled ng-model='config.noteClickingDisabled'></span>" +
+            "<span ng-if='config' note-clicking-disabled ng-model='config.noteClickingDisabled'></span>" +
             "<span ng-if='config' note-mode ng-model='config.noteMode'></span>" +
             "<span ng-if='config' interval-settings ng-model='config.intervalSettings'></span>" +
             "<span ng-if='config' all-note-letters ng-model='config.allNoteLetters'></span>" +
