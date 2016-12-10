@@ -30,8 +30,8 @@
                     }
                     isFirst = false;
                 } else {
-                    fretboardCtrl.updateClickedNotes();
                     renderFn(ngModelCtrl.$viewValue);
+                    fretboardCtrl.scheduleClickedNotesUpdate();
                 }
             };
         }
@@ -48,7 +48,8 @@
                 config: "=fretboardConfig"
             },
             controller: ["$scope", "$element", fretboardController],
-            // The inner directives each have their own ngModel which handle two-way data-binding for a single config property.
+            // The inner directives each have their own ngModel which handle 
+            // two-way data-binding for a single config property.
             template:
             "<span ng-if='config' tuning ng-model='config.tuning'></span>" +
             "<span ng-if='config' num-frets ng-model='config.numFrets'></span>" +
@@ -59,6 +60,8 @@
             "<span ng-if='config' all-note-letters ng-model='config.allNoteLetters'></span>" +
             "<span ng-if='config' animation-speed ng-model='config.animationSpeed'></span>" +
             "<span ng-if='config' note-circle-list ng-model='config.noteCircleList'></span>" +
+            // This must come last so that its $render method is created after
+            // all others (tuning, numFrets, etc.).
             "<span ng-if='config' clicked-notes ng-model='config.clickedNotes' ng-change='invokeFns(onClickedNotesChange)'></span>"
         }
 
@@ -285,17 +288,23 @@
             var ngModelCtrl = ctrls[0];
             var fretboardCtrl = ctrls[1];
 
-            fretboardCtrl.jQueryFretboardApi.addNotesClickedListener(updateModel);
-            fretboardCtrl.updateClickedNotes = updateModel;
+            fretboardCtrl.jQueryFretboardApi.addNotesClickedListener(scheduleClickedNotesUpdate);
+            fretboardCtrl.scheduleClickedNotesUpdate = scheduleClickedNotesUpdate;
 
+            // This must be invoked after all other directives' $render method, 
+            // but before scheduleClickedNotesUpdate.
             ngModelCtrl.$render = function () {
                 var clickedNotes = ngModelCtrl.$viewValue || [];
                 fretboardCtrl.jQueryFretboardApi.clearClickedNotes();
                 fretboardCtrl.jQueryFretboardApi.setClickedNotes(clickedNotes);
-                updateModel();
+                scheduleClickedNotesUpdate();
             };
 
-            function updateModel() {
+            function scheduleClickedNotesUpdate() {
+                // This will run after other aspects of the fretboard are modified
+                // (tuning, numFrets, clickedNotes) ensuring that all other 
+                // properties (tuning, numFrets, etc.) are updated before 
+                // clickedNotes are updated.
                 scope.$evalAsync(function () {
                     ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getClickedNotes());
                 });

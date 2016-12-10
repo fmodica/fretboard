@@ -341,11 +341,11 @@
 
         function validateNote(note, allNoteLetters) {
             if (!note) {
-                throw new Error("Note does not exist: " + objectToString(note));
+                throw new Error("Note is not valid: " + objectToString(note));
             }
 
             if (allNoteLetters.indexOf(note.letter) === -1) {
-                throw new Error("Note " + objectToString(note) + " is not in the All Note Letters array " + objectToString(allNoteLetters));
+                throw new Error("Note " + objectToString(note) + " is not in alNoteLetters: " + objectToString(allNoteLetters));
             }
 
             if (!isNumeric(note.octave)) {
@@ -356,15 +356,15 @@
         // Fretted notes just have stringItsOn and fret properties for now
         function validateFrettedNote(note, tuning, numFrets) {
             if (!note) {
-                throw new Error("Note does not exist: " + objectToString(note));
+                throw new Error("Note is not valid: " + objectToString(note));
             }
 
             if (!isNumeric(note.fret)) {
-                throw new Error("Fret number is not a number: " + objectToString(note));
+                throw new Error("Fret is not a number: " + objectToString(note));
             }
 
             if (note.fret < 0 || note.fret > numFrets) {
-                throw new Error("Fret number is out of range: " + objectToString(note));
+                throw new Error("Fret is out of range: " + objectToString(note));
             }
 
             var stringFound = false;
@@ -377,23 +377,23 @@
             }
 
             if (!stringFound) {
-                throw new Error("String " + objectToString(note.stringItsOn) + " that the note " + objectToString(note) + " is on does not exist in the tuning " + objectToString(tuning));
+                throw new Error("The note: " + objectToString(note) +  " belongs to the string: " + objectToString(note.stringItsOn) + " that does not exist in the tuning: " + objectToString(tuning));
             }
         }
 
         function validateNumFrets(numFrets) {
             if (!isNumeric(numFrets)) {
-                throw new Error("Number of frets is not a number: " + numFrets);
+                throw new Error("numFrets is not a number: " + numFrets);
             }
 
             if (numFrets <= 0) {
-                throw new Error("Number of frets is not a positive number: " + numFrets);
+                throw new Error("numFrets is not a positive number: " + numFrets);
             }
         }
 
         function validateAllNoteLetters(allNoteLetters) {
             if (!allNoteLetters) {
-                throw new Error("All Note Letters array does not exist: " + objectToString(allNoteLetters));
+                throw new Error("allNoteLetters is not valid: " + objectToString(allNoteLetters));
             }
 
             // 12 unique letters
@@ -401,20 +401,20 @@
 
             for (var i = 0; i < allNoteLetters.length; i++) {
                 if (!allNoteLetters[i]) {
-                    throw new Error("Letter " + allNoteLetters[i] + " in All Note Letters array " + objectToString(allNoteLetters) + " does not exist");
+                    throw new Error("The letter " + allNoteLetters[i] + " in allNoteLetters: " + objectToString(allNoteLetters) + " is not valid");
                 }
 
                 hash[allNoteLetters[i]] = true;
             }
 
             if (Object.keys(hash).length !== 12) {
-                throw new Error("There must be 12 unique letters in the All Note Letters array: " + objectToString(allNoteLetters));
+                throw new Error("There must be 12 unique letters in allNoteLetters: " + objectToString(allNoteLetters));
             }
         }
 
         function validateTuning(tuning, allNoteLetters) {
             if (!tuning) {
-                throw new Error("Tuning does not exist: " + objectToString(tuning));
+                throw new Error("Tuning is not valid: " + objectToString(tuning));
             }
 
             if (!tuning.length) {
@@ -441,15 +441,15 @@
 
         function validateIntervalSettings(intervalSettings, allNoteLetters) {
             if (!intervalSettings) {
-                throw new Error("Interval settings do not exist: " + objectToString(intervalSettings));
+                throw new Error("intervalSettings is not valid: " + objectToString(intervalSettings));
             }
 
             if (allNoteLetters.indexOf(intervalSettings.root) === -1) {
-                throw new Error("Interval settings root " + objectToString(intervalSettings) + " is not in the All Note Letters array " + objectToString(allNoteLetters));
+                throw new Error("The root property on intervalSettings: " + objectToString(intervalSettings) + " is not in allNoteLetters: " + objectToString(allNoteLetters));
             }
 
             if (!intervalSettings.intervals) {
-                throw new Error("Interval settings intervals do not exist: " + objectToString(intervalSettings));
+                throw new Error("The intervals property on intervalSettings is not valid: " + objectToString(intervalSettings));
             }
 
             var hash = {};
@@ -459,13 +459,13 @@
             }
 
             if (Object.keys(hash).length !== 12) {
-                throw new Error("There must be 12 unique intervals in the Interval settings intervals array: " + objectToString(intervalSettings));
+                throw new Error("There must be 12 unique intervals in the intervals property of intervalSettings: " + objectToString(intervalSettings));
             }
         }
 
         function validateNoteMode(noteMode) {
             if (!(noteMode === "letter" || noteMode === "interval")) {
-                throw new Error("Note mode must be \"letter\" or \"interval\", but it is : " + objectToString(noteMode));
+                throw new Error("Note mode must be \"letter\" or \"interval\": " + objectToString(noteMode));
             }
         }
 
