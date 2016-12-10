@@ -1517,6 +1517,8 @@
             }
 
             function onUserNoteClick(e, clickedNoteDomEl) {
+                if (fretboardModel.getNoteClickingDisabled()) return;
+
                 // Ask the model what notes should be clicked after this event
                 // because things like chord-mode could mean other notes are
                 // removed in addition to this one being added.
