@@ -30,7 +30,9 @@
                     }
                     isFirst = false;
                 } else {
-                    fretboardCtrl.clickedNotesModelNeedsUpdate = true;
+                    scope.$evalAsync(function () {
+                        fretboardCtrl.clickedNotesModelNeedsUpdate = true;
+                    });
                     renderFn(ngModelCtrl.$viewValue);
                 }
             };
