@@ -287,6 +287,7 @@
         function clickedNotesLinkFn(scope, element, attrs, ctrls) {
             var ngModelCtrl = ctrls[0];
             var fretboardCtrl = ctrls[1];
+            var isScheduled = false;
 
             fretboardCtrl.jQueryFretboardApi.addNotesClickedListener(scheduleClickedNotesUpdate);
             fretboardCtrl.scheduleClickedNotesUpdate = scheduleClickedNotesUpdate;
@@ -301,12 +302,17 @@
             };
 
             function scheduleClickedNotesUpdate() {
+                if (isScheduled) return;
+
+                isScheduled = true;
+
                 // This will run after other aspects of the fretboard are modified
                 // (tuning, numFrets, clickedNotes) ensuring that all other 
                 // properties (tuning, numFrets, etc.) are updated before 
                 // clickedNotes are updated.
                 scope.$evalAsync(function () {
                     ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getClickedNotes());
+                    isScheduled = false;
                 });
             }
         }
