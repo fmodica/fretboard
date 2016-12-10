@@ -377,7 +377,7 @@
             }
 
             if (!stringFound) {
-                throw new Error("The note: " + objectToString(note) +  " belongs to the string: " + objectToString(note.stringItsOn) + " that does not exist in the tuning: " + objectToString(tuning));
+                throw new Error("The note: " + objectToString(note) + " belongs to the string: " + objectToString(note.stringItsOn) + " that does not exist in the tuning: " + objectToString(tuning));
             }
         }
 
@@ -489,6 +489,7 @@
         self.getClickedNotes = $getClickedNotes;
         self.setClickedNotes = $setClickedNotes;
         self.clearClickedNotes = $clearClickedNotes;
+        self.setNoteClickingDisabled = $setNoteClickingDisabled;
         self.getNoteMode = getNoteMode;
         self.setNoteMode = $setNoteMode;
         self.getNoteCircles = getNoteCircles;
@@ -523,6 +524,7 @@
         var noteCircleCssSelector = "." + noteCircleCssClass;
         var firstCssClass = "first";
         var lastCssClass = "last";
+        var isDisabledCssClass = "is-disabled";
         var noteDataKey = "noteData";
         var $window = $(window);
         var $fretboardContainer = $element;
@@ -575,6 +577,10 @@
                 .on("mouseleave", $noteMouseLeave);
         }
 
+        function $setNoteClickingDisabled(isDisabled) {
+            model.noteClickingDisabled = isDisabled;
+        }
+
         function getNoteMode() {
             return model.noteMode;
         }
@@ -603,6 +609,12 @@
                 .addClass(fretboardContainerCssClass)
                 .addClass("strings-" + model.tuning.length)
                 .addClass("frets-" + model.numFrets);
+
+            if (model.noteClickingDisabled) {
+                $fretboardContainer.addClass(isDisabledCssClass);
+            } else {
+                $fretboardContainer.removeClass(isDisabledCssClass);
+            }
 
             setTimeout(function () {
                 $postTimeoutRedraw(shouldBeAnimated, onPreRender);
@@ -645,7 +657,6 @@
                 .wrap($createScrollWrapper());
 
             $syncFretboard(model.allNotes);
-
             $redrawPositions(false, $onInitialPreRender);
             $setupRedrawOnResize();
         }
@@ -896,13 +907,14 @@
         // The user may have added some of their own classes, so only remove the ones we know about.
         function $removeContainerCssClasses() {
             $fretboardContainer
+                .removeClass(fretboardContainerCssClass)
+                .removeClass(isDisabledCssClass)
                 .removeClass(function (index, css) {
                     return getStringFollowedByNumber(css, "strings-");
                 })
                 .removeClass(function (index, css) {
                     return getStringFollowedByNumber(css, "frets-");
                 })
-                .removeClass(fretboardContainerCssClass);
         }
 
         function getStringFollowedByNumber(stringToSearch, stringToFind) {
@@ -1364,6 +1376,8 @@
 
             function setNoteClickingDisabled(isDisabled) {
                 fretboardModel.setNoteClickingDisabled(isDisabled);
+                fretboardRenderer.setNoteClickingDisabled(isDisabled);
+                fretboardRenderer.redrawPositions(true, null);
             }
 
             function getTuning() {
@@ -1432,6 +1446,7 @@
                     allNotes: fretboardModel.getAllNotes(),
                     tuning: fretboardModel.getTuning(),
                     numFrets: fretboardModel.getNumFrets(),
+                    noteClickingDisabled: fretboardModel.getNoteClickingDisabled(),
 
                     // TODO: the renderer should validate its own settings
                     noteCircles: settings.noteCircles,

@@ -70,6 +70,10 @@
     -o-transition: opacity .15s linear;
 }
 
+.fretboard-container.is-disabled .note.hover {
+    cursor: not-allowed;
+}
+
 .fretboard-container .note.clicked {
     background: blue;
     border: 1px solid white;
