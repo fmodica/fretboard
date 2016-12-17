@@ -51,23 +51,35 @@
         }
 
         function getClickedNotes() {
-            var clickedNotes = [];
+            var frettedNoteGroups = [];
 
             for (var i = 0; i < model.allNotes.length; i++) {
-                utilities.pushMany(clickedNotes, getClickedNotesOnString(i));
+                var notes = getClickedNotesOnString(i);
+
+                if (!notes.length) continue;
+
+                var frettedNoteGroup = {
+                    string: model.tuning[i],
+                    notes: notes
+                };
+
+                frettedNoteGroups.push(frettedNoteGroup);
             }
 
-            return $.extend(true, [], clickedNotes);
+            return $.extend(true, [], frettedNoteGroups);
         }
 
         // asUser means to check other settings that might affect
         // which notes can be clicked, such as isChordMode, noteClickingDisabled, etc.
-        function setClickedNotes(frettedNotes, asUser) {
-            if (!frettedNotes || (asUser && model.noteClickingDisabled)) return;
+        function setClickedNotes(frettedNoteGroups, asUser) {
+            if (!frettedNoteGroups || (asUser && model.noteClickingDisabled)) return;
 
-            frettedNotes = $.extend(true, [], frettedNotes);
-            validateFrettedNotes(frettedNotes);
-            clickFrettedNotes(frettedNotes, asUser);
+            frettedNoteGroups = $.extend(true, [], frettedNoteGroups);
+            validateFrettedNoteGroups(frettedNoteGroups);
+
+            for (var i = 0; i < frettedNoteGroups.length; i++) {
+                clickFrettedNotes(frettedNoteGroups[i].string, frettedNoteGroups[i].notes, asUser);
+            }
         }
 
         function clearClickedNotes() {
@@ -156,7 +168,10 @@
             model.allNotes = [];
 
             for (var i = 0; i < model.tuning.length; i++) {
-                model.allNotes.push(createNotesOnString(model.tuning[i]));
+                model.allNotes.push({
+                    string: model.tuning[i],
+                    notes: createNotesOnString(model.tuning[i])
+                });
             }
         }
 
@@ -179,7 +194,6 @@
             var note = getNoteByFretNumber(openNote, fret);
 
             note.fret = fret;
-            note.stringItsOn = openNote;
             note.intervalInfo = getIntervalInfo(note.letter);
 
             return note;
@@ -189,7 +203,7 @@
             var arr = [];
 
             for (var i = 0; i < model.clickedNotes[stringIndex].length; i++) {
-                arr.push(model.allNotes[stringIndex][model.clickedNotes[stringIndex][i]]);
+                arr.push(model.allNotes[stringIndex].notes[model.clickedNotes[stringIndex][i]]);
             }
 
             return arr;
@@ -234,23 +248,30 @@
             return model.intervalSettings.intervals[intervalIndex];
         }
 
-        function validateFrettedNotes(frettedNotes) {
-            for (var i = 0; i < frettedNotes.length; i++) {
-                validator.validateFrettedNote(frettedNotes[i], model.tuning, model.numFrets);
+        // TODO: Object name
+        function validateFrettedNoteGroups(frettedNoteGroups) {
+            for (var i = 0; i < frettedNoteGroups.length; i++) {
+                validateFrettedNoteGroup(frettedNoteGroups[i]);
             }
         }
 
-        function clickFrettedNotes(frettedNotes, asUser) {
-            for (var i = 0; i < frettedNotes.length; i++) {
-                clickFrettedNote(frettedNotes[i], asUser);
+        function validateFrettedNoteGroup(frettedNoteGroup) {
+            for (var i = 0; i < frettedNoteGroup.notes.length; i++) {
+                validator.validateFrettedNote(frettedNoteGroup.notes[i], frettedNoteGroup.string, model.tuning, model.numFrets);
             }
         }
 
-        function clickFrettedNote(frettedNote, asUser) {
+        function clickFrettedNotes(string, frettedNotes, asUser) {
+            for (var i = 0; i < frettedNotes.length; i++) {
+                clickFret(string, frettedNotes[i].fret, asUser);
+            }
+        }
+
+        function clickFret(string, fret, asUser) {
             for (var i = 0; i < model.tuning.length; i++) {
-                if (!fretboard.utilities.notesAreEqual(model.tuning[i], frettedNote.stringItsOn)) continue;
+                if (!fretboard.utilities.notesAreEqual(model.tuning[i], string)) continue;
 
-                clickFretOnString(i, frettedNote.fret, asUser);
+                clickFretOnString(i, fret, asUser);
 
                 return;
             }
@@ -353,8 +374,7 @@
             }
         }
 
-        // Fretted notes just have stringItsOn and fret properties for now
-        function validateFrettedNote(note, tuning, numFrets) {
+        function validateFrettedNote(note, string, tuning, numFrets) {
             if (!note) {
                 throw new Error("Note is not valid: " + objectToString(note));
             }
@@ -370,14 +390,14 @@
             var stringFound = false;
 
             for (var i = 0; i < tuning.length; i++) {
-                if (fretboard.utilities.notesAreEqual(tuning[i], note.stringItsOn)) {
+                if (fretboard.utilities.notesAreEqual(tuning[i], string)) {
                     stringFound = true;
                     break;
                 }
             }
 
             if (!stringFound) {
-                throw new Error("The note: " + objectToString(note) + " belongs to the string: " + objectToString(note.stringItsOn) + " that does not exist in the tuning: " + objectToString(tuning));
+                throw new Error("The note: " + objectToString(note) + " belongs to the string: " + objectToString(string) + " that does not exist in the tuning: " + objectToString(tuning));
             }
         }
 
@@ -542,13 +562,13 @@
 
         function $syncFretboard(allNotes) {
             var oldNumStrings = model.allNotes.length;
-            var oldNumFrets = model.allNotes[0].length - 1;
+            var oldNumFrets = model.allNotes[0].notes.length - 1;
             var newNotes = $.extend(true, [], allNotes);
             var fretboardBodyWidth = $fretboardBody.width();
             var fretboardBodyHeight = $fretboardBody.height();
 
             model.allNotes = newNotes;
-            model.numFrets = newNotes[0].length - 1;
+            model.numFrets = newNotes[0].notes.length - 1;
 
             createTuning();
 
@@ -561,11 +581,17 @@
             return $fretboardContainer.find(clickedNoteSelector);
         }
 
-        function $setClickedNotes(frettedNotes) {
-            frettedNotes = $.extend(true, [], frettedNotes);
+        function $setClickedNotes(frettedNoteGroups) {
+            frettedNoteGroups = $.extend(true, [], frettedNoteGroups);
 
-            for (var i = 0; i < frettedNotes.length; i++) {
-                $clickNote($getStringContainers(), frettedNotes[i]);
+            for (var i = 0; i < frettedNoteGroups.length; i++) {
+                $clickFrettedNotes(frettedNoteGroups[i]);
+            }
+        }
+
+        function $clickFrettedNotes(frettedNoteGroup) {
+            for (var i = 0; i < frettedNoteGroup.notes.length; i++) {
+                $clickNote($getStringContainers(), frettedNoteGroup.string, frettedNoteGroup.notes[i]);
             }
         }
 
@@ -665,9 +691,9 @@
             $fretboardBody.show();
         }
 
-        function $clickNote($stringContainers, frettedNote) {
+        function $clickNote($stringContainers, string, frettedNote) {
             for (var i = 0; i < model.tuning.length; i++) {
-                if (!fretboard.utilities.notesAreEqual(model.tuning[i], frettedNote.stringItsOn)) continue;
+                if (!fretboard.utilities.notesAreEqual(model.tuning[i], string)) continue;
 
                 $clickFretOnString($stringContainers.eq(i), frettedNote.fret, frettedNote.cssClass);
 
@@ -762,7 +788,7 @@
         }
 
         function $addOrEditNote($stringContainer, stringIndex, fret) {
-            var note = model.allNotes[stringIndex][fret];
+            var note = model.allNotes[stringIndex].notes[fret];
             var newNoteData = {
                 letter: note.letter,
                 octave: note.octave,
@@ -1202,7 +1228,7 @@
             model.tuning = [];
 
             for (var i = 0; i < model.allNotes.length; i++) {
-                model.tuning.push(model.allNotes[i][0]);
+                model.tuning.push(model.allNotes[i].string);
             }
         }
 
@@ -1346,19 +1372,19 @@
                 return fretboardModel.getClickedNotes();
             }
 
-            function setClickedNotes(clickedNotesWithCssClasses, asUser) {
-                clickedNotesWithCssClasses = $.extend(true, [], clickedNotesWithCssClasses);
+            function setClickedNotes(clickedNoteGroupsWithCssClasses, asUser) {
+                clickedNoteGroupsWithCssClasses = $.extend(true, [], clickedNoteGroupsWithCssClasses);
 
-                fretboardModel.setClickedNotes(clickedNotesWithCssClasses, asUser);
+                fretboardModel.setClickedNotes(clickedNoteGroupsWithCssClasses, asUser);
 
-                var clickedNotes = fretboardModel.getClickedNotes();
-                var $clickedNotes = fretboardRenderer.getClickedNotes();
+                var clickedNoteGroups = fretboardModel.getClickedNotes();
+                var $clickedNoteGroups = fretboardRenderer.getClickedNotes();
                 var allNotes = fretboardModel.getAllNotes();
 
-                reattachCssClassesFromExistingDomElements(allNotes, clickedNotes, $clickedNotes);
-                reattachCssFromNewClickedNotes(clickedNotes, clickedNotesWithCssClasses);
+                reattachCssFromExistingDomElements(allNotes, clickedNoteGroups, $clickedNoteGroups);
+                reattachCssFromNewClickedNotes(clickedNoteGroups, clickedNoteGroupsWithCssClasses);
 
-                fretboardRenderer.setClickedNotes(clickedNotes);
+                fretboardRenderer.setClickedNotes(clickedNoteGroups);
 
                 if (asUser) {
                     executeOnClickedNotesCallbacks();
@@ -1487,41 +1513,47 @@
                 };
             }
 
-            function reattachCssClassesFromExistingDomElements(allNotesFromModel, newClickedNotesFromModel, $existingClickedNotes) {
+            function reattachCssFromExistingDomElements(allNotesFromModel, newClickedNotesFromModel, $existingClickedNotes) {
                 for (var i = 0; i < newClickedNotesFromModel.length; i++) {
-                    reattachCssFromExistingDomElement(newClickedNotesFromModel[i], $existingClickedNotes, allNotesFromModel);
+                    for (var j = 0; j < newClickedNotesFromModel[i].notes.length; j++) {
+                        reattachCssFromExistingDomElement(allNotesFromModel, newClickedNotesFromModel[i].notes[j], newClickedNotesFromModel[i].string, $existingClickedNotes);
+                    }
                 }
             }
 
-            function reattachCssFromExistingDomElement(newClickedNoteFromModel, $existingClickedNotes, allNotesFromModel) {
+            function reattachCssFromExistingDomElement(allNotesFromModel, newClickedNoteFromModel, newStringFromModel, $existingClickedNotes) {
                 for (var i = 0; i < $existingClickedNotes.length; i++) {
                     var $existingNote = $existingClickedNotes.eq(i);
                     var existingNoteData = $existingNote.data("noteData");
-                    var existingNoteFromModel = allNotesFromModel[existingNoteData.stringIndex][existingNoteData.fret];
+                    var existingNoteFromModel = allNotesFromModel[existingNoteData.stringIndex].notes[existingNoteData.fret];
+                    var existingStringFromModel = allNotesFromModel[existingNoteData.stringIndex].string;
 
-                    if (!fretboard.utilities.frettedNotesAreEqual(newClickedNoteFromModel, existingNoteFromModel)) continue;
+                    if (!fretboard.utilities.frettedNotesAreEqual(newClickedNoteFromModel, newStringFromModel, existingNoteFromModel, existingStringFromModel)) continue;
 
                     var cssClasses = $existingNote.attr("class");
                     newClickedNoteFromModel.cssClass = cssClasses;
 
-                    break;
-
+                    return;
                 }
             }
 
             function reattachCssFromNewClickedNotes(newClickedNotesFromModel, newClickedNotesWithCssClasses) {
                 for (var i = 0; i < newClickedNotesFromModel.length; i++) {
-                    reattachCssFromNewClickedNote(newClickedNotesFromModel[i], newClickedNotesWithCssClasses);
+                    for (var j = 0; j < newClickedNotesFromModel[i].notes.length; j++) {
+                        reattachCssFromNewClickedNote(newClickedNotesFromModel[i].notes[j], newClickedNotesFromModel[i].string, newClickedNotesWithCssClasses);
+                    }
                 }
             }
 
-            function reattachCssFromNewClickedNote(newClickedNoteFromModel, newClickedNotesWithCssClasses) {
+            function reattachCssFromNewClickedNote(newClickedNoteFromModel, newStringFromModel, newClickedNotesWithCssClasses) {
                 for (var i = 0; i < newClickedNotesWithCssClasses.length; i++) {
-                    if (!fretboard.utilities.frettedNotesAreEqual(newClickedNoteFromModel, newClickedNotesWithCssClasses[i])) continue;
+                    for (var j = 0; j < newClickedNotesWithCssClasses[i].notes.length; j++) {
+                        if (!fretboard.utilities.frettedNotesAreEqual(newClickedNoteFromModel, newStringFromModel, newClickedNotesWithCssClasses[i].notes[j], newClickedNotesWithCssClasses[i].string)) continue;
 
-                    newClickedNoteFromModel.cssClass = newClickedNotesWithCssClasses[i].cssClass;
+                        newClickedNoteFromModel.cssClass = newClickedNotesWithCssClasses[i].notes[j].cssClass;
 
-                    break;
+                        return;
+                    }
                 }
             }
 
@@ -1540,18 +1572,20 @@
                 var allNotes = fretboardModel.getAllNotes();
                 var $clickedNote = $(clickedNoteDomEl);
                 var clickedNoteData = $clickedNote.data("noteData");
-                var clickedNote = allNotes[clickedNoteData.stringIndex][clickedNoteData.fret];
 
-                fretboardModel.setClickedNotes([clickedNote], true);
+                fretboardModel.setClickedNotes([{
+                    string: allNotes[clickedNoteData.stringIndex].string,
+                    notes: [allNotes[clickedNoteData.stringIndex].notes[clickedNoteData.fret]]
+                }], true);
 
-                var newClickedNotesFromModel = fretboardModel.getClickedNotes();
+                var newClickedNoteGroupsFromModel = fretboardModel.getClickedNotes();
 
                 // The model will not know of CSS classes so we reattach the
                 // ones that were already there.
-                reattachCssClassesFromExistingDomElements(allNotes, newClickedNotesFromModel, fretboardRenderer.getClickedNotes())
+                reattachCssFromExistingDomElements(allNotes, newClickedNoteGroupsFromModel, fretboardRenderer.getClickedNotes())
 
                 fretboardRenderer.clearClickedNotes();
-                fretboardRenderer.setClickedNotes(newClickedNotesFromModel);
+                fretboardRenderer.setClickedNotes(newClickedNoteGroupsFromModel);
 
                 executeOnClickedNotesCallbacks();
             }
@@ -1566,8 +1600,8 @@
         return note1.letter === note2.letter && note1.octave === note2.octave;
     }
 
-    function frettedNotesAreEqual(note1, note2) {
-        return notesAreEqual(note1.stringItsOn, note2.stringItsOn) && note1.fret === note2.fret;
+    function frettedNotesAreEqual(note1, string1, note2, string2) {
+        return notesAreEqual(string1, string2) && note1.fret === note2.fret;
     }
 
     window.fretboard.utilities = {
