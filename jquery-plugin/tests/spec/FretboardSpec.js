@@ -62,21 +62,19 @@ describe("Fretboard", function () {
     var defaultNoteMode = "letter"; // or "interval"
     var defaultNumFrets = 15;
     var defaultAnimationSpeed = 400;
-    var $fretboard;
-    var api;
-
-    beforeEach(function () {
-        $fretboard = $("<div class='my-fretboard-js'></div>");
-    });
-
-    afterEach(function () {
-        api.destroy();
-    });
 
     describe("Default configuration", function () {
+        var $fretboard;
+        var api;
+
         beforeEach(function () {
+            $fretboard = $("<div class='my-fretboard-js'></div>");
             $fretboard.fretboard();
             api = $fretboard.data("api");
+        });
+
+        afterEach(function () {
+            api.destroy();
         });
 
         // Configuration properties
@@ -127,6 +125,19 @@ describe("Fretboard", function () {
     });
 
     describe("Custom configuration", function () {
+        var $fretboard;
+        var api;
+
+        beforeEach(function () {
+            $fretboard = $("<div class='my-fretboard-js'></div>");
+            $fretboard.fretboard();
+            api = $fretboard.data("api");
+        });
+
+        afterEach(function () {
+            api.destroy();
+        });
+
         it("should throw an exception when allNoteLetters is null", function () {
             expect(function () {
                 $fretboard.fretboard({ allNoteLetters: null });
@@ -427,9 +438,17 @@ describe("Fretboard", function () {
     });
 
     describe("Changing the fretboard's dimensions", function () {
+        var $fretboard;
+        var api;
+
         beforeEach(function () {
+            $fretboard = $("<div class='my-fretboard-js'></div>");
             $fretboard.fretboard();
             api = $fretboard.data("api");
+        });
+
+        afterEach(function () {
+            api.destroy();
         });
 
         it("should return the correct tuning and notes when the tuning is changed", function () {
@@ -466,6 +485,18 @@ describe("Fretboard", function () {
         var expectedIntervalInfo = {
             root: "C"
         };
+        var $fretboard;
+        var api;
+
+        beforeEach(function () {
+            $fretboard = $("<div class='my-fretboard-js'></div>");
+            $fretboard.fretboard();
+            api = $fretboard.data("api");
+        });
+
+        afterEach(function () {
+            api.destroy();
+        });
 
         beforeEach(function () {
             $fretboard.fretboard();
@@ -771,7 +802,7 @@ describe("Fretboard", function () {
         it("should return the correct clicked notes when chord mode is true and notes are clicked as a user", function () {
             api.setChordMode(true);
             api.setClickedNotes(clickedScale, true);
-            
+
             expectedClickedChordFromFretboard = [{
                 string: expectedClickedScaleFromFretboard[0].string,
                 notes: [expectedClickedScaleFromFretboard[0].notes[2]]
