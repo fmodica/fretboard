@@ -1,10 +1,9 @@
 "use strict";
 
-// TODO Pass in different/bad config values
 // TODO Note mode
 // TODO More detailed check of exception messages
 // TODO try to add new notes clicked listener
-describe("Fretboard", function () {
+describe("Fretboard jQuery plugin", function () {
     var eightStringTuning = [{
         letter: "E",
         octave: 4
@@ -63,7 +62,7 @@ describe("Fretboard", function () {
     var defaultNumFrets = 15;
     var defaultAnimationSpeed = 400;
 
-    describe("Default configuration", function () {
+    describe("Configuration", function () {
         var $fretboard;
         var api;
 
@@ -77,65 +76,18 @@ describe("Fretboard", function () {
             api.destroy();
         });
 
-        // Configuration properties
-        it("should return the correct allNoteLetters", function () {
+        it("should return the correct default configuration", function () {
             expect(api.getAllNoteLetters()).toEqual(defaultAllNoteLetters);
-        });
-
-        it("should return standard tuning", function () {
             expect(api.getTuning()).toEqual(standardTuning);
-        });
-
-        it("should return " + defaultNumFrets + " frets", function () {
             expect(api.getNumFrets()).toEqual(defaultNumFrets);
-        });
-
-        it("should return chord mode true", function () {
             expect(api.getChordMode()).toEqual(true);
-        });
-
-        it("should return noteClickingDisabled false", function () {
             expect(api.getNoteClickingDisabled()).toEqual(false);
-        });
-
-        it("should return the correct note mode", function () {
             expect(api.getNoteMode()).toEqual(defaultNoteMode);
-        });
-
-        it("should return the correct interval settings", function () {
             expect(api.getIntervalSettings()).toEqual(defaultIntervalSettings);
-        });
-
-        it("should return animation speed " + defaultAnimationSpeed, function () {
             expect(api.getAnimationSpeed()).toEqual(defaultAnimationSpeed);
-        });
-
-        it("should return the correct circles", function () {
             expect(api.getNoteCircles()).toEqual(noteCircles);
-        });
-
-        // Additional
-        it("should return no clicked notes", function () {
             expect(api.getClickedNotes()).toEqual([]);
-        });
-
-        it("should return the correct notes for the whole fretboard: ", function () {
             verifyAllNotesOnFretboard(api.getAllNotes(), standardTuning, defaultNumFrets, defaultAllNoteLetters);
-        });
-    });
-
-    describe("Custom configuration", function () {
-        var $fretboard;
-        var api;
-
-        beforeEach(function () {
-            $fretboard = $("<div class='my-fretboard-js'></div>");
-            $fretboard.fretboard();
-            api = $fretboard.data("api");
-        });
-
-        afterEach(function () {
-            api.destroy();
         });
 
         it("should throw an exception when allNoteLetters is null", function () {
@@ -437,70 +389,25 @@ describe("Fretboard", function () {
         });
     });
 
-    describe("Changing the fretboard's dimensions", function () {
+    describe("API", function () {
         var $fretboard;
         var api;
-
-        beforeEach(function () {
-            $fretboard = $("<div class='my-fretboard-js'></div>");
-            $fretboard.fretboard();
-            api = $fretboard.data("api");
-        });
-
-        afterEach(function () {
-            api.destroy();
-        });
-
-        it("should return the correct tuning and notes when the tuning is changed", function () {
-            api.setTuning(standardATuning);
-
-            expect(api.getTuning()).toEqual(standardATuning);
-            verifyAllNotesOnFretboard(api.getAllNotes(), standardATuning, defaultNumFrets, defaultAllNoteLetters);
-        });
-
-        it("should return the correct number of frets and notes when the fret number is increased", function () {
-            var increase = defaultNumFrets + 12;
-            api.setNumFrets(increase);
-
-            expect(api.getNumFrets()).toEqual(increase);
-            verifyAllNotesOnFretboard(api.getAllNotes(), standardTuning, increase, defaultAllNoteLetters);
-        });
-
-        it("should return the correct number of frets and notes when the fret number is decreased", function () {
-            var decrease = defaultNumFrets - 12;
-            api.setNumFrets(decrease);
-
-            expect(api.getNumFrets()).toEqual(decrease);
-            verifyAllNotesOnFretboard(api.getAllNotes(), standardTuning, decrease, defaultAllNoteLetters);
-        });
-    });
-
-    describe("Clicking notes programatically", function () {
         var clickedChord;
         var clickedScale;
         var clickedChordForStandardATuning;
         var expectedClickedChordFromFretboard;
         var expectedClickedChordFromFretboardForStandardATuning;
         var expectedClickedScaleFromFretboard;
-        var expectedIntervalInfo = {
-            root: "C"
-        };
-        var $fretboard;
-        var api;
+        var expectedIntervalInfo;
 
         beforeEach(function () {
             $fretboard = $("<div class='my-fretboard-js'></div>");
             $fretboard.fretboard();
             api = $fretboard.data("api");
-        });
 
-        afterEach(function () {
-            api.destroy();
-        });
-
-        beforeEach(function () {
-            $fretboard.fretboard();
-            api = $fretboard.data("api");
+            expectedIntervalInfo = {
+                root: "C"
+            };
 
             clickedChord = [{
                 string: {
@@ -720,6 +627,33 @@ describe("Fretboard", function () {
             expectedClickedScaleFromFretboard[2].notes[0].octave = 4;
             expectedClickedScaleFromFretboard[2].notes[0].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
             expectedClickedScaleFromFretboard[2].notes[0].intervalInfo.interval = "1";
+        });
+
+        afterEach(function () {
+            api.destroy();
+        });
+
+        it("should return the correct tuning and notes when the tuning is changed", function () {
+            api.setTuning(standardATuning);
+
+            expect(api.getTuning()).toEqual(standardATuning);
+            verifyAllNotesOnFretboard(api.getAllNotes(), standardATuning, defaultNumFrets, defaultAllNoteLetters);
+        });
+
+        it("should return the correct number of frets and notes when the fret number is increased", function () {
+            var increase = defaultNumFrets + 12;
+            api.setNumFrets(increase);
+
+            expect(api.getNumFrets()).toEqual(increase);
+            verifyAllNotesOnFretboard(api.getAllNotes(), standardTuning, increase, defaultAllNoteLetters);
+        });
+
+        it("should return the correct number of frets and notes when the fret number is decreased", function () {
+            var decrease = defaultNumFrets - 12;
+            api.setNumFrets(decrease);
+
+            expect(api.getNumFrets()).toEqual(decrease);
+            verifyAllNotesOnFretboard(api.getAllNotes(), standardTuning, decrease, defaultAllNoteLetters);
         });
 
         it("should return the correct clicked notes when notes are clicked and they all exist on the fretboard", function () {

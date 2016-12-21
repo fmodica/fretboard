@@ -67,7 +67,7 @@
         // asUser means to check other settings that might affect
         // which notes can be clicked, such as isChordMode, noteClickingDisabled, etc.
         function setClickedNotes(clickedNoteGroups, asUser) {
-            if (!clickedNoteGroups || (asUser && model.noteClickingDisabled)) return;
+            if (asUser && model.noteClickingDisabled) return;
 
             clickedNoteGroups = $.extend(true, [], clickedNoteGroups);
             validateFrettedNoteGroups(clickedNoteGroups);
