@@ -1273,11 +1273,12 @@
             api.getNoteMode = getNoteMode;
             api.setNoteMode = setNoteMode;
             api.getNoteCircles = getNoteCircles;
-            // self.setNoteCircles = setNoteCircles; // implement
+            // self.setNoteCircles = setNoteCircles; // TODO: implement
             api.getAnimationSpeed = getAnimationSpeed;
-            // self.setAnimationSpeed = setAnimationSpeed; // implement
-            api.addNotesClickedListener = addNotesClickedListener;
-            // api.removeNotesClickedListener = removeNotesClickedListener; // implement
+            // self.setAnimationSpeed = setAnimationSpeed; // TODO: implement
+            api.addNotesClickedCallback = addNotesClickedCallback;
+            api.removeNotesClickedCallback = removeNotesClickedCallback;
+            api.getNotesClickedCallbacks = getNotesClickedCallbacks;
 
             var $element = $(this);
             // The value at which the octave is incremented needs to be first
@@ -1334,7 +1335,7 @@
                 animationSpeed: 400, // ms
                 noteCircles: defaultNoteCircles,
                 dimensionsFunc: defaultDimensionsFunc,
-                onClickedNotesChange: []
+                notesClickedCallbacks: []
             };
             // These settings will have the defaults extended with user options.
             var settings = {};
@@ -1390,7 +1391,7 @@
                 fretboardRenderer.setClickedNotes(clickedNoteGroups);
 
                 if (asUser) {
-                    executeOnClickedNotesCallbacks();
+                    executeOnNotesClickedCallbacks();
                 }
             }
 
@@ -1454,6 +1455,25 @@
                 return fretboardRenderer.getAnimationSpeed();
             }
 
+            function addNotesClickedCallback(callback) {
+                // TODO: Validate when passed in the config too
+                if (!$.isFunction(callback)) return;
+
+                settings.notesClickedCallbacks.push(callback);
+            }
+
+            function removeNotesClickedCallback(callback) {
+                var index = settings.notesClickedCallbacks.indexOf(callback);
+
+                if (index === -1) return;
+
+                settings.notesClickedCallbacks.splice(index, 1);
+            }
+
+            function getNotesClickedCallbacks() {
+                return settings.notesClickedCallbacks;
+            }
+
             function createFretboardModel() {
                 var modelSettings = {
                     allNoteLetters: settings.allNoteLetters,
@@ -1485,12 +1505,6 @@
                 };
 
                 fretboardRenderer = new fretboard.FretboardHtmlRenderer(fretboardRendererSettings, $element, validator);
-            }
-
-            function addNotesClickedListener(callback) {
-                if (!$.isFunction(callback)) return;
-
-                settings.onClickedNotesChange.push(callback);
             }
 
             function extendDefaultsWithUserOptions(userOptions) {
@@ -1585,9 +1599,9 @@
                 return null;
             }
 
-            function executeOnClickedNotesCallbacks() {
-                for (var i = 0; i < settings.onClickedNotesChange.length; i++) {
-                    settings.onClickedNotesChange[i]();
+            function executeOnNotesClickedCallbacks() {
+                for (var i = 0; i < settings.notesClickedCallbacks.length; i++) {
+                    settings.notesClickedCallbacks[i]();
                 }
             }
 
@@ -1615,7 +1629,7 @@
                 fretboardRenderer.clearClickedNotes();
                 fretboardRenderer.setClickedNotes(newClickedNoteGroupsFromModel);
 
-                executeOnClickedNotesCallbacks();
+                executeOnNotesClickedCallbacks();
             }
         });
     };

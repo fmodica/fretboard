@@ -426,7 +426,7 @@ describe("Fretboard", function () {
             spyOn(tempObj, 'func1').and.callThrough();
             spyOn(tempObj, 'func2').and.callThrough();
             var config = {
-                onClickedNotesChange: [tempObj.func1, tempObj.func2]
+                notesClickedCallbacks: [tempObj.func1, tempObj.func2]
             };
             $fretboard.fretboard(config);
             api = $fretboard.data("api");

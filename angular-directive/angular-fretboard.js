@@ -3,37 +3,38 @@
 
     angular.module("angularFretboard", [])
         .directive("fretboard", fretboard)
-        .directive("tuning", ["twoWayDataBindingHelper", tuning])
-        .directive("numFrets", ["twoWayDataBindingHelper", numFrets])
-        .directive("isChordMode", ["twoWayDataBindingHelper", isChordMode])
-        .directive("noteClickingDisabled", ["twoWayDataBindingHelper", noteClickingDisabled])
-        .directive("noteMode", ["twoWayDataBindingHelper", noteMode])
-        .directive("intervalSettings", ["twoWayDataBindingHelper", intervalSettings])
-        .directive("allNoteLetters", allNoteLetters)
-        .directive("animationSpeed", animationSpeed)
-        .directive("noteCircleList", noteCircleList)
-        .directive("clickedNotes", clickedNotes)
-        .factory("twoWayDataBindingHelper", twoWayDataBindingHelper);
+        .directive("tuning", ["dataBindingHelper", tuning])
+        .directive("numFrets", ["dataBindingHelper", numFrets])
+        .directive("isChordMode", ["dataBindingHelper", isChordMode])
+        .directive("noteClickingDisabled", ["dataBindingHelper", noteClickingDisabled])
+        .directive("noteMode", ["dataBindingHelper", noteMode])
+        .directive("intervalSettings", ["dataBindingHelper", intervalSettings])
+        .directive("allNoteLetters", ["dataBindingHelper", allNoteLetters])
+        .directive("animationSpeed", ["dataBindingHelper", animationSpeed])
+        .directive("noteCircles", ["dataBindingHelper", noteCircles])
+        .directive("notesClickedCallbacks", ["dataBindingHelper", notesClickedCallbacks])
+        .directive("clickedNotes", ["dataBindingHelper", clickedNotes])
+        .factory("dataBindingHelper", ["$rootScope", dataBindingHelper]);
 
-    function twoWayDataBindingHelper() {
-        function bind(ngModelCtrl, viewValueFn, fretboardCtrl, renderFn, scope) {
+    function dataBindingHelper($rootScope) {
+        function bind(ngModelCtrl, getFn, setFn, renderFirst) {
             var isFirst = true;
 
             ngModelCtrl.$render = render;
 
             function render() {
-                if (isFirst) {
-                    if (isUndefinedOrNull(ngModelCtrl.$viewValue)) {
-                        scope.$evalAsync(function () {
-                            ngModelCtrl.$setViewValue(viewValueFn());
-                        });
-                    }
-                    isFirst = false;
-                } else {
-                    renderFn(ngModelCtrl.$viewValue);
-                    fretboardCtrl.scheduleClickedNotesUpdate();
+                if (shouldCallRender()) {
+                    setFn(ngModelCtrl.$viewValue);
                 }
-            };
+
+                $rootScope.$evalAsync(function () {
+                    ngModelCtrl.$setViewValue(getFn());
+                });
+            }
+
+            function shouldCallRender() {
+                return !isFirst || (renderFirst && !isUndefinedOrNull(ngModelCtrl.$viewValue));
+            }
         }
 
         return {
@@ -59,14 +60,14 @@
             "<span ng-if='config' interval-settings ng-model='config.intervalSettings'></span>" +
             "<span ng-if='config' all-note-letters ng-model='config.allNoteLetters'></span>" +
             "<span ng-if='config' animation-speed ng-model='config.animationSpeed'></span>" +
-            "<span ng-if='config' note-circle-list ng-model='config.noteCircleList'></span>" +
-            // This must come last so that its $render method is created after
-            // all others (tuning, numFrets, etc.).
-            "<span ng-if='config' clicked-notes ng-model='config.clickedNotes' ng-change='invokeFns(onClickedNotesChange)'></span>"
-        }
+            "<span ng-if='config' note-circles ng-model='config.noteCircles'></span>" +
+            "<span ng-if='config' notes-clicked-callbacks ng-model='config.notesClickedCallbacks'></span>" +
+            // This must come last so that its $render method is created after all others.
+            "<span ng-if='config' clicked-notes ng-model='config.clickedNotes' ng-change='ctrl.invokeNotesClickedCallbacks()'></span>"
+        };
 
         function fretboardController($scope, $element) {
-            var ctrl = this;
+            var ctrl = $scope.ctrl = this;
 
             $scope.$on("$destroy", function () {
                 destroy(ctrl);
@@ -83,17 +84,18 @@
             });
 
             function initialize() {
+                ctrl.invokeNotesClickedCallbacks = invokeNotesClickedCallbacks;
+
                 // When a user clicks a note, we need to ensure that the clicked notes
                 // on the parent scope are updated before the clicked note callbacks 
                 // are invoked. So we delete the clicked note callbacks from the 
                 // config here so the plugin cannot invoke them. We use ng-model on 
                 // the clicked-notes directive to invoke the callbacks when the 
                 // clicked notes have been updated.
-                $scope.onClickedNotesChange = $scope.config.onClickedNotesChange;
-                $scope.invokeFns = invokeFns;
+                ctrl.notesClickedCallbacks = $scope.config.notesClickedCallbacks || [];
 
                 var configCopy = angular.copy($scope.config);
-                delete configCopy.onClickedNotesChange;
+                delete configCopy.notesClickedCallbacks;
                 $element.fretboard(configCopy);
 
                 ctrl.jQueryFretboardApi = $element.data("api");
@@ -106,19 +108,15 @@
                 }
             }
 
-            function invokeFns(fns) {
-                if (!fns) return;
-
-                for (var i = 0; i < fns.length; i++) {
-                    if (!angular.isFunction(fns[i])) continue;
-
-                    fns[i]();
+            function invokeNotesClickedCallbacks() {
+                for (var i = 0; i < ctrl.notesClickedCallbacks.length; i++) {
+                    ctrl.notesClickedCallbacks[i]();
                 }
             }
         }
     }
 
-    function tuning(twoWayDataBindingHelper) {
+    function tuning(dataBindingHelper) {
         return {
             restrict: "AE",
             require: ["ngModel", "^fretboard"],
@@ -126,18 +124,21 @@
                 var ngModelCtrl = ctrls[0];
                 var fretboardCtrl = ctrls[1];
 
-                twoWayDataBindingHelper.bind(
+                dataBindingHelper.bind(
                     ngModelCtrl,
                     fretboardCtrl.jQueryFretboardApi.getTuning,
-                    fretboardCtrl,
-                    fretboardCtrl.jQueryFretboardApi.setTuning,
-                    scope
+                    setFn
                 );
+
+                function setFn($viewValue) {
+                    fretboardCtrl.jQueryFretboardApi.setTuning($viewValue);
+                    fretboardCtrl.scheduleClickedNotesUpdate();
+                }
             }
-        }
+        };
     }
 
-    function numFrets(twoWayDataBindingHelper) {
+    function numFrets(dataBindingHelper) {
         return {
             restrict: "AE",
             require: ["ngModel", "^fretboard"],
@@ -145,18 +146,21 @@
                 var ngModelCtrl = ctrls[0];
                 var fretboardCtrl = ctrls[1];
 
-                twoWayDataBindingHelper.bind(
+                dataBindingHelper.bind(
                     ngModelCtrl,
                     fretboardCtrl.jQueryFretboardApi.getNumFrets,
-                    fretboardCtrl,
-                    fretboardCtrl.jQueryFretboardApi.setNumFrets,
-                    scope
+                    setFn
                 );
+
+                function setFn($viewValue) {
+                    fretboardCtrl.jQueryFretboardApi.setNumFrets($viewValue);
+                    fretboardCtrl.scheduleClickedNotesUpdate();
+                }
             }
-        }
+        };
     }
 
-    function isChordMode(twoWayDataBindingHelper) {
+    function isChordMode(dataBindingHelper) {
         return {
             restrict: "AE",
             require: ["ngModel", "^fretboard"],
@@ -164,18 +168,21 @@
                 var ngModelCtrl = ctrls[0];
                 var fretboardCtrl = ctrls[1];
 
-                twoWayDataBindingHelper.bind(
+                dataBindingHelper.bind(
                     ngModelCtrl,
                     fretboardCtrl.jQueryFretboardApi.getChordMode,
-                    fretboardCtrl,
-                    fretboardCtrl.jQueryFretboardApi.setChordMode,
-                    scope
+                    setFn
                 );
+
+                function setFn($viewValue) {
+                    fretboardCtrl.jQueryFretboardApi.setChordMode($viewValue);
+                    fretboardCtrl.scheduleClickedNotesUpdate();
+                }
             }
-        }
+        };
     }
 
-    function noteClickingDisabled(twoWayDataBindingHelper) {
+    function noteClickingDisabled(dataBindingHelper) {
         return {
             restrict: "AE",
             require: ["ngModel", "^fretboard"],
@@ -183,18 +190,16 @@
                 var ngModelCtrl = ctrls[0];
                 var fretboardCtrl = ctrls[1];
 
-                twoWayDataBindingHelper.bind(
+                dataBindingHelper.bind(
                     ngModelCtrl,
                     fretboardCtrl.jQueryFretboardApi.getNoteClickingDisabled,
-                    fretboardCtrl,
-                    fretboardCtrl.jQueryFretboardApi.setNoteClickingDisabled,
-                    scope
+                    fretboardCtrl.jQueryFretboardApi.setNoteClickingDisabled
                 );
             }
-        }
+        };
     }
 
-    function noteMode(twoWayDataBindingHelper) {
+    function noteMode(dataBindingHelper) {
         return {
             restrict: "AE",
             require: ["ngModel", "^fretboard"],
@@ -202,18 +207,21 @@
                 var ngModelCtrl = ctrls[0];
                 var fretboardCtrl = ctrls[1];
 
-                twoWayDataBindingHelper.bind(
+                dataBindingHelper.bind(
                     ngModelCtrl,
                     fretboardCtrl.jQueryFretboardApi.getNoteMode,
-                    fretboardCtrl,
-                    fretboardCtrl.jQueryFretboardApi.setNoteMode,
-                    scope
+                    setFn
                 );
+
+                function setFn($viewValue) {
+                    fretboardCtrl.jQueryFretboardApi.setNoteMode($viewValue);
+                    fretboardCtrl.scheduleClickedNotesUpdate();
+                }
             }
-        }
+        };
     }
 
-    function intervalSettings(twoWayDataBindingHelper) {
+    function intervalSettings(dataBindingHelper) {
         return {
             restrict: "AE",
             require: ["ngModel", "^fretboard"],
@@ -221,18 +229,38 @@
                 var ngModelCtrl = ctrls[0];
                 var fretboardCtrl = ctrls[1];
 
-                twoWayDataBindingHelper.bind(
+                dataBindingHelper.bind(
                     ngModelCtrl,
                     fretboardCtrl.jQueryFretboardApi.getIntervalSettings,
-                    fretboardCtrl,
-                    fretboardCtrl.jQueryFretboardApi.setIntervalSettings,
-                    scope
+                    setFn
+                );
+
+                function setFn($viewValue) {
+                    fretboardCtrl.jQueryFretboardApi.setIntervalSettings($viewValue);
+                    fretboardCtrl.scheduleClickedNotesUpdate();
+                }
+
+            }
+        };
+    }
+
+    function animationSpeed(dataBindingHelper) {
+        return {
+            restrict: "AE",
+            require: ["ngModel", "^fretboard"],
+            link: function (scope, element, attrs, ctrls) {
+                var ngModelCtrl = ctrls[0];
+                var fretboardCtrl = ctrls[1];
+
+                dataBindingHelper.bind(
+                    ngModelCtrl,
+                    fretboardCtrl.jQueryFretboardApi.getAnimationSpeed
                 );
             }
-        }
+        };
     }
 
-    function animationSpeed() {
+    function allNoteLetters(dataBindingHelper) {
         return {
             restrict: "AE",
             require: ["ngModel", "^fretboard"],
@@ -240,14 +268,15 @@
                 var ngModelCtrl = ctrls[0];
                 var fretboardCtrl = ctrls[1];
 
-                scope.$evalAsync(function () {
-                    ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getAnimationSpeed());
-                });
+                dataBindingHelper.bind(
+                    ngModelCtrl,
+                    fretboardCtrl.jQueryFretboardApi.getAllNoteLetters
+                );
             }
-        }
+        };
     }
 
-    function allNoteLetters() {
+    function noteCircles(dataBindingHelper) {
         return {
             restrict: "AE",
             require: ["ngModel", "^fretboard"],
@@ -255,14 +284,15 @@
                 var ngModelCtrl = ctrls[0];
                 var fretboardCtrl = ctrls[1];
 
-                scope.$evalAsync(function () {
-                    ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getAllNoteLetters());
-                });
+                dataBindingHelper.bind(
+                    ngModelCtrl,
+                    fretboardCtrl.jQueryFretboardApi.getNoteCircles
+                );
             }
-        }
+        };
     }
 
-    function noteCircleList() {
+    function notesClickedCallbacks(dataBindingHelper) {
         return {
             restrict: "AE",
             require: ["ngModel", "^fretboard"],
@@ -270,34 +300,48 @@
                 var ngModelCtrl = ctrls[0];
                 var fretboardCtrl = ctrls[1];
 
-                scope.$evalAsync(function () {
-                    ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getNoteCircles());
-                });
+                dataBindingHelper.bind(
+                    ngModelCtrl,
+                    getFn,
+                    setFn
+                );
+
+                function getFn() {
+                    return fretboardCtrl.notesClickedCallbacks;
+                }
+
+                function setFn($viewValue) {
+                    fretboardCtrl.notesClickedCallbacks = $viewValue;
+                }
             }
-        }
+        };
     }
 
-    function clickedNotes() {
+    function clickedNotes(dataBindingHelper) {
         return {
             restrict: "AE",
             require: ["ngModel", "^fretboard"],
             link: clickedNotesLinkFn
-        }
+        };
 
         function clickedNotesLinkFn(scope, element, attrs, ctrls) {
             var ngModelCtrl = ctrls[0];
             var fretboardCtrl = ctrls[1];
             var isScheduled = false;
 
-            fretboardCtrl.jQueryFretboardApi.addNotesClickedListener(scheduleClickedNotesUpdate);
             fretboardCtrl.scheduleClickedNotesUpdate = scheduleClickedNotesUpdate;
+            fretboardCtrl.jQueryFretboardApi.addNotesClickedCallback(scheduleClickedNotesUpdate);
 
-            // This must be invoked after all other directives' $render method, 
-            // but before scheduleClickedNotesUpdate.
-            ngModelCtrl.$render = function () {
-                var clickedNotes = ngModelCtrl.$viewValue || [];
+            dataBindingHelper.bind(
+                ngModelCtrl,
+                fretboardCtrl.jQueryFretboardApi.getClickedNotes,
+                setFn,
+                true
+            );
+
+            function setFn($viewValue) {
                 fretboardCtrl.jQueryFretboardApi.clearClickedNotes();
-                fretboardCtrl.jQueryFretboardApi.setClickedNotes(clickedNotes);
+                fretboardCtrl.jQueryFretboardApi.setClickedNotes($viewValue);
                 scheduleClickedNotesUpdate();
             };
 
@@ -306,11 +350,11 @@
 
                 isScheduled = true;
 
-                // This will run after other aspects of the fretboard are modified
-                // (tuning, numFrets, clickedNotes) ensuring that all other 
-                // properties (tuning, numFrets, etc.) are updated before 
-                // clickedNotes are updated.
                 scope.$evalAsync(function () {
+                    // This must run after other aspects of the fretboard are modified
+                    // (tuning, numFrets, clickedNotes) ensuring that all other 
+                    // properties (tuning, numFrets, etc.) are updated before 
+                    // clickedNotes are updated.
                     ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getClickedNotes());
                     isScheduled = false;
                 });

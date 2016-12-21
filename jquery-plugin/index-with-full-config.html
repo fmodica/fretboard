@@ -279,7 +279,7 @@
                 height: numStrings * 32
             };
         };
-        var noteCircleList = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24];
+        var noteCircles = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24];
         var intervalSettings = {
             intervals: ['1', 'b2', '2', 'b3', '3', '4', 'b5', '5', 'b6', '6', 'b7', '7'],
             root: "C"
@@ -303,9 +303,9 @@
             noteMode: noteMode,
             intervalSettings: intervalSettings,
             animationSpeed: 400, // ms
-            noteCircleList: noteCircleList,
+            noteCircles: noteCircles,
             dimensionsFunc: dimensionsFunc,
-            onClickedNotesChange: clickedNotesChangedFuncs
+            notesClickedCallbacks: clickedNotesChangedFuncs
         };
         var $fretboards = $(".my-fretboard-js");
         var currentTuning = $.extend(true, [], standardTuning);
