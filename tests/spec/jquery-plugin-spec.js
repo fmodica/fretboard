@@ -4,63 +4,40 @@
 // TODO More detailed check of exception messages
 // TODO try to add new notes clicked listener
 describe("Fretboard jQuery plugin", function () {
-    var eightStringTuning = [{
-        letter: "E",
-        octave: 4
-    }, {
-        letter: "B",
-        octave: 3
-    }, {
-        letter: "G",
-        octave: 3
-    }, {
-        letter: "D",
-        octave: 3
-    }, {
-        letter: "A",
-        octave: 2
-    }, {
-        letter: "E",
-        octave: 2
-    }, {
-        letter: "B",
-        octave: 1
-    }, {
-        letter: "F#/Gb",
-        octave: 1
-    }];
-    var standardTuning = $.extend(true, [], eightStringTuning).slice(0, 6);
-    var standardATuning = [{
-        letter: "D",
-        octave: 4
-    }, {
-        letter: "A",
-        octave: 3
-    }, {
-        letter: "F",
-        octave: 3
-    }, {
-        letter: "C",
-        octave: 3
-    }, {
-        letter: "G",
-        octave: 2
-    }, {
-        letter: "D",
-        octave: 2
-    }, {
-        letter: "A",
-        octave: 1
-    }];
-    var noteCircles = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24];
+    var defaultTuning = [
+        {
+            letter: "E",
+            octave: 4
+        }, {
+            letter: "B",
+            octave: 3
+        }, {
+            letter: "G",
+            octave: 3
+        }, {
+            letter: "D",
+            octave: 3
+        }, {
+            letter: "A",
+            octave: 2
+        }, {
+            letter: "E",
+            octave: 2
+        }
+    ];
+    var defaultNumFrets = 15;
+    var defaultIsChordMode = true;
+    var defaultNoteClickingDisabled = false;
     var defaultAllNoteLetters = ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"];
+    var defaultNoteMode = "letter";
     var defaultIntervalSettings = {
         intervals: ["1", "b2", "2", "b3", "3", "4", "b5", "5", "b6", "6", "b7", "7"],
         root: defaultAllNoteLetters[0]
     };
-    var defaultNoteMode = "letter"; // or "interval"
-    var defaultNumFrets = 15;
     var defaultAnimationSpeed = 400;
+    var defaultNoteCircles = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24];
+    var defaultClickedNotes = [];
+    var defaultNotesClickedCallbacks = [];
 
     describe("Configuration", function () {
         var $fretboard;
@@ -78,16 +55,17 @@ describe("Fretboard jQuery plugin", function () {
 
         it("should return the correct default configuration", function () {
             expect(api.getAllNoteLetters()).toEqual(defaultAllNoteLetters);
-            expect(api.getTuning()).toEqual(standardTuning);
+            expect(api.getTuning()).toEqual(defaultTuning);
             expect(api.getNumFrets()).toEqual(defaultNumFrets);
-            expect(api.getChordMode()).toEqual(true);
-            expect(api.getNoteClickingDisabled()).toEqual(false);
+            expect(api.getChordMode()).toEqual(defaultIsChordMode);
+            expect(api.getNoteClickingDisabled()).toEqual(defaultNoteClickingDisabled);
             expect(api.getNoteMode()).toEqual(defaultNoteMode);
             expect(api.getIntervalSettings()).toEqual(defaultIntervalSettings);
             expect(api.getAnimationSpeed()).toEqual(defaultAnimationSpeed);
-            expect(api.getNoteCircles()).toEqual(noteCircles);
-            expect(api.getClickedNotes()).toEqual([]);
-            verifyAllNotesOnFretboard(api.getAllNotes(), standardTuning, defaultNumFrets, defaultAllNoteLetters);
+            expect(api.getNoteCircles()).toEqual(defaultNoteCircles);
+            expect(api.getClickedNotes()).toEqual(defaultClickedNotes);
+            expect(api.getNotesClickedCallbacks()).toEqual(defaultNotesClickedCallbacks);
+            verifyAllNotesOnFretboard(api.getAllNotes(), defaultTuning, defaultNumFrets, defaultAllNoteLetters);
         });
 
         it("should throw an exception when allNoteLetters is null", function () {
@@ -153,7 +131,7 @@ describe("Fretboard jQuery plugin", function () {
         });
 
         it("should throw an exception when the tuning is not unique", function () {
-            var nonUniqueTuning = $.extend(true, [], standardTuning);
+            var nonUniqueTuning = $.extend(true, [], defaultTuning);
             nonUniqueTuning[5] = nonUniqueTuning[0];
 
             expect(function () {
@@ -162,7 +140,7 @@ describe("Fretboard jQuery plugin", function () {
         });
 
         it("should throw an exception when an item in tuning is null", function () {
-            var tuningWithNull = $.extend(true, [], standardTuning);
+            var tuningWithNull = $.extend(true, [], defaultTuning);
             tuningWithNull[0] = null;
 
             expect(function () {
@@ -171,7 +149,7 @@ describe("Fretboard jQuery plugin", function () {
         });
 
         it("should throw an exception when the tuning contains a letter not in allNoteLetters", function () {
-            var tuningWithWrongLetter = $.extend(true, [], standardTuning);
+            var tuningWithWrongLetter = $.extend(true, [], defaultTuning);
             tuningWithWrongLetter[0].letter = "C #";
 
             expect(function () {
@@ -180,7 +158,7 @@ describe("Fretboard jQuery plugin", function () {
         });
 
         it("should throw an exception when the tuning contains an octave that is not a number", function () {
-            var tuningWithWrongOctave = $.extend(true, [], standardTuning);
+            var tuningWithWrongOctave = $.extend(true, [], defaultTuning);
             tuningWithWrongOctave[0].octave = "X";
 
             expect(function () {
@@ -189,7 +167,7 @@ describe("Fretboard jQuery plugin", function () {
         });
 
         it("should return the correct tuning when they are reversed", function () {
-            var reversedTuning = $.extend(true, [], standardTuning).reverse();
+            var reversedTuning = $.extend(true, [], defaultTuning).reverse();
             $fretboard.fretboard({ tuning: reversedTuning });
             api = $fretboard.data("api");
 
@@ -390,243 +368,286 @@ describe("Fretboard jQuery plugin", function () {
     });
 
     describe("API", function () {
+        var standardEightStringTuning = angular.copy(defaultTuning);
+
+        standardEightStringTuning.push(
+            {
+                letter: "B",
+                octave: 1
+            }, {
+                letter: "F#/Gb",
+                octave: 1
+            }
+        );
+
+        var standardATuning = [{
+            letter: "D",
+            octave: 4
+        }, {
+            letter: "A",
+            octave: 3
+        }, {
+            letter: "F",
+            octave: 3
+        }, {
+            letter: "C",
+            octave: 3
+        }, {
+            letter: "G",
+            octave: 2
+        }, {
+            letter: "D",
+            octave: 2
+        }, {
+            letter: "A",
+            octave: 1
+        }];
+
+        var cMaj7ChordForStandardTuning = [{
+            string: {
+                letter: "E",
+                octave: 4
+            },
+            notes: [{
+                fret: 3
+            }]
+        }, {
+            string: {
+                letter: "B",
+                octave: 3
+            },
+            notes: [{
+                fret: 5
+            }]
+        }, {
+            string: {
+                letter: "G",
+                octave: 3
+            },
+            notes: [{
+                fret: 4
+            }]
+        }, {
+            string: {
+                letter: "D",
+                octave: 3
+            },
+            notes: [{
+                fret: 5
+            }]
+        }, {
+            string: {
+                letter: "A",
+                octave: 2
+            },
+            notes: [{
+                fret: 3
+            }]
+        }, {
+            string: {
+                letter: "E",
+                octave: 2
+            },
+            notes: [{
+                fret: 3
+            }]
+        }];
+
+        var bFlatMaj7ChordForStandardATuning = [{
+            string: {
+                letter: "D",
+                octave: 4
+            },
+            notes: [{
+                fret: 3
+            }]
+        }, {
+            string: {
+                letter: "A",
+                octave: 3
+            },
+            notes: [{
+                fret: 5
+            }]
+        }, {
+            string: {
+                letter: "F",
+                octave: 3
+            },
+            notes: [{
+                fret: 4
+            }]
+        }, {
+            string: {
+                letter: "C",
+                octave: 3
+            },
+            notes: [{
+                fret: 5
+            }]
+        }, {
+            string: {
+                letter: "G",
+                octave: 2
+            },
+            notes: [{
+                fret: 3
+            }]
+        }, {
+            string: {
+                letter: "D",
+                octave: 2
+            },
+            notes: [{
+                fret: 3
+            }]
+        }];
+
+        var scale = [{
+            string: {
+                letter: "E",
+                octave: 4
+            },
+            notes: [{
+                fret: 3
+            }, {
+                fret: 4
+            }, {
+                fret: 6
+            }]
+        }, {
+            string: {
+                letter: "B",
+                octave: 3
+            },
+            notes: [{
+                fret: 3
+            }, {
+                fret: 4
+            }, {
+                fret: 6
+            }]
+        }, {
+            string: {
+                letter: "G",
+                octave: 3
+            },
+            notes: [{
+                fret: 5
+            }]
+        }];
+
+        var expectedIntervalInfo = { root: "C" };
+
+        var expectedClickedChordFromFretboard = $.extend(true, [], cMaj7ChordForStandardTuning);
+
+        // The notes come back from the plugin with some more information.
+        expectedClickedChordFromFretboard[0].notes[0].letter = "G";
+        expectedClickedChordFromFretboard[0].notes[0].octave = 4;
+        expectedClickedChordFromFretboard[0].notes[0].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
+        expectedClickedChordFromFretboard[0].notes[0].intervalInfo.interval = "5";
+
+        expectedClickedChordFromFretboard[1].notes[0].letter = "E";
+        expectedClickedChordFromFretboard[1].notes[0].octave = 4;
+        expectedClickedChordFromFretboard[1].notes[0].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
+        expectedClickedChordFromFretboard[1].notes[0].intervalInfo.interval = "3";
+
+        expectedClickedChordFromFretboard[2].notes[0].letter = "B";
+        expectedClickedChordFromFretboard[2].notes[0].octave = 3;
+        expectedClickedChordFromFretboard[2].notes[0].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
+        expectedClickedChordFromFretboard[2].notes[0].intervalInfo.interval = "7";
+
+        expectedClickedChordFromFretboard[3].notes[0].letter = "G";
+        expectedClickedChordFromFretboard[3].notes[0].octave = 3;
+        expectedClickedChordFromFretboard[3].notes[0].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
+        expectedClickedChordFromFretboard[3].notes[0].intervalInfo.interval = "5";
+
+        expectedClickedChordFromFretboard[4].notes[0].letter = "C";
+        expectedClickedChordFromFretboard[4].notes[0].octave = 3;
+        expectedClickedChordFromFretboard[4].notes[0].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
+        expectedClickedChordFromFretboard[4].notes[0].intervalInfo.interval = "1";
+
+        expectedClickedChordFromFretboard[5].notes[0].letter = "G";
+        expectedClickedChordFromFretboard[5].notes[0].octave = 2;
+        expectedClickedChordFromFretboard[5].notes[0].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
+        expectedClickedChordFromFretboard[5].notes[0].intervalInfo.interval = "5";
+
+        var expectedClickedChordFromFretboardForStandardATuning = $.extend(true, [], bFlatMaj7ChordForStandardATuning);
+
+        expectedClickedChordFromFretboardForStandardATuning[0].notes[0].letter = "F";
+        expectedClickedChordFromFretboardForStandardATuning[0].notes[0].octave = 4;
+        expectedClickedChordFromFretboardForStandardATuning[0].notes[0].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
+        expectedClickedChordFromFretboardForStandardATuning[0].notes[0].intervalInfo.interval = "4";
+
+        expectedClickedChordFromFretboardForStandardATuning[1].notes[0].letter = "D";
+        expectedClickedChordFromFretboardForStandardATuning[1].notes[0].octave = 4;
+        expectedClickedChordFromFretboardForStandardATuning[1].notes[0].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
+        expectedClickedChordFromFretboardForStandardATuning[1].notes[0].intervalInfo.interval = "2";
+
+        expectedClickedChordFromFretboardForStandardATuning[2].notes[0].letter = "A";
+        expectedClickedChordFromFretboardForStandardATuning[2].notes[0].octave = 3;
+        expectedClickedChordFromFretboardForStandardATuning[2].notes[0].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
+        expectedClickedChordFromFretboardForStandardATuning[2].notes[0].intervalInfo.interval = "6";
+
+        expectedClickedChordFromFretboardForStandardATuning[3].notes[0].letter = "F";
+        expectedClickedChordFromFretboardForStandardATuning[3].notes[0].octave = 3;
+        expectedClickedChordFromFretboardForStandardATuning[3].notes[0].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
+        expectedClickedChordFromFretboardForStandardATuning[3].notes[0].intervalInfo.interval = "4";
+
+        expectedClickedChordFromFretboardForStandardATuning[4].notes[0].letter = "A#/Bb";
+        expectedClickedChordFromFretboardForStandardATuning[4].notes[0].octave = 2;
+        expectedClickedChordFromFretboardForStandardATuning[4].notes[0].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
+        expectedClickedChordFromFretboardForStandardATuning[4].notes[0].intervalInfo.interval = "b7";
+
+        expectedClickedChordFromFretboardForStandardATuning[5].notes[0].letter = "F";
+        expectedClickedChordFromFretboardForStandardATuning[5].notes[0].octave = 2;
+        expectedClickedChordFromFretboardForStandardATuning[5].notes[0].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
+        expectedClickedChordFromFretboardForStandardATuning[5].notes[0].intervalInfo.interval = "4";
+
+        var expectedClickedScaleFromFretboard = $.extend(true, [], scale);
+
+        expectedClickedScaleFromFretboard[0].notes[0].letter = "G";
+        expectedClickedScaleFromFretboard[0].notes[0].octave = 4;
+        expectedClickedScaleFromFretboard[0].notes[0].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
+        expectedClickedScaleFromFretboard[0].notes[0].intervalInfo.interval = "5";
+
+        expectedClickedScaleFromFretboard[0].notes[1].letter = "Ab/G#";
+        expectedClickedScaleFromFretboard[0].notes[1].octave = 4;
+        expectedClickedScaleFromFretboard[0].notes[1].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
+        expectedClickedScaleFromFretboard[0].notes[1].intervalInfo.interval = "b6";
+
+        expectedClickedScaleFromFretboard[0].notes[2].letter = "A#/Bb";
+        expectedClickedScaleFromFretboard[0].notes[2].octave = 4;
+        expectedClickedScaleFromFretboard[0].notes[2].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
+        expectedClickedScaleFromFretboard[0].notes[2].intervalInfo.interval = "b7";
+
+        expectedClickedScaleFromFretboard[1].notes[0].letter = "D";
+        expectedClickedScaleFromFretboard[1].notes[0].octave = 4;
+        expectedClickedScaleFromFretboard[1].notes[0].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
+        expectedClickedScaleFromFretboard[1].notes[0].intervalInfo.interval = "2";
+
+        expectedClickedScaleFromFretboard[1].notes[1].letter = "D#/Eb";
+        expectedClickedScaleFromFretboard[1].notes[1].octave = 4;
+        expectedClickedScaleFromFretboard[1].notes[1].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
+        expectedClickedScaleFromFretboard[1].notes[1].intervalInfo.interval = "b3";
+
+        expectedClickedScaleFromFretboard[1].notes[2].letter = "F";
+        expectedClickedScaleFromFretboard[1].notes[2].octave = 4;
+        expectedClickedScaleFromFretboard[1].notes[2].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
+        expectedClickedScaleFromFretboard[1].notes[2].intervalInfo.interval = "4";
+
+        expectedClickedScaleFromFretboard[2].notes[0].letter = "C";
+        expectedClickedScaleFromFretboard[2].notes[0].octave = 4;
+        expectedClickedScaleFromFretboard[2].notes[0].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
+        expectedClickedScaleFromFretboard[2].notes[0].intervalInfo.interval = "1";
+
         var $fretboard;
         var api;
-        var clickedChord;
-        var clickedScale;
-        var clickedChordForStandardATuning;
-        var expectedClickedChordFromFretboard;
-        var expectedClickedChordFromFretboardForStandardATuning;
-        var expectedClickedScaleFromFretboard;
-        var expectedIntervalInfo;
 
         beforeEach(function () {
             $fretboard = $("<div class='my-fretboard-js'></div>");
             $fretboard.fretboard();
             api = $fretboard.data("api");
-
-            expectedIntervalInfo = {
-                root: "C"
-            };
-
-            clickedChord = [{
-                string: {
-                    letter: "E",
-                    octave: 4
-                },
-                notes: [{
-                    fret: 3
-                }]
-            }, {
-                string: {
-                    letter: "B",
-                    octave: 3
-                },
-                notes: [{
-                    fret: 5
-                }]
-            }, {
-                string: {
-                    letter: "G",
-                    octave: 3
-                },
-                notes: [{
-                    fret: 4
-                }]
-            }, {
-                string: {
-                    letter: "D",
-                    octave: 3
-                },
-                notes: [{
-                    fret: 5
-                }]
-            }, {
-                string: {
-                    letter: "A",
-                    octave: 2
-                },
-                notes: [{
-                    fret: 3
-                }]
-            }, {
-                string: {
-                    letter: "E",
-                    octave: 2
-                },
-                notes: [{
-                    fret: 3
-                }]
-            }];
-
-            clickedChordForStandardATuning = [{
-                string: {
-                    letter: "D",
-                    octave: 4
-                },
-                notes: [{
-                    fret: 3
-                }]
-            }, {
-                string: {
-                    letter: "A",
-                    octave: 3
-                },
-                notes: [{
-                    fret: 5
-                }]
-            }, {
-                string: {
-                    letter: "F",
-                    octave: 3
-                },
-                notes: [{
-                    fret: 4
-                }]
-            }, {
-                string: {
-                    letter: "C",
-                    octave: 3
-                },
-                notes: [{
-                    fret: 5
-                }]
-            }, {
-                string: {
-                    letter: "G",
-                    octave: 2
-                },
-                notes: [{
-                    fret: 3
-                }]
-            }, {
-                string: {
-                    letter: "D",
-                    octave: 2
-                },
-                notes: [{
-                    fret: 3
-                }]
-            }];
-
-            clickedScale = [{
-                string: {
-                    letter: "E",
-                    octave: 4
-                },
-                notes: [{
-                    fret: 3
-                }, {
-                    fret: 4
-                }, {
-                    fret: 6
-                }]
-            }, {
-                string: {
-                    letter: "B",
-                    octave: 3
-                },
-                notes: [{
-                    fret: 3
-                }, {
-                    fret: 4
-                }, {
-                    fret: 6
-                }]
-            }, {
-                string: {
-                    letter: "G",
-                    octave: 3
-                },
-                notes: [{
-                    fret: 5
-                }]
-            }];
-
-            expectedClickedChordFromFretboard = $.extend(true, [], clickedChord);
-            expectedClickedChordFromFretboardForStandardATuning = $.extend(true, [], clickedChordForStandardATuning);
-            expectedClickedScaleFromFretboard = $.extend(true, [], clickedScale);
-
-            // The notes come back from the plugin with some more information, 
-            // so add that to the comparison array so they match.
-            expectedClickedChordFromFretboard[0].notes[0].letter = "G";
-            expectedClickedChordFromFretboard[0].notes[0].octave = 4;
-            expectedClickedChordFromFretboard[0].notes[0].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
-            expectedClickedChordFromFretboard[0].notes[0].intervalInfo.interval = "5";
-            expectedClickedChordFromFretboard[1].notes[0].letter = "E";
-            expectedClickedChordFromFretboard[1].notes[0].octave = 4;
-            expectedClickedChordFromFretboard[1].notes[0].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
-            expectedClickedChordFromFretboard[1].notes[0].intervalInfo.interval = "3";
-            expectedClickedChordFromFretboard[2].notes[0].letter = "B";
-            expectedClickedChordFromFretboard[2].notes[0].octave = 3;
-            expectedClickedChordFromFretboard[2].notes[0].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
-            expectedClickedChordFromFretboard[2].notes[0].intervalInfo.interval = "7";
-            expectedClickedChordFromFretboard[3].notes[0].letter = "G";
-            expectedClickedChordFromFretboard[3].notes[0].octave = 3;
-            expectedClickedChordFromFretboard[3].notes[0].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
-            expectedClickedChordFromFretboard[3].notes[0].intervalInfo.interval = "5";
-            expectedClickedChordFromFretboard[4].notes[0].letter = "C";
-            expectedClickedChordFromFretboard[4].notes[0].octave = 3;
-            expectedClickedChordFromFretboard[4].notes[0].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
-            expectedClickedChordFromFretboard[4].notes[0].intervalInfo.interval = "1";
-            expectedClickedChordFromFretboard[5].notes[0].letter = "G";
-            expectedClickedChordFromFretboard[5].notes[0].octave = 2;
-            expectedClickedChordFromFretboard[5].notes[0].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
-            expectedClickedChordFromFretboard[5].notes[0].intervalInfo.interval = "5";
-
-            expectedClickedChordFromFretboardForStandardATuning[0].notes[0].letter = "F";
-            expectedClickedChordFromFretboardForStandardATuning[0].notes[0].octave = 4;
-            expectedClickedChordFromFretboardForStandardATuning[0].notes[0].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
-            expectedClickedChordFromFretboardForStandardATuning[0].notes[0].intervalInfo.interval = "4";
-            expectedClickedChordFromFretboardForStandardATuning[1].notes[0].letter = "D";
-            expectedClickedChordFromFretboardForStandardATuning[1].notes[0].octave = 4;
-            expectedClickedChordFromFretboardForStandardATuning[1].notes[0].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
-            expectedClickedChordFromFretboardForStandardATuning[1].notes[0].intervalInfo.interval = "2";
-            expectedClickedChordFromFretboardForStandardATuning[2].notes[0].letter = "A";
-            expectedClickedChordFromFretboardForStandardATuning[2].notes[0].octave = 3;
-            expectedClickedChordFromFretboardForStandardATuning[2].notes[0].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
-            expectedClickedChordFromFretboardForStandardATuning[2].notes[0].intervalInfo.interval = "6";
-            expectedClickedChordFromFretboardForStandardATuning[3].notes[0].letter = "F";
-            expectedClickedChordFromFretboardForStandardATuning[3].notes[0].octave = 3;
-            expectedClickedChordFromFretboardForStandardATuning[3].notes[0].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
-            expectedClickedChordFromFretboardForStandardATuning[3].notes[0].intervalInfo.interval = "4";
-            expectedClickedChordFromFretboardForStandardATuning[4].notes[0].letter = "A#/Bb";
-            expectedClickedChordFromFretboardForStandardATuning[4].notes[0].octave = 2;
-            expectedClickedChordFromFretboardForStandardATuning[4].notes[0].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
-            expectedClickedChordFromFretboardForStandardATuning[4].notes[0].intervalInfo.interval = "b7";
-            expectedClickedChordFromFretboardForStandardATuning[5].notes[0].letter = "F";
-            expectedClickedChordFromFretboardForStandardATuning[5].notes[0].octave = 2;
-            expectedClickedChordFromFretboardForStandardATuning[5].notes[0].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
-            expectedClickedChordFromFretboardForStandardATuning[5].notes[0].intervalInfo.interval = "4";
-
-            expectedClickedScaleFromFretboard[0].notes[0].letter = "G";
-            expectedClickedScaleFromFretboard[0].notes[0].octave = 4;
-            expectedClickedScaleFromFretboard[0].notes[0].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
-            expectedClickedScaleFromFretboard[0].notes[0].intervalInfo.interval = "5";
-            expectedClickedScaleFromFretboard[0].notes[1].letter = "Ab/G#";
-            expectedClickedScaleFromFretboard[0].notes[1].octave = 4;
-            expectedClickedScaleFromFretboard[0].notes[1].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
-            expectedClickedScaleFromFretboard[0].notes[1].intervalInfo.interval = "b6";
-            expectedClickedScaleFromFretboard[0].notes[2].letter = "A#/Bb";
-            expectedClickedScaleFromFretboard[0].notes[2].octave = 4;
-            expectedClickedScaleFromFretboard[0].notes[2].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
-            expectedClickedScaleFromFretboard[0].notes[2].intervalInfo.interval = "b7";
-            expectedClickedScaleFromFretboard[1].notes[0].letter = "D";
-            expectedClickedScaleFromFretboard[1].notes[0].octave = 4;
-            expectedClickedScaleFromFretboard[1].notes[0].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
-            expectedClickedScaleFromFretboard[1].notes[0].intervalInfo.interval = "2";
-            expectedClickedScaleFromFretboard[1].notes[1].letter = "D#/Eb";
-            expectedClickedScaleFromFretboard[1].notes[1].octave = 4;
-            expectedClickedScaleFromFretboard[1].notes[1].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
-            expectedClickedScaleFromFretboard[1].notes[1].intervalInfo.interval = "b3";
-            expectedClickedScaleFromFretboard[1].notes[2].letter = "F";
-            expectedClickedScaleFromFretboard[1].notes[2].octave = 4;
-            expectedClickedScaleFromFretboard[1].notes[2].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
-            expectedClickedScaleFromFretboard[1].notes[2].intervalInfo.interval = "4";
-            expectedClickedScaleFromFretboard[2].notes[0].letter = "C";
-            expectedClickedScaleFromFretboard[2].notes[0].octave = 4;
-            expectedClickedScaleFromFretboard[2].notes[0].intervalInfo = $.extend(true, {}, expectedIntervalInfo);
-            expectedClickedScaleFromFretboard[2].notes[0].intervalInfo.interval = "1";
         });
 
         afterEach(function () {
@@ -645,7 +666,7 @@ describe("Fretboard jQuery plugin", function () {
             api.setNumFrets(increase);
 
             expect(api.getNumFrets()).toEqual(increase);
-            verifyAllNotesOnFretboard(api.getAllNotes(), standardTuning, increase, defaultAllNoteLetters);
+            verifyAllNotesOnFretboard(api.getAllNotes(), defaultTuning, increase, defaultAllNoteLetters);
         });
 
         it("should return the correct number of frets and notes when the fret number is decreased", function () {
@@ -653,66 +674,71 @@ describe("Fretboard jQuery plugin", function () {
             api.setNumFrets(decrease);
 
             expect(api.getNumFrets()).toEqual(decrease);
-            verifyAllNotesOnFretboard(api.getAllNotes(), standardTuning, decrease, defaultAllNoteLetters);
+            verifyAllNotesOnFretboard(api.getAllNotes(), defaultTuning, decrease, defaultAllNoteLetters);
         });
 
         it("should return the correct clicked notes when notes are clicked and they all exist on the fretboard", function () {
-            api.setClickedNotes(clickedChord);
+            api.setClickedNotes(cMaj7ChordForStandardTuning);
 
             expect(api.getClickedNotes()).toEqual(expectedClickedChordFromFretboard);
         });
 
         it("should return the correct clicked notes when cleared", function () {
-            api.setClickedNotes(clickedChord);
+            api.setClickedNotes(cMaj7ChordForStandardTuning);
             api.clearClickedNotes();
 
             expect(api.getClickedNotes()).toEqual([]);
         });
 
         it("should throw an exception when notes are clicked on strings that don't exist", function () {
-            api.setTuning(standardTuning.slice(0, 1));
+            api.setTuning(defaultTuning.slice(0, 1));
 
             expect(function () {
-                api.setClickedNotes(clickedChord);
+                api.setClickedNotes(cMaj7ChordForStandardTuning);
             }).toThrow();
         });
 
         it("should throw an exception when clicked notes are out of the fret range", function () {
-            clickedChord[0].notes[0].fret = -1;
-            clickedChord[1].notes[0].fret = defaultNumFrets + 1;
+            var outOfRangeChord = $.extend(true, [], cMaj7ChordForStandardTuning);
+
+            outOfRangeChord[0].notes[0].fret = -1;
+            outOfRangeChord[1].notes[0].fret = defaultNumFrets + 1;
 
             expect(function () {
-                api.setClickedNotes(clickedChord);
+                api.setClickedNotes(outOfRangeChord);
             }).toThrow();
         });
 
         it("should return the correct clicked notes when notes are clicked and the number of strings is decreased", function () {
-            api.setClickedNotes(clickedChord);
-            api.setTuning(standardTuning.slice(0, 1));
+            api.setClickedNotes(cMaj7ChordForStandardTuning);
+            api.setTuning(defaultTuning.slice(0, 1));
 
             expect(api.getClickedNotes()).toEqual(expectedClickedChordFromFretboard.slice(0, 1));
         });
 
         it("should return the correct clicked notes when notes are clicked and the number of strings is increased", function () {
-            api.setClickedNotes(clickedChord);
-            api.setTuning(eightStringTuning);
+            api.setClickedNotes(cMaj7ChordForStandardTuning);
+            api.setTuning(standardEightStringTuning);
 
             expect(api.getClickedNotes()).toEqual(expectedClickedChordFromFretboard);
         });
 
         it("should return the correct clicked notes when notes are clicked and the number of frets is decreased", function () {
-            api.setClickedNotes(clickedChord);
+            api.setClickedNotes(cMaj7ChordForStandardTuning);
             api.setNumFrets(3);
 
             var filteredClickedChord = [];
 
             for (var i = 0; i < expectedClickedChordFromFretboard.length; i++) {
-                expectedClickedChordFromFretboard[i].notes = expectedClickedChordFromFretboard[i].notes.filter(function (note) {
+                var filteredNotes = expectedClickedChordFromFretboard[i].notes.filter(function (note) {
                     return note.fret <= 3;
                 });
 
-                if (expectedClickedChordFromFretboard[i].notes.length) {
-                    filteredClickedChord.push(expectedClickedChordFromFretboard[i]);
+                if (filteredNotes.length) {
+                    filteredClickedChord.push({
+                        string: expectedClickedChordFromFretboard[i].string,
+                        notes: filteredNotes
+                    });
                 }
             }
 
@@ -720,14 +746,14 @@ describe("Fretboard jQuery plugin", function () {
         });
 
         it("should return the correct clicked notes when notes are clicked and the number of frets is increased", function () {
-            api.setClickedNotes(clickedChord);
+            api.setClickedNotes(cMaj7ChordForStandardTuning);
             api.setNumFrets(defaultNumFrets + 1);
 
             expect(api.getClickedNotes()).toEqual(expectedClickedChordFromFretboard);
         });
 
         it("should return the correct clicked notes when notes are clicked and each note of the tuning is changed", function () {
-            api.setClickedNotes(clickedChord);
+            api.setClickedNotes(cMaj7ChordForStandardTuning);
             api.setTuning(standardATuning);
 
             expect(api.getClickedNotes()).toEqual(expectedClickedChordFromFretboardForStandardATuning);
@@ -735,7 +761,7 @@ describe("Fretboard jQuery plugin", function () {
 
         it("should return the correct clicked notes when chord mode is true and notes are clicked as a user", function () {
             api.setChordMode(true);
-            api.setClickedNotes(clickedScale, true);
+            api.setClickedNotes(scale, true);
 
             expectedClickedChordFromFretboard = [{
                 string: expectedClickedScaleFromFretboard[0].string,
@@ -753,21 +779,21 @@ describe("Fretboard jQuery plugin", function () {
 
         it("should return the correct clicked notes when chord mode is true and notes are clicked as an admin", function () {
             api.setChordMode(true);
-            api.setClickedNotes(clickedScale, false);
+            api.setClickedNotes(scale, false);
 
             expect(api.getClickedNotes()).toEqual(expectedClickedScaleFromFretboard);
         });
 
         it("should return the correct clicked notes when chord mode is false and notes are clicked as a user", function () {
             api.setChordMode(false);
-            api.setClickedNotes(clickedScale, true);
+            api.setClickedNotes(scale, true);
 
             expect(api.getClickedNotes()).toEqual(expectedClickedScaleFromFretboard);
         });
 
         it("should return the correct clicked notes when chord mode is false and notes are clicked as an admin", function () {
             api.setChordMode(false);
-            api.setClickedNotes(clickedScale, true);
+            api.setClickedNotes(scale, true);
 
             expect(api.getClickedNotes()).toEqual(expectedClickedScaleFromFretboard);
         });
