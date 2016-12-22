@@ -101,7 +101,7 @@ describe("Angular fretboard directive", function () {
     beforeEach(angular.mock.module('angularFretboard'));
 
     beforeEach(inject(function (_$compile_, _$rootScope_) {
-        $element = angular.element("<div fretboard fretboard-config='config'></div>");
+        $element = angular.element("<div fretboard config='config'></div>");
         $compile = _$compile_;
         $rootScope = _$rootScope_;
     }));

@@ -74,7 +74,7 @@
         return {
             restrict: "AE",
             scope: {
-                config: "=fretboardConfig"
+                config: "="
             },
             controller: ["$scope", "$element", fretboardController],
             // The inner directives each have their own ngModel which handle two-way
