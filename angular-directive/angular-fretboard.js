@@ -97,19 +97,29 @@
         function fretboardController($scope, $element) {
             var ctrl = $scope.ctrl = this;
 
-            $scope.$on("$destroy", function () {
-                destroy(ctrl);
-            });
+            $scope.$on("$destroy", destroy);
 
-            $scope.$watch(function () {
+            $scope.$watch(configWatch, onConfigChange);
+
+            function configWatch() {
                 return $scope.config;
-            }, function (newVal, oldVal) {
+            }
+
+            function onConfigChange(newVal, oldVal) {
                 if (newVal) {
-                    initialize($scope, $element, ctrl);
+                    initialize();
                 } else {
-                    destroy(ctrl);
+                    handleUndefinedConfig(oldVal)
                 }
-            });
+            }
+
+            function handleUndefinedConfig(oldConfig) {
+                if (isUndefinedOrNull(oldConfig)) {
+                    throw new Error("The \"config\" object is not defined. Place it on your scope and pass it into the fretboard directive.")
+                }
+
+                destroy();
+            }
 
             function initialize() {
                 ctrl.invokeNotesClickedCallbacks = invokeNotesClickedCallbacks;
