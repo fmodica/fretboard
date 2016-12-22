@@ -282,7 +282,6 @@
                     fretboardCtrl.jQueryFretboardApi.setIntervalSettings($viewValue);
                     fretboardCtrl.scheduleClickedNotesUpdate();
                 }
-
             }
         };
     }
@@ -295,10 +294,14 @@
                 var ngModelCtrl = ctrls[0];
                 var fretboardCtrl = ctrls[1];
 
-                dataBindingHelper.bind(ngModelCtrl, getFn);
+                dataBindingHelper.bind(ngModelCtrl, getFn, setFn);
 
                 function getFn() {
                     return fretboardCtrl.jQueryFretboardApi.getAnimationSpeed();
+                }
+
+                function setFn($viewValue) {
+                    fretboardCtrl.jQueryFretboardApi.setAnimationSpeed($viewValue);
                 }
             }
         };

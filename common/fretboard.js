@@ -516,6 +516,7 @@
         self.setNoteMode = $setNoteMode;
         self.getNoteCircles = getNoteCircles;
         self.getAnimationSpeed = getAnimationSpeed;
+        self.setAnimationSpeed = setAnimationSpeed;
         self.getDimensionsFunc = getDimensionsFunc;
         self.setDimensionsFunc = setDimensionsFunc;
         self.redrawPositions = $redrawPositions;
@@ -627,6 +628,10 @@
 
         function getAnimationSpeed() {
             return model.animationSpeed;
+        }
+
+        function setAnimationSpeed(speed) {
+            model.animationSpeed = speed;
         }
 
         function getDimensionsFunc() {
@@ -1285,7 +1290,7 @@
             api.getNoteCircles = getNoteCircles;
             // self.setNoteCircles = setNoteCircles; // TODO: implement
             api.getAnimationSpeed = getAnimationSpeed;
-            // self.setAnimationSpeed = setAnimationSpeed; // TODO: implement
+            api.setAnimationSpeed = setAnimationSpeed;
             api.addNotesClickedCallback = addNotesClickedCallback;
             api.removeNotesClickedCallback = removeNotesClickedCallback;
             api.getNotesClickedCallbacks = getNotesClickedCallbacks;
@@ -1465,6 +1470,10 @@
 
             function getAnimationSpeed() {
                 return fretboardRenderer.getAnimationSpeed();
+            }
+
+            function setAnimationSpeed(speed) {
+                fretboardRenderer.setAnimationSpeed(speed);
             }
 
             function getNotesClickedCallbacks() {

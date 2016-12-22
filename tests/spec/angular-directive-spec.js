@@ -177,7 +177,7 @@ describe("Angular fretboard directive", function () {
     });
 
     describe("Configuration", function () {
-        it("should overwrite the controller's undefuned config properties with the fretboard's default state", function () {
+        it("should overwrite the controller's initial undefined config properties with the fretboard's default state", function () {
             $rootScope.config = {};
 
             $compile($element)($rootScope);
@@ -197,7 +197,7 @@ describe("Angular fretboard directive", function () {
             expect($rootScope.config.notesClickedCallbacks).toEqual(defaultNotesClickedCallbacks);
         });
 
-        it("should not overwrite the controller's defined config properties, but should update the clicked notes with additional information", function () {
+        it("should not overwrite the controller's initial defined config properties, but should update the clicked notes with additional information", function () {
             var customTuning = defaultTuning.slice(0, defaultTuning.length - 1);
             var customNumFrets = defaultNumFrets - 1;
             var customIsChordMode = !defaultIsChordMode;
