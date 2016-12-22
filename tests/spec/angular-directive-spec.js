@@ -39,7 +39,6 @@ describe("Angular fretboard directive", function () {
     var defaultAnimationSpeed = 400;
     var defaultNoteCircles = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24];
     var defaultClickedNotes = [];
-    var defaultDimensionsFunc = undefined;
     var defaultNotesClickedCallbacks = [];
 
     var customTuning = defaultTuning.slice(0, defaultTuning.length - 1);
@@ -127,7 +126,7 @@ describe("Angular fretboard directive", function () {
             expect($rootScope.config.animationSpeed).toEqual(defaultAnimationSpeed);
             expect($rootScope.config.noteCircles).toEqual(defaultNoteCircles);
             expect($rootScope.config.clickedNotes).toEqual(defaultClickedNotes);
-            expect($rootScope.config.dimensionsFunc).toEqual(undefined); // TODO: Bind
+            expect($rootScope.config.dimensionsFunc).toBeDefined();
             expect($rootScope.config.notesClickedCallbacks).toEqual(defaultNotesClickedCallbacks);
         });
 

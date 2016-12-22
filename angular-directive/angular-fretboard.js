@@ -12,6 +12,7 @@
         .directive("allNoteLetters", ["dataBindingHelper", allNoteLetters])
         .directive("animationSpeed", ["dataBindingHelper", animationSpeed])
         .directive("noteCircles", ["dataBindingHelper", noteCircles])
+        .directive("dimensionsFunc", ["dataBindingHelper", dimensionsFunc])
         .directive("notesClickedCallbacks", ["dataBindingHelper", notesClickedCallbacks])
         .directive("clickedNotes", ["dataBindingHelper", clickedNotes])
         .factory("dataBindingHelper", ["$rootScope", dataBindingHelper]);
@@ -89,6 +90,7 @@
             "<span ng-if='config' all-note-letters ng-model='config.allNoteLetters'></span>" +
             "<span ng-if='config' animation-speed ng-model='config.animationSpeed'></span>" +
             "<span ng-if='config' note-circles ng-model='config.noteCircles'></span>" +
+            "<span ng-if='config' dimensions-func ng-model='config.dimensionsFunc'></span>" +
             "<span ng-if='config' notes-clicked-callbacks ng-model='config.notesClickedCallbacks'></span>" +
             // This must come last so that its $render method is created after all others.
             "<span ng-if='config' clicked-notes ng-model='config.clickedNotes' ng-change='ctrl.invokeNotesClickedCallbacks()'></span>"
@@ -332,6 +334,27 @@
                 function getFn() {
                     return fretboardCtrl.jQueryFretboardApi.getNoteCircles();
                 };
+            }
+        };
+    }
+
+    function dimensionsFunc(dataBindingHelper) {
+        return {
+            restrict: "AE",
+            require: ["ngModel", "^fretboard"],
+            link: function (scope, element, attrs, ctrls) {
+                var ngModelCtrl = ctrls[0];
+                var fretboardCtrl = ctrls[1];
+
+                dataBindingHelper.bind(ngModelCtrl, getFn, setFn);
+
+                function getFn() {
+                    return fretboardCtrl.jQueryFretboardApi.getDimensionsFunc();
+                }
+
+                function setFn($viewValue) {
+                    return fretboardCtrl.jQueryFretboardApi.setDimensionsFunc($viewValue);
+                }
             }
         };
     }

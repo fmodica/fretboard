@@ -203,7 +203,7 @@
 
             return arr;
         }
-        
+
         function getClickedNoteGroup(stringIndex) {
             return {
                 string: model.tuning[stringIndex],
@@ -516,6 +516,8 @@
         self.setNoteMode = $setNoteMode;
         self.getNoteCircles = getNoteCircles;
         self.getAnimationSpeed = getAnimationSpeed;
+        self.getDimensionsFunc = getDimensionsFunc;
+        self.setDimensionsFunc = setDimensionsFunc;
         self.redrawPositions = $redrawPositions;
 
         var model = $.extend(true, {}, settings);
@@ -625,6 +627,14 @@
 
         function getAnimationSpeed() {
             return model.animationSpeed;
+        }
+
+        function getDimensionsFunc() {
+            return model.dimensionsFunc;
+        }
+
+        function setDimensionsFunc(fn) {
+            model.dimensionsFunc = fn;
         }
 
         function $redrawPositions(shouldBeAnimated, onPreRender) {
@@ -1279,6 +1289,8 @@
             api.addNotesClickedCallback = addNotesClickedCallback;
             api.removeNotesClickedCallback = removeNotesClickedCallback;
             api.getNotesClickedCallbacks = getNotesClickedCallbacks;
+            api.getDimensionsFunc = getDimensionsFunc;
+            api.setDimensionsFunc = setDimensionsFunc;
 
             var $element = $(this);
             // The value at which the octave is incremented needs to be first
@@ -1455,6 +1467,10 @@
                 return fretboardRenderer.getAnimationSpeed();
             }
 
+            function getNotesClickedCallbacks() {
+                return settings.notesClickedCallbacks;
+            }
+
             function addNotesClickedCallback(callback) {
                 // TODO: Validate when passed in the config too
                 if (!$.isFunction(callback)) return;
@@ -1470,8 +1486,13 @@
                 settings.notesClickedCallbacks.splice(index, 1);
             }
 
-            function getNotesClickedCallbacks() {
-                return settings.notesClickedCallbacks;
+            function getDimensionsFunc() {
+                return fretboardRenderer.getDimensionsFunc();
+            }
+
+            function setDimensionsFunc(fn) {
+                fretboardRenderer.setDimensionsFunc(createCompleteDimensionsFunc(fn));
+                fretboardRenderer.redrawPositions(true, null);
             }
 
             function createFretboardModel() {
@@ -1500,7 +1521,7 @@
                     // TODO: the renderer should validate its own settings
                     noteCircles: settings.noteCircles,
                     animationSpeed: settings.animationSpeed,
-                    dimensionsFunc: createCompletedDimensionsFunc(settings.dimensionsFunc),
+                    dimensionsFunc: createCompleteDimensionsFunc(settings.dimensionsFunc),
                     noteMode: settings.noteMode
                 };
 
@@ -1511,13 +1532,14 @@
                 $.extend(settings, defaults, $.extend(true, {}, userOptions));
             }
 
-            // Returns whatever properties (width/height) the user-defined function does not return.
-            function createCompletedDimensionsFunc(oldFunc) {
+            // Create a function that returns whatever properties (width/height) the given 
+            // function does not return.
+            function createCompleteDimensionsFunc(fn) {
                 return function ($fretboardContainer, $fretboardBody, model) {
                     var defaultDimensions = defaultDimensionsFunc($fretboardContainer, $fretboardBody, model);
                     var defaultWidth = defaultDimensions.width;
                     var defaultHeight = defaultDimensions.height;
-                    var dimensions = oldFunc === defaultDimensionsFunc ? defaultDimensions : oldFunc($fretboardContainer, $fretboardBody, model);
+                    var dimensions = fn === defaultDimensionsFunc ? defaultDimensions : fn($fretboardContainer, $fretboardBody, model);
                     var width = dimensions.width;
                     var height = dimensions.height;
 
