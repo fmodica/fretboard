@@ -235,8 +235,8 @@
                     return fretboardCtrl.jQueryFretboardApi.getNoteClickingDisabled();
                 }
 
-                function setFn() {
-                    return fretboardCtrl.jQueryFretboardApi.setNoteClickingDisabled();
+                function setFn($viewValue) {
+                    return fretboardCtrl.jQueryFretboardApi.setNoteClickingDisabled($viewValue);
                 }
             }
         };
