@@ -31,7 +31,7 @@
     //   exception to the above rule and will be rendered on init if defined.
     function dataBindingHelper($rootScope) {
         function bind(ngModelCtrl, getFn, setFn, renderOnInitIfDefined) {
-            var isFirstRender = true;
+            var isFirst$Render = true;
 
             ngModelCtrl.$render = $render;
 
@@ -44,11 +44,11 @@
                     updateModel();
                 }
 
-                isFirstRender = false;
+                isFirst$Render = false;
             }
 
             function shouldRender() {
-                return setFn && (!isFirstRender || (renderOnInitIfDefined && !isUndefinedOrNull(ngModelCtrl.$viewValue)));
+                return setFn && (!isFirst$Render || (renderOnInitIfDefined && !isUndefinedOrNull(ngModelCtrl.$viewValue)));
             }
 
             function render() {
@@ -56,7 +56,7 @@
             }
 
             function shouldUpdateModel() {
-                return isFirstRender && isUndefinedOrNull(ngModelCtrl.$viewValue);
+                return isFirst$Render && isUndefinedOrNull(ngModelCtrl.$viewValue);
             }
 
             function updateModel() {
@@ -124,14 +124,14 @@
             }
 
             function initialize() {
-                ctrl.invokeNotesClickedCallbacks = invokeNotesClickedCallbacks;
-
                 // When a user clicks a note, we need to ensure that the clicked notes on the
                 // parent scope are updated before the clicked note callbacks are invoked. So
                 // we delete the clicked note callbacks from the config here so the plugin
                 // cannot invoke them. We use ng-model and ng-change on the clicked-notes 
                 // directive to invoke the callbacks when the clicked notes have been updated.
-                ctrl.notesClickedCallbacks = $scope.config.notesClickedCallbacks || [];
+                ctrl.invokeNotesClickedCallbacks = invokeNotesClickedCallbacks;
+                debugger;
+                ctrl.notesClickedCallbacks = $scope.config.notesClickedCallbacks;
 
                 var configCopy = angular.copy($scope.config);
                 delete configCopy.notesClickedCallbacks;
@@ -148,6 +148,10 @@
             }
 
             function invokeNotesClickedCallbacks() {
+                if (!ctrl.notesClickedCallbacks) {
+                    return;
+                }
+
                 for (var i = 0; i < ctrl.notesClickedCallbacks.length; i++) {
                     ctrl.notesClickedCallbacks[i]();
                 }
@@ -373,7 +377,7 @@
                 dataBindingHelper.bind(ngModelCtrl, getFn, setFn);
 
                 function getFn() {
-                    return fretboardCtrl.notesClickedCallbacks;
+                    return [];
                 }
 
                 function setFn($viewValue) {
