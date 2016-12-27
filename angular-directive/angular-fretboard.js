@@ -130,7 +130,6 @@
                 // cannot invoke them. We use ng-model and ng-change on the clicked-notes 
                 // directive to invoke the callbacks when the clicked notes have been updated.
                 ctrl.invokeNotesClickedCallbacks = invokeNotesClickedCallbacks;
-                debugger;
                 ctrl.notesClickedCallbacks = $scope.config.notesClickedCallbacks;
 
                 var configCopy = angular.copy($scope.config);

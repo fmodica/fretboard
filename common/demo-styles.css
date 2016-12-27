@@ -1,0 +1,51 @@
+button {
+    margin: 10px 2.5%;
+    cursor: pointer;
+    height: 60px;
+    width: 20%;
+    float: left;
+    padding: 10px;
+    font-size: 12px;
+    overflow: auto;
+}
+
+.disclaimer {
+    text-align: center;
+}
+
+.fretboard-container .note.clicked.green {
+    background: green;
+}
+
+.fretboard-container .note.clicked.red {
+    background: red;
+}
+
+.fretboard-container .note.clicked.orange {
+    background: orange;
+}
+
+.json {
+    width: 100%;
+    clear: both;
+    padding-top: 10px;
+}
+
+.json p {
+    text-align: center;
+}
+
+@media (max-width: 767px) {
+    button {
+        width: 49%;
+        height: 30px;
+        overflow: hidden;
+        margin: 2px .5%;
+        padding: 2px;
+        font-size: 12px;
+    }
+
+    .disclaimer {
+        font-size: 14px;
+    }
+}

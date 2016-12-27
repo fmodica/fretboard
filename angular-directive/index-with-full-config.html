@@ -11,76 +11,11 @@
     <script src="./angular-fretboard.js"></script>
 
     <link rel="stylesheet" type="text/css" href="../common/styles.css">
+    <link rel="stylesheet" type="text/css" href="../common/demo-styles.css">
 </head>
 
 <body ng-app="myApp">
-    <style>
-        .container {
-            min-width: 280px;
-            max-width: 1600px;
-            min-height: 600px;
-            overflow-x: hidden;
-            background: lightgray;
-            padding: 20px 40px;
-        }
-        
-        button {
-            margin: 10px 2.5%;
-            cursor: pointer;
-            height: 80px;
-            width: 20%;
-            float: left;
-            padding: 10px;
-            font-size: 12px;
-            overflow: auto;
-        }
-        
-        .disclaimer {
-            text-align: center;
-        }
-        
-        .disclaimer-first {
-            margin-top: 30px;
-        }
-        
-        .fretboard-container .note.clicked.green {
-            background: green;
-        }
-        
-        .fretboard-container .note.clicked.red {
-            background: red;
-        }
-        
-        .fretboard-container .note.clicked.orange {
-            background: orange;
-        }
-        
-        .json {
-            width: 100%;
-            clear: both;
-            padding-top: 10px;
-        }
-        
-        .json p {
-            text-align: center;
-        }
-        
-        @media (max-width: 800px) {
-            .container {
-                padding: 5px;
-            }
-        }
-        
-        @media (max-width: 767px) {
-            button {
-                width: 95%;
-                height: 50px;
-                overflow: hidden;
-                margin: 2px 2.5%;
-                padding: 2px;
-            }
-        }
-    </style>
+   
 <div class="container" ng-controller="MyController">
     <script type="text/javascript">
             var app = angular.module("myApp", ['angularFretboard']);
@@ -158,10 +93,17 @@
                         }]
                     }];
                     var dimensionsFunc = function ($fretboardContainer, $fretboardBody, settings) {
-                        var numStrings = settings.tuning.length;
+                        var width = $(window).width();
+                        var height;
+
+                        if (width <= 768) {
+                            height = settings.tuning.length * 26;
+                        } else {
+                            height = settings.tuning.length * 32;
+                        }
 
                         return {
-                            height: numStrings * 32
+                            height: height
                         };
                     };
                     var noteCircles = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24];
@@ -295,9 +237,9 @@
 <button ng-click="changeToStandardTuning()">Set standard tuning</button>
 <button ng-click="addFret()">Add fret</button>
 <button ng-click="removeFret()">Remove fret</button>
-<button ng-click="toggleChordMode()">Toggle chord mode</button>
-<button ng-click="toggleNoteMode()">Toggle note mode (intervals vs letters)</button>
-<button ng-click="toggleIntervalSettings()">Toggle root interval (C vs G)</button>
+<button ng-click="toggleChordMode()">Toggle chord/scale mode</button>
+<button ng-click="toggleNoteMode()">Toggle note/interval mode </button>
+<button ng-click="toggleIntervalSettings()">Toggle root interval (C/G)</button>
 
 <div class="json">
     <p>Config data-binding</p>
