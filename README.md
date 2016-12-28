@@ -57,4 +57,4 @@ The jQuery plugin is also wrapped as an <a href="https://github.com/fmodica/fret
 You can also check out my <a target="_blank" href="http://frank-modica.com/#/voiceleader/index">Guitar Voiceleading Helper</a>, where I use the fretboard to help users create progressions with good voice leading.
 
 ## Tests
-Unit tests for the jQuery plugin and the Angular directive are <a href="https://github.com/fmodica/fretboard/tree/master/tests/spec">here</a>.
+Unit tests for the jQuery plugin and the Angular directive can be run using the <a href="https://github.com/fmodica/fretboard/tree/master/tests">Spec Runner</a>.
