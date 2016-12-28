@@ -15,6 +15,7 @@
         .directive("dimensionsFunc", ["dataBindingHelper", dimensionsFunc])
         .directive("notesClickedCallbacks", ["dataBindingHelper", notesClickedCallbacks])
         .directive("clickedNotes", ["dataBindingHelper", clickedNotes])
+        .directive("allNotes", ["dataBindingHelper", allNotes])
         .factory("dataBindingHelper", ["$rootScope", dataBindingHelper]);
 
     // Data-binding has to be done carefully, so this service helps each directive:
@@ -92,8 +93,10 @@
             "<span ng-if='config' note-circles ng-model='config.noteCircles'></span>" +
             "<span ng-if='config' dimensions-func ng-model='config.dimensionsFunc'></span>" +
             "<span ng-if='config' notes-clicked-callbacks ng-model='config.notesClickedCallbacks'></span>" +
-            // This must come last so that its $render method is created after all others.
-            "<span ng-if='config' clicked-notes ng-model='config.clickedNotes' ng-change='ctrl.invokeNotesClickedCallbacks()'></span>"
+
+            // These must come last because they are affected by some of the others.
+            "<span ng-if='config' clicked-notes ng-model='config.clickedNotes' ng-change='ctrl.invokeNotesClickedCallbacks()'></span>" +
+            "<span ng-if='config' all-notes ng-model='config.allNotes'></span>"
         };
 
         function fretboardController($scope, $element) {
@@ -174,6 +177,7 @@
 
                 function setFn($viewValue) {
                     fretboardCtrl.jQueryFretboardApi.setTuning($viewValue);
+                    fretboardCtrl.scheduleAllNotesUpdate();
                     fretboardCtrl.scheduleClickedNotesUpdate();
                 }
             }
@@ -196,6 +200,7 @@
 
                 function setFn($viewValue) {
                     fretboardCtrl.jQueryFretboardApi.setNumFrets($viewValue);
+                    fretboardCtrl.scheduleAllNotesUpdate();
                     fretboardCtrl.scheduleClickedNotesUpdate();
                 }
             }
@@ -218,7 +223,6 @@
 
                 function setFn($viewValue) {
                     fretboardCtrl.jQueryFretboardApi.setChordMode($viewValue);
-                    fretboardCtrl.scheduleClickedNotesUpdate();
                 }
             }
         };
@@ -261,6 +265,7 @@
 
                 function setFn($viewValue) {
                     fretboardCtrl.jQueryFretboardApi.setNoteMode($viewValue);
+                    fretboardCtrl.scheduleAllNotesUpdate();
                     fretboardCtrl.scheduleClickedNotesUpdate();
                 }
             }
@@ -283,6 +288,7 @@
 
                 function setFn($viewValue) {
                     fretboardCtrl.jQueryFretboardApi.setIntervalSettings($viewValue);
+                    fretboardCtrl.scheduleAllNotesUpdate();
                     fretboardCtrl.scheduleClickedNotesUpdate();
                 }
             }
@@ -386,6 +392,38 @@
         };
     }
 
+    function allNotes(dataBindingHelper) {
+        return {
+            restrict: "AE",
+            require: ["ngModel", "^fretboard"],
+            link: function (scope, element, attrs, ctrls) {
+                var ngModelCtrl = ctrls[0];
+                var fretboardCtrl = ctrls[1];
+                var isScheduled = false;
+
+                fretboardCtrl.scheduleAllNotesUpdate = scheduleAllNotesUpdate;
+
+                dataBindingHelper.bind(ngModelCtrl, getFn);
+
+                function getFn() {
+                    return fretboardCtrl.jQueryFretboardApi.getAllNotes();
+                }
+
+                function scheduleAllNotesUpdate() {
+                    if (isScheduled) return;
+
+                    isScheduled = true;
+
+                    scope.$evalAsync(function () {
+                        // This must run after other aspects of the fretboard (tuning, numFrets, etc.).
+                        ngModelCtrl.$setViewValue(fretboardCtrl.jQueryFretboardApi.getAllNotes());
+                        isScheduled = false;
+                    });
+                }
+            }
+        };
+    }
+
     function clickedNotes(dataBindingHelper) {
         return {
             restrict: "AE",
@@ -410,6 +448,7 @@
             function setFn($viewValue) {
                 fretboardCtrl.jQueryFretboardApi.clearClickedNotes();
                 fretboardCtrl.jQueryFretboardApi.setClickedNotes($viewValue);
+                fretboardCtrl.scheduleAllNotesUpdate();
                 scheduleClickedNotesUpdate();
             };
 

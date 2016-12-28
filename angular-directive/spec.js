@@ -195,6 +195,7 @@ describe("Angular fretboard directive", function () {
             expect($rootScope.config.clickedNotes).toEqual(defaultClickedNotes);
             expect(typeof $rootScope.config.dimensionsFunc).toEqual("function");
             expect($rootScope.config.notesClickedCallbacks).toEqual(defaultNotesClickedCallbacks);
+            verifyAllNotesOnFretboard($rootScope.config.allNotes, defaultTuning, defaultNumFrets, defaultAllNoteLetters);
         });
 
         it("should not overwrite the controller's initial defined config properties, but should update the clicked notes with additional information", function () {
@@ -271,12 +272,13 @@ describe("Angular fretboard directive", function () {
             expect($rootScope.config.noteCircles).toEqual(customNoteCircles);
             expect($rootScope.config.dimensionsFunc).toEqual(customDimensionsFunc);
             expect($rootScope.config.notesClickedCallbacks).toEqual(customNotesClickedCallbacks);
-
             expect($rootScope.config.clickedNotes).toEqual(expectedCustomClickedNotes);
+            verifyAllNotesOnFretboard($rootScope.config.allNotes, customTuning, customNumFrets, customAllNoteLetters);
         });
 
-        it("should change the tuning, number of frets, and interval settings before updating clicked notes", function () {
+        it("should change the tuning, number of frets, and interval settings before updating clicked notes and all note letters", function () {
             var bFlatMaj7ChordForStandardATuningCopy = angular.copy(bFlatMaj7ChordForStandardATuning);
+            var customNumFrets = 3;
 
             // Just the notes at or below the 3rd fret.
             var expectedBFlatMaj7ChordFromFretboardForStandardATuning = [
@@ -314,7 +316,7 @@ describe("Angular fretboard directive", function () {
             $rootScope.$digest();
 
             $rootScope.config.tuning = standardATuning;
-            $rootScope.config.numFrets = 3;
+            $rootScope.config.numFrets = customNumFrets;
             $rootScope.config.intervalSettings = angular.copy(defaultIntervalSettings);
             $rootScope.config.intervalSettings.root = "C#/Db";
             $rootScope.config.intervalSettings.intervals[4] = "Major third"
@@ -322,6 +324,40 @@ describe("Angular fretboard directive", function () {
             $rootScope.$digest();
 
             expect($rootScope.config.clickedNotes).toEqual(expectedBFlatMaj7ChordFromFretboardForStandardATuning);
+            verifyAllNotesOnFretboard($rootScope.config.allNotes, standardATuning, customNumFrets, defaultAllNoteLetters);
         });
     });
+
+    // It would be best to create each note by hand for verification, but this should do for now.
+    function verifyAllNotesOnFretboard(allNotesToVerify, tuning, numFrets, allNoteLetters) {
+        expect(allNotesToVerify.length).toEqual(tuning.length);
+
+        for (var i = 0; i < allNotesToVerify.length; i++) {
+            expect(allNotesToVerify[i].notes.length).toEqual(numFrets + 1);
+            verifyNotesOnString(allNotesToVerify[i], tuning[i], allNoteLetters);
+        }
+    }
+
+    function verifyNotesOnString(stringToVerify, tuningNote, allNoteLetters) {
+        expect(stringToVerify.string).toEqual(tuningNote);
+
+        for (var i = 0; i < stringToVerify.notes.length; i++) {
+            var currentNote = stringToVerify.notes[i];
+            var currentNoteLetterIndex = allNoteLetters.indexOf(currentNote.letter);
+
+            expect(currentNote.fret).toEqual(i);
+
+            if (i === 0) {
+                expect(currentNote.letter).toEqual(tuningNote.letter);
+                expect(currentNote.octave).toEqual(tuningNote.octave);
+                expect(currentNoteLetterIndex).not.toEqual(-1);
+            } else {
+                var lastNote = stringToVerify.notes[i - 1];
+                var lastNoteIndex = allNoteLetters.indexOf(lastNote.letter);
+
+                expect(currentNoteLetterIndex).toEqual(lastNoteIndex === 11 ? 0 : lastNoteIndex + 1);
+                expect(currentNote.octave).toEqual(lastNoteIndex === 11 ? lastNote.octave + 1 : lastNote.octave);
+            }
+        }
+    }
 });
