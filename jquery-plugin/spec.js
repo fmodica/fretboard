@@ -368,7 +368,7 @@ describe("Fretboard jQuery plugin", function () {
     });
 
     describe("API", function () {
-        var standardEightStringTuning = angular.copy(defaultTuning);
+        var standardEightStringTuning = $.extend(true, [], defaultTuning);
 
         standardEightStringTuning.push(
             {
