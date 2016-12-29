@@ -78,7 +78,7 @@
         }
 
         function clearClickedNotes() {
-            model.clickedNotes = utilities.createEmptyArrays(model.tuning.length);
+            model.clickedNotes = fretboard.utilities.createEmptyArrays(model.tuning.length);
         }
 
         function getNoteClickingDisabled() {
@@ -172,7 +172,7 @@
 
         function createClickedNotes() {
             model.clickedNotes = [];
-            utilities.pushMany(model.clickedNotes, utilities.createEmptyArrays(model.tuning.length));
+            fretboard.utilities.pushMany(model.clickedNotes, fretboard.utilities.createEmptyArrays(model.tuning.length));
         }
 
         function createNotesOnString(openNote) {
@@ -330,7 +330,7 @@
             if (numNewStrings < 0) {
                 model.clickedNotes = model.clickedNotes.slice(0, model.tuning.length);
             } else {
-                utilities.pushMany(model.clickedNotes, utilities.createEmptyArrays(numNewStrings));
+                fretboard.utilities.pushMany(model.clickedNotes, fretboard.utilities.createEmptyArrays(numNewStrings));
             }
         }
 
@@ -506,15 +506,16 @@
 
     window.fretboard.FretboardHtmlRenderer = function (settings, $element, validator) {
         var self = this;
-        self.destroy = destroy;
+        self.destroy = $destroy;
         self.syncFretboard = $syncFretboard;
         self.getClickedNotes = $getClickedNotes;
         self.setClickedNotes = $setClickedNotes;
         self.clearClickedNotes = $clearClickedNotes;
-        self.setNoteClickingDisabled = $setNoteClickingDisabled;
+        self.setNoteClickingDisabled = setNoteClickingDisabled;
         self.getNoteMode = getNoteMode;
         self.setNoteMode = $setNoteMode;
-        self.getNoteCircles = getNoteCircles;
+        self.getNoteCircles = $getNoteCircles;
+        self.setNoteCircles = $setNoteCircles;
         self.getAnimationSpeed = getAnimationSpeed;
         self.setAnimationSpeed = setAnimationSpeed;
         self.getDimensionsFunc = getDimensionsFunc;
@@ -558,7 +559,7 @@
 
         $createFretboard();
 
-        function destroy() {
+        function $destroy() {
             $fretboardBody.remove();
             $fretboardContainer.unwrap();
             $removeContainerCssClasses();
@@ -579,18 +580,21 @@
 
             $syncStringContainers($getStringContainerContainer(), $getStringContainers(), oldNumStrings, oldNumFrets, fretboardBodyHeight);
             $syncFretLines($getFretLineContainer(), $getFretLines(), oldNumFrets, fretboardBodyWidth);
-            $syncNoteCircles($getNoteCircleContainer(), $getNoteCircles(), oldNumFrets, fretboardBodyWidth, fretboardBodyHeight);
+            $syncNoteCircles($getNoteCircleContainer(), $getNoteCircles().$elements, oldNumFrets, fretboardBodyWidth, fretboardBodyHeight);
         }
 
         function $getClickedNotes() {
-            return $fretboardContainer.find(clickedNoteSelector);
+            return {
+                $elements: $fretboardContainer.find(clickedNoteSelector),
+                model: model.clickedNotes
+            };
         }
 
         function $setClickedNotes(clickedNoteGroups) {
-            clickedNoteGroups = $.extend(true, [], clickedNoteGroups);
+            model.clickedNotes = $.extend(true, [], clickedNoteGroups);
 
-            for (var i = 0; i < clickedNoteGroups.length; i++) {
-                $clickFrettedNotes(clickedNoteGroups[i]);
+            for (var i = 0; i < model.clickedNotes.length; i++) {
+                $clickFrettedNotes(model.clickedNotes[i]);
             }
         }
 
@@ -602,13 +606,14 @@
 
         function $clearClickedNotes() {
             $getClickedNotes()
+                .$elements
                 .removeClass()
                 .addClass(noteCssClass)
                 .on("mouseenter", $noteMouseEnter)
                 .on("mouseleave", $noteMouseLeave);
         }
 
-        function $setNoteClickingDisabled(isDisabled) {
+        function setNoteClickingDisabled(isDisabled) {
             model.noteClickingDisabled = isDisabled;
         }
 
@@ -622,8 +627,16 @@
             $syncFretboard(model.allNotes);
         }
 
-        function getNoteCircles() {
-            return model.noteCircles;
+        function $getNoteCircles() {
+            return {
+                $elements: $fretboardContainer.find(noteCircleCssSelector),
+                model: model.noteCircles
+            }
+        }
+
+        function $setNoteCircles(noteCircles) {
+            model.noteCircles = $.extend(true, [], noteCircles);
+            $syncFretboard(model.allNotes);
         }
 
         function getAnimationSpeed() {
@@ -874,10 +887,6 @@
 
         function $getNoteCircleContainer() {
             return $fretboardContainer.find(noteCircleContainerSelector);
-        }
-
-        function $getNoteCircles() {
-            return $fretboardContainer.find(noteCircleCssSelector);
         }
 
         function $syncNoteCircles($noteCircleContainer, $noteCircles, oldNumFrets, fretboardBodyWidth, fretboardBodyHeight) {
@@ -1201,7 +1210,7 @@
         function getNoteCirclesHash() {
             var hash = {};
 
-            $getNoteCircles().each(function () {
+            $getNoteCircles().$elements.each(function () {
                 var $noteCircle = $(this);
                 var fret = $noteCircle.data("fret");
 
@@ -1288,7 +1297,7 @@
             api.getNoteMode = getNoteMode;
             api.setNoteMode = setNoteMode;
             api.getNoteCircles = getNoteCircles;
-            // self.setNoteCircles = setNoteCircles; // TODO: implement
+            api.setNoteCircles = setNoteCircles;
             api.getAnimationSpeed = getAnimationSpeed;
             api.setAnimationSpeed = setAnimationSpeed;
             api.addNotesClickedCallback = addNotesClickedCallback;
@@ -1399,7 +1408,7 @@
                 fretboardModel.setClickedNotes(clickedNoteGroupsWithCssClasses, asUser);
 
                 var clickedNoteGroups = fretboardModel.getClickedNotes();
-                var $clickedNoteGroups = fretboardRenderer.getClickedNotes();
+                var $clickedNoteGroups = fretboardRenderer.getClickedNotes().$elements;
                 var allNotes = fretboardModel.getAllNotes();
 
                 reattachCssFromExistingDomNotesOntoAllNewModelNotes(allNotes, clickedNoteGroups, $clickedNoteGroups);
@@ -1465,7 +1474,12 @@
             }
 
             function getNoteCircles() {
-                return fretboardRenderer.getNoteCircles();
+                return fretboardRenderer.getNoteCircles().model;
+            }
+
+            function setNoteCircles(noteCircles) {
+                fretboardRenderer.setNoteCircles(noteCircles);
+                fretboardRenderer.redrawPositions(false, null);
             }
 
             function getAnimationSpeed() {
@@ -1526,6 +1540,7 @@
                     tuning: fretboardModel.getTuning(),
                     numFrets: fretboardModel.getNumFrets(),
                     noteClickingDisabled: fretboardModel.getNoteClickingDisabled(),
+                    clickedNotes: fretboardModel.getClickedNotes(),
 
                     // TODO: the renderer should validate its own settings
                     noteCircles: settings.noteCircles,
@@ -1655,7 +1670,7 @@
 
                 // The model will not know of CSS classes so we reattach the
                 // ones that were already there.
-                reattachCssFromExistingDomNotesOntoAllNewModelNotes(allNotes, newClickedNoteGroupsFromModel, fretboardRenderer.getClickedNotes())
+                reattachCssFromExistingDomNotesOntoAllNewModelNotes(allNotes, newClickedNoteGroupsFromModel, fretboardRenderer.getClickedNotes().$elements)
 
                 fretboardRenderer.clearClickedNotes();
                 fretboardRenderer.setClickedNotes(newClickedNoteGroupsFromModel);
@@ -1669,26 +1684,19 @@
 (function () {
     "use strict";
 
+    window.fretboard.utilities = {
+        notesAreEqual: notesAreEqual,
+        frettedNotesAreEqual: frettedNotesAreEqual,
+        pushMany: pushMany,
+        createEmptyArrays: createEmptyArrays
+    };
+
     function notesAreEqual(note1, note2) {
         return note1.letter === note2.letter && note1.octave === note2.octave;
     }
 
     function frettedNotesAreEqual(note1, string1, note2, string2) {
         return notesAreEqual(string1, string2) && note1.fret === note2.fret;
-    }
-
-    window.fretboard.utilities = {
-        notesAreEqual: notesAreEqual,
-        frettedNotesAreEqual: frettedNotesAreEqual
-    };
-})();
-
-(function () {
-    "use strict";
-
-    window.utilities = {
-        pushMany: pushMany,
-        createEmptyArrays: createEmptyArrays
     }
 
     function pushMany(arr, arrToAdd) {

@@ -37,6 +37,7 @@
         <button class="toggle-chord-mode">Toggle chord/scale mode</button>
         <button class="toggle-note-mode">Toggle note/interval mode </button>
         <button class="toggle-root-for-interval-mode">Toggle root interval (C/G)</button>
+        <button class="toggle-note-circles">Add/remove note circles</button>
     </div>
 
     <script type="text/javascript">
@@ -361,6 +362,14 @@
 
                 if (!api.getClickedNotes().length) {
                     api.setClickedNotes(cMaj7Notes);
+                }
+            });
+
+            $(".toggle-note-circles").on("click", function () {
+                if (api.getNoteCircles().length) {
+                    api.setNoteCircles([]);
+                } else {
+                    api.setNoteCircles(noteCircles);
                 }
             });
 
