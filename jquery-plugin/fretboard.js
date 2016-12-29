@@ -1,13 +1,13 @@
 (function () {
     "use strict";
 
-    window.fretboard = {};
+    window.jQueryFretboard = {};
 })();
 
 (function ($) {
     "use strict";
 
-    window.fretboard.FretboardModel = function (settings, validator) {
+    window.jQueryFretboard.FretboardModel = function (settings, validator) {
         var self = this;
         self.destroy = destroy;
         self.getAllNotes = getAllNotes;
@@ -78,7 +78,7 @@
         }
 
         function clearClickedNotes() {
-            model.clickedNotes = fretboard.utilities.createEmptyArrays(model.tuning.length);
+            model.clickedNotes = jQueryFretboard.utilities.createEmptyArrays(model.tuning.length);
         }
 
         function getNoteClickingDisabled() {
@@ -172,7 +172,7 @@
 
         function createClickedNotes() {
             model.clickedNotes = [];
-            fretboard.utilities.pushMany(model.clickedNotes, fretboard.utilities.createEmptyArrays(model.tuning.length));
+            jQueryFretboard.utilities.pushMany(model.clickedNotes, jQueryFretboard.utilities.createEmptyArrays(model.tuning.length));
         }
 
         function createNotesOnString(openNote) {
@@ -271,7 +271,7 @@
 
         function clickFret(string, fret, asUser) {
             for (var i = 0; i < model.tuning.length; i++) {
-                if (!fretboard.utilities.notesAreEqual(model.tuning[i], string)) continue;
+                if (!jQueryFretboard.utilities.notesAreEqual(model.tuning[i], string)) continue;
 
                 clickFretOnString(i, fret, asUser);
 
@@ -330,7 +330,7 @@
             if (numNewStrings < 0) {
                 model.clickedNotes = model.clickedNotes.slice(0, model.tuning.length);
             } else {
-                fretboard.utilities.pushMany(model.clickedNotes, fretboard.utilities.createEmptyArrays(numNewStrings));
+                jQueryFretboard.utilities.pushMany(model.clickedNotes, jQueryFretboard.utilities.createEmptyArrays(numNewStrings));
             }
         }
 
@@ -351,7 +351,7 @@
 (function () {
     "use strict";
 
-    window.fretboard.FretboardValidator = function () {
+    window.jQueryFretboard.FretboardValidator = function () {
         var self = this;
 
         self.validateNote = validateNote;
@@ -392,7 +392,7 @@
             var stringFound = false;
 
             for (var i = 0; i < tuning.length; i++) {
-                if (fretboard.utilities.notesAreEqual(tuning[i], string)) {
+                if (jQueryFretboard.utilities.notesAreEqual(tuning[i], string)) {
                     stringFound = true;
                     break;
                 }
@@ -504,7 +504,7 @@
 (function ($) {
     "use strict";
 
-    window.fretboard.FretboardHtmlRenderer = function (settings, $element, validator) {
+    window.jQueryFretboard.FretboardHtmlRenderer = function (settings, $element, validator) {
         var self = this;
         self.destroy = $destroy;
         self.syncFretboard = $syncFretboard;
@@ -723,7 +723,7 @@
 
         function $clickNote($stringContainers, string, frettedNote) {
             for (var i = 0; i < model.tuning.length; i++) {
-                if (!fretboard.utilities.notesAreEqual(model.tuning[i], string)) continue;
+                if (!jQueryFretboard.utilities.notesAreEqual(model.tuning[i], string)) continue;
 
                 $clickFretOnString($stringContainers.eq(i), frettedNote.fret, frettedNote.cssClass);
 
@@ -1259,7 +1259,7 @@
         }
 
         function noteDataAreEqual(note1, note2) {
-            return fretboard.utilities.notesAreEqual(note1, note2) &&
+            return jQueryFretboard.utilities.notesAreEqual(note1, note2) &&
                 note1.fret === note2.fret &&
                 note1.noteMode === note2.noteMode &&
                 note1.intervalInfo.root === note2.intervalInfo.root &&
@@ -1365,7 +1365,7 @@
             };
             // These settings will have the defaults extended with user options.
             var settings = {};
-            var validator = new fretboard.FretboardValidator();
+            var validator = new jQueryFretboard.FretboardValidator();
             var noteDataKey = "noteData";
             var fretboardModel;
             var fretboardRenderer;
@@ -1528,7 +1528,7 @@
                     intervalSettings: settings.intervalSettings
                 };
 
-                fretboardModel = new fretboard.FretboardModel(modelSettings, validator);
+                fretboardModel = new jQueryFretboard.FretboardModel(modelSettings, validator);
             }
 
             function createFretboardRenderer() {
@@ -1549,7 +1549,7 @@
                     noteMode: settings.noteMode
                 };
 
-                fretboardRenderer = new fretboard.FretboardHtmlRenderer(fretboardRendererSettings, $element, validator);
+                fretboardRenderer = new jQueryFretboard.FretboardHtmlRenderer(fretboardRendererSettings, $element, validator);
             }
 
             function extendDefaultsWithUserOptions(userOptions) {
@@ -1597,7 +1597,7 @@
                     var existingModelNote = allNotesFromModel[existingNoteData.stringIndex].notes[existingNoteData.fret];
                     var existingModelString = allNotesFromModel[existingNoteData.stringIndex].string;
 
-                    if (!fretboard.utilities.frettedNotesAreEqual(newModelNote, string, existingModelNote, existingModelString)) continue;
+                    if (!jQueryFretboard.utilities.frettedNotesAreEqual(newModelNote, string, existingModelNote, existingModelString)) continue;
 
                     newModelNote.cssClass = $existingNote.attr("class");
 
@@ -1637,7 +1637,7 @@
 
             function findFrettedNote(noteToFind, stringForNoteToFind, notesToSearch, stringForNotesToSearch) {
                 for (var i = 0; i < notesToSearch.length; i++) {
-                    if (fretboard.utilities.frettedNotesAreEqual(noteToFind, stringForNoteToFind, notesToSearch[i], stringForNotesToSearch)) {
+                    if (jQueryFretboard.utilities.frettedNotesAreEqual(noteToFind, stringForNoteToFind, notesToSearch[i], stringForNotesToSearch)) {
                         return notesToSearch[i];
                     }
                 }
@@ -1684,7 +1684,7 @@
 (function () {
     "use strict";
 
-    window.fretboard.utilities = {
+    window.jQueryFretboard.utilities = {
         notesAreEqual: notesAreEqual,
         frettedNotesAreEqual: frettedNotesAreEqual,
         pushMany: pushMany,
