@@ -4,7 +4,7 @@
 // TODO More validation
 // TODO More detailed check of exception messages
 describe("Fretboard jQuery plugin", function () {
-    var defaultAllNoteLetters = ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"];
+    var defaultNoteLetters = ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"];
     var defaultTuning = [
         {
             letter: "E",
@@ -32,7 +32,7 @@ describe("Fretboard jQuery plugin", function () {
     var defaultNoteMode = "letter";
     var defaultIntervalSettings = {
         intervals: ["1", "b2", "2", "b3", "3", "4", "b5", "5", "b6", "6", "b7", "7"],
-        root: defaultAllNoteLetters[0]
+        root: defaultNoteLetters[0]
     };
     var defaultAnimationSpeed = 400;
     var defaultNoteCircles = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24];
@@ -105,7 +105,7 @@ describe("Fretboard jQuery plugin", function () {
         });
 
         it("should return the correct default configuration", function () {
-            expect(api.getAllNoteLetters()).toEqual(defaultAllNoteLetters);
+            expect(api.getNoteLetters()).toEqual(defaultNoteLetters);
             expect(api.getTuning()).toEqual(defaultTuning);
             expect(api.getNumFrets()).toEqual(defaultNumFrets);
             expect(api.getChordMode()).toEqual(defaultIsChordMode);
@@ -117,62 +117,62 @@ describe("Fretboard jQuery plugin", function () {
             expect(typeof api.getDimensionsFunc()).toEqual(defaultDimensionsFuncType);
             expect(api.getNotesClickedCallbacks()).toEqual(defaultNotesClickedCallbacks);
 
-            verifyAllNotesOnFretboard(api.getAllNotes(), defaultTuning, defaultNumFrets, defaultAllNoteLetters);
+            verifyAllNotesOnFretboard(api.getAllNotes(), defaultTuning, defaultNumFrets, defaultNoteLetters);
             expect(api.getClickedNotes()).toEqual(defaultClickedNotes);
         });
 
-        it("should return the correct custom allNoteLetters", function () {
-            var reversedNoteLetters = $.extend(true, [], defaultAllNoteLetters).reverse();
+        it("should return the correct custom noteLetters", function () {
+            var reversedNoteLetters = $.extend(true, [], defaultNoteLetters).reverse();
 
-            $fretboard.fretboard({ allNoteLetters: reversedNoteLetters });
+            $fretboard.fretboard({ noteLetters: reversedNoteLetters });
             api = $fretboard.data("api");
 
-            expect(api.getAllNoteLetters()).toEqual(reversedNoteLetters);
+            expect(api.getNoteLetters()).toEqual(reversedNoteLetters);
         });
 
-        it("should throw an exception when allNoteLetters is null", function () {
+        it("should throw an exception when noteLetters is null", function () {
             expect(function () {
-                $fretboard.fretboard({ allNoteLetters: null });
+                $fretboard.fretboard({ noteLetters: null });
             }).toThrow();
         });
 
-        it("should throw an exception when an item in allNoteLetters is null", function () {
-            var noteLettersWithNull = $.extend(true, [], defaultAllNoteLetters);
+        it("should throw an exception when an item in noteLetters is null", function () {
+            var noteLettersWithNull = $.extend(true, [], defaultNoteLetters);
 
             noteLettersWithNull[0] = null;
 
             expect(function () {
-                $fretboard.fretboard({ allNoteLetters: noteLettersWithNull });
+                $fretboard.fretboard({ noteLetters: noteLettersWithNull });
             }).toThrow();
         });
 
-        it("should throw an exception when allNoteLetters has more than 12 items", function () {
-            var noteLettersTooMany = $.extend(true, [], defaultAllNoteLetters);
+        it("should throw an exception when noteLetters has more than 12 items", function () {
+            var noteLettersTooMany = $.extend(true, [], defaultNoteLetters);
 
             noteLettersTooMany.push("X");
 
             expect(function () {
-                $fretboard.fretboard({ allNoteLetters: noteLettersTooMany });
+                $fretboard.fretboard({ noteLetters: noteLettersTooMany });
             }).toThrow();
         });
 
-        it("should throw an exception when allNoteLetters has less than 12 items", function () {
-            var noteLettersTooFew = $.extend(true, [], defaultAllNoteLetters);
+        it("should throw an exception when noteLetters has less than 12 items", function () {
+            var noteLettersTooFew = $.extend(true, [], defaultNoteLetters);
 
             noteLettersTooFew = noteLettersTooFew.slice(0, 11);
 
             expect(function () {
-                $fretboard.fretboard({ allNoteLetters: noteLettersTooFew });
+                $fretboard.fretboard({ noteLetters: noteLettersTooFew });
             }).toThrow();
         });
 
-        it("should throw an exception when allNoteLetters is not unique", function () {
-            var nonUniqueNoteLetters = $.extend(true, [], defaultAllNoteLetters);
+        it("should throw an exception when noteLetters is not unique", function () {
+            var nonUniqueNoteLetters = $.extend(true, [], defaultNoteLetters);
 
             nonUniqueNoteLetters[11] = nonUniqueNoteLetters[0];
 
             expect(function () {
-                $fretboard.fretboard({ allNoteLetters: nonUniqueNoteLetters });
+                $fretboard.fretboard({ noteLetters: nonUniqueNoteLetters });
             }).toThrow();
         });
 
@@ -183,7 +183,7 @@ describe("Fretboard jQuery plugin", function () {
             api = $fretboard.data("api");
 
             expect(api.getTuning()).toEqual(reversedTuning);
-            verifyAllNotesOnFretboard(api.getAllNotes(), reversedTuning, defaultNumFrets, defaultAllNoteLetters);
+            verifyAllNotesOnFretboard(api.getAllNotes(), reversedTuning, defaultNumFrets, defaultNoteLetters);
         });
 
         it("should throw an exception when tuning is null", function () {
@@ -218,7 +218,7 @@ describe("Fretboard jQuery plugin", function () {
             }).toThrow();
         });
 
-        it("should throw an exception when tuning contains a letter not in allNoteLetters", function () {
+        it("should throw an exception when tuning contains a letter not in noteLetters", function () {
             var tuningWithWrongLetter = $.extend(true, [], defaultTuning);
 
             tuningWithWrongLetter[0].letter = "C #";
@@ -303,7 +303,7 @@ describe("Fretboard jQuery plugin", function () {
         it("should return the correct custom intervalSettings", function () {
             var intervalSettings = {
                 intervals: ["1", "b9", "9", "b3", "3", "11", "#11", "5", "b13", "13", "b7", "7"],
-                root: defaultAllNoteLetters[5]
+                root: defaultNoteLetters[5]
             };
 
             $fretboard.fretboard({ intervalSettings: intervalSettings });
@@ -321,7 +321,7 @@ describe("Fretboard jQuery plugin", function () {
         it("should throw an exception when the intervals array in intervalSettings is null", function () {
             var intervalSettings = {
                 intervals: null,
-                root: defaultAllNoteLetters[5]
+                root: defaultNoteLetters[5]
             };
 
             expect(function () {
@@ -340,7 +340,7 @@ describe("Fretboard jQuery plugin", function () {
             }).toThrow();
         });
 
-        it("should throw an exception when the root in intervalSettings is not in allNoteLetters", function () {
+        it("should throw an exception when the root in intervalSettings is not in noteLetters", function () {
             var intervalSettings = {
                 intervals: ["1", "b9", "9", "b3", "3", "11", "#11", "5", "b13", "13", "b7", "7"],
                 root: "Asharp"
@@ -354,7 +354,7 @@ describe("Fretboard jQuery plugin", function () {
         it("should throw an exception when intervalSettings has more than 12 intervals", function () {
             var intervalSettings = {
                 intervals: ["1", "b9", "9", "b3", "3", "11", "#11", "5", "b13", "13", "b7", "7", "8"],
-                root: defaultAllNoteLetters[0]
+                root: defaultNoteLetters[0]
             };
 
             expect(function () {
@@ -365,7 +365,7 @@ describe("Fretboard jQuery plugin", function () {
         it("should throw an exception when intervalSettings has less than 12 intervals", function () {
             var intervalSettings = {
                 intervals: ["1", "b9", "9", "b3", "3", "11", "#11", "5", "b13", "13", "b7"],
-                root: defaultAllNoteLetters[0]
+                root: defaultNoteLetters[0]
             };
 
             expect(function () {
@@ -376,7 +376,7 @@ describe("Fretboard jQuery plugin", function () {
         it("should throw an exception when the intervals in intervalSettings are not unique", function () {
             var intervalSettings = {
                 intervals: ["1", "b9", "9", "b3", "3", "11", "#11", "5", "b13", "13", "13"],
-                root: defaultAllNoteLetters[0]
+                root: defaultNoteLetters[0]
             };
 
             expect(function () {
@@ -734,7 +734,7 @@ describe("Fretboard jQuery plugin", function () {
             api.setTuning(standardATuning);
 
             expect(api.getTuning()).toEqual(standardATuning);
-            verifyAllNotesOnFretboard(api.getAllNotes(), standardATuning, defaultNumFrets, defaultAllNoteLetters);
+            verifyAllNotesOnFretboard(api.getAllNotes(), standardATuning, defaultNumFrets, defaultNoteLetters);
         });
 
         it("should throw an exception when the new tuning is null", function () {
@@ -769,7 +769,7 @@ describe("Fretboard jQuery plugin", function () {
             }).toThrow();
         });
 
-        it("should throw an exception when tuning contains a letter not in allNoteLetters", function () {
+        it("should throw an exception when tuning contains a letter not in noteLetters", function () {
             var tuningWithWrongLetter = $.extend(true, [], defaultTuning);
 
             tuningWithWrongLetter[0].letter = "C #";
@@ -795,7 +795,7 @@ describe("Fretboard jQuery plugin", function () {
             api.setNumFrets(increase);
 
             expect(api.getNumFrets()).toEqual(increase);
-            verifyAllNotesOnFretboard(api.getAllNotes(), defaultTuning, increase, defaultAllNoteLetters);
+            verifyAllNotesOnFretboard(api.getAllNotes(), defaultTuning, increase, defaultNoteLetters);
         });
 
         it("should return the correct numFrets and getAllNotes when numFrets is changed (decreased)", function () {
@@ -804,7 +804,7 @@ describe("Fretboard jQuery plugin", function () {
             api.setNumFrets(decrease);
 
             expect(api.getNumFrets()).toEqual(decrease);
-            verifyAllNotesOnFretboard(api.getAllNotes(), defaultTuning, decrease, defaultAllNoteLetters);
+            verifyAllNotesOnFretboard(api.getAllNotes(), defaultTuning, decrease, defaultNoteLetters);
         });
 
         it("should throw an exception when numFrets is 0", function () {
@@ -860,7 +860,7 @@ describe("Fretboard jQuery plugin", function () {
         it("should return the correct intervalSettings when it is changed", function () {
             var intervalSettings = {
                 intervals: ["1", "b9", "9", "b3", "3", "11", "#11", "5", "b13", "13", "b7", "7"],
-                root: defaultAllNoteLetters[5]
+                root: defaultNoteLetters[5]
             };
 
             api.setIntervalSettings(intervalSettings);
@@ -877,7 +877,7 @@ describe("Fretboard jQuery plugin", function () {
         it("should throw an exception when the intervals array in intervalSettings is null", function () {
             var intervalSettings = {
                 intervals: null,
-                root: defaultAllNoteLetters[5]
+                root: defaultNoteLetters[5]
             };
 
             expect(function () {
@@ -896,7 +896,7 @@ describe("Fretboard jQuery plugin", function () {
             }).toThrow();
         });
 
-        it("should throw an exception when the root in intervalSettings is not in allNoteLetters", function () {
+        it("should throw an exception when the root in intervalSettings is not in noteLetters", function () {
             var intervalSettings = {
                 intervals: ["1", "b9", "9", "b3", "3", "11", "#11", "5", "b13", "13", "b7", "7"],
                 root: "Asharp"
@@ -910,7 +910,7 @@ describe("Fretboard jQuery plugin", function () {
         it("should throw an exception when intervalSettings has more than 12 intervals", function () {
             var intervalSettings = {
                 intervals: ["1", "b9", "9", "b3", "3", "11", "#11", "5", "b13", "13", "b7", "7", "8"],
-                root: defaultAllNoteLetters[0]
+                root: defaultNoteLetters[0]
             };
 
             expect(function () {
@@ -921,7 +921,7 @@ describe("Fretboard jQuery plugin", function () {
         it("should throw an exception when intervalSettings has less than 12 intervals", function () {
             var intervalSettings = {
                 intervals: ["1", "b9", "9", "b3", "3", "11", "#11", "5", "b13", "13", "b7"],
-                root: defaultAllNoteLetters[0]
+                root: defaultNoteLetters[0]
             };
 
             expect(function () {
@@ -932,7 +932,7 @@ describe("Fretboard jQuery plugin", function () {
         it("should throw an exception when the intervals in intervalSettings are not unique", function () {
             var intervalSettings = {
                 intervals: ["1", "b9", "9", "b3", "3", "11", "#11", "5", "b13", "13", "13"],
-                root: defaultAllNoteLetters[0]
+                root: defaultNoteLetters[0]
             };
 
             expect(function () {
@@ -1118,21 +1118,21 @@ describe("Fretboard jQuery plugin", function () {
     });
 
     // It would be best to create each note by hand for verification, but this should do for now.
-    function verifyAllNotesOnFretboard(allNotesToVerify, tuning, numFrets, allNoteLetters) {
+    function verifyAllNotesOnFretboard(allNotesToVerify, tuning, numFrets, noteLetters) {
         expect(allNotesToVerify.length).toEqual(tuning.length);
 
         for (var i = 0; i < allNotesToVerify.length; i++) {
             expect(allNotesToVerify[i].notes.length).toEqual(numFrets + 1);
-            verifyNotesOnString(allNotesToVerify[i], tuning[i], allNoteLetters);
+            verifyNotesOnString(allNotesToVerify[i], tuning[i], noteLetters);
         }
     }
 
-    function verifyNotesOnString(stringToVerify, tuningNote, allNoteLetters) {
+    function verifyNotesOnString(stringToVerify, tuningNote, noteLetters) {
         expect(stringToVerify.string).toEqual(tuningNote);
 
         for (var i = 0; i < stringToVerify.notes.length; i++) {
             var currentNote = stringToVerify.notes[i];
-            var currentNoteLetterIndex = allNoteLetters.indexOf(currentNote.letter);
+            var currentNoteLetterIndex = noteLetters.indexOf(currentNote.letter);
 
             expect(currentNote.fret).toEqual(i);
 
@@ -1142,7 +1142,7 @@ describe("Fretboard jQuery plugin", function () {
                 expect(currentNoteLetterIndex).not.toEqual(-1);
             } else {
                 var lastNote = stringToVerify.notes[i - 1];
-                var lastNoteIndex = allNoteLetters.indexOf(lastNote.letter);
+                var lastNoteIndex = noteLetters.indexOf(lastNote.letter);
 
                 expect(currentNoteLetterIndex).toEqual(lastNoteIndex === 11 ? 0 : lastNoteIndex + 1);
                 expect(currentNote.octave).toEqual(lastNoteIndex === 11 ? lastNote.octave + 1 : lastNote.octave);

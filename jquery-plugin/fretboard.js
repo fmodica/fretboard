@@ -13,7 +13,7 @@
         self.getAllNotes = getAllNotes;
         self.getChordMode = getChordMode;
         self.setChordMode = setChordMode;
-        self.getAllNoteLetters = getAllNoteLetters;
+        self.getNoteLetters = getNoteLetters;
         self.getClickedNotes = getClickedNotes;
         self.setClickedNotes = setClickedNotes;
         self.clearClickedNotes = clearClickedNotes;
@@ -46,8 +46,8 @@
             model.isChordMode = isChordMode;
         }
 
-        function getAllNoteLetters() {
-            return $.extend(true, [], model.allNoteLetters);
+        function getNoteLetters() {
+            return $.extend(true, [], model.noteLetters);
         }
 
         function getClickedNotes() {
@@ -97,7 +97,7 @@
             var newTuning = $.extend(true, [], newTuning);
             var oldTuning = $.extend(true, [], model.tuning);
 
-            validator.validateTuning(newTuning, model.allNoteLetters);
+            validator.validateTuning(newTuning, model.noteLetters);
             model.tuning = newTuning;
 
             createAllNotes();
@@ -121,7 +121,7 @@
         }
 
         function setIntervalSettings(intervalSettings) {
-            validator.validateIntervalSettings(intervalSettings, model.allNoteLetters);
+            validator.validateIntervalSettings(intervalSettings, model.noteLetters);
             model.intervalSettings = $.extend(true, {}, intervalSettings);
 
             createAllNotes();
@@ -132,7 +132,7 @@
                 allNotes: [],
                 clickedNotes: [],
                 // The rest get copied from settings
-                allNoteLetters: null,
+                noteLetters: null,
                 tuning: null,
                 numFrets: null,
                 isChordMode: null,
@@ -140,16 +140,16 @@
                 intervalSettings: null
             };
 
-            validator.validateAllNoteLetters(settings.allNoteLetters);
-            model.allNoteLetters = settings.allNoteLetters;
+            validator.validateNoteLetters(settings.noteLetters);
+            model.noteLetters = settings.noteLetters;
 
-            validator.validateTuning(settings.tuning, settings.allNoteLetters);
+            validator.validateTuning(settings.tuning, settings.noteLetters);
             model.tuning = settings.tuning;
 
             validator.validateNumFrets(settings.numFrets);
             model.numFrets = settings.numFrets;
 
-            validator.validateIntervalSettings(settings.intervalSettings, model.allNoteLetters);
+            validator.validateIntervalSettings(settings.intervalSettings, model.noteLetters);
             model.intervalSettings = settings.intervalSettings;
 
             model.isChordMode = settings.isChordMode;
@@ -220,7 +220,7 @@
 
         // Could be a generic getNoteXNotesAwayFrom function
         function getNoteByFretNumber(stringNote, fret) {
-            var noteIndex = model.allNoteLetters.indexOf(stringNote.letter) + fret;
+            var noteIndex = model.noteLetters.indexOf(stringNote.letter) + fret;
             var numOctavesAboveString = Math.floor(noteIndex / 12);
 
             // If noteIndex is <= 11, the note on this fret is in the same octave
@@ -237,14 +237,14 @@
             var reducedNoteIndex = noteIndex - (12 * numOctavesAboveString);
 
             return {
-                letter: model.allNoteLetters[reducedNoteIndex],
+                letter: model.noteLetters[reducedNoteIndex],
                 octave: stringNote.octave + numOctavesAboveString
             };
         }
 
         function getIntervalByLetterAndRoot(letter, root) {
-            var letterIndex = model.allNoteLetters.indexOf(letter);
-            var rootIndex = model.allNoteLetters.indexOf(root);
+            var letterIndex = model.noteLetters.indexOf(letter);
+            var rootIndex = model.noteLetters.indexOf(root);
             var intervalIndex = letterIndex - rootIndex + (letterIndex >= rootIndex ? 0 : 12);
 
             return model.intervalSettings.intervals[intervalIndex];
@@ -356,19 +356,19 @@
 
         self.validateNote = validateNote;
         self.validateFrettedNote = validateFrettedNote;
-        self.validateAllNoteLetters = validateAllNoteLetters;
+        self.validateNoteLetters = validateNoteLetters;
         self.validateTuning = validateTuning;
         self.validateNumFrets = validateNumFrets;
         self.validateIntervalSettings = validateIntervalSettings;
         self.validateNoteMode = validateNoteMode;
 
-        function validateNote(note, allNoteLetters) {
+        function validateNote(note, noteLetters) {
             if (!note) {
                 throw new Error("Note is not valid: " + objectToString(note));
             }
 
-            if (allNoteLetters.indexOf(note.letter) === -1) {
-                throw new Error("Note " + objectToString(note) + " is not in alNoteLetters: " + objectToString(allNoteLetters));
+            if (noteLetters.indexOf(note.letter) === -1) {
+                throw new Error("Note " + objectToString(note) + " is not in alNoteLetters: " + objectToString(noteLetters));
             }
 
             if (!isNumeric(note.octave)) {
@@ -413,28 +413,28 @@
             }
         }
 
-        function validateAllNoteLetters(allNoteLetters) {
-            if (!allNoteLetters) {
-                throw new Error("allNoteLetters is not valid: " + objectToString(allNoteLetters));
+        function validateNoteLetters(noteLetters) {
+            if (!noteLetters) {
+                throw new Error("noteLetters is not valid: " + objectToString(noteLetters));
             }
 
             // 12 unique letters
             var hash = {};
 
-            for (var i = 0; i < allNoteLetters.length; i++) {
-                if (!allNoteLetters[i]) {
-                    throw new Error("The letter " + allNoteLetters[i] + " in allNoteLetters: " + objectToString(allNoteLetters) + " is not valid");
+            for (var i = 0; i < noteLetters.length; i++) {
+                if (!noteLetters[i]) {
+                    throw new Error("The letter " + noteLetters[i] + " in noteLetters: " + objectToString(noteLetters) + " is not valid");
                 }
 
-                hash[allNoteLetters[i]] = true;
+                hash[noteLetters[i]] = true;
             }
 
             if (Object.keys(hash).length !== 12) {
-                throw new Error("There must be 12 unique letters in allNoteLetters: " + objectToString(allNoteLetters));
+                throw new Error("There must be 12 unique letters in noteLetters: " + objectToString(noteLetters));
             }
         }
 
-        function validateTuning(tuning, allNoteLetters) {
+        function validateTuning(tuning, noteLetters) {
             if (!tuning) {
                 throw new Error("Tuning is not valid: " + objectToString(tuning));
             }
@@ -446,7 +446,7 @@
             var hash = {};
 
             for (var i = 0; i < tuning.length; i++) {
-                validateNote(tuning[i], allNoteLetters);
+                validateNote(tuning[i], noteLetters);
 
                 var key = objectToString({
                     letter: tuning[i].letter,
@@ -461,13 +461,13 @@
             }
         }
 
-        function validateIntervalSettings(intervalSettings, allNoteLetters) {
+        function validateIntervalSettings(intervalSettings, noteLetters) {
             if (!intervalSettings) {
                 throw new Error("intervalSettings is not valid: " + objectToString(intervalSettings));
             }
 
-            if (allNoteLetters.indexOf(intervalSettings.root) === -1) {
-                throw new Error("The root property on intervalSettings: " + objectToString(intervalSettings) + " is not in allNoteLetters: " + objectToString(allNoteLetters));
+            if (noteLetters.indexOf(intervalSettings.root) === -1) {
+                throw new Error("The root property on intervalSettings: " + objectToString(intervalSettings) + " is not in noteLetters: " + objectToString(noteLetters));
             }
 
             if (!intervalSettings.intervals) {
@@ -1282,7 +1282,7 @@
             api.getAllNotes = getAllNotes;
             api.getChordMode = getChordMode;
             api.setChordMode = setChordMode;
-            api.getAllNoteLetters = getAllNoteLetters;
+            api.getNoteLetters = getNoteLetters;
             api.getClickedNotes = getClickedNotes;
             api.setClickedNotes = setClickedNotes;
             api.clearClickedNotes = clearClickedNotes;
@@ -1351,7 +1351,7 @@
                 };
             };
             var defaults = {
-                allNoteLetters: defaultNoteLetters,
+                noteLetters: defaultNoteLetters,
                 tuning: defaultTuning,
                 numFrets: 15,
                 isChordMode: true,
@@ -1394,8 +1394,8 @@
                 fretboardModel.setChordMode(isChordMode);
             }
 
-            function getAllNoteLetters() {
-                return fretboardModel.getAllNoteLetters();
+            function getNoteLetters() {
+                return fretboardModel.getNoteLetters();
             }
 
             function getClickedNotes() {
@@ -1520,7 +1520,7 @@
 
             function createFretboardModel() {
                 var modelSettings = {
-                    allNoteLetters: settings.allNoteLetters,
+                    noteLetters: settings.noteLetters,
                     tuning: settings.tuning,
                     numFrets: settings.numFrets,
                     isChordMode: settings.isChordMode,
