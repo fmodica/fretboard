@@ -4,6 +4,7 @@
 // TODO More validation
 // TODO More detailed check of exception messages
 describe("Fretboard jQuery plugin", function () {
+    var defaultAllNoteLetters = ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"];
     var defaultTuning = [
         {
             letter: "E",
@@ -28,7 +29,6 @@ describe("Fretboard jQuery plugin", function () {
     var defaultNumFrets = 15;
     var defaultIsChordMode = true;
     var defaultNoteClickingDisabled = false;
-    var defaultAllNoteLetters = ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"];
     var defaultNoteMode = "letter";
     var defaultIntervalSettings = {
         intervals: ["1", "b2", "2", "b3", "3", "4", "b5", "5", "b6", "6", "b7", "7"],
@@ -36,6 +36,7 @@ describe("Fretboard jQuery plugin", function () {
     };
     var defaultAnimationSpeed = 400;
     var defaultNoteCircles = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24];
+    var defaultDimensionsFuncType = typeof function () { };
     var defaultClickedNotes = [];
     var defaultNotesClickedCallbacks = [];
 
@@ -113,9 +114,20 @@ describe("Fretboard jQuery plugin", function () {
             expect(api.getIntervalSettings()).toEqual(defaultIntervalSettings);
             expect(api.getAnimationSpeed()).toEqual(defaultAnimationSpeed);
             expect(api.getNoteCircles()).toEqual(defaultNoteCircles);
-            expect(api.getClickedNotes()).toEqual(defaultClickedNotes);
+            expect(typeof api.getDimensionsFunc()).toEqual(defaultDimensionsFuncType);
             expect(api.getNotesClickedCallbacks()).toEqual(defaultNotesClickedCallbacks);
+
             verifyAllNotesOnFretboard(api.getAllNotes(), defaultTuning, defaultNumFrets, defaultAllNoteLetters);
+            expect(api.getClickedNotes()).toEqual(defaultClickedNotes);
+        });
+
+        it("should return the correct custom allNoteLetters", function () {
+            var reversedNoteLetters = $.extend(true, [], defaultAllNoteLetters).reverse();
+
+            $fretboard.fretboard({ allNoteLetters: reversedNoteLetters });
+            api = $fretboard.data("api");
+
+            expect(api.getAllNoteLetters()).toEqual(reversedNoteLetters);
         });
 
         it("should throw an exception when allNoteLetters is null", function () {
@@ -126,6 +138,7 @@ describe("Fretboard jQuery plugin", function () {
 
         it("should throw an exception when an item in allNoteLetters is null", function () {
             var noteLettersWithNull = $.extend(true, [], defaultAllNoteLetters);
+
             noteLettersWithNull[0] = null;
 
             expect(function () {
@@ -135,6 +148,7 @@ describe("Fretboard jQuery plugin", function () {
 
         it("should throw an exception when allNoteLetters has more than 12 items", function () {
             var noteLettersTooMany = $.extend(true, [], defaultAllNoteLetters);
+
             noteLettersTooMany.push("X");
 
             expect(function () {
@@ -144,6 +158,7 @@ describe("Fretboard jQuery plugin", function () {
 
         it("should throw an exception when allNoteLetters has less than 12 items", function () {
             var noteLettersTooFew = $.extend(true, [], defaultAllNoteLetters);
+
             noteLettersTooFew = noteLettersTooFew.slice(0, 11);
 
             expect(function () {
@@ -153,6 +168,7 @@ describe("Fretboard jQuery plugin", function () {
 
         it("should throw an exception when allNoteLetters is not unique", function () {
             var nonUniqueNoteLetters = $.extend(true, [], defaultAllNoteLetters);
+
             nonUniqueNoteLetters[11] = nonUniqueNoteLetters[0];
 
             expect(function () {
@@ -160,12 +176,14 @@ describe("Fretboard jQuery plugin", function () {
             }).toThrow();
         });
 
-        it("should return the correct allNoteLetters", function () {
-            var reversedNoteLetters = $.extend(true, [], defaultAllNoteLetters).reverse();
-            $fretboard.fretboard({ allNoteLetters: reversedNoteLetters });
+        it("should return the correct custom tuning and getAllNotes", function () {
+            var reversedTuning = $.extend(true, [], defaultTuning).reverse();
+
+            $fretboard.fretboard({ tuning: reversedTuning });
             api = $fretboard.data("api");
 
-            expect(api.getAllNoteLetters()).toEqual(reversedNoteLetters);
+            expect(api.getTuning()).toEqual(reversedTuning);
+            verifyAllNotesOnFretboard(api.getAllNotes(), reversedTuning, defaultNumFrets, defaultAllNoteLetters);
         });
 
         it("should throw an exception when tuning is null", function () {
@@ -182,6 +200,7 @@ describe("Fretboard jQuery plugin", function () {
 
         it("should throw an exception when tuning is not unique", function () {
             var nonUniqueTuning = $.extend(true, [], defaultTuning);
+
             nonUniqueTuning[5] = nonUniqueTuning[0];
 
             expect(function () {
@@ -191,6 +210,7 @@ describe("Fretboard jQuery plugin", function () {
 
         it("should throw an exception when an item in tuning is null", function () {
             var tuningWithNull = $.extend(true, [], defaultTuning);
+
             tuningWithNull[0] = null;
 
             expect(function () {
@@ -200,6 +220,7 @@ describe("Fretboard jQuery plugin", function () {
 
         it("should throw an exception when tuning contains a letter not in allNoteLetters", function () {
             var tuningWithWrongLetter = $.extend(true, [], defaultTuning);
+
             tuningWithWrongLetter[0].letter = "C #";
 
             expect(function () {
@@ -209,6 +230,7 @@ describe("Fretboard jQuery plugin", function () {
 
         it("should throw an exception when tuning contains an octave that is not a number", function () {
             var tuningWithWrongOctave = $.extend(true, [], defaultTuning);
+
             tuningWithWrongOctave[0].octave = "X";
 
             expect(function () {
@@ -216,12 +238,13 @@ describe("Fretboard jQuery plugin", function () {
             }).toThrow();
         });
 
-        it("should return the correct tuning when the notes are reversed", function () {
-            var reversedTuning = $.extend(true, [], defaultTuning).reverse();
-            $fretboard.fretboard({ tuning: reversedTuning });
+        it("should return the correct custom numFrets", function () {
+            var numFrets = 24;
+
+            $fretboard.fretboard({ numFrets: numFrets });
             api = $fretboard.data("api");
 
-            expect(api.getTuning()).toEqual(reversedTuning);
+            expect(api.getNumFrets()).toEqual(numFrets);
         });
 
         it("should throw an exception when numFrets is 0", function () {
@@ -242,32 +265,27 @@ describe("Fretboard jQuery plugin", function () {
             }).toThrow();
         });
 
-        it("should return the correct number of frets when numFrets is nonzero", function () {
-            var numFrets = 24;
-            $fretboard.fretboard({ numFrets: numFrets });
-            api = $fretboard.data("api");
-
-            expect(api.getNumFrets()).toEqual(numFrets);
-        });
-
-        it("should return the correct chord mode", function () {
+        it("should return the correct custom chord mode", function () {
             var isChordMode = !defaultIsChordMode;
+
             $fretboard.fretboard({ isChordMode: isChordMode });
             api = $fretboard.data("api");
 
             expect(api.getChordMode()).toEqual(isChordMode);
         });
 
-        it("should return the correct noteClickingDisabled", function () {
+        it("should return the correct custom noteClickingDisabled", function () {
             var noteClickingDisabled = !noteClickingDisabled;
+
             $fretboard.fretboard({ noteClickingDisabled: noteClickingDisabled });
             api = $fretboard.data("api");
 
             expect(api.getNoteClickingDisabled()).toEqual(noteClickingDisabled);
         });
 
-        it("should return the correct noteMode", function () {
+        it("should return the correct custom noteMode", function () {
             var noteMode = "interval";
+
             $fretboard.fretboard({ noteMode: noteMode });
             api = $fretboard.data("api");
 
@@ -282,11 +300,12 @@ describe("Fretboard jQuery plugin", function () {
             }).toThrow();
         });
 
-        it("should return the correct intervalSettings", function () {
+        it("should return the correct custom intervalSettings", function () {
             var intervalSettings = {
                 intervals: ["1", "b9", "9", "b3", "3", "11", "#11", "5", "b13", "13", "b7", "7"],
                 root: defaultAllNoteLetters[5]
             };
+
             $fretboard.fretboard({ intervalSettings: intervalSettings });
             api = $fretboard.data("api");
 
@@ -365,30 +384,36 @@ describe("Fretboard jQuery plugin", function () {
             }).toThrow();
         });
 
-        it("should return the correct animationSpeed", function () {
+        it("should return the correct custom animationSpeed", function () {
             var animationSpeed = defaultAnimationSpeed - 100;
+
             $fretboard.fretboard({ animationSpeed: animationSpeed });
             api = $fretboard.data("api");
 
             expect(api.getAnimationSpeed()).toEqual(animationSpeed);
         });
 
-        it("should return the correct noteCircles", function () {
+        it("should return the correct custom noteCircles", function () {
             var noteCircles = [0, 6, 12];
+
             $fretboard.fretboard({ noteCircles: noteCircles });
             api = $fretboard.data("api");
 
             expect(api.getNoteCircles()).toEqual(noteCircles);
         });
 
-        it("should call the dimensionsFunc callback", function (done) {
+        it("should call the custom dimensionsFunc callback", function (done) {
             var config = {
                 dimensionsFunc: function () { return {}; }
             };
+
             spyOn(config, 'dimensionsFunc').and.callThrough();
+
             $fretboard.fretboard(config);
             api = $fretboard.data("api");
+
             var numFrets = 24;
+
             api.setNumFrets(numFrets);
 
             // Drawing is async (after a setTimeout)
@@ -398,28 +423,33 @@ describe("Fretboard jQuery plugin", function () {
             });
         });
 
-        it("should call the notesClickedCallbacks functions when clicking notes as a user", function () {
+        it("should call the custom notesClickedCallbacks functions when clicking notes as a user", function () {
             var tempObj = {
                 func1: function () { },
                 func2: function () { }
             };
+
             spyOn(tempObj, 'func1').and.callThrough();
             spyOn(tempObj, 'func2').and.callThrough();
+
             var config = {
                 notesClickedCallbacks: [tempObj.func1, tempObj.func2]
             };
+
             $fretboard.fretboard(config);
             api = $fretboard.data("api");
+
             api.setClickedNotes([], true);
 
             expect(tempObj.func1).toHaveBeenCalled();
             expect(tempObj.func2).toHaveBeenCalled();
         });
 
-        it("should not return any clickedNotes", function () {
+        it("should not return any clickedNotes when they are on the config", function () {
             var config = {
                 clickedNotes: cMaj7ChordForStandardTuning
             };
+
             $fretboard.fretboard(config);
             api = $fretboard.data("api");
 
@@ -700,31 +730,104 @@ describe("Fretboard jQuery plugin", function () {
             api.destroy();
         });
 
-        it("should return the correct tuning and allNotes when the tuning is changed", function () {
+        it("should return the correct tuning and getAllNotes when the tuning is changed", function () {
             api.setTuning(standardATuning);
 
             expect(api.getTuning()).toEqual(standardATuning);
             verifyAllNotesOnFretboard(api.getAllNotes(), standardATuning, defaultNumFrets, defaultAllNoteLetters);
         });
 
-        it("should return the correct numFrets and allNotes when numFrets is increased", function () {
+        it("should throw an exception when the new tuning is null", function () {
+            expect(function () {
+                api.setTuning(null);
+            }).toThrow();
+        });
+
+        it("should throw an exception when tuning is empty", function () {
+            expect(function () {
+                api.setTuning([]);
+            }).toThrow();
+        });
+
+        it("should throw an exception when tuning is not unique", function () {
+            var nonUniqueTuning = $.extend(true, [], defaultTuning);
+
+            nonUniqueTuning[5] = nonUniqueTuning[0];
+
+            expect(function () {
+                api.setTuning(nonUniqueTuning);
+            }).toThrow();
+        });
+
+        it("should throw an exception when an item in tuning is null", function () {
+            var tuningWithNull = $.extend(true, [], defaultTuning);
+
+            tuningWithNull[0] = null;
+
+            expect(function () {
+                api.setTuning(tuningWithNull);
+            }).toThrow();
+        });
+
+        it("should throw an exception when tuning contains a letter not in allNoteLetters", function () {
+            var tuningWithWrongLetter = $.extend(true, [], defaultTuning);
+
+            tuningWithWrongLetter[0].letter = "C #";
+
+            expect(function () {
+                api.setTuning(tuningWithWrongLetter);
+            }).toThrow();
+        });
+
+        it("should throw an exception when tuning contains an octave that is not a number", function () {
+            var tuningWithWrongOctave = $.extend(true, [], defaultTuning);
+
+            tuningWithWrongOctave[0].octave = "X";
+
+            expect(function () {
+                api.setTuning(tuningWithWrongOctave);
+            }).toThrow();
+        });
+
+        it("should return the correct numFrets and getAllNotes when numFrets is changed (increased)", function () {
             var increase = defaultNumFrets + 12;
+
             api.setNumFrets(increase);
 
             expect(api.getNumFrets()).toEqual(increase);
             verifyAllNotesOnFretboard(api.getAllNotes(), defaultTuning, increase, defaultAllNoteLetters);
         });
 
-        it("should return the correct numFrets and allNotes when numFrets is decreased", function () {
+        it("should return the correct numFrets and getAllNotes when numFrets is changed (decreased)", function () {
             var decrease = defaultNumFrets - 12;
+
             api.setNumFrets(decrease);
 
             expect(api.getNumFrets()).toEqual(decrease);
             verifyAllNotesOnFretboard(api.getAllNotes(), defaultTuning, decrease, defaultAllNoteLetters);
         });
 
+        it("should throw an exception when numFrets is 0", function () {
+            expect(function () {
+                api.setNumFrets(0);
+            }).toThrow();
+        });
+
+        it("should throw an exception when numFrets is less than 0", function () {
+            expect(function () {
+                api.setNumFrets(-24);
+            }).toThrow();
+        });
+
+        it("should throw an exception when numFrets is not a number", function () {
+            expect(function () {
+                api.setNumFrets("X");
+            }).toThrow();
+        });
+
         it("should return the correct isChordMode when it is changed", function () {
             var isChordMode = !defaultIsChordMode;
+
             api.setChordMode(isChordMode);
 
             expect(api.getChordMode()).toEqual(isChordMode);
@@ -732,6 +835,7 @@ describe("Fretboard jQuery plugin", function () {
 
         it("should return the correct noteClickingDisabled when it is changed", function () {
             var noteClickingDisabled = !defaultNoteClickingDisabled;
+
             api.setChordMode(noteClickingDisabled);
 
             expect(api.getChordMode()).toEqual(noteClickingDisabled);
@@ -739,9 +843,18 @@ describe("Fretboard jQuery plugin", function () {
 
         it("should return the correct noteMode when it is changed", function () {
             var noteMode = "interval";
+
             api.setNoteMode(noteMode);
 
             expect(api.getNoteMode()).toEqual(noteMode);
+        });
+
+        it("should throw an exception when noteMode is not \"letter\" or \"interval\"", function () {
+            var noteMode = "wrong";
+
+            expect(function () {
+                api.setNoteMode(noteMode);
+            }).toThrow();
         });
 
         it("should return the correct intervalSettings when it is changed", function () {
@@ -749,13 +862,87 @@ describe("Fretboard jQuery plugin", function () {
                 intervals: ["1", "b9", "9", "b3", "3", "11", "#11", "5", "b13", "13", "b7", "7"],
                 root: defaultAllNoteLetters[5]
             };
+
             api.setIntervalSettings(intervalSettings);
 
             expect(api.getIntervalSettings()).toEqual(intervalSettings);
         });
 
+        it("should throw an exception when intervalSettings is null", function () {
+            expect(function () {
+                api.setIntervalSettings(null);
+            }).toThrow();
+        });
+
+        it("should throw an exception when the intervals array in intervalSettings is null", function () {
+            var intervalSettings = {
+                intervals: null,
+                root: defaultAllNoteLetters[5]
+            };
+
+            expect(function () {
+                api.setIntervalSettings(intervalSettings);
+            }).toThrow();
+        });
+
+        it("should throw an exception when the root in intervalSettings is null", function () {
+            var intervalSettings = {
+                intervals: ["1", "b9", "9", "b3", "3", "11", "#11", "5", "b13", "13", "b7", "7"],
+                root: null
+            };
+
+            expect(function () {
+                api.setIntervalSettings(intervalSettings);
+            }).toThrow();
+        });
+
+        it("should throw an exception when the root in intervalSettings is not in allNoteLetters", function () {
+            var intervalSettings = {
+                intervals: ["1", "b9", "9", "b3", "3", "11", "#11", "5", "b13", "13", "b7", "7"],
+                root: "Asharp"
+            };
+
+            expect(function () {
+                api.setIntervalSettings(intervalSettings);
+            }).toThrow();
+        });
+
+        it("should throw an exception when intervalSettings has more than 12 intervals", function () {
+            var intervalSettings = {
+                intervals: ["1", "b9", "9", "b3", "3", "11", "#11", "5", "b13", "13", "b7", "7", "8"],
+                root: defaultAllNoteLetters[0]
+            };
+
+            expect(function () {
+                api.setIntervalSettings(intervalSettings);
+            }).toThrow();
+        });
+
+        it("should throw an exception when intervalSettings has less than 12 intervals", function () {
+            var intervalSettings = {
+                intervals: ["1", "b9", "9", "b3", "3", "11", "#11", "5", "b13", "13", "b7"],
+                root: defaultAllNoteLetters[0]
+            };
+
+            expect(function () {
+                api.setIntervalSettings(intervalSettings);
+            }).toThrow();
+        });
+
+        it("should throw an exception when the intervals in intervalSettings are not unique", function () {
+            var intervalSettings = {
+                intervals: ["1", "b9", "9", "b3", "3", "11", "#11", "5", "b13", "13", "13"],
+                root: defaultAllNoteLetters[0]
+            };
+
+            expect(function () {
+                api.setIntervalSettings(intervalSettings);
+            }).toThrow();
+        });
+
         it("should return the correct animationSpeed when it is changed", function () {
             var animationSpeed = defaultAnimationSpeed - 100;
+
             api.setAnimationSpeed(animationSpeed);
 
             expect(api.getAnimationSpeed()).toEqual(animationSpeed);
@@ -763,23 +950,57 @@ describe("Fretboard jQuery plugin", function () {
 
         it("should return the correct noteCircles when it is changed", function () {
             var noteCircles = [0, 6, 12];
+
             api.setNoteCircles(noteCircles);
 
             expect(api.getNoteCircles()).toEqual(noteCircles);
         });
 
-        it("should return the correct notesClickedCallbacks when a callback is added", function () {
-            var callback = function callback() { };
-            api.addNotesClickedCallback(callback);
+        it("should call the dimensionsFunc callback when it is changed", function (done) {
+            var tempObj = {
+                dimensionsFunc: function () { return {}; }
+            };
 
-            expect(api.getNotesClickedCallbacks()).toEqual([callback]);
+            spyOn(tempObj, 'dimensionsFunc').and.callThrough();
+
+            api.setDimensionsFunc(tempObj.dimensionsFunc);
+
+            var numFrets = 24;
+
+            api.setNumFrets(numFrets);
+
+            // Drawing is async (after a setTimeout)
+            setTimeout(function () {
+                expect(tempObj.dimensionsFunc).toHaveBeenCalled();
+                done();
+            });
+        });
+
+        it("should return and call the correct notesClickedCallbacks when a callback is added", function () {
+            var tempObj = {
+                func1: function () { },
+            };
+
+            spyOn(tempObj, 'func1').and.callThrough();
+
+            api.addNotesClickedCallback(tempObj.func1);
+            api.setClickedNotes([], true);
+
+            expect(tempObj.func1).toHaveBeenCalled();
+            expect(api.getNotesClickedCallbacks()).toEqual([tempObj.func1]);
         });
 
         it("should return the correct notesClickedCallbacks when a callback is removed", function () {
-            var callback = function callback() { };
-            api.addNotesClickedCallback(callback);
-            api.removeNotesClickedCallback(callback);
+            var tempObj = {
+                func1: function () { },
+            };
 
+            spyOn(tempObj, 'func1').and.callThrough();
+
+            api.addNotesClickedCallback(tempObj.func1);
+            api.removeNotesClickedCallback(tempObj.func1);
+
+            expect(tempObj.func1).not.toHaveBeenCalled();
             expect(api.getNotesClickedCallbacks()).toEqual([]);
         });
 
@@ -833,20 +1054,11 @@ describe("Fretboard jQuery plugin", function () {
             api.setClickedNotes(cMaj7ChordForStandardTuning);
             api.setNumFrets(3);
 
-            var filteredClickedChord = [];
-
-            for (var i = 0; i < expectedClickedChordFromFretboard.length; i++) {
-                var filteredNotes = expectedClickedChordFromFretboard[i].notes.filter(function (note) {
-                    return note.fret <= 3;
-                });
-
-                if (filteredNotes.length) {
-                    filteredClickedChord.push({
-                        string: expectedClickedChordFromFretboard[i].string,
-                        notes: filteredNotes
-                    });
-                }
-            }
+            var filteredClickedChord = [
+                expectedClickedChordFromFretboard[0],
+                expectedClickedChordFromFretboard[4],
+                expectedClickedChordFromFretboard[5],
+            ];
 
             expect(api.getClickedNotes()).toEqual(filteredClickedChord);
         });
