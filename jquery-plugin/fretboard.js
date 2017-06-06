@@ -1414,6 +1414,7 @@
                 reattachCssFromExistingDomNotesOntoAllNewModelNotes(allNotes, clickedNoteGroups, $clickedNoteGroups);
                 reattachCssFromAllNewModelNotes(clickedNoteGroups, clickedNoteGroupsWithCssClasses);
 
+                fretboardRenderer.clearClickedNotes();
                 fretboardRenderer.setClickedNotes(clickedNoteGroups);
 
                 if (asUser) {
@@ -1752,6 +1753,6 @@
                 }
                 return result;
             };
-        } ());
+        }());
     }
 })();
