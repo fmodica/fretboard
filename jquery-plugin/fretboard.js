@@ -608,9 +608,7 @@
             $getClickedNotes()
                 .$elements
                 .removeClass()
-                .addClass(noteCssClass)
-                .on("mouseenter", $noteMouseEnter)
-                .on("mouseleave", $noteMouseLeave);
+                .addClass(noteCssClass);
         }
 
         function setNoteClickingDisabled(isDisabled) {
@@ -737,9 +735,7 @@
                 .addClass(noteCssClass)
                 .addClass(hoverCssClass)
                 .addClass(clickedCssClass)
-                .addClass(customCssClass)
-                .off("mouseenter", $noteMouseEnter)
-                .off("mouseleave", $noteMouseLeave);
+                .addClass(customCssClass);
         }
 
         function $getNote($stringContainer, fret) {
@@ -1100,11 +1096,19 @@
         }
 
         function $noteMouseEnter() {
-            $(this).addClass(hoverCssClass);
+            var $this = $(this);
+
+            if (!$this.hasClass(clickedCssClass)) {
+                $this.addClass(hoverCssClass);
+            }
         }
 
         function $noteMouseLeave() {
-            $(this).removeClass(hoverCssClass);
+            var $this = $(this);
+
+            if (!$this.hasClass(clickedCssClass)) {
+                $(this).removeClass(hoverCssClass);
+            }
         }
 
         function $createDiv(cssClass) {
@@ -1169,7 +1173,9 @@
         }
 
         function $onNoteClick() {
-            $fretboardContainer.trigger("noteClicked", this);
+            if (!model.noteClickingDisabled) {
+                $fretboardContainer.trigger("noteClicked", this);
+            }
         }
 
         function $setPosition($element, position, shouldBeAnimated) {
@@ -1653,8 +1659,6 @@
             }
 
             function onUserNoteClick(e, clickedNoteDomEl) {
-                if (fretboardModel.getNoteClickingDisabled()) return;
-
                 // Ask the model what notes should be clicked after this event
                 // because things like chord-mode could mean other notes are
                 // removed in addition to this one being added.
