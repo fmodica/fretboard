@@ -6,7 +6,7 @@ I am developing features as I need them, but if you have a feature request feel 
 
 ## Demo
 
-Check out the <a href="http://frank-modica.com/static/fretboarddemo/index-with-full-config.html" target="_blank">demo fretboard (default styles)</a>. Here is the same fretboard styled with a <a href="http://frank-modica.com/static/fretboarddemo/index-with-full-config-dark-theme.html" target="_blank">dark theme</a> using CSS.
+Check out the <a href="http://frankmodica.azurewebsites.net/static/fretboarddemo/index-with-full-config.html" target="_blank">demo fretboard (default styles)</a>. Here is the same fretboard styled with a <a href="http://frankmodica.azurewebsites.net/static/fretboarddemo/index-with-full-config-dark-theme.html" target="_blank">dark theme</a> using CSS.
 
 ## Setup
 
@@ -43,7 +43,7 @@ Learn about <a target="_blank" href="https://github.com/fmodica/fretboard.js/wik
 
 ## Extra
 
-You can also check out my <a target="_blank" href="http://frank-modica.com/#/voiceleader/index">Guitar Voiceleading Helper</a>, where I use the fretboard to help users create progressions with good voice leading.
+You can also check out my <a target="_blank" href="http://frankmodica.azurewebsites.net/voiceleader/index">Guitar Voiceleading Helper</a>, where I use the fretboard to help users create progressions with good voice leading.
 
 ## Tests
 Unit tests can be run using the <a href="https://github.com/fmodica/fretboard/tree/master/tests">Spec Runner</a>.
