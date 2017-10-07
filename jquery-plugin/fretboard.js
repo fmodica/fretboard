@@ -64,17 +64,17 @@
             return $.extend(true, [], clickedNoteGroups);
         }
 
-        // asUser means to check other settings that might affect
-        // which notes can be clicked, such as isChordMode, noteClickingDisabled, etc.
+        // asUser means to check other settings that might affect which notes can be clicked, such as
+        // isChordMode, noteClickingDisabled, etc, as would be done if a user were clicking.
         function setClickedNotes(clickedNoteGroups, asUser) {
             if (asUser && model.noteClickingDisabled) return;
 
             clickedNoteGroups = $.extend(true, [], clickedNoteGroups);
             validateFrettedNoteGroups(clickedNoteGroups);
 
-            for (var i = 0; i < clickedNoteGroups.length; i++) {
-                clickFrettedNotes(clickedNoteGroups[i].string, clickedNoteGroups[i].notes, asUser);
-            }
+            clickedNoteGroups.forEach(function (clickedNoteGroup) {
+                clickFrettedNotes(clickedNoteGroup.string, clickedNoteGroup.notes, asUser);
+            });
         }
 
         function clearClickedNotes() {
@@ -160,14 +160,12 @@
         }
 
         function createAllNotes() {
-            model.allNotes = [];
-
-            for (var i = 0; i < model.tuning.length; i++) {
-                model.allNotes.push({
-                    string: model.tuning[i],
-                    notes: createNotesOnString(model.tuning[i])
-                });
-            }
+            model.allNotes = model.tuning.map(function (openNote, i) {
+                return {
+                    string: openNote,
+                    notes: createNotesOnString(openNote)
+                }
+            });
         }
 
         function createClickedNotes() {
@@ -195,13 +193,9 @@
         }
 
         function getClickedNotesOnString(stringIndex) {
-            var arr = [];
-
-            for (var i = 0; i < model.clickedNotes[stringIndex].length; i++) {
-                arr.push(model.allNotes[stringIndex].notes[model.clickedNotes[stringIndex][i]]);
-            }
-
-            return arr;
+            return model.clickedNotes[stringIndex].map(function (fret, i) {
+                return model.allNotes[stringIndex].notes[fret];
+            });
         }
 
         function getClickedNoteGroup(stringIndex) {
@@ -250,23 +244,22 @@
             return model.intervalSettings.intervals[intervalIndex];
         }
 
-        // TODO: Object name
         function validateFrettedNoteGroups(frettedNoteGroups) {
-            for (var i = 0; i < frettedNoteGroups.length; i++) {
-                validateFrettedNoteGroup(frettedNoteGroups[i]);
-            }
+            frettedNoteGroups.forEach(function (frettedNoteGroup) {
+                validateFrettedNoteGroup(frettedNoteGroup);
+            });
         }
 
         function validateFrettedNoteGroup(frettedNoteGroup) {
-            for (var i = 0; i < frettedNoteGroup.notes.length; i++) {
-                validator.validateFrettedNote(frettedNoteGroup.notes[i], frettedNoteGroup.string, model.tuning, model.numFrets);
-            }
+            frettedNoteGroup.notes.forEach(function (frettedNote) {
+                validator.validateFrettedNote(frettedNote, frettedNoteGroup.string, model.tuning, model.numFrets);
+            });
         }
 
         function clickFrettedNotes(string, frettedNotes, asUser) {
-            for (var i = 0; i < frettedNotes.length; i++) {
-                clickFret(string, frettedNotes[i].fret, asUser);
-            }
+            frettedNotes.forEach(function (frettedNote) {
+                clickFret(string, frettedNote.fret, asUser);
+            });
         }
 
         function clickFret(string, fret, asUser) {
@@ -335,9 +328,9 @@
         }
 
         function updateClickedNotesForNumFrets() {
-            for (var i = 0; i < model.tuning.length; i++) {
+            model.tuning.forEach(function (openNote, i) {
                 filterClickedNotes(i);
-            }
+            });
         }
 
         function filterClickedNotes(stringIndex) {
@@ -421,13 +414,13 @@
             // 12 unique letters
             var hash = {};
 
-            for (var i = 0; i < noteLetters.length; i++) {
-                if (!noteLetters[i]) {
-                    throw new Error("The letter " + noteLetters[i] + " in noteLetters: " + objectToString(noteLetters) + " is not valid");
+            noteLetters.forEach(function (noteLetter) {
+                if (!noteLetter) {
+                    throw new Error("The letter " + noteLetter + " in noteLetters: " + objectToString(noteLetters) + " is not valid");
                 }
 
-                hash[noteLetters[i]] = true;
-            }
+                hash[noteLetter] = true;
+            });
 
             if (Object.keys(hash).length !== 12) {
                 throw new Error("There must be 12 unique letters in noteLetters: " + objectToString(noteLetters));
@@ -445,16 +438,16 @@
 
             var hash = {};
 
-            for (var i = 0; i < tuning.length; i++) {
-                validateNote(tuning[i], noteLetters);
+            tuning.forEach(function (openNote) {
+                validateNote(openNote, noteLetters);
 
                 var key = objectToString({
-                    letter: tuning[i].letter,
-                    octave: tuning[i].octave
+                    letter: openNote.letter,
+                    octave: openNote.octave
                 });
 
                 hash[key] = true;
-            }
+            });
 
             if (Object.keys(hash).length !== tuning.length) {
                 throw new Error("Tuning must contain unique notes: " + objectToString(tuning));
@@ -476,9 +469,9 @@
 
             var hash = {};
 
-            for (var i = 0; i < intervalSettings.intervals.length; i++) {
-                hash[intervalSettings.intervals[i]] = true;
-            }
+            intervalSettings.intervals.forEach(function (interval, i) {
+                hash[interval] = true;
+            });
 
             if (Object.keys(hash).length !== 12) {
                 throw new Error("There must be 12 unique intervals in the intervals property of intervalSettings: " + objectToString(intervalSettings));
@@ -593,15 +586,15 @@
         function $setClickedNotes(clickedNoteGroups) {
             model.clickedNotes = $.extend(true, [], clickedNoteGroups);
 
-            for (var i = 0; i < model.clickedNotes.length; i++) {
-                $clickFrettedNotes(model.clickedNotes[i]);
-            }
+            model.clickedNotes.forEach(function (noteGroup) {
+                $clickNoteGroup(noteGroup);
+            });
         }
 
-        function $clickFrettedNotes(clickedNoteGroup) {
-            for (var i = 0; i < clickedNoteGroup.notes.length; i++) {
-                $clickNote($getStringContainers(), clickedNoteGroup.string, clickedNoteGroup.notes[i]);
-            }
+        function $clickNoteGroup(noteGroup) {
+            noteGroup.notes.forEach(function (notes) {
+                $clickNote($getStringContainers(), noteGroup.string, notes);
+            });
         }
 
         function $clearClickedNotes() {
@@ -857,9 +850,9 @@
         }
 
         function $syncFretLines($fretLineContainer, $fretLines, oldNumFrets, fretboardBodyWidth) {
-            var fretsToIterateOver = Math.max(oldNumFrets, model.numFrets);
+            var maxFrets = Math.max(oldNumFrets, model.numFrets);
 
-            for (var i = 0; i <= fretsToIterateOver; i++) {
+            for (var i = 0; i <= maxFrets; i++) {
                 $syncFretLine($fretLineContainer, $fretLines, i, fretboardBodyWidth);
             }
         }
@@ -886,13 +879,13 @@
         }
 
         function $syncNoteCircles($noteCircleContainer, $noteCircles, oldNumFrets, fretboardBodyWidth, fretboardBodyHeight) {
-            var fretsToIterateOver = Math.max(oldNumFrets, model.numFrets);
+            var maxFrets = Math.max(oldNumFrets, model.numFrets);
             // We will be iterating over each fret to add/remove note circles.
             // A hash will allow us to easily map a fret number to note circles.
             var noteCirclesHash = getNoteCirclesHash();
             var noteCirclesThatShouldExistHash = getNoteCirclesThatShouldExistHash();
 
-            for (var i = 0; i <= fretsToIterateOver; i++) {
+            for (var i = 0; i <= maxFrets; i++) {
                 $syncNoteCircle($noteCircleContainer, i, noteCirclesHash, noteCirclesThatShouldExistHash, fretboardBodyWidth, fretboardBodyHeight);
             }
         }
@@ -945,9 +938,9 @@
         function $removeNoteCircles(fret, hash) {
             if (!hash[fret]) return;
 
-            for (var i = 0; i < hash[fret].length; i++) {
-                hash[fret][i].remove();
-            }
+            hash[fret].forEach(function ($noteCircle) {
+                $noteCircle.remove();
+            });
 
             delete hash[fret];
         }
@@ -1206,9 +1199,9 @@
         function getNoteCirclesThatShouldExistHash() {
             var hash = {};
 
-            for (var i = 0; i < model.noteCircles.length; i++) {
-                hash[model.noteCircles[i]] = true;
-            }
+            model.noteCircles.forEach(function (fret) {
+                hash[fret] = true;
+            });
 
             return hash;
         }
@@ -1257,11 +1250,9 @@
         }
 
         function createTuning() {
-            model.tuning = [];
-
-            for (var i = 0; i < model.allNotes.length; i++) {
-                model.tuning.push(model.allNotes[i].string);
-            }
+            model.tuning = model.allNotes.map(function (note) {
+                return note.string;
+            });
         }
 
         function noteDataAreEqual(note1, note2) {
@@ -1583,26 +1574,24 @@
                 };
             }
 
-            // TODO: Lots of loops below. It doesn't seem to affect performance but may
-            // still want to refactor.
-            function reattachCssFromExistingDomNotesOntoAllNewModelNotes(allModelNotes, newModelNotes, $existingNotes) {
-                for (var i = 0; i < newModelNotes.length; i++) {
-                    reattachCssFromExistingDomNotesOntoNewModelNotes(allModelNotes, newModelNotes[i].notes, newModelNotes[i].string, $existingNotes);
-                }
+            function reattachCssFromExistingDomNotesOntoAllNewModelNotes(allNewModelNotes, newModelNotes, $existingNotes) {
+                newModelNotes.forEach(function (newModelNoteGroup) {
+                    reattachCssFromExistingDomNotesOntoNewModelNotes(allNewModelNotes, newModelNoteGroup.notes, newModelNoteGroup.string, $existingNotes);
+                });
             }
 
-            function reattachCssFromExistingDomNotesOntoNewModelNotes(allModelNotes, newModelNotesOnString, string, $existingNotes) {
-                for (var i = 0; i < newModelNotesOnString.length; i++) {
-                    reattachCssFromExistingDomNotesOntoNewModelNote(allModelNotes, newModelNotesOnString[i], string, $existingNotes);
-                }
+            function reattachCssFromExistingDomNotesOntoNewModelNotes(allNewModelNotes, newModelNotesOnString, string, $existingNotes) {
+                newModelNotesOnString.forEach(function (newModelNoteOnString) {
+                    reattachCssFromExistingDomNotesOntoNewModelNote(allNewModelNotes, newModelNoteOnString, string, $existingNotes);
+                });
             }
 
-            function reattachCssFromExistingDomNotesOntoNewModelNote(allNotesFromModel, newModelNote, string, $existingNotes) {
+            function reattachCssFromExistingDomNotesOntoNewModelNote(allNewModelNotes, newModelNote, string, $existingNotes) {
                 for (var i = 0; i < $existingNotes.length; i++) {
                     var $existingNote = $existingNotes.eq(i);
                     var existingNoteData = $existingNote.data(noteDataKey);
-                    var existingModelNote = allNotesFromModel[existingNoteData.stringIndex].notes[existingNoteData.fret];
-                    var existingModelString = allNotesFromModel[existingNoteData.stringIndex].string;
+                    var existingModelNote = allNewModelNotes[existingNoteData.stringIndex].notes[existingNoteData.fret];
+                    var existingModelString = allNewModelNotes[existingNoteData.stringIndex].string;
 
                     if (!jQueryFretboard.utilities.frettedNotesAreEqual(newModelNote, string, existingModelNote, existingModelString)) continue;
 
@@ -1613,15 +1602,15 @@
             }
 
             function reattachCssFromAllNewModelNotes(newModelNotesWithoutCss, newModelNotesWithCss) {
-                for (var i = 0; i < newModelNotesWithoutCss.length; i++) {
-                    reattachCssFromNewModelNotes(newModelNotesWithoutCss[i].notes, newModelNotesWithoutCss[i].string, newModelNotesWithCss);
-                }
+                newModelNotesWithoutCss.forEach(function (newModelNoteWithoutCss) {
+                    reattachCssFromNewModelNotes(newModelNoteWithoutCss.notes, newModelNoteWithoutCss.string, newModelNotesWithCss);
+                });
             }
 
             function reattachCssFromNewModelNotes(newModelNotesWithoutCss, string, newModelNotesWithCss) {
-                for (var i = 0; i < newModelNotesWithoutCss.length; i++) {
-                    reattachCssFromNewModelNote(newModelNotesWithoutCss[i], string, newModelNotesWithCss);
-                }
+                newModelNotesWithoutCss.forEach(function (newModelNoteWithoutCss) {
+                    reattachCssFromNewModelNote(newModelNoteWithoutCss, string, newModelNotesWithCss);
+                });
             }
 
             function reattachCssFromNewModelNote(newModelNoteWithoutCss, string, newModelNotesWithCss) {
@@ -1653,9 +1642,9 @@
             }
 
             function executeOnNotesClickedCallbacks() {
-                for (var i = 0; i < settings.notesClickedCallbacks.length; i++) {
-                    settings.notesClickedCallbacks[i]();
-                }
+                settings.notesClickedCallbacks.forEach(function (callback) {
+                    callback();
+                });
             }
 
             function onUserNoteClick(e, clickedNoteDomEl) {
