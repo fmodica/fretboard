@@ -1,8 +1,6 @@
 "use strict";
 
 // TODO Note mode, interval settings (clicked notes)
-// TODO More validation
-// TODO More detailed check of exception messages
 describe("Fretboard jQuery plugin", function () {
     var defaultNoteLetters = ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "Ab/G#", "A", "A#/Bb", "B"];
     var defaultTuning = [
@@ -30,10 +28,8 @@ describe("Fretboard jQuery plugin", function () {
     var defaultIsChordMode = true;
     var defaultNoteClickingDisabled = false;
     var defaultNoteMode = "letter";
-    var defaultIntervalSettings = {
-        intervals: ["1", "b2", "2", "b3", "3", "4", "b5", "5", "b6", "6", "b7", "7"],
-        root: defaultNoteLetters[0]
-    };
+    var defaultIntervals = ["1", "b2", "2", "b3", "3", "4", "b5", "5", "b6", "6", "b7", "7"];
+    var defaultRoot = defaultNoteLetters[0];
     var defaultAnimationSpeed = 400;
     var defaultNoteCircles = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24];
     var defaultDimensionsFuncType = typeof function () { };
@@ -111,7 +107,8 @@ describe("Fretboard jQuery plugin", function () {
             expect(api.getChordMode()).toEqual(defaultIsChordMode);
             expect(api.getNoteClickingDisabled()).toEqual(defaultNoteClickingDisabled);
             expect(api.getNoteMode()).toEqual(defaultNoteMode);
-            expect(api.getIntervalSettings()).toEqual(defaultIntervalSettings);
+            expect(api.getIntervals()).toEqual(defaultIntervals);
+            expect(api.getRoot()).toEqual(defaultRoot);
             expect(api.getAnimationSpeed()).toEqual(defaultAnimationSpeed);
             expect(api.getNoteCircles()).toEqual(defaultNoteCircles);
             expect(typeof api.getDimensionsFunc()).toEqual(defaultDimensionsFuncType);
@@ -300,87 +297,64 @@ describe("Fretboard jQuery plugin", function () {
             }).toThrow();
         });
 
-        it("should return the correct custom intervalSettings", function () {
-            var intervalSettings = {
-                intervals: ["1", "b9", "9", "b3", "3", "11", "#11", "5", "b13", "13", "b7", "7"],
-                root: defaultNoteLetters[5]
-            };
+        it("should return the correct custom intervals", function () {
+            var intervals = ["1", "b9", "9", "b3", "3", "11", "#11", "5", "b13", "13", "b7", "7"];
+            var root = defaultNoteLetters[5];
 
-            $fretboard.fretboard({ intervalSettings: intervalSettings });
+            $fretboard.fretboard({ intervals: intervals });
             api = $fretboard.data("api");
 
-            expect(api.getIntervalSettings()).toEqual(intervalSettings);
+            expect(api.getIntervals()).toEqual(intervals);
         });
 
-        it("should throw an exception when intervalSettings is null", function () {
+        it("should return the correct custom root", function () {
+            var root = defaultNoteLetters[5];
+
+            $fretboard.fretboard({ root: root });
+            api = $fretboard.data("api");
+
+            expect(api.getRoot()).toEqual(root);
+        });
+
+        it("should throw an exception when the intervals array is null", function () {
             expect(function () {
-                $fretboard.fretboard({ intervalSettings: null });
+                $fretboard.fretboard({ intervals: null });
             }).toThrow();
         });
 
-        it("should throw an exception when the intervals array in intervalSettings is null", function () {
-            var intervalSettings = {
-                intervals: null,
-                root: defaultNoteLetters[5]
-            };
-
+        it("should throw an exception when the root is null", function () {
             expect(function () {
-                $fretboard.fretboard({ intervalSettings: intervalSettings });
+                $fretboard.fretboard({ root: null });
             }).toThrow();
         });
 
-        it("should throw an exception when the root in intervalSettings is null", function () {
-            var intervalSettings = {
-                intervals: ["1", "b9", "9", "b3", "3", "11", "#11", "5", "b13", "13", "b7", "7"],
-                root: null
-            };
-
+        it("should throw an exception when the root is not in noteLetters", function () {
             expect(function () {
-                $fretboard.fretboard({ intervalSettings: intervalSettings });
+                $fretboard.fretboard({ root: "Asharp" });
             }).toThrow();
         });
 
-        it("should throw an exception when the root in intervalSettings is not in noteLetters", function () {
-            var intervalSettings = {
-                intervals: ["1", "b9", "9", "b3", "3", "11", "#11", "5", "b13", "13", "b7", "7"],
-                root: "Asharp"
-            };
+        it("should throw an exception when there are more than 12 intervals", function () {
+            var intervals = ["1", "b9", "9", "b3", "3", "11", "#11", "5", "b13", "13", "b7", "7", "8"];
 
             expect(function () {
-                $fretboard.fretboard({ intervalSettings: intervalSettings });
+                $fretboard.fretboard({ intervals: intervals });
             }).toThrow();
         });
 
-        it("should throw an exception when intervalSettings has more than 12 intervals", function () {
-            var intervalSettings = {
-                intervals: ["1", "b9", "9", "b3", "3", "11", "#11", "5", "b13", "13", "b7", "7", "8"],
-                root: defaultNoteLetters[0]
-            };
+        it("should throw an exception when there are less than 12 intervals", function () {
+            var intervals = ["1", "b9", "9", "b3", "3", "11", "#11", "5", "b13", "13", "b7"];
 
             expect(function () {
-                $fretboard.fretboard({ intervalSettings: intervalSettings });
+                $fretboard.fretboard({ intervals: intervals });
             }).toThrow();
         });
 
-        it("should throw an exception when intervalSettings has less than 12 intervals", function () {
-            var intervalSettings = {
-                intervals: ["1", "b9", "9", "b3", "3", "11", "#11", "5", "b13", "13", "b7"],
-                root: defaultNoteLetters[0]
-            };
+        it("should throw an exception when the intervals are not unique", function () {
+            var intervals = ["1", "b9", "9", "b3", "3", "11", "#11", "5", "b13", "13", "13"];
 
             expect(function () {
-                $fretboard.fretboard({ intervalSettings: intervalSettings });
-            }).toThrow();
-        });
-
-        it("should throw an exception when the intervals in intervalSettings are not unique", function () {
-            var intervalSettings = {
-                intervals: ["1", "b9", "9", "b3", "3", "11", "#11", "5", "b13", "13", "13"],
-                root: defaultNoteLetters[0]
-            };
-
-            expect(function () {
-                $fretboard.fretboard({ intervalSettings: intervalSettings });
+                $fretboard.fretboard({ intervals: intervals });
             }).toThrow();
         });
 
@@ -857,151 +831,16 @@ describe("Fretboard jQuery plugin", function () {
             }).toThrow();
         });
 
-        it("should return the correct intervalSettings when it is changed", function () {
-            var intervalSettings = {
-                intervals: ["1", "b9", "9", "b3", "3", "11", "#11", "5", "b13", "13", "b7", "7"],
-                root: defaultNoteLetters[5]
-            };
+        it("should return the correct root when it is changed", function () {
+            api.setRoot(defaultNoteLetters[5]);
 
-            api.setIntervalSettings(intervalSettings);
-
-            expect(api.getIntervalSettings()).toEqual(intervalSettings);
+            expect(api.getRoot()).toEqual(defaultNoteLetters[5]);
         });
 
-        it("should throw an exception when intervalSettings is null", function () {
+        it("should throw an exception when the root is null", function () {
             expect(function () {
-                api.setIntervalSettings(null);
+                api.setRoot(null);
             }).toThrow();
-        });
-
-        it("should throw an exception when the intervals array in intervalSettings is null", function () {
-            var intervalSettings = {
-                intervals: null,
-                root: defaultNoteLetters[5]
-            };
-
-            expect(function () {
-                api.setIntervalSettings(intervalSettings);
-            }).toThrow();
-        });
-
-        it("should throw an exception when the root in intervalSettings is null", function () {
-            var intervalSettings = {
-                intervals: ["1", "b9", "9", "b3", "3", "11", "#11", "5", "b13", "13", "b7", "7"],
-                root: null
-            };
-
-            expect(function () {
-                api.setIntervalSettings(intervalSettings);
-            }).toThrow();
-        });
-
-        it("should throw an exception when the root in intervalSettings is not in noteLetters", function () {
-            var intervalSettings = {
-                intervals: ["1", "b9", "9", "b3", "3", "11", "#11", "5", "b13", "13", "b7", "7"],
-                root: "Asharp"
-            };
-
-            expect(function () {
-                api.setIntervalSettings(intervalSettings);
-            }).toThrow();
-        });
-
-        it("should throw an exception when intervalSettings has more than 12 intervals", function () {
-            var intervalSettings = {
-                intervals: ["1", "b9", "9", "b3", "3", "11", "#11", "5", "b13", "13", "b7", "7", "8"],
-                root: defaultNoteLetters[0]
-            };
-
-            expect(function () {
-                api.setIntervalSettings(intervalSettings);
-            }).toThrow();
-        });
-
-        it("should throw an exception when intervalSettings has less than 12 intervals", function () {
-            var intervalSettings = {
-                intervals: ["1", "b9", "9", "b3", "3", "11", "#11", "5", "b13", "13", "b7"],
-                root: defaultNoteLetters[0]
-            };
-
-            expect(function () {
-                api.setIntervalSettings(intervalSettings);
-            }).toThrow();
-        });
-
-        it("should throw an exception when the intervals in intervalSettings are not unique", function () {
-            var intervalSettings = {
-                intervals: ["1", "b9", "9", "b3", "3", "11", "#11", "5", "b13", "13", "13"],
-                root: defaultNoteLetters[0]
-            };
-
-            expect(function () {
-                api.setIntervalSettings(intervalSettings);
-            }).toThrow();
-        });
-
-        it("should return the correct animationSpeed when it is changed", function () {
-            var animationSpeed = defaultAnimationSpeed - 100;
-
-            api.setAnimationSpeed(animationSpeed);
-
-            expect(api.getAnimationSpeed()).toEqual(animationSpeed);
-        });
-
-        it("should return the correct noteCircles when it is changed", function () {
-            var noteCircles = [0, 6, 12];
-
-            api.setNoteCircles(noteCircles);
-
-            expect(api.getNoteCircles()).toEqual(noteCircles);
-        });
-
-        it("should call the dimensionsFunc callback when it is changed", function (done) {
-            var tempObj = {
-                dimensionsFunc: function () { return {}; }
-            };
-
-            spyOn(tempObj, 'dimensionsFunc').and.callThrough();
-
-            api.setDimensionsFunc(tempObj.dimensionsFunc);
-
-            var numFrets = 24;
-
-            api.setNumFrets(numFrets);
-
-            // Drawing is async (after a setTimeout)
-            setTimeout(function () {
-                expect(tempObj.dimensionsFunc).toHaveBeenCalled();
-                done();
-            });
-        });
-
-        it("should return and call the correct notesClickedCallbacks when a callback is added", function () {
-            var tempObj = {
-                func1: function () { },
-            };
-
-            spyOn(tempObj, 'func1').and.callThrough();
-
-            api.addNotesClickedCallback(tempObj.func1);
-            api.setClickedNotes([], true);
-
-            expect(tempObj.func1).toHaveBeenCalled();
-            expect(api.getNotesClickedCallbacks()).toEqual([tempObj.func1]);
-        });
-
-        it("should return the correct notesClickedCallbacks when a callback is removed", function () {
-            var tempObj = {
-                func1: function () { },
-            };
-
-            spyOn(tempObj, 'func1').and.callThrough();
-
-            api.addNotesClickedCallback(tempObj.func1);
-            api.removeNotesClickedCallback(tempObj.func1);
-
-            expect(tempObj.func1).not.toHaveBeenCalled();
-            expect(api.getNotesClickedCallbacks()).toEqual([]);
         });
 
         it("should return the correct clickedNotes when notes are clicked and they all exist on the fretboard", function () {

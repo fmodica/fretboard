@@ -37,7 +37,6 @@
         <button class="toggle-chord-mode">Toggle chord/scale mode</button>
         <button class="toggle-note-mode">Toggle note/interval mode </button>
         <button class="toggle-root-for-interval-mode">Toggle root interval (C/G)</button>
-        <button class="toggle-note-circles">Add/remove note circles</button>
     </div>
 
     <script type="text/javascript">
@@ -80,15 +79,13 @@
                 };
             };
             var noteCircles = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24];
-            var intervalSettings = {
-                intervals: ['1', 'b2', '2', 'b3', '3', '4', 'b5', '5', 'b6', '6', 'b7', '7'],
-                root: "C"
-            };
+            var intervals = ["1", "b2", "2", "b3", "3", "4", "b5", "5", "b6", "6", "b7", "7"];
+            var root = "C";
             var animationSpeed = 400; // ms
-            var noteMode = 'letter'; // or 'interval'
+            var noteMode = "letter"; // or "interval"
             var clickedNotesChangedFuncs = [function () {
                 console.log("Clicked notes are: ");
-                console.log($fretboard.data('api').getClickedNotes());
+                console.log($fretboard.data("api").getClickedNotes());
             }, function () {
                 console.log("Another clicked notes callback...");
             }];
@@ -100,7 +97,8 @@
                 noteClickingDisabled: isDisabled,
                 noteLetters: noteLetters,
                 noteMode: noteMode,
-                intervalSettings: intervalSettings,
+                intervals: intervals,
+                root: root,
                 animationSpeed: animationSpeed,
                 noteCircles: noteCircles,
                 dimensionsFunc: dimensionsFunc,
@@ -111,7 +109,7 @@
 
             $fretboard.fretboard(options);
 
-            var api = $fretboard.data('api');
+            var api = $fretboard.data("api");
 
             var eightStringTuning = $.extend(true, [], standardTuning);
 
@@ -347,7 +345,7 @@
             });
 
             $(".toggle-note-mode").on("click", function () {
-                api.setNoteMode(api.getNoteMode() === 'letter' ? 'interval' : 'letter');
+                api.setNoteMode(api.getNoteMode() === "letter" ? "interval" : "letter");
 
                 if (!api.getClickedNotes().length) {
                     api.setClickedNotes(cMaj7Notes);
@@ -355,21 +353,13 @@
             });
 
             $(".toggle-root-for-interval-mode").on("click", function () {
-                intervalSettings.root = intervalSettings.root === "C" ? "G" : "C";
+                root = root === "C" ? "G" : "C";
 
-                api.setNoteMode('interval');
-                api.setIntervalSettings(intervalSettings);
+                api.setNoteMode("interval");
+                api.setRoot(root);
 
                 if (!api.getClickedNotes().length) {
                     api.setClickedNotes(cMaj7Notes);
-                }
-            });
-
-            $(".toggle-note-circles").on("click", function () {
-                if (api.getNoteCircles().length) {
-                    api.setNoteCircles([]);
-                } else {
-                    api.setNoteCircles(noteCircles);
                 }
             });
 

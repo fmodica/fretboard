@@ -23,8 +23,9 @@
         self.setTuning = setTuning;
         self.getNumFrets = getNumFrets;
         self.setNumFrets = setNumFrets;
-        self.getIntervalSettings = getIntervalSettings;
-        self.setIntervalSettings = setIntervalSettings;
+        self.getIntervals = getIntervals;
+        self.getRoot = getRoot;
+        self.setRoot = setRoot;
 
         var model = {};
 
@@ -116,13 +117,17 @@
             updateClickedNotesForNumFrets();
         }
 
-        function getIntervalSettings() {
-            return $.extend(true, {}, model.intervalSettings);
+        function getIntervals() {
+            return $.extend(true, [], model.intervals);
         }
 
-        function setIntervalSettings(intervalSettings) {
-            validator.validateIntervalSettings(intervalSettings, model.noteLetters);
-            model.intervalSettings = $.extend(true, {}, intervalSettings);
+        function getRoot() {
+            return model.root;
+        }
+
+        function setRoot(root) {
+            validator.validateRoot(root, model.noteLetters);
+            model.root = root;
 
             createAllNotes();
         }
@@ -137,7 +142,8 @@
                 numFrets: null,
                 isChordMode: null,
                 noteClickingDisabled: null,
-                intervalSettings: null
+                intervals: null,
+                root: null
             };
 
             validator.validateNoteLetters(settings.noteLetters);
@@ -149,8 +155,11 @@
             validator.validateNumFrets(settings.numFrets);
             model.numFrets = settings.numFrets;
 
-            validator.validateIntervalSettings(settings.intervalSettings, model.noteLetters);
-            model.intervalSettings = settings.intervalSettings;
+            validator.validateIntervals(settings.intervals, model.noteLetters);
+            model.intervals = settings.intervals;
+
+            validator.validateRoot(settings.root, model.noteLetters);
+            model.root = settings.root;
 
             model.isChordMode = settings.isChordMode;
             model.noteClickingDisabled = settings.noteClickingDisabled;
@@ -207,8 +216,8 @@
 
         function getIntervalInfo(letter) {
             return {
-                interval: getIntervalByLetterAndRoot(letter, model.intervalSettings.root),
-                root: model.intervalSettings.root
+                interval: getIntervalByLetterAndRoot(letter, model.root),
+                root: model.root
             };
         }
 
@@ -241,7 +250,7 @@
             var rootIndex = model.noteLetters.indexOf(root);
             var intervalIndex = letterIndex - rootIndex + (letterIndex >= rootIndex ? 0 : 12);
 
-            return model.intervalSettings.intervals[intervalIndex];
+            return model.intervals[intervalIndex];
         }
 
         function validateFrettedNoteGroups(frettedNoteGroups) {
@@ -352,7 +361,8 @@
         self.validateNoteLetters = validateNoteLetters;
         self.validateTuning = validateTuning;
         self.validateNumFrets = validateNumFrets;
-        self.validateIntervalSettings = validateIntervalSettings;
+        self.validateIntervals = validateIntervals;
+        self.validateRoot = validateRoot;
         self.validateNoteMode = validateNoteMode;
 
         function validateNote(note, noteLetters) {
@@ -454,27 +464,25 @@
             }
         }
 
-        function validateIntervalSettings(intervalSettings, noteLetters) {
-            if (!intervalSettings) {
-                throw new Error("intervalSettings is not valid: " + objectToString(intervalSettings));
-            }
-
-            if (noteLetters.indexOf(intervalSettings.root) === -1) {
-                throw new Error("The root property on intervalSettings: " + objectToString(intervalSettings) + " is not in noteLetters: " + objectToString(noteLetters));
-            }
-
-            if (!intervalSettings.intervals) {
-                throw new Error("The intervals property on intervalSettings is not valid: " + objectToString(intervalSettings));
+        function validateIntervals(intervals, noteLetters) {
+            if (!intervals) {
+                throw new Error("intervals is not valid: " + objectToString(intervals));
             }
 
             var hash = {};
 
-            intervalSettings.intervals.forEach(function (interval, i) {
+            intervals.forEach(function (interval, i) {
                 hash[interval] = true;
             });
 
             if (Object.keys(hash).length !== 12) {
-                throw new Error("There must be 12 unique intervals in the intervals property of intervalSettings: " + objectToString(intervalSettings));
+                throw new Error("There must be 12 unique intervals: " + objectToString(intervals));
+            }
+        }
+
+        function validateRoot(root, noteLetters) {
+            if (noteLetters.indexOf(root) === -1) {
+                throw new Error("The root: " + root + " is not in noteLetters: " + objectToString(noteLetters));
             }
         }
 
@@ -507,12 +515,9 @@
         self.setNoteClickingDisabled = setNoteClickingDisabled;
         self.getNoteMode = getNoteMode;
         self.setNoteMode = $setNoteMode;
-        self.getNoteCircles = $getNoteCircles;
-        self.setNoteCircles = $setNoteCircles;
+        self.getNoteCircles = getNoteCircles;
         self.getAnimationSpeed = getAnimationSpeed;
-        self.setAnimationSpeed = setAnimationSpeed;
         self.getDimensionsFunc = getDimensionsFunc;
-        self.setDimensionsFunc = setDimensionsFunc;
         self.redrawPositions = $redrawPositions;
 
         var model = $.extend(true, {}, settings);
@@ -573,7 +578,7 @@
 
             $syncStringContainers($getStringContainerContainer(), $getStringContainers(), oldNumStrings, oldNumFrets, fretboardBodyHeight);
             $syncFretLines($getFretLineContainer(), $getFretLines(), oldNumFrets, fretboardBodyWidth);
-            $syncNoteCircles($getNoteCircleContainer(), $getNoteCircles().$elements, oldNumFrets, fretboardBodyWidth, fretboardBodyHeight);
+            $syncNoteCircles($getNoteCircleContainer(), $getNoteCircles(), oldNumFrets, fretboardBodyWidth, fretboardBodyHeight);
         }
 
         function $getClickedNotes() {
@@ -618,32 +623,16 @@
             $syncFretboard(model.allNotes);
         }
 
-        function $getNoteCircles() {
-            return {
-                $elements: $fretboardContainer.find(noteCircleCssSelector),
-                model: model.noteCircles
-            }
-        }
-
-        function $setNoteCircles(noteCircles) {
-            model.noteCircles = $.extend(true, [], noteCircles);
-            $syncFretboard(model.allNotes);
+        function getNoteCircles() {
+            return model.noteCircles;
         }
 
         function getAnimationSpeed() {
             return model.animationSpeed;
         }
 
-        function setAnimationSpeed(speed) {
-            model.animationSpeed = speed;
-        }
-
         function getDimensionsFunc() {
             return model.dimensionsFunc;
-        }
-
-        function setDimensionsFunc(fn) {
-            model.dimensionsFunc = fn;
         }
 
         function $redrawPositions(shouldBeAnimated, onPreRender) {
@@ -876,6 +865,10 @@
 
         function $getNoteCircleContainer() {
             return $fretboardContainer.find(noteCircleContainerSelector);
+        }
+
+        function $getNoteCircles() {
+            return $fretboardContainer.find(noteCircleCssSelector);
         }
 
         function $syncNoteCircles($noteCircleContainer, $noteCircles, oldNumFrets, fretboardBodyWidth, fretboardBodyHeight) {
@@ -1209,7 +1202,7 @@
         function getNoteCirclesHash() {
             var hash = {};
 
-            $getNoteCircles().$elements.each(function () {
+            $getNoteCircles().each(function () {
                 var $noteCircle = $(this);
                 var fret = $noteCircle.data("fret");
 
@@ -1289,19 +1282,15 @@
             api.setTuning = setTuning;
             api.getNumFrets = getNumFrets;
             api.setNumFrets = setNumFrets;
-            api.getIntervalSettings = getIntervalSettings;
-            api.setIntervalSettings = setIntervalSettings;
+            api.getIntervals = getIntervals;
+            api.getRoot = getRoot;
+            api.setRoot = setRoot;
             api.getNoteMode = getNoteMode;
             api.setNoteMode = setNoteMode;
             api.getNoteCircles = getNoteCircles;
-            api.setNoteCircles = setNoteCircles;
             api.getAnimationSpeed = getAnimationSpeed;
-            api.setAnimationSpeed = setAnimationSpeed;
-            api.addNotesClickedCallback = addNotesClickedCallback;
-            api.removeNotesClickedCallback = removeNotesClickedCallback;
             api.getNotesClickedCallbacks = getNotesClickedCallbacks;
             api.getDimensionsFunc = getDimensionsFunc;
-            api.setDimensionsFunc = setDimensionsFunc;
 
             var $element = $(this);
             // The value at which the octave is incremented needs to be first
@@ -1328,10 +1317,8 @@
                 }
             ];
             var defaultNoteCircles = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24];
-            var defaultIntervalSettings = {
-                intervals: ["1", "b2", "2", "b3", "3", "4", "b5", "5", "b6", "6", "b7", "7"],
-                root: defaultNoteLetters[0]
-            };
+            var defaultIntervals = ["1", "b2", "2", "b3", "3", "4", "b5", "5", "b6", "6", "b7", "7"];
+            var defaultRoot = defaultNoteLetters[0];
             var defaultNoteMode = "letter"; // or "interval"
             // Take up the container's height and width by default
             var defaultDimensionsFunc = function ($fretboardContainer, $fretboardBody, settings) {
@@ -1354,7 +1341,8 @@
                 isChordMode: true,
                 noteClickingDisabled: false,
                 noteMode: defaultNoteMode,
-                intervalSettings: defaultIntervalSettings,
+                intervals: defaultIntervals,
+                root: defaultRoot,
                 animationSpeed: 400, // ms
                 noteCircles: defaultNoteCircles,
                 dimensionsFunc: defaultDimensionsFunc,
@@ -1454,12 +1442,16 @@
                 fretboardRenderer.redrawPositions(true, null);
             }
 
-            function getIntervalSettings() {
-                return fretboardModel.getIntervalSettings();
+            function getIntervals() {
+                return fretboardModel.getIntervals();
             }
 
-            function setIntervalSettings(settings) {
-                fretboardModel.setIntervalSettings(settings);
+            function getRoot() {
+                return fretboardModel.getRoot();
+            }
+
+            function setRoot(root) {
+                fretboardModel.setRoot(root);
                 fretboardRenderer.syncFretboard(fretboardModel.getAllNotes());
             }
 
@@ -1472,48 +1464,19 @@
             }
 
             function getNoteCircles() {
-                return fretboardRenderer.getNoteCircles().model;
-            }
-
-            function setNoteCircles(noteCircles) {
-                fretboardRenderer.setNoteCircles(noteCircles);
-                fretboardRenderer.redrawPositions(false, null);
+                return fretboardRenderer.getNoteCircles();
             }
 
             function getAnimationSpeed() {
                 return fretboardRenderer.getAnimationSpeed();
             }
 
-            function setAnimationSpeed(speed) {
-                fretboardRenderer.setAnimationSpeed(speed);
-            }
-
             function getNotesClickedCallbacks() {
                 return settings.notesClickedCallbacks;
             }
 
-            function addNotesClickedCallback(callback) {
-                // TODO: Validate when passed in the config too
-                if (!$.isFunction(callback)) return;
-
-                settings.notesClickedCallbacks.push(callback);
-            }
-
-            function removeNotesClickedCallback(callback) {
-                var index = settings.notesClickedCallbacks.indexOf(callback);
-
-                if (index === -1) return;
-
-                settings.notesClickedCallbacks.splice(index, 1);
-            }
-
             function getDimensionsFunc() {
                 return fretboardRenderer.getDimensionsFunc();
-            }
-
-            function setDimensionsFunc(fn) {
-                fretboardRenderer.setDimensionsFunc(createCompleteDimensionsFunc(fn));
-                fretboardRenderer.redrawPositions(true, null);
             }
 
             function createFretboardModel() {
@@ -1523,7 +1486,8 @@
                     numFrets: settings.numFrets,
                     isChordMode: settings.isChordMode,
                     noteClickingDisabled: settings.noteClickingDisabled,
-                    intervalSettings: settings.intervalSettings
+                    intervals: settings.intervals,
+                    root: settings.root
                 };
 
                 fretboardModel = new jQueryFretboard.FretboardModel(modelSettings, validator);
