@@ -83,12 +83,9 @@
             var root = "C";
             var animationSpeed = 400; // ms
             var noteMode = "letter"; // or "interval"
-            var clickedNotesChangedFuncs = [function () {
-                console.log("Clicked notes are: ");
+            var clickedNotesChangedFunc = function () {
                 console.log($fretboard.data("api").getClickedNotes());
-            }, function () {
-                console.log("Another clicked notes callback...");
-            }];
+            }
 
             var options = {
                 tuning: standardTuning,
@@ -102,7 +99,7 @@
                 animationSpeed: animationSpeed,
                 noteCircles: noteCircles,
                 dimensionsFunc: dimensionsFunc,
-                notesClickedCallbacks: clickedNotesChangedFuncs
+                notesClickedCallback: clickedNotesChangedFunc
             };
 
             var $fretboard = $(".my-fretboard-js");

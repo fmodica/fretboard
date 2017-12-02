@@ -34,7 +34,7 @@ describe("Fretboard jQuery plugin", function () {
     var defaultNoteCircles = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24];
     var defaultDimensionsFuncType = typeof function () { };
     var defaultClickedNotes = [];
-    var defaultNotesClickedCallbacks = [];
+    var defaultNotesClickedCallbackType = typeof function () { };
 
     var cMaj7ChordForStandardTuning = [{
         string: {
@@ -112,7 +112,7 @@ describe("Fretboard jQuery plugin", function () {
             expect(api.getAnimationSpeed()).toEqual(defaultAnimationSpeed);
             expect(api.getNoteCircles()).toEqual(defaultNoteCircles);
             expect(typeof api.getDimensionsFunc()).toEqual(defaultDimensionsFuncType);
-            expect(api.getNotesClickedCallbacks()).toEqual(defaultNotesClickedCallbacks);
+            expect(typeof api.getNotesClickedCallback()).toEqual(defaultNotesClickedCallbackType);
 
             verifyAllNotesOnFretboard(api.getAllNotes(), defaultTuning, defaultNumFrets, defaultNoteLetters);
             expect(api.getClickedNotes()).toEqual(defaultClickedNotes);
@@ -397,17 +397,15 @@ describe("Fretboard jQuery plugin", function () {
             });
         });
 
-        it("should call the custom notesClickedCallbacks functions when clicking notes as a user", function () {
+        it("should call the custom notesClickedCallback function when clicking notes as a user", function () {
             var tempObj = {
-                func1: function () { },
-                func2: function () { }
+                func1: function () { }
             };
 
             spyOn(tempObj, 'func1').and.callThrough();
-            spyOn(tempObj, 'func2').and.callThrough();
 
             var config = {
-                notesClickedCallbacks: [tempObj.func1, tempObj.func2]
+                notesClickedCallback: tempObj.func1
             };
 
             $fretboard.fretboard(config);
@@ -416,7 +414,6 @@ describe("Fretboard jQuery plugin", function () {
             api.setClickedNotes([], true);
 
             expect(tempObj.func1).toHaveBeenCalled();
-            expect(tempObj.func2).toHaveBeenCalled();
         });
 
         it("should not return any clickedNotes when they are on the config", function () {

@@ -1289,7 +1289,7 @@
             api.setNoteMode = setNoteMode;
             api.getNoteCircles = getNoteCircles;
             api.getAnimationSpeed = getAnimationSpeed;
-            api.getNotesClickedCallbacks = getNotesClickedCallbacks;
+            api.getNotesClickedCallback = getNotesClickedCallback;
             api.getDimensionsFunc = getDimensionsFunc;
 
             var $element = $(this);
@@ -1346,7 +1346,7 @@
                 animationSpeed: 400, // ms
                 noteCircles: defaultNoteCircles,
                 dimensionsFunc: defaultDimensionsFunc,
-                notesClickedCallbacks: []
+                notesClickedCallback: function () { }
             };
             // These settings will have the defaults extended with user options.
             var settings = {};
@@ -1403,7 +1403,7 @@
                 fretboardRenderer.setClickedNotes(clickedNoteGroups);
 
                 if (asUser) {
-                    executeOnNotesClickedCallbacks();
+                    settings.notesClickedCallback();
                 }
             }
 
@@ -1471,8 +1471,8 @@
                 return fretboardRenderer.getAnimationSpeed();
             }
 
-            function getNotesClickedCallbacks() {
-                return settings.notesClickedCallbacks;
+            function getNotesClickedCallback() {
+                return settings.notesClickedCallback;
             }
 
             function getDimensionsFunc() {
@@ -1605,12 +1605,6 @@
                 return null;
             }
 
-            function executeOnNotesClickedCallbacks() {
-                settings.notesClickedCallbacks.forEach(function (callback) {
-                    callback();
-                });
-            }
-
             function onUserNoteClick(e, clickedNoteDomEl) {
                 // Ask the model what notes should be clicked after this event
                 // because things like chord-mode could mean other notes are
@@ -1633,7 +1627,7 @@
                 fretboardRenderer.clearClickedNotes();
                 fretboardRenderer.setClickedNotes(newClickedNoteGroupsFromModel);
 
-                executeOnNotesClickedCallbacks();
+                settings.notesClickedCallback();
             }
         });
     };
