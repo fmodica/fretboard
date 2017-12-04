@@ -196,7 +196,7 @@
             var note = getNoteByFretNumber(openNote, fret);
 
             note.fret = fret;
-            note.intervalInfo = getIntervalInfo(note.letter);
+            note.interval = getIntervalByLetterAndRoot(note.letter, model.root);
 
             return note;
         }
@@ -211,13 +211,6 @@
             return {
                 string: model.tuning[stringIndex],
                 notes: getClickedNotesOnString(stringIndex)
-            };
-        }
-
-        function getIntervalInfo(letter) {
-            return {
-                interval: getIntervalByLetterAndRoot(letter, model.root),
-                root: model.root
             };
         }
 
@@ -802,7 +795,7 @@
                 octave: note.octave,
                 fret: fret,
                 stringIndex: stringIndex,
-                intervalInfo: note.intervalInfo,
+                interval: note.interval,
                 noteMode: model.noteMode
             };
             var $note = $getNote($stringContainer, fret);
@@ -1139,7 +1132,7 @@
 
         function $createNoteLetter(note) {
             // Need to validate noteMode earlier up
-            var text = model.noteMode === "interval" ? note.intervalInfo.interval : note.letter;
+            var text = model.noteMode === "interval" ? note.interval : note.letter;
 
             return $createDiv(noteDisplayCssClass).text(text);
         }
@@ -1252,8 +1245,7 @@
             return jQueryFretboard.utilities.notesAreEqual(note1, note2) &&
                 note1.fret === note2.fret &&
                 note1.noteMode === note2.noteMode &&
-                note1.intervalInfo.root === note2.intervalInfo.root &&
-                note1.intervalInfo.interval === note2.intervalInfo.interval;
+                note1.interval === note2.interval;
         }
     };
 })(jQuery);

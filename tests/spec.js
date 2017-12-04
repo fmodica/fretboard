@@ -553,140 +553,83 @@ describe("Fretboard jQuery plugin", function () {
         // The notes come back from the plugin with some more information.
         expectedClickedChordFromFretboard[0].notes[0].letter = "G";
         expectedClickedChordFromFretboard[0].notes[0].octave = 4;
-        expectedClickedChordFromFretboard[0].notes[0].intervalInfo = {
-            root: "C",
-            interval: "5"
-        };
+        expectedClickedChordFromFretboard[0].notes[0].interval = "5";
 
         expectedClickedChordFromFretboard[1].notes[0].letter = "E";
         expectedClickedChordFromFretboard[1].notes[0].octave = 4;
-        expectedClickedChordFromFretboard[1].notes[0].intervalInfo = {
-            root: "C",
-            interval: "3"
-        };
+        expectedClickedChordFromFretboard[1].notes[0].interval = "3";
 
         expectedClickedChordFromFretboard[2].notes[0].letter = "B";
         expectedClickedChordFromFretboard[2].notes[0].octave = 3;
-        expectedClickedChordFromFretboard[2].notes[0].intervalInfo = {
-            root: "C",
-            interval: "7"
-        };
+        expectedClickedChordFromFretboard[2].notes[0].interval = "7";
 
         expectedClickedChordFromFretboard[3].notes[0].letter = "G";
         expectedClickedChordFromFretboard[3].notes[0].octave = 3;
-        expectedClickedChordFromFretboard[3].notes[0].intervalInfo = {
-            root: "C",
-            interval: "5"
-        };
+        expectedClickedChordFromFretboard[3].notes[0].interval = "5";
 
         expectedClickedChordFromFretboard[4].notes[0].letter = "C";
         expectedClickedChordFromFretboard[4].notes[0].octave = 3;
-        expectedClickedChordFromFretboard[4].notes[0].intervalInfo = {
-            root: "C",
-            interval: "1"
-        };
+        expectedClickedChordFromFretboard[4].notes[0].interval = "1";
 
         expectedClickedChordFromFretboard[5].notes[0].letter = "G";
         expectedClickedChordFromFretboard[5].notes[0].octave = 2;
-        expectedClickedChordFromFretboard[5].notes[0].intervalInfo = {
-            root: "C",
-            interval: "5"
-        };
+        expectedClickedChordFromFretboard[5].notes[0].interval = "5";
 
         var expectedClickedChordFromFretboardForStandardATuning = $.extend(true, [], bFlatMaj7ChordForStandardATuning);
 
         expectedClickedChordFromFretboardForStandardATuning[0].notes[0].letter = "F";
         expectedClickedChordFromFretboardForStandardATuning[0].notes[0].octave = 4;
-        expectedClickedChordFromFretboardForStandardATuning[0].notes[0].intervalInfo = {
-            root: "C",
-            interval: "4"
-        };
+        expectedClickedChordFromFretboardForStandardATuning[0].notes[0].interval = "4";
 
         expectedClickedChordFromFretboardForStandardATuning[1].notes[0].letter = "D";
         expectedClickedChordFromFretboardForStandardATuning[1].notes[0].octave = 4;
-        expectedClickedChordFromFretboardForStandardATuning[1].notes[0].intervalInfo = {
-            root: "C",
-            interval: "2"
-        };
+        expectedClickedChordFromFretboardForStandardATuning[1].notes[0].interval = "2";
 
         expectedClickedChordFromFretboardForStandardATuning[2].notes[0].letter = "A";
         expectedClickedChordFromFretboardForStandardATuning[2].notes[0].octave = 3;
-        expectedClickedChordFromFretboardForStandardATuning[2].notes[0].intervalInfo = {
-            root: "C",
-            interval: "6"
-        };
+        expectedClickedChordFromFretboardForStandardATuning[2].notes[0].interval = "6";
 
         expectedClickedChordFromFretboardForStandardATuning[3].notes[0].letter = "F";
         expectedClickedChordFromFretboardForStandardATuning[3].notes[0].octave = 3;
-        expectedClickedChordFromFretboardForStandardATuning[3].notes[0].intervalInfo = {
-            root: "C",
-            interval: "4"
-        };
+        expectedClickedChordFromFretboardForStandardATuning[3].notes[0].interval = "4";
 
         expectedClickedChordFromFretboardForStandardATuning[4].notes[0].letter = "A#/Bb";
         expectedClickedChordFromFretboardForStandardATuning[4].notes[0].octave = 2;
-        expectedClickedChordFromFretboardForStandardATuning[4].notes[0].intervalInfo = {
-            root: "C",
-            interval: "b7"
-        };
+        expectedClickedChordFromFretboardForStandardATuning[4].notes[0].interval = "b7";
 
         expectedClickedChordFromFretboardForStandardATuning[5].notes[0].letter = "F";
         expectedClickedChordFromFretboardForStandardATuning[5].notes[0].octave = 2;
-        expectedClickedChordFromFretboardForStandardATuning[5].notes[0].intervalInfo = {
-            root: "C",
-            interval: "4"
-        };
+        expectedClickedChordFromFretboardForStandardATuning[5].notes[0].interval = "4";
 
         var expectedClickedScaleFromFretboard = $.extend(true, [], scale);
 
         expectedClickedScaleFromFretboard[0].notes[0].letter = "G";
         expectedClickedScaleFromFretboard[0].notes[0].octave = 4;
-        expectedClickedScaleFromFretboard[0].notes[0].intervalInfo = {
-            root: "C",
-            interval: "5"
-        };
+        expectedClickedScaleFromFretboard[0].notes[0].interval = "5";
 
         expectedClickedScaleFromFretboard[0].notes[1].letter = "Ab/G#";
         expectedClickedScaleFromFretboard[0].notes[1].octave = 4;
-        expectedClickedScaleFromFretboard[0].notes[1].intervalInfo = {
-            root: "C",
-            interval: "b6"
-        };
+        expectedClickedScaleFromFretboard[0].notes[1].interval = "b6";
 
         expectedClickedScaleFromFretboard[0].notes[2].letter = "A#/Bb";
         expectedClickedScaleFromFretboard[0].notes[2].octave = 4;
-        expectedClickedScaleFromFretboard[0].notes[2].intervalInfo = {
-            root: "C",
-            interval: "b7"
-        };
+        expectedClickedScaleFromFretboard[0].notes[2].interval = "b7";
 
         expectedClickedScaleFromFretboard[1].notes[0].letter = "D";
         expectedClickedScaleFromFretboard[1].notes[0].octave = 4;
-        expectedClickedScaleFromFretboard[1].notes[0].intervalInfo = {
-            root: "C",
-            interval: "2"
-        };
+        expectedClickedScaleFromFretboard[1].notes[0].interval = "2";
 
         expectedClickedScaleFromFretboard[1].notes[1].letter = "D#/Eb";
         expectedClickedScaleFromFretboard[1].notes[1].octave = 4;
-        expectedClickedScaleFromFretboard[1].notes[1].intervalInfo = {
-            root: "C",
-            interval: "b3"
-        };
+        expectedClickedScaleFromFretboard[1].notes[1].interval = "b3";
 
         expectedClickedScaleFromFretboard[1].notes[2].letter = "F";
         expectedClickedScaleFromFretboard[1].notes[2].octave = 4;
-        expectedClickedScaleFromFretboard[1].notes[2].intervalInfo = {
-            root: "C",
-            interval: "4"
-        };
+        expectedClickedScaleFromFretboard[1].notes[2].interval = "4";
 
         expectedClickedScaleFromFretboard[2].notes[0].letter = "C";
         expectedClickedScaleFromFretboard[2].notes[0].octave = 4;
-        expectedClickedScaleFromFretboard[2].notes[0].intervalInfo = {
-            root: "C",
-            interval: "1"
-        };
+        expectedClickedScaleFromFretboard[2].notes[0].interval = "1";
 
         var $fretboard;
         var api;
