@@ -54,4 +54,4 @@ If you are using Angular 1, the fretboard is also wrapped as an <a href="https:/
 
 ## AngularJS 2 Component
 
-If you are using Angular 2, the fretboard is wrapped as an <a href="https://github.com/fmodica/fretboard-angular-2">Angular 2 component</a> (in progress).
+If you are using Angular 2, the fretboard is wrapped as an <a href="https://github.com/fmodica/fretboard-angular">Angular 2 component</a>.
